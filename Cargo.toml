@@ -1,7 +1,12 @@
 [package]
 name = "iron_learn"
-version = "0.1.0"
+description = "(Under Development) A simple distributed file system"
+version = "0.0.1"
 edition = "2021"
+authors = ["Palash Kanti Kundu"]
+readme = "README.md"
+repository = "https://github.com/Palash90/iron_learn"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
