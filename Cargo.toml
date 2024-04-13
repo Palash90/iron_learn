@@ -1,6 +1,6 @@
 [package]
 name = "iron_learn"
-description = "(Under Development) A simple distributed file system"
+description = "(Under Development) A pure Rust Machine Learning Library"
 version = "0.0.1"
 edition = "2021"
 authors = ["Palash Kanti Kundu"]
