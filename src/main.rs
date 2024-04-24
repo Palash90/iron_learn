@@ -1,6 +1,6 @@
 use iron_learn::Matrix;
 
 pub fn main() {
-    let m = Matrix { row: 1, column: 5 };
-    println!("Matrix add from main.rs {}", m.add());
+    let mut m = Matrix::<i32>::new(vec![3u32, 4u32]);
+    m.data.push(54);
 }

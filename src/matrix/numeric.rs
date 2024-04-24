@@ -8,7 +8,7 @@ pub trait Numeric:
 {
 }
 
-// Implement Numeric for all the Numeric Data Types. 
+// Implement Numeric for all the Numeric Data Types.
 impl Numeric for i8 {}
 impl Numeric for i16 {}
 impl Numeric for i32 {}
