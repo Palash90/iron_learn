@@ -1,3 +1,3 @@
-pub mod matrix;
+pub mod tensor;
 
-pub use crate::matrix::Matrix;
+pub use crate::tensor::Tensor;
