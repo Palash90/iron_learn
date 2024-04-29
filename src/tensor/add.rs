@@ -9,11 +9,13 @@ impl<T: Numeric> ops::Add for Tensor<T> {
         let mut result_vector = Vec::with_capacity(self.data.len());
 
         if self.dimensions != rhs.dimensions {
-            return Err(format!("Incompatible Dimensions: Mismatch in dimension of two Tensors."));
+            return Err(
+                "Incompatible Dimensions: Mismatch in dimension of two Tensors.".to_owned(),
+            );
         }
 
         if self.data.len() != rhs.data.len() {
-            return Err(format!("Element mismatch in two tensors."));
+            return Err("Element mismatch in two tensors.".to_owned());
         }
 
         for i in 0..self.data.len() {

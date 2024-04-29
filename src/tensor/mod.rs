@@ -16,7 +16,8 @@ impl<T: numeric::Numeric> Tensor<T> {
         }
 
         if size != data.len().try_into().unwrap() {
-            return Err(format!("Data length ({}) does not match total num of elements provided by dimensions ({}))", data.len(), size));
+            let err = String::from(format!("Data length ({}) does not match total num of elements provided by dimensions ({}))", data.len(), size));
+            return Err(err);
         }
 
         Ok(Self {
@@ -25,3 +26,15 @@ impl<T: numeric::Numeric> Tensor<T> {
         })
     }
 }
+
+#[cfg(test)]
+//mod tests {
+//use super::*;
+#[test]
+fn new() {
+    let t = Tensor::<i8>::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
+
+    assert_eq!(t.dimensions, vec![1u32, 2u32]);
+    assert_eq!(t.data, vec![1i8, 2i8]);
+}
+//}
