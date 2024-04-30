@@ -22,7 +22,7 @@ mod tests_matrix_addition {
     }
 
     #[test]
-    #[ignore]
+    //#[ignore] // Uncomment this line of code and see this test getting ignored.
     pub fn ignore_add_i16() {
         let m1 = Tensor::new(vec![1u32, 2u32], vec![1i16, 2i16]).unwrap();
         let m2 = Tensor::new(vec![1u32, 2u32], vec![3i16, 4i16]).unwrap();
