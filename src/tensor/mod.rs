@@ -28,13 +28,10 @@ impl<T: numeric::Numeric> Tensor<T> {
 }
 
 #[cfg(test)]
-//mod tests {
-//use super::*;
 #[test]
-fn new() {
-    let t = Tensor::<i8>::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
+fn test_new() {
+    let t = Tensor::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
 
     assert_eq!(t.dimensions, vec![1u32, 2u32]);
     assert_eq!(t.data, vec![1i8, 2i8]);
 }
-//}

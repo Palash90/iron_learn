@@ -9,9 +9,7 @@ impl<T: Numeric> ops::Add for Tensor<T> {
         let mut result_vector = Vec::with_capacity(self.data.len());
 
         if self.dimensions != rhs.dimensions {
-            return Err(
-                "Incompatible Dimensions: Mismatch in dimension of two Tensors.",
-            );
+            return Err("Incompatible Dimensions: Mismatch in dimension of two Tensors.");
         }
 
         if self.data.len() != rhs.data.len() {
