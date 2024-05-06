@@ -1,4 +1,4 @@
-use crate::tensor::numeric::Numeric;
+use crate::numeric::Numeric;
 use crate::tensor::Tensor;
 use std::ops;
 

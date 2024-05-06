@@ -1,13 +1,14 @@
 pub mod add;
-mod numeric;
+
+use crate::numeric::Numeric;
 
 #[derive(Debug, PartialEq)]
-pub struct Tensor<T: numeric::Numeric> {
+pub struct Tensor<T: Numeric> {
     pub dimensions: Vec<u32>,
     data: Vec<T>,
 }
 
-impl<T: numeric::Numeric> Tensor<T> {
+impl<T: Numeric> Tensor<T> {
     pub fn new(dimensions: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         let mut size = 1;
 

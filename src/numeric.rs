@@ -1,3 +1,5 @@
+use crate::complex::Complex;
+
 pub trait Numeric:
     Sized
     + Copy
@@ -23,3 +25,5 @@ impl Numeric for u128 {}
 impl Numeric for usize {}
 impl Numeric for f32 {}
 impl Numeric for f64 {}
+
+impl Numeric for Complex {}
