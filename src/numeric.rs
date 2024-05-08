@@ -1,8 +1,7 @@
 use crate::complex::Complex;
 
 pub trait Numeric:
-    Sized
-    + Copy
+    Copy
     + std::ops::Add<Output = Self>
     + std::ops::Sub<Output = Self>
     + std::ops::Mul<Output = Self>

@@ -2,10 +2,15 @@ use std::ops::{Add, Div, Mul, Sub};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub struct Complex {
-    pub real: f64,
-    pub imaginary: f64,
+    real: f64,
+    imaginary: f64,
 }
 
+impl Complex {
+    pub fn new(real: f64, imaginary: f64) -> Self {
+        Self { real, imaginary }
+    }
+}
 impl Add for Complex {
     type Output = Self;
 
