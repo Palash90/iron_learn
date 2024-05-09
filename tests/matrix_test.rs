@@ -13,8 +13,6 @@ mod matrix_add {
         let m2 = Matrix::new(vec![1u32, 2u32], vec![3i8, 4i8]).unwrap();
         let result = Matrix::new(vec![1u32, 2u32], vec![4i8, 6i8]).unwrap();
 
-        println!("Hello Test");
-
         assert_eq!(result, (m1 + m2).unwrap());
     }
 
