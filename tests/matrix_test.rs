@@ -33,4 +33,14 @@ mod matrix_add {
 
         assert_eq!(result, (m1 + m2).unwrap());
     }
+
+    #[test]
+    #[should_panic(expected = "ShapeMismatch")]
+    pub fn add_with_shape_mismatch() {
+        let m1 = Matrix::new(vec![1u32, 3u32], vec![1, 2, 5]).unwrap();
+        let m2 = Matrix::new(vec![1u32, 2u32], vec![3, 4]).unwrap();
+        let result = Matrix::new(vec![1u32, 2u32], vec![4, 6]).unwrap();
+
+        assert_eq!(result, (m1 + m2).unwrap());
+    }
 }
