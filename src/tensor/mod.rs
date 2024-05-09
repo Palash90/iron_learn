@@ -4,15 +4,15 @@ use crate::numeric::Numeric;
 
 #[derive(Debug, PartialEq)]
 pub struct Tensor<T: Numeric> {
-    pub dimensions: Vec<u32>,
+    pub shape: Vec<u32>,
     data: Vec<T>,
 }
 
 impl<T: Numeric> Tensor<T> {
-    pub fn new(dimensions: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
+    pub fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         let mut size = 1;
 
-        for i in &dimensions {
+        for i in &shape {
             size *= i;
         }
 
@@ -21,10 +21,7 @@ impl<T: Numeric> Tensor<T> {
             return Err(err);
         }
 
-        Ok(Self {
-            dimensions,
-            data: data,
-        })
+        Ok(Self { shape, data })
     }
 }
 
@@ -33,6 +30,13 @@ impl<T: Numeric> Tensor<T> {
 fn test_new() {
     let t = Tensor::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
 
-    assert_eq!(t.dimensions, vec![1u32, 2u32]);
+    assert_eq!(t.shape, vec![1u32, 2u32]);
     assert_eq!(t.data, vec![1i8, 2i8]);
+}
+
+#[cfg(test)]
+#[test]
+#[should_panic]
+fn test_new_panics() {
+    Tensor::new(vec![1u32, 2u32], vec![1, 2, 3]).unwrap();
 }

@@ -6,9 +6,9 @@ impl<T: Numeric> ops::Add for Tensor<T> {
     type Output = Result<Self, &'static str>;
 
     fn add(self, rhs: Self) -> Result<Self, &'static str> {
-        let mut result_vector = Vec::with_capacity(self.data.len());
+        let mut result = Vec::with_capacity(self.data.len());
 
-        if self.dimensions != rhs.dimensions {
+        if self.shape != rhs.shape {
             return Err("Incompatible Dimensions: Mismatch in dimension of two Tensors.");
         }
 
@@ -17,12 +17,12 @@ impl<T: Numeric> ops::Add for Tensor<T> {
         }
 
         for i in 0..self.data.len() {
-            result_vector.push(self.data[i] + rhs.data[i])
+            result.push(self.data[i] + rhs.data[i])
         }
 
         Ok(Self {
-            dimensions: self.dimensions,
-            data: result_vector,
+            shape: self.shape,
+            data: result,
         })
     }
 }
