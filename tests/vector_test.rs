@@ -1,4 +1,4 @@
-mod vector_add {
+mod vector_ops {
     use iron_learn::Vector;
 
     #[test]

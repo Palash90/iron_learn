@@ -33,10 +33,3 @@ fn test_new() {
     assert_eq!(t.shape, vec![1u32, 2u32]);
     assert_eq!(t.data, vec![1i8, 2i8]);
 }
-
-#[cfg(test)]
-#[test]
-#[should_panic(expected = "DataError")]
-fn test_new_panic_on_data() {
-    Tensor::new(vec![1u32, 2u32], vec![1, 2, 3]).unwrap();
-}

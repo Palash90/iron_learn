@@ -9,7 +9,7 @@ impl<T: Numeric> ops::Add for Tensor<T> {
         let mut result = Vec::with_capacity(self.data.len());
 
         if self.shape != rhs.shape {
-            return Err("Incompatible Dimensions: Mismatch in dimension of two Tensors.");
+            return Err("ShapeMismatch: Mismatch in shape of two Tensors.");
         }
 
         if self.data.len() != rhs.data.len() {

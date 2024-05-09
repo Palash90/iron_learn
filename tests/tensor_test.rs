@@ -2,6 +2,12 @@ mod tensor_add {
     use iron_learn::Tensor;
 
     #[test]
+    #[should_panic(expected = "DataError")]
+    fn test_new_panic_on_data() {
+        Tensor::new(vec![1u32, 2u32], vec![1, 2, 3]).unwrap();
+    }
+
+    #[test]
     pub fn add_i8() {
         let m1 = Tensor::<i8>::new(vec![1u32, 2u32, 1u32], vec![1i8, 2i8]).unwrap();
         let m2 = Tensor::new(vec![1u32, 2u32, 1u32], vec![3i8, 4i8]).unwrap();
