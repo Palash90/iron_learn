@@ -4,7 +4,7 @@ use crate::numeric::Numeric;
 
 #[derive(Debug, PartialEq)]
 pub struct Tensor<T: Numeric> {
-    pub shape: Vec<u32>,
+    shape: Vec<u32>,
     data: Vec<T>,
 }
 
