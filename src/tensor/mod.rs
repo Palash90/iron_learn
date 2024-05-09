@@ -17,7 +17,7 @@ impl<T: Numeric> Tensor<T> {
         }
 
         if size != data.len().try_into().unwrap() {
-            let err = String::from(format!("Data length ({}) does not match total num of elements provided by dimensions ({}))", data.len(), size));
+            let err = String::from(format!("DataError: Data length ({}) does not match total num of elements provided by dimensions ({}))", data.len(), size));
             return Err(err);
         }
 
@@ -36,7 +36,7 @@ fn test_new() {
 
 #[cfg(test)]
 #[test]
-#[should_panic]
-fn test_new_panics() {
+#[should_panic(expected = "DataError")]
+fn test_new_panic_on() {
     Tensor::new(vec![1u32, 2u32], vec![1, 2, 3]).unwrap();
 }
