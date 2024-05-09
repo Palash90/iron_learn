@@ -7,7 +7,6 @@ mod tensor_ops {
         Tensor::new(Vec::<u32>::new(), vec![1, 2, 3]).unwrap();
     }
 
-
     #[test]
     #[should_panic(expected = "DataError")]
     fn test_new_panic_on_data() {
