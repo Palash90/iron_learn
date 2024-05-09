@@ -12,10 +12,6 @@ impl<T: Numeric> ops::Add for Tensor<T> {
             return Err("ShapeMismatch: Mismatch in shape of two Tensors.");
         }
 
-        if self.data.len() != rhs.data.len() {
-            return Err("Element mismatch in two tensors.");
-        }
-
         for i in 0..self.data.len() {
             result.push(self.data[i] + rhs.data[i])
         }

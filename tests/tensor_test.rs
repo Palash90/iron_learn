@@ -1,5 +1,12 @@
-mod tensor_add {
+mod tensor_ops {
     use iron_learn::Tensor;
+
+    #[test]
+    #[should_panic(expected = "TemporaryShapeRestriction")]
+    fn test_new_panic_on_temp_restriction() {
+        Tensor::new(Vec::<u32>::new(), vec![1, 2, 3]).unwrap();
+    }
+
 
     #[test]
     #[should_panic(expected = "DataError")]
@@ -9,9 +16,9 @@ mod tensor_add {
 
     #[test]
     pub fn add_i8() {
-        let m1 = Tensor::<i8>::new(vec![1u32, 2u32, 1u32], vec![1i8, 2i8]).unwrap();
-        let m2 = Tensor::new(vec![1u32, 2u32, 1u32], vec![3i8, 4i8]).unwrap();
-        let result = Tensor::new(vec![1u32, 2u32, 1u32], vec![4i8, 6i8]).unwrap();
+        let m1 = Tensor::<i8>::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
+        let m2 = Tensor::new(vec![1u32, 2u32], vec![3i8, 4i8]).unwrap();
+        let result = Tensor::new(vec![1u32, 2u32], vec![4i8, 6i8]).unwrap();
 
         assert_eq!(result, (m1 + m2).unwrap());
     }
@@ -26,6 +33,7 @@ mod tensor_add {
     }
 
     #[test]
+    #[ignore]
     pub fn add_i32() {
         let m1 = Tensor::new(vec![1u32, 2u32, 2u32], vec![1, 2, 3, 4]).unwrap();
         let m2 = Tensor::new(vec![1u32, 2u32, 2u32], vec![5, 6, 7, 8]).unwrap();

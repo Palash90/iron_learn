@@ -10,6 +10,11 @@ pub struct Tensor<T: Numeric> {
 
 impl<T: Numeric> Tensor<T> {
     pub fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
+
+        if shape.len() == 0 || shape.len() > 2 {
+            return Err(format!("TemporaryShapeRestriction: Currently only accepting tensors upto 1 - 2 dimensions"));
+        }
+
         let mut size = 1;
 
         for i in &shape {

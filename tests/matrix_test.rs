@@ -1,4 +1,4 @@
-mod matrix_add {
+mod matrix_ops {
     use iron_learn::Matrix;
 
     #[test]
