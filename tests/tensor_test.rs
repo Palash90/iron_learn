@@ -23,9 +23,9 @@ mod tensor_add {
 
     #[test]
     pub fn add_i32() {
-        let m1 = Tensor::new(vec![1u32, 2u32], vec![1, 2]).unwrap();
-        let m2 = Tensor::new(vec![1u32, 2u32], vec![3, 4]).unwrap();
-        let result = Tensor::new(vec![1u32, 2u32], vec![4, 6]).unwrap();
+        let m1 = Tensor::new(vec![1u32, 2u32, 2u32], vec![1, 2, 3, 4]).unwrap();
+        let m2 = Tensor::new(vec![1u32, 2u32, 2u32], vec![5, 6, 7, 8]).unwrap();
+        let result = Tensor::new(vec![1u32, 2u32, 2u32], vec![6, 8, 10, 12]).unwrap();
 
         assert_eq!(result, (m1 + m2).unwrap());
     }
