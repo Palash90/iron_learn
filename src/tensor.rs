@@ -97,7 +97,7 @@ impl<T: Numeric> Mul for Tensor<T> {
     fn mul(self, rhs: Self) -> Result<Self, String> {
         if self.shape[1] != rhs.shape[0] {
             let s = format!(
-                "The dimensions of two matrices are not matching {:?} {:?}",
+                "ShapeMismatch:The dimensions of two matrices are not matching {:?} {:?}",
                 self.shape, rhs.shape
             );
             return Err(s);
