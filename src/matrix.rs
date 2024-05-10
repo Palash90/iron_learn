@@ -44,8 +44,8 @@ impl<T: Numeric> Mul for Matrix<T> {
 #[cfg(test)]
 #[test]
 fn test_new() {
-    let m = Matrix::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
+    let m = Matrix::new(vec![1, 2], vec![1i8, 2i8]).unwrap();
 
-    let expected_tensor = Tensor::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
+    let expected_tensor = Tensor::new(vec![1, 2], vec![1i8, 2i8]).unwrap();
     assert_eq!(m.tensor, expected_tensor);
 }

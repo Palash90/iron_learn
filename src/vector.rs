@@ -51,8 +51,8 @@ impl<T: Numeric> Mul for Vector<T> {
 #[cfg(test)]
 #[test]
 fn test_new() {
-    let m = Vector::new(vec![1u32], vec![1i8]).unwrap();
+    let m = Vector::new(vec![1], vec![1i8]).unwrap();
 
-    let expected_tensor = Tensor::new(vec![1u32], vec![1i8]).unwrap();
+    let expected_tensor = Tensor::new(vec![1], vec![1i8]).unwrap();
     assert_eq!(m.tensor, expected_tensor);
 }
