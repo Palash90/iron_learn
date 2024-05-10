@@ -1,6 +1,7 @@
 use crate::numeric::Numeric;
 use crate::tensor::Tensor;
 use std::ops::Add;
+use std::ops::Mul;
 
 #[derive(Debug, PartialEq)]
 pub struct Vector<T: Numeric> {
@@ -28,6 +29,22 @@ impl<T: Numeric> Add for Vector<T> {
     fn add(self, rhs: Self) -> Result<Self, &'static str> {
         let result = self.tensor + rhs.tensor;
         Ok(Self { tensor: result? })
+    }
+}
+
+impl<T: Numeric> Mul for Vector<T> {
+    type Output = Result<T, String>;
+
+    fn mul(self, rhs: Self) -> Result<T, String> {
+        let h = self.tensor.multiply(rhs.tensor)?;
+
+        let mut result: T = T::zero();
+
+        for i in h.get_data() {
+            result = result + i;
+        }
+
+        Ok(result)
     }
 }
 

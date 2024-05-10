@@ -43,4 +43,32 @@ mod matrix_ops {
 
         assert_eq!(result, (m1 + m2).unwrap());
     }
+
+    #[test]
+    pub fn mul_i32() {
+        let m1 = Matrix::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+        let m2 = Matrix::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+        let result = Matrix::new(vec![2, 2], vec![19, 22, 43, 50]).unwrap();
+
+        assert_eq!(result, (m1 * m2).unwrap());
+    }
+
+    #[test]
+    #[should_panic]
+    pub fn mul_i32_panics() {
+        let m1 = Matrix::new(vec![2, 1], vec![1, 2]).unwrap();
+        let m2 = Matrix::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+        let result = Matrix::new(vec![2, 2], vec![19, 22, 43, 50]).unwrap();
+
+        assert_eq!(result, (m1 * m2).unwrap());
+    }
+
+    #[test]
+    pub fn mul_i32_reverse() {
+        let m1 = Matrix::new(vec![1, 2], vec![1, 2]).unwrap();
+        let m2 = Matrix::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+        let result = Matrix::new(vec![1, 2], vec![19, 22]).unwrap();
+
+        assert_eq!(result, (m1 * m2).unwrap());
+    }
 }

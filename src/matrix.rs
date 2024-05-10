@@ -1,6 +1,7 @@
 use crate::numeric::Numeric;
 use crate::tensor::Tensor;
 use std::ops::Add;
+use std::ops::Mul;
 
 #[derive(Debug, PartialEq)]
 pub struct Matrix<T: Numeric> {
@@ -27,6 +28,15 @@ impl<T: Numeric> Add for Matrix<T> {
 
     fn add(self, rhs: Self) -> Result<Self, &'static str> {
         let result = self.tensor + rhs.tensor;
+        Ok(Self { tensor: result? })
+    }
+}
+
+impl<T: Numeric> Mul for Matrix<T> {
+    type Output = Result<Self, String>;
+
+    fn mul(self, rhs: Self) -> Result<Self, String> {
+        let result = self.tensor * rhs.tensor;
         Ok(Self { tensor: result? })
     }
 }

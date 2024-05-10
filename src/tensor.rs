@@ -1,4 +1,5 @@
-pub mod add;
+use std::fmt;
+use std::ops::{Add, Mul};
 
 use crate::numeric::Numeric;
 
@@ -28,6 +29,99 @@ impl<T: Numeric> Tensor<T> {
         }
 
         Ok(Self { shape, data })
+    }
+
+    pub fn get_data(self) -> Vec<T> {
+        self.data
+    }
+
+    pub fn multiply(self, rhs: Self) -> Result<Self, &'static str> {
+        let mut result = Vec::with_capacity(self.data.len());
+
+        if self.shape != rhs.shape {
+            return Err("ShapeMismatch: Mismatch in shape of two Tensors.");
+        }
+
+        for i in 0..self.data.len() {
+            result.push(self.data[i] * rhs.data[i])
+        }
+
+        Ok(Self {
+            shape: self.shape,
+            data: result,
+        })
+    }
+}
+
+impl<T: Numeric + fmt::Display> fmt::Display for Tensor<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let rows = self.shape[0] as usize;
+        let cols = self.shape[1] as usize;
+
+        for i in 0..rows {
+            write!(f, "| ")?;
+            for j in 0..cols {
+                let index = i * cols + j;
+                write!(f, "{}, ", self.data[index])?;
+            }
+            writeln!(f, "|")?;
+        }
+        Ok(())
+    }
+}
+
+impl<T: Numeric> Add for Tensor<T> {
+    type Output = Result<Self, &'static str>;
+
+    fn add(self, rhs: Self) -> Result<Self, &'static str> {
+        let mut result = Vec::with_capacity(self.data.len());
+
+        if self.shape != rhs.shape {
+            return Err("ShapeMismatch: Mismatch in shape of two Tensors.");
+        }
+
+        for i in 0..self.data.len() {
+            result.push(self.data[i] + rhs.data[i])
+        }
+
+        Ok(Self {
+            shape: self.shape,
+            data: result,
+        })
+    }
+}
+
+impl<T: Numeric> Mul for Tensor<T> {
+    type Output = Result<Self, String>;
+
+    fn mul(self, rhs: Self) -> Result<Self, String> {
+        if self.shape[1] != rhs.shape[0] {
+            let s = format!(
+                "The dimensions of two matrices are not matching {:?} {:?}",
+                self.shape, rhs.shape
+            );
+            return Err(s);
+        }
+
+        let rows = self.shape[0] as usize;
+        let cols = rhs.shape[1] as usize;
+        let common_dim = self.shape[1] as usize;
+
+        let mut data = vec![T::zero(); rows * cols];
+
+        for i in 0..rows {
+            for j in 0..cols {
+                for k in 0..common_dim {
+                    let val = self.data[i * common_dim + k] * rhs.data[k * cols + j];
+                    data[i * cols + j] = data[i * cols + j] + val;
+                }
+            }
+        }
+
+        Ok(Tensor {
+            shape: vec![rows as u32, cols as u32],
+            data,
+        })
     }
 }
 
