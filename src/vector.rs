@@ -52,6 +52,27 @@ impl<T: Numeric> Vector<T> {
 
         Ok(Self { tensor: t? })
     }
+
+    /// Retrieves the underlying data from a `Matrix`.
+    ///
+    /// # Returns
+    /// A `Vec<T>` containing the tensor's data.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use iron_learn::Matrix;
+    ///
+    /// let m = Matrix::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
+    /// let data = m.get_data(); // Retrieves the data as Vec<f64>
+    ///
+    /// assert_eq!(vec![1.0, 2.0, 3.0, 4.0], data);
+    /// ```
+    ///
+    /// Note: The `get_data` function is designed to work seamlessly with all numeric types defined in the `numeric` module, ensuring broad compatibility.
+    pub fn get_data(self) -> Vec<T> {
+        self.tensor.get_data()
+    }
 }
 
 impl<T: Numeric> Add for Vector<T> {
