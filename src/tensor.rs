@@ -1,7 +1,10 @@
-use std::fmt;
+//! The tensor module defines necessary methods for implementing the linear algebra necessary for machine learning
+
 use std::ops::{Add, Mul};
 
 use crate::numeric::Numeric;
+
+/// Tensor is the heart of this whole library. This provides the basic mathematical operations.
 
 #[derive(Debug, PartialEq)]
 pub struct Tensor<T: Numeric> {
@@ -50,23 +53,6 @@ impl<T: Numeric> Tensor<T> {
             shape: self.shape,
             data: result,
         })
-    }
-}
-
-impl<T: Numeric + fmt::Display> fmt::Display for Tensor<T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let rows = self.shape[0] as usize;
-        let cols = self.shape[1] as usize;
-
-        for i in 0..rows {
-            write!(f, "| ")?;
-            for j in 0..cols {
-                let index = i * cols + j;
-                write!(f, "{}, ", self.data[index])?;
-            }
-            writeln!(f, "|")?;
-        }
-        Ok(())
     }
 }
 

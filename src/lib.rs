@@ -1,4 +1,8 @@
+//! # Iron Learn
+//! Iron Learn is a set of utilities to deal with simple machine learning tasks.
+
 pub mod complex;
+
 pub mod matrix;
 pub mod numeric;
 pub mod tensor;

@@ -21,6 +21,12 @@ impl<T: Numeric> Matrix<T> {
 
         Ok(Self { tensor: t? })
     }
+
+    pub fn multiply(self, rhs: Self) -> Result<Self, &'static str> {
+        Ok(Self {
+            tensor: self.tensor.multiply(rhs.tensor)?,
+        })
+    }
 }
 
 impl<T: Numeric> Add for Matrix<T> {
