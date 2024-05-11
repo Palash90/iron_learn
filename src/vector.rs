@@ -7,6 +7,9 @@ use crate::tensor::Tensor;
 use std::ops::Add;
 use std::ops::Mul;
 
+/// A `Vector` struct that encapsulates a `Tensor` for one-dimensional numerical data.
+///
+/// This struct is a specialized version of a `Tensor` that is constrained to one dimension, representing a mathematical vector. It inherits all numerical operations from the `Tensor` through the `Numeric` trait.
 #[derive(Debug, PartialEq)]
 pub struct Vector<T: Numeric> {
     tensor: Tensor<T>,
@@ -76,7 +79,7 @@ impl<T: Numeric> Vector<T> {
 }
 
 impl<T: Numeric> Add for Vector<T> {
-    type Output = Result<Self, &'static str>;
+    type Output = Result<Self, String>;
     /// Implements the addition of two `Vector` instances.
     ///
     /// This method enables the addition of two vectors by leveraging the addition operation defined for tensors. It ensures that the operation is performed element-wise, adhering to vector addition rules.
@@ -99,7 +102,7 @@ impl<T: Numeric> Add for Vector<T> {
     /// let vector_sum = (vector_a + vector_b).expect("Addition failed due to shape mismatch.");
     /// // vector_sum now contains the sum of vector_a and vector_b
     /// ```
-    fn add(self, rhs: Self) -> Result<Self, &'static str> {
+    fn add(self, rhs: Self) -> Result<Self, String> {
         let result = self.tensor + rhs.tensor;
         Ok(Self { tensor: result? })
     }

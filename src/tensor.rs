@@ -118,11 +118,14 @@ impl<T: Numeric> Tensor<T> {
     /// ```
     ///
     /// Note: This method supports all numeric types defined in the `numeric` module, ensuring compatibility with a wide range of data types.
-    pub fn multiply(self, rhs: Self) -> Result<Self, &'static str> {
+    pub fn multiply(self, rhs: Self) -> Result<Self, String> {
         let mut result = Vec::with_capacity(self.data.len());
 
         if self.shape != rhs.shape {
-            return Err("ShapeMismatch: Mismatch in shape of two Tensors.");
+            return Err(format!(
+                "ShapeMismatch: Mismatch in shape of two Tensors {:?} {:?}",
+                self.shape, rhs.shape
+            ));
         }
 
         for i in 0..self.data.len() {
@@ -137,7 +140,7 @@ impl<T: Numeric> Tensor<T> {
 }
 
 impl<T: Numeric> Add for Tensor<T> {
-    type Output = Result<Self, &'static str>;
+    type Output = Result<Self, String>;
 
     /// Implements the addition of two `Tensor` instances.
     ///
@@ -166,11 +169,11 @@ impl<T: Numeric> Add for Tensor<T> {
     /// ```
     ///
     /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
-    fn add(self, rhs: Self) -> Result<Self, &'static str> {
+    fn add(self, rhs: Self) -> Result<Self, String> {
         let mut result = Vec::with_capacity(self.data.len());
 
         if self.shape != rhs.shape {
-            return Err("ShapeMismatch: Mismatch in shape of two Tensors.");
+            return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition- {:?} {:?}", self.shape, rhs.shape));
         }
 
         for i in 0..self.data.len() {
@@ -217,7 +220,7 @@ impl<T: Numeric> Mul for Tensor<T> {
     fn mul(self, rhs: Self) -> Result<Self, String> {
         if self.shape[1] != rhs.shape[0] {
             let s = format!(
-                "ShapeMismatch:The dimensions of two matrices are not matching {:?} {:?}",
+                "ShapeMismatch:The dimensions of two matrices are not compatible for multiplication- {:?} {:?}",
                 self.shape, rhs.shape
             );
             return Err(s);

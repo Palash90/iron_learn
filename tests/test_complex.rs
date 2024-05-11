@@ -1,4 +1,4 @@
-use iron_learn::complex::Complex;
+use iron_learn::Complex;
 
 #[test]
 fn test_complex() {

@@ -7,6 +7,10 @@ use crate::tensor::Tensor;
 use std::ops::Add;
 use std::ops::Mul;
 
+/// A matrix structure for numerical computations, backed by a tensor.
+///
+/// This struct represents a matrix with elements of any numeric type that implements the `Numeric` trait.
+/// It provides matrix-specific operations by leveraging the underlying tensor structure.
 #[derive(Debug, PartialEq)]
 pub struct Matrix<T: Numeric> {
     tensor: Tensor<T>,
@@ -32,7 +36,7 @@ impl<T: Numeric> Matrix<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::matrix::Matrix;
+    /// use iron_learn::Matrix;
     ///
     /// let matrix = Matrix::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6])
     ///     .expect("MatrixShapeError: Matrix can have only two dimensions.");
@@ -67,14 +71,14 @@ impl<T: Numeric> Matrix<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::matrix::Matrix;
+    /// use iron_learn::Matrix;
     ///
     /// let matrix_a = Matrix::new(vec![2, 2], vec![1, 2, 3, 4]).expect("Matrix initialization failed.");
     /// let matrix_b = Matrix::new(vec![2, 2], vec![5, 6, 7, 8]).expect("Matrix initialization failed.");
     /// let matrix_product = matrix_a.multiply(matrix_b).expect("Hadamard product failed due to shape mismatch.");
     /// // matrix_product now contains the Hadamard product of matrix_a and matrix_b
     /// ```
-    pub fn multiply(self, rhs: Self) -> Result<Self, &'static str> {
+    pub fn multiply(self, rhs: Self) -> Result<Self, String> {
         Ok(Self {
             tensor: self.tensor.multiply(rhs.tensor)?,
         })
@@ -103,7 +107,7 @@ impl<T: Numeric> Matrix<T> {
 }
 
 impl<T: Numeric> Add for Matrix<T> {
-    type Output = Result<Self, &'static str>;
+    type Output = Result<Self, String>;
     /// Implements the addition of two `Matrix` instances.
     ///
     /// This method provides the functionality to add two matrices together. It utilizes the underlying tensor addition to compute the sum of the matrices, ensuring that the operation is performed element-wise.
@@ -126,7 +130,7 @@ impl<T: Numeric> Add for Matrix<T> {
     /// let matrix_sum = (matrix_a + matrix_b).expect("Addition failed due to shape mismatch.");
     /// // matrix_sum now contains the sum of matrix_a and matrix_b
     /// ```
-    fn add(self, rhs: Self) -> Result<Self, &'static str> {
+    fn add(self, rhs: Self) -> Result<Self, String> {
         let result = self.tensor + rhs.tensor;
         Ok(Self { tensor: result? })
     }

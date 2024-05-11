@@ -22,7 +22,7 @@ impl Complex {
     /// # Example
     ///
     /// ```
-    /// use iron_learn::complex::Complex;
+    /// use iron_learn::Complex;
     ///
     /// let a = Complex::new(1.0, 2.0);
     /// ```
@@ -44,7 +44,7 @@ impl Add for Complex {
     /// # Example
     ///
     /// ```
-    /// use iron_learn::complex::Complex;
+    /// use iron_learn::Complex;
     ///
     /// let a = Complex::new(1.0, 2.0);
     /// let b = Complex::new(3.0, 4.0);
@@ -76,7 +76,7 @@ impl Sub for Complex {
     /// # Example
     ///
     /// ```
-    /// use iron_learn::complex::Complex;
+    /// use iron_learn::Complex;
     ///
     /// let a = Complex::new(1.0, 2.0);
     /// let b = Complex::new(3.0, 4.0);
@@ -106,7 +106,7 @@ impl Mul for Complex {
     /// # Example
     ///
     /// ```
-    /// use iron_learn::complex::Complex;
+    /// use iron_learn::Complex;
     ///
     /// let a = Complex::new(1.0, 2.0);
     /// let b = Complex::new(3.0, 4.0);
@@ -136,7 +136,7 @@ impl Div for Complex {
     /// # Example
     ///
     /// ```
-    /// use iron_learn::complex::Complex;
+    /// use iron_learn::Complex;
     ///
     /// let a = Complex::new(1.0, 2.0);
     /// let b = Complex::new(3.0, 4.0);
