@@ -3,6 +3,12 @@ mod tensor_ops {
 
     #[test]
     #[should_panic(expected = "TemporaryShapeRestriction")]
+    fn test_new_panic_on_shape_error() {
+        Tensor::new(vec![1, 3, 5], vec![1, 2, 3]).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "ShapeError")]
     fn test_new_panic_on_temp_restriction() {
         Tensor::new(Vec::new(), vec![1, 2, 3]).unwrap();
     }
