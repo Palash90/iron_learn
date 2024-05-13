@@ -354,9 +354,6 @@ impl<T: Numeric> Tensor<T> {
     /// # Errors
     /// If the tensor has more than 2 dimensions, an error is returned:
     ///
-    /// # Panics
-    /// This method does not panic as it handles dimensionality checks gracefully.
-    ///
     pub fn t(&self) -> Result<Self, String> {
         self._t()
     }
