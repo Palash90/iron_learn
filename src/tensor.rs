@@ -23,7 +23,7 @@ impl<T: Numeric> Tensor<T> {
     /// - `data`: A `Vec<T>` containing the elements of the `Tensor`, where `T` is a numeric type defined in the `numeric` module.
     ///
     /// # Returns
-    /// - When the operation is succeeded, the function returns a new `Tensor`` object
+    /// - When the operation is succeeded, the function returns a new `Tensor` object
     /// - In case of any failure, the function return an owned String.
     ///
     /// # Example
