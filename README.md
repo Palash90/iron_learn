@@ -10,7 +10,7 @@ This library is designed to facilitate machine learning tasks with a focus on li
 ## Modules
 
 ### `tensor`
-At the core of the library, the `tensor` module supports multi-dimensional `Tensor` data structure. It includes methods for tensor instantiation and defines the `+` operator for tensor addition, the `-` operator for subtraction and the `*` operator for tensor multiplication. These operators however, take ownership of the variables(both `rhs` and `lhs`). So, the variables cannot be used later. To facilitate performing these operations without the ownership issue, it also provides `add`, `sub` and `mul` methods to perform addition, subtraction and division by borrowing the varialbes for operation.
+At the core of the library, the `tensor` module supports multi-dimensional `Tensor` data structure. It includes methods for tensor instantiation and defines the `+` operator for tensor addition, the `-` operator for subtraction and the `*` operator for tensor multiplication. These operators however, take ownership of the variables(both `rhs` and `lhs`). So, the variables cannot be used later. To facilitate performing these operations without the ownership issue, it also provides `add`, `sub` and `mul` methods to perform addition, subtraction and division by borrowing the variables for operation.
 
  Additionally, it features a method `t` for transpose and a `multiply` method for the Hadamard product, an element-wise multiplication operation. 
 
@@ -35,10 +35,10 @@ The `vector` module provides `Vector` type which is a specialized wrapper for th
 To use the library, include the following in your project:
 
 ```rust
-use crate::complex::Complex;
-use crate::matrix::Matrix;
-use crate::tensor::Tensor;
-use crate::vector::Vector;
+use iron_learn::Complex;
+use iron_learn::Matrix;
+use iron_learn::Tensor;
+use iron_learn::Vector;
 ```
 
 ## Examples
@@ -55,6 +55,18 @@ let c = (a + b).unwrap(); // Perform matrix addition. Causes a move. Cannot use 
 let a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap(); // Define matrix `a`
 let b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap(); // Define matrix `b`
 let c = a.add(&b).unwrap(); // Perform matrix addition without taking ownership..
+```
+
+### Tensor Subtraction
+```rust
+let a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap(); // Define matrix `a`
+let b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap(); // Define matrix `b`
+let c = (a - b).unwrap(); // Perform matrix addition. Causes a move. Cannot use a or b later.
+
+// No move syntax
+let a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap(); // Define matrix `a`
+let b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap(); // Define matrix `b`
+let c = a.sub(&b).unwrap(); // Perform matrix addition without taking ownership..
 ```
 
 ### Tensor Multiplication
@@ -74,6 +86,12 @@ let c = a.add(&b).unwrap(); // Perform matrix multiplication without taking owne
 let a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap(); // Define matrix `a`
 let b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap(); // Define matrix `b`
 let c = a.multiply(b).unwrap(); // Perform matrix hadamard product
+```
+
+### Tensor Transpose
+```rust
+let m = Tensor::new(vec![6], vec![1, 2, 3, 4, 5, 6]).unwrap();
+ m.t().unwrap();
 ```
 
 ### Complex Number Arithmatic
@@ -98,9 +116,9 @@ let m1 = Tensor::new(vec![2, 2], vec![a, b, c, d]).unwrap();
 
 let m2 = Tensor::new(vec![2, 2], vec![a, c, b, d]).unwrap();
 
-let result = (m1 + m2).unwrap();
-let result = (m1 * m2).unwrap();
-```    
+let result = m1.add(&m2).unwrap();
+let result = m1.mul(&m2).unwrap();
+``` 
 
 ### ~~Matrix Addition~~ (Deprecated, use 2-Dimensional `Tensor` instead)
 ```rust
