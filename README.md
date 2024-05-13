@@ -14,9 +14,9 @@ At the core of the library, the `tensor` module supports multi-dimensional `Tens
 
  Additionally, it features a method `t` for transpose and a `multiply` method for the Hadamard product, an element-wise multiplication operation. 
 
-These operations on `Tensor` can fail due to multiple reasons and hence, it returns a result object. The library assumes a better eroor handling by the user rather than causing `panic`.
+These operations on `Tensor` can fail due to multiple reasons and hence, it returns a result object. The library assumes a better error handling by the user rather than causing `panic`.
 
-__*N.B:*__ This Module is limited to only two dimensional Matrix Support. This is a temporary restriction and we plan to remove this restriction in future.
+__*N.B:*__ This Module is limited to only two dimensional Matrix Support. This is a temporary restriction and I plan to remove this restriction in future.
 
 ### `complex`
 The `complex` module is experimental and provides a representation of complex numbers, which are fundamental in various machine learning computations, especially in handling operations involving complex-valued data. The `Complex` type supports all arithmatic operations.

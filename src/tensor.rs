@@ -159,6 +159,58 @@ impl<T: Numeric> Tensor<T> {
 
 // The public API of Tensor type
 impl<T: Numeric> Tensor<T> {
+    /// Constructs a new instance of a `Tensor`.
+    ///
+    /// This associated function initializes a `Tensor` with a specified shape and data. It requires two parameters:
+    /// - `shape`: A `Vec<u32>` that defines the dimensions of the `Tensor`. The length is treated the number of dimensions, while each item in the Vec is considered number of elements in corresponding dimension.
+    /// - `data`: A `Vec<T>` containing the elements of the `Tensor`, where `T` is a numeric type defined in the `numeric` module.
+    ///
+    /// # Returns
+    /// - When the operation is succeeded, the function returns a new `Tensor` object
+    /// - In case of any failure, the function return an owned String.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use iron_learn::Tensor;
+    ///
+    /// let tensor = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]); // Initializes a 2x2 tensor
+    /// ```
+    ///
+    ///
+    /// # Errors
+    /// - **ShapeError**: If the shape vector length is passed as 0
+    /// - **TemporaryShapeRestriction**: Currently, tensors are limited to a maximum of two dimensions. This restriction will be lifted as further methods are implemented.
+    /// - **DataError**: This error occurs if the total number of elements in the `data` vector does not correspond to the product of the `shape` dimensions.
+    ///
+    pub fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
+        Self::_new(shape, data)
+    }
+
+    /// Retrieves the underlying data from a `Tensor`.
+    ///
+    /// This method returns a copy of the data held within the `Tensor` as a vector of type `T`, where `T` encompasses all numeric types supported by the library.
+    /// It is a fundamental method that allows for direct access to the tensor's data for further processing or analysis.
+    ///
+    /// # Returns
+    /// A `Vec<T>` containing a copy of the tensor's data.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use iron_learn::Tensor;
+    ///
+    /// let tensor = Tensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
+    /// let data = tensor.get_data(); // Retrieves the data as Vec<f64>
+    ///
+    /// assert_eq!(vec![1.0, 2.0, 3.0, 4.0], data);
+    /// ```
+    ///
+    /// Note: The `get_data` function is designed to work seamlessly with all numeric types defined in the `numeric` module, ensuring broad compatibility.
+    pub fn get_data(&self) -> Vec<T> {
+        self._data()
+    }
+
     /// Implements the addition of two `Tensor` instances. The `+` operator also does the same but the operator moves the value, making the instance unusable later.
     ///
     /// # Type Parameters
@@ -167,7 +219,7 @@ impl<T: Numeric> Tensor<T> {
     /// # Output
     /// The output is a `Result` type that either contains:
     /// - `Ok(Tensor)`: A new `Tensor` representing the sum of the two tensors.
-    /// - `Err(&'static str)`: An error message if the shapes of the two tensors do not match.
+    /// - `Err(String)`: An error message if the shapes of the two tensors do not match.
     ///
     /// # Errors
     /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical, preventing element-wise addition.
@@ -196,7 +248,7 @@ impl<T: Numeric> Tensor<T> {
     /// # Output
     /// The output is a `Result` type that either contains:
     /// - `Ok(Tensor)`: A new `Tensor` representing the difference of the two tensors.
-    /// - `Err(&'static str)`: An error message if the shapes of the two tensors do not match.
+    /// - `Err(String)`: An error message if the shapes of the two tensors do not match.
     ///
     /// # Errors
     /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical, preventing element-wise addition.
@@ -248,58 +300,6 @@ impl<T: Numeric> Tensor<T> {
         self._mul(rhs)
     }
 
-    /// Constructs a new instance of a `Tensor`.
-    ///
-    /// This associated function initializes a `Tensor` with a specified shape and data. It requires two parameters:
-    /// - `shape`: A `Vec<u32>` that defines the dimensions of the `Tensor`. The length is treated the number of dimensions, while each item in the Vec is considered number of elements in corresponding dimension.
-    /// - `data`: A `Vec<T>` containing the elements of the `Tensor`, where `T` is a numeric type defined in the `numeric` module.
-    ///
-    /// # Returns
-    /// - When the operation is succeeded, the function returns a new `Tensor` object
-    /// - In case of any failure, the function return an owned String.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use iron_learn::Tensor;
-    ///
-    /// let tensor = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]); // Initializes a 2x2 tensor
-    /// ```
-    ///
-    ///
-    /// # Errors
-    /// - **ShapeError**: If the shape vector length is passed as 0
-    /// - **TemporaryShapeRestriction**: Currently, tensors are limited to a maximum of two dimensions. This restriction will be lifted as further methods are implemented.
-    /// - **DataError**: This error occurs if the total number of elements in the `data` vector does not correspond to the product of the `shape` dimensions.
-    ///
-    pub fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
-        Self::_new(shape, data)
-    }
-
-    /// Retrieves the underlying data from a `Tensor`.
-    ///
-    /// This method returns the data held within the `Tensor` as a vector of type `T`, where `T` encompasses all numeric types supported by the library.
-    /// It is a fundamental method that allows for direct access to the tensor's data for further processing or analysis.
-    ///
-    /// # Returns
-    /// A `Vec<T>` containing the tensor's data.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use iron_learn::Tensor;
-    ///
-    /// let tensor = Tensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
-    /// let data = tensor.get_data(); // Retrieves the data as Vec<f64>
-    ///
-    /// assert_eq!(vec![1.0, 2.0, 3.0, 4.0], data);
-    /// ```
-    ///
-    /// Note: The `get_data` function is designed to work seamlessly with all numeric types defined in the `numeric` module, ensuring broad compatibility.
-    pub fn get_data(&self) -> Vec<T> {
-        self._data()
-    }
-
     /// Performs the Hadamard product (element-wise multiplication) on two tensors.
     ///
     /// This method calculates the element-wise product of the invoking tensor with another tensor of the same shape. The operation is also known as the Hadamard product, which is a critical operation in various machine learning algorithms.
@@ -310,7 +310,7 @@ impl<T: Numeric> Tensor<T> {
     /// # Returns
     /// A `Result` which is either:
     /// - `Ok(Tensor)`: A new `Tensor` representing the Hadamard product of the two tensors.
-    /// - `Err(&'static str)`: An error message if the shapes of the two tensors do not match.
+    /// - `Err(String)`: An error message if the shapes of the two tensors do not match.
     ///
     /// # Errors
     /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical.
@@ -372,7 +372,7 @@ impl<T: Numeric> Add for Tensor<T> {
     /// # Output
     /// The output is a `Result` type that either contains:
     /// - `Ok(Tensor)`: A new `Tensor` representing the sum of the two tensors.
-    /// - `Err(&'static str)`: An error message if the shapes of the two tensors do not match.
+    /// - `Err(String)`: An error message if the shapes of the two tensors do not match.
     ///
     /// # Errors
     /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical, preventing element-wise addition.
@@ -407,7 +407,7 @@ impl<T: Numeric> Sub for Tensor<T> {
     /// # Output
     /// The output is a `Result` type that either contains:
     /// - `Ok(Tensor)`: A new `Tensor` representing the difference of the two tensors.
-    /// - `Err(&'static str)`: An error message if the shapes of the two tensors do not match.
+    /// - `Err(String)`: An error message if the shapes of the two tensors do not match.
     ///
     /// # Errors
     /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical, preventing element-wise addition.
