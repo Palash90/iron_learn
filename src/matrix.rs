@@ -81,7 +81,7 @@ impl<T: Numeric> Matrix<T> {
     /// ```
     pub fn multiply(self, rhs: Self) -> Result<Self, String> {
         Ok(Self {
-            tensor: self.tensor.multiply(rhs.tensor)?,
+            tensor: self.tensor.multiply(&rhs.tensor)?,
         })
     }
 
@@ -102,7 +102,7 @@ impl<T: Numeric> Matrix<T> {
     /// ```
     ///
     /// Note: The `get_data` function is designed to work seamlessly with all numeric types defined in the `numeric` module, ensuring broad compatibility.
-    pub fn get_data(self) -> Vec<T> {
+    pub fn get_data(&self) -> Vec<T> {
         self.tensor.get_data()
     }
 }

@@ -143,7 +143,7 @@ impl<T: Numeric> Mul for Vector<T> {
     /// Note: This method assumes that both vectors are of the same shape and the dot product is defined for them.
 
     fn mul(self, rhs: Self) -> Result<T, String> {
-        let h = self.tensor.multiply(rhs.tensor)?;
+        let h = self.tensor.multiply(&rhs.tensor)?;
 
         let mut result: T = T::zero();
 
