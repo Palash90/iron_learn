@@ -54,3 +54,31 @@ pub fn sub() {
 
     assert_eq!(result, (m1 - m2).unwrap());
 }
+
+#[test]
+pub fn transpose() {
+    let m = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+    let result = Tensor::new(vec![2, 2], vec![1, 3, 2, 4]).unwrap();
+
+    assert_eq!(result, m.t().unwrap());
+
+    let m = Tensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
+    let result = Tensor::new(vec![3, 2], vec![1, 4, 2, 5, 3, 6]).unwrap();
+
+    assert_eq!(result, m.t().unwrap());
+
+    let m = Tensor::new(vec![6], vec![1, 2, 3, 4, 5, 6]).unwrap();
+    let result = Tensor::new(vec![6], vec![1, 2, 3, 4, 5, 6]).unwrap();
+
+    assert_eq!(result, m.t().unwrap());
+
+    let m = Tensor::new(vec![3, 3], vec![1, 2, 3, 4, 5, 6, 7, 8, 9]).unwrap();
+    let result = Tensor::new(vec![3, 3], vec![1, 4, 7, 2, 5, 8, 3, 6, 9]).unwrap();
+
+    assert_eq!(result, m.t().unwrap());
+
+    let m = Tensor::new(vec![3, 1], vec![1, 2, 3]).unwrap();
+    let result = Tensor::new(vec![1, 3], vec![1, 2, 3]).unwrap();
+
+    assert_eq!(result, m.t().unwrap());
+}

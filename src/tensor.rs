@@ -17,6 +17,31 @@ pub struct Tensor<T: Numeric> {
 
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
 impl<T: Numeric> Tensor<T> {
+    fn _t(&self) -> Result<Self, String> {
+        if self.shape.len() > 2 {
+            return Err(format!("Only 2D tensors can be transposed."));
+        }
+
+        if self.shape.len() == 1 {
+            return Ok(Self {
+                shape: self.shape.clone(),
+                data: self.data.clone(),
+            });
+        }
+
+        let new_shape = vec![self.shape[1], self.shape[0]];
+        let mut new_data = vec![T::zero(); self.data.len()];
+        let (rows, cols) = (self.shape[0] as usize, self.shape[1] as usize);
+        for i in 0..rows {
+            for j in 0..cols {
+                new_data[j * rows + i] = self.data[i * cols + j];
+            }
+        }
+        Ok(Self {
+            shape: new_shape,
+            data: new_data,
+        })
+    }
     fn _data(&self) -> Vec<T> {
         self.data.clone()
     }
@@ -40,20 +65,6 @@ impl<T: Numeric> Tensor<T> {
             shape: self.shape.clone(),
             data: result,
         })
-    }
-
-    pub fn reshape(&mut self, shape: Vec<u32>) {
-        if let Some(value) = Self::check_shape(&shape) {
-            panic!("Reshape Eroor");
-        }
-
-        let size = Self::calculate_length(&shape);
-        let existing_size = Self::calculate_length(&self.shape);
-        if size != existing_size {
-            panic!("New size does not match old size")
-        }
-
-        self.shape = shape;
     }
 
     fn check_shape(shape: &Vec<u32>) -> Option<Result<Tensor<T>, String>> {
@@ -318,6 +329,36 @@ impl<T: Numeric> Tensor<T> {
     /// Note: This method supports all numeric types defined in the `numeric` module, ensuring compatibility with a wide range of data types.
     pub fn multiply(&self, rhs: &Self) -> Result<Self, String> {
         self.hadamard(&rhs)
+    }
+
+    /// Transposes a 2D tensor.
+    ///
+    /// This method reorganizes the data of a 2D tensor such that rows become columns
+    /// and vice versa. For tensors with more than two dimensions, it returns an error.
+    /// For 1D tensors, it simply clones the tensor as the transpose is the same.
+    ///
+    /// # Returns
+    /// * `Ok(Self)` containing the transposed tensor if the tensor is 1D or 2D.
+    /// * `Err(String)` containing an error message if the tensor has more than 2 dimensions.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use iron_learn::Tensor;
+    ///
+    /// let tensor = Tensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
+    /// let transposed = tensor.t().unwrap();
+    /// assert_eq!(Tensor::new(vec![3, 2], vec![1, 4, 2, 5, 3, 6]).unwrap(), transposed);
+    /// ```
+    ///
+    /// # Errors
+    /// If the tensor has more than 2 dimensions, an error is returned:
+    ///
+    /// # Panics
+    /// This method does not panic as it handles dimensionality checks gracefully.
+    ///
+    pub fn t(&self) -> Result<Self, String> {
+        self._t()
     }
 }
 
