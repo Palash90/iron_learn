@@ -148,35 +148,6 @@ impl<T: Numeric> Tensor<T> {
 
 // The public API of Tensor type
 impl<T: Numeric> Tensor<T> {
-    /// Implements the subtraction of two `Tensor` instances. The `-` operator also does the same but the operator moves the value, making the instance unusable later.
-    ///
-    /// # Type Parameters
-    /// - `T`: A type that implements the `Numeric` trait, ensuring the elements can be subtracted together.
-    ///
-    /// # Output
-    /// The output is a `Result` type that either contains:
-    /// - `Ok(Tensor)`: A new `Tensor` representing the difference of the two tensors.
-    /// - `Err(&'static str)`: An error message if the shapes of the two tensors do not match.
-    ///
-    /// # Errors
-    /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical, preventing element-wise addition.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use iron_learn::Tensor;
-    ///
-    /// let tensor_a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
-    /// let tensor_b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
-    /// let tensor_diff = tensor_a.sub(&tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
-    /// // tensor_diff now contains the element-wise difference of tensor_a and tensor_b
-    /// ```
-    ///
-    /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
-    pub fn sub(&self, rhs: &Self) -> Result<Tensor<T>, String> {
-        self._add(rhs, true)
-    }
-
     /// Implements the addition of two `Tensor` instances. The `+` operator also does the same but the operator moves the value, making the instance unusable later.
     ///
     /// # Type Parameters
@@ -204,6 +175,35 @@ impl<T: Numeric> Tensor<T> {
     /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
     pub fn add(&self, rhs: &Self) -> Result<Tensor<T>, String> {
         self._add(rhs, false)
+    }
+
+    /// Implements the subtraction of two `Tensor` instances. The `-` operator also does the same but the operator moves the value, making the instance unusable later.
+    ///
+    /// # Type Parameters
+    /// - `T`: A type that implements the `Numeric` trait, ensuring the elements can be subtracted together.
+    ///
+    /// # Output
+    /// The output is a `Result` type that either contains:
+    /// - `Ok(Tensor)`: A new `Tensor` representing the difference of the two tensors.
+    /// - `Err(&'static str)`: An error message if the shapes of the two tensors do not match.
+    ///
+    /// # Errors
+    /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical, preventing element-wise addition.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use iron_learn::Tensor;
+    ///
+    /// let tensor_a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+    /// let tensor_b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    /// let tensor_diff = tensor_a.sub(&tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
+    /// // tensor_diff now contains the element-wise difference of tensor_a and tensor_b
+    /// ```
+    ///
+    /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
+    pub fn sub(&self, rhs: &Self) -> Result<Tensor<T>, String> {
+        self._add(rhs, true)
     }
 
     /// Implements tensor multiplication. The `*` also does the same but consumes the instance rendering it useless.
