@@ -24,16 +24,16 @@ pub fn add_i8() {
     let m2 = Tensor::new(vec![1, 2], vec![3i8, 4i8]).unwrap();
     let result = Tensor::new(vec![1, 2], vec![4i8, 6i8]).unwrap();
 
-    assert_eq!(result, (m1 + m2).unwrap());
+    assert_eq!(result, m1.add(&m2).unwrap());
 }
 
 #[test]
 pub fn add_i16() {
-    let m1 = Tensor::new(vec![1, 2], vec![1i16, 2i16]).unwrap();
-    let m2 = Tensor::new(vec![1, 2], vec![3i16, 4i16]).unwrap();
+    let m1 = Tensor::new(vec![1, 2], vec![1, 2]).unwrap();
+    let m2 = Tensor::new(vec![1, 2], vec![3, 4]).unwrap();
     let result = Tensor::new(vec![1, 2], vec![4i16, 6i16]).unwrap();
 
-    assert_eq!(result, (m1 + m2).unwrap());
+    assert_eq!(result, m1.add(&m2).unwrap());
 }
 
 #[test]
@@ -43,7 +43,16 @@ pub fn add_i32() {
     let m2 = Tensor::new(vec![1, 2, 2], vec![5, 6, 7, 8]).unwrap();
     let result = Tensor::new(vec![1, 2, 2], vec![6, 8, 10, 12]).unwrap();
 
-    assert_eq!(result, (m1 + m2).unwrap());
+    assert_eq!(result, m1.add(&m2).unwrap());
+}
+
+#[test]
+pub fn mul() {
+    let m1 = Tensor::new(vec![1, 2], vec![1, 2]).unwrap();
+    let m2 = Tensor::new(vec![2, 1], vec![3, 4]).unwrap();
+    let result = Tensor::new(vec![1, 1], vec![11]).unwrap();
+
+    assert_eq!(result, m1.mul(&m2).unwrap());
 }
 
 #[test]
@@ -52,5 +61,5 @@ pub fn sub() {
     let m2 = Tensor::new(vec![1, 2], vec![3, 4]).unwrap();
     let result = Tensor::new(vec![1, 2], vec![-2, -2]).unwrap();
 
-    assert_eq!(result, (m1 - m2).unwrap());
+    assert_eq!(result, m1.sub(&m2).unwrap());
 }

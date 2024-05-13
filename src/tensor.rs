@@ -3,7 +3,7 @@
 
 mod display;
 use crate::numeric::Numeric;
-use std::ops::{Add, Mul};
+use std::ops::{Add, Mul, Sub};
 
 /// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
 /// for the manipulation of multidimensional data. It is designed to be compatible with all numeric types defined in the `numeric` module,
@@ -17,14 +17,11 @@ pub struct Tensor<T: Numeric> {
 
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
 impl<T: Numeric> Tensor<T> {
-
-   
-
     fn _data(&self) -> Vec<T> {
         self.data.clone()
     }
 
-    fn _add(&self, rhs: &Self) -> Result<Self, String> {
+    fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
         let mut result = Vec::with_capacity(self.data.len());
 
         if self.shape != rhs.shape {
@@ -32,7 +29,11 @@ impl<T: Numeric> Tensor<T> {
         }
 
         for i in 0..self.data.len() {
-            result.push(self.data[i] + rhs.data[i])
+            if sub {
+                result.push(self.data[i] - rhs.data[i])
+            } else {
+                result.push(self.data[i] + rhs.data[i])
+            }
         }
 
         Ok(Self {
@@ -41,14 +42,14 @@ impl<T: Numeric> Tensor<T> {
         })
     }
 
-    pub fn reshape(&mut self, shape: Vec<u32>)  {
+    pub fn reshape(&mut self, shape: Vec<u32>) {
         if let Some(value) = Self::check_shape(&shape) {
             panic!("Reshape Eroor");
         }
 
         let size = Self::calculate_length(&shape);
         let existing_size = Self::calculate_length(&self.shape);
-        if size!=existing_size {
+        if size != existing_size {
             panic!("New size does not match old size")
         }
 
@@ -61,7 +62,7 @@ impl<T: Numeric> Tensor<T> {
                 "ShapeError: Tensor must have at least one dimension."
             )));
         }
-    
+
         if shape.len() > 2 {
             return Some(Err(format!(
                 "TemporaryShapeRestriction: Currently only accepting tensors upto 2 dimensions"
@@ -72,7 +73,7 @@ impl<T: Numeric> Tensor<T> {
 
     fn calculate_length(shape: &Vec<u32>) -> u32 {
         let mut size = 1;
-    
+
         for i in shape {
             size *= i;
         }
@@ -145,12 +146,97 @@ impl<T: Numeric> Tensor<T> {
     }
 }
 
-
-
-
-
 // The public API of Tensor type
 impl<T: Numeric> Tensor<T> {
+    /// Implements the subtraction of two `Tensor` instances. The `-` operator also does the same but the operator moves the value, making the instance unusable later.
+    ///
+    /// # Type Parameters
+    /// - `T`: A type that implements the `Numeric` trait, ensuring the elements can be subtracted together.
+    ///
+    /// # Output
+    /// The output is a `Result` type that either contains:
+    /// - `Ok(Tensor)`: A new `Tensor` representing the difference of the two tensors.
+    /// - `Err(&'static str)`: An error message if the shapes of the two tensors do not match.
+    ///
+    /// # Errors
+    /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical, preventing element-wise addition.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use iron_learn::Tensor;
+    ///
+    /// let tensor_a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+    /// let tensor_b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    /// let tensor_diff = tensor_a.sub(&tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
+    /// // tensor_diff now contains the element-wise difference of tensor_a and tensor_b
+    /// ```
+    ///
+    /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
+    pub fn sub(&self, rhs: &Self) -> Result<Tensor<T>, String> {
+        self._add(rhs, true)
+    }
+
+    /// Implements the addition of two `Tensor` instances. The `+` operator also does the same but the operator moves the value, making the instance unusable later.
+    ///
+    /// # Type Parameters
+    /// - `T`: A type that implements the `Numeric` trait, ensuring the elements can be added together.
+    ///
+    /// # Output
+    /// The output is a `Result` type that either contains:
+    /// - `Ok(Tensor)`: A new `Tensor` representing the sum of the two tensors.
+    /// - `Err(&'static str)`: An error message if the shapes of the two tensors do not match.
+    ///
+    /// # Errors
+    /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical, preventing element-wise addition.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use iron_learn::Tensor;
+    ///
+    /// let tensor_a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+    /// let tensor_b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    /// let tensor_sum = tensor_a.add(&tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
+    /// // tensor_sum now contains the element-wise sum of tensor_a and tensor_b
+    /// ```
+    ///
+    /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
+    pub fn add(&self, rhs: &Self) -> Result<Tensor<T>, String> {
+        self._add(rhs, false)
+    }
+
+    /// Implements tensor multiplication. The `*` also does the same but consumes the instance rendering it useless.
+    ///
+    /// This method enables the multiplication of two tensors, akin to matrix multiplication. It requires that the number of columns in the first tensor matches the number of rows in the second tensor, following the rules of matrix multiplication.
+    ///
+    /// # Type Parameters
+    /// - `T`: A type that implements the `Numeric` trait, which includes all numeric types supported by the library.
+    ///
+    /// # Output
+    /// The output is a `Result` type that either contains:
+    /// - `Ok(Tensor)`: A new `Tensor` representing the product of the two tensors.
+    /// - `Err(String)`: A formatted error message if the dimensions of the two tensors do not allow for multiplication.
+    ///
+    /// # Errors
+    /// - `ShapeMismatch`: Returned when the number of columns in the first tensor does not match the number of rows in the second tensor.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use iron_learn::Tensor;
+    ///
+    /// let tensor_a = Tensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
+    /// let tensor_b = Tensor::new(vec![3, 2], vec![7, 8, 9, 10, 11, 12]).unwrap();
+    /// let tensor_product = tensor_a.mul(&tensor_b).expect("ShapeMismatch: The dimensions of two matrices are not matching.");
+    /// // tensor_product now contains the product of tensor_a and tensor_b
+    /// ```
+    ///
+    /// Note: This method is designed to support all numeric types defined in the `numeric` module, ensuring compatibility with a wide range of data types.
+    pub fn mul(&self, rhs: &Self) -> Result<Tensor<T>, String> {
+        self._mul(rhs)
+    }
+
     /// Constructs a new instance of a `Tensor`.
     ///
     /// This associated function initializes a `Tensor` with a specified shape and data. It requires two parameters:
@@ -266,7 +352,42 @@ impl<T: Numeric> Add for Tensor<T> {
     ///
     /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
     fn add(self, rhs: Self) -> Result<Self, String> {
-        self._add(&rhs)
+        self._add(&rhs, false)
+    }
+}
+
+impl<T: Numeric> Sub for Tensor<T> {
+    type Output = Result<Self, String>;
+
+    /// Implements the subtraction of two `Tensor` instances.
+    ///
+    /// This implementation of the `Sub` trait enables the subtraction of two tensors with the same shape. The operation is element-wise, meaning each element in one tensor is subtracted to the corresponding element in the other tensor.
+    ///
+    /// # Type Parameters
+    /// - `T`: A type that implements the `Numeric` trait, ensuring the elements can be subtracted together.
+    ///
+    /// # Output
+    /// The output is a `Result` type that either contains:
+    /// - `Ok(Tensor)`: A new `Tensor` representing the difference of the two tensors.
+    /// - `Err(&'static str)`: An error message if the shapes of the two tensors do not match.
+    ///
+    /// # Errors
+    /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical, preventing element-wise addition.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use iron_learn::Tensor;
+    ///
+    /// let tensor_a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+    /// let tensor_b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    /// let tensor_sum = (tensor_a - tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
+    /// // tensor_sum now contains the element-wise sum of tensor_a and tensor_b
+    /// ```
+    ///
+    /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
+    fn sub(self, rhs: Self) -> Result<Self, String> {
+        self._add(&rhs, true)
     }
 }
 
