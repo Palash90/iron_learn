@@ -4,6 +4,7 @@
 
 use crate::numeric::Numeric;
 use crate::tensor::Tensor;
+use std::fmt;
 use std::ops::Add;
 use std::ops::Mul;
 
@@ -103,6 +104,12 @@ impl<T: Numeric> Matrix<T> {
     /// Note: The `get_data` function is designed to work seamlessly with all numeric types defined in the `numeric` module, ensuring broad compatibility.
     pub fn get_data(self) -> Vec<T> {
         self.tensor.get_data()
+    }
+}
+
+impl<T: Numeric + fmt::Display> fmt::Display for Matrix<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.tensor)
     }
 }
 

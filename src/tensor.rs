@@ -1,6 +1,7 @@
 //! The `tensor` module provides the foundational structures and operations
 //! for linear algebra computations integral to machine learning applications.
 
+mod display;
 use std::ops::{Add, Mul};
 
 use crate::numeric::Numeric;
