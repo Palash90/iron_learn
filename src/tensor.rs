@@ -17,6 +17,9 @@ pub struct Tensor<T: Numeric> {
 
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
 impl<T: Numeric> Tensor<T> {
+
+   
+
     fn _data(&self) -> Vec<T> {
         self.data.clone()
     }
@@ -38,24 +41,50 @@ impl<T: Numeric> Tensor<T> {
         })
     }
 
-    fn _new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
+    pub fn reshape(&mut self, shape: Vec<u32>)  {
+        if let Some(value) = Self::check_shape(&shape) {
+            panic!("Reshape Eroor");
+        }
+
+        let size = Self::calculate_length(&shape);
+        let existing_size = Self::calculate_length(&self.shape);
+        if size!=existing_size {
+            panic!("New size does not match old size")
+        }
+
+        self.shape = shape;
+    }
+
+    fn check_shape(shape: &Vec<u32>) -> Option<Result<Tensor<T>, String>> {
         if shape.len() == 0 {
-            return Err(format!(
+            return Some(Err(format!(
                 "ShapeError: Tensor must have at least one dimension."
-            ));
+            )));
         }
-
+    
         if shape.len() > 2 {
-            return Err(format!(
+            return Some(Err(format!(
                 "TemporaryShapeRestriction: Currently only accepting tensors upto 2 dimensions"
-            ));
+            )));
         }
+        None
+    }
 
+    fn calculate_length(shape: &Vec<u32>) -> u32 {
         let mut size = 1;
-
-        for i in &shape {
+    
+        for i in shape {
             size *= i;
         }
+        size
+    }
+
+    fn _new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
+        if let Some(value) = Self::check_shape(&shape) {
+            return value;
+        }
+
+        let size = Self::calculate_length(&shape);
 
         if size != data.len().try_into().unwrap() {
             let err = String::from(format!("DataError: Data length ({}) does not match total num of elements provided by dimensions ({}))", data.len(), size));
@@ -115,6 +144,10 @@ impl<T: Numeric> Tensor<T> {
         })
     }
 }
+
+
+
+
 
 // The public API of Tensor type
 impl<T: Numeric> Tensor<T> {
