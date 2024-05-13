@@ -1,1 +1,3 @@
 /target
+src/matrix.rs
+src/vector.rs

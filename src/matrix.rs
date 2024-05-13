@@ -13,7 +13,7 @@ use std::ops::Mul;
 /// This struct represents a matrix with elements of any numeric type that implements the `Numeric` trait.
 /// It provides matrix-specific operations by leveraging the underlying tensor structure.
 #[derive(Debug, PartialEq)]
-#[deprecated(since="0.2.0", note="Supportability between different `Tensor` types are difficult, please use `Tensor` instead")]
+//#[deprecated(since="0.2.0", note="Supportability between different `Tensor` types are difficult, please use `Tensor` instead")]
 pub struct Matrix<T: Numeric> {
     tensor: Tensor<T>,
 }
