@@ -12,7 +12,7 @@ This library is designed to facilitate machine learning tasks with a focus on li
 ### `tensor`
 At the core of the library, the `tensor` module supports multi-dimensional `Tensor` data structure. It includes methods for tensor instantiation and defines the `+` operator for tensor addition and the `*` operator for tensor multiplication. Additionally, it features a method for the Hadamard product, an element-wise multiplication operation.
 
-The cration, multiplication and addition operation on `Tensor` can fail due to multiple reasons and hence, it returns a result object instead of panic!. The library expects the user to handle the result as per need.
+The creation, multiplication and addition operation on `Tensor` can fail due to multiple reasons and hence, it returns a result object instead of panic!. The library expects the user to handle the result as per need.
 
 __*N.B:*__ This Module is limited to only two dimensional Matrix Support. This is a temporary restriction and we plan to remove this restriction in future.
 
@@ -62,7 +62,7 @@ let c = (a * b).unwrap(); // Perform matrix multiplication
 ```rust
 let a = Matrix::new(vec![2, 2], vec![1, 2, 3, 4]); // Define matrix `a`
 let b = Matrix::new(vec![2, 2], vec![5, 6, 7, 8]); // Define matrix `b`
-let c = a.multiply(b).unwrap(); // Perform matrix multiplication
+let c = a.multiply(b).unwrap(); // Perform matrix hadamard product
 ```
 
 ### Vector Addition
