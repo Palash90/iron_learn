@@ -5,14 +5,14 @@ A pure Rust Machine Learning Library
 Version 0.2.0 released with limited Matrix Manipulation abilities. Under active development for further implementation support.
 
 ## Overview
-This library is designed to facilitate machine learning tasks with a focus on linear algebra operations. Currently, the library supports matrix addition, subtraction and multiplication, providing a robust foundation for building more complex machine learning algorithms.
+This library is designed to facilitate machine learning tasks with a focus on linear algebra operations. Currently, the library supports matrix addition, subtraction, multiplication, transpose and scaling by a scalar providing a robust foundation for building more complex machine learning algorithms.
 
 ## Modules
 
 ### `tensor`
 At the core of the library, the `tensor` module supports multi-dimensional `Tensor` data structure. It includes methods for tensor instantiation and defines the `+` operator for tensor addition, the `-` operator for subtraction and the `*` operator for tensor multiplication. These operators however, take ownership of the variables(both `rhs` and `lhs`). So, the variables cannot be used later. To facilitate performing these operations without the ownership issue, it also provides `add`, `sub` and `mul` methods to perform addition, subtraction and division by borrowing the variables for operation.
 
- Additionally, it features a method `t` for transpose and a `multiply` method for the Hadamard product, an element-wise multiplication operation. 
+ Additionally, it features a method `t` for transpose and a `multiply` method for the Hadamard product, an element-wise multiplication operation. It also pose `scale` method for scaling by a scalar value.
 
 These operations on `Tensor` can fail due to multiple reasons and hence, it returns a result object. The library assumes a better error handling by the user rather than causing `panic`.
 
@@ -92,6 +92,13 @@ let c = a.multiply(b).unwrap(); // Perform matrix hadamard product
 ```rust
 let m = Tensor::new(vec![6], vec![1, 2, 3, 4, 5, 6]).unwrap();
  m.t().unwrap();
+```
+
+### Tensor Scaling
+```rust
+let m = Tensor::new(vec![6], vec![1, 2, 3, 4, 5, 6]).unwrap();
+let r = Tensor::new(vec![6], vec![5, 10, 15, 20, 25, 30]).unwrap();
+ assert-eq!(m.scale(5).unwrap(), r);
 ```
 
 ### Complex Number Arithmatic

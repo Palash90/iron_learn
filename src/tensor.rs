@@ -46,11 +46,15 @@ impl<T: Numeric> Tensor<T> {
         self.data.clone()
     }
 
+    fn _shape(&self) -> Vec<u32> {
+        self.shape.clone()
+    }
+
     fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
         let mut result = Vec::with_capacity(self.data.len());
 
         if self.shape != rhs.shape {
-            return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition- {:?} {:?}", self.shape, rhs.shape));
+            return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
         }
 
         for i in 0..self.data.len() {
@@ -155,6 +159,19 @@ impl<T: Numeric> Tensor<T> {
             data,
         })
     }
+
+    fn _s(&self, scalar: T) -> Self {
+        let mut new_data = Vec::<T>::new();
+
+        for i in self._data() {
+            new_data.push(i * scalar);
+        }
+
+        Self {
+            shape: self.shape.clone(),
+            data: new_data,
+        }
+    }
 }
 
 // The public API of Tensor type
@@ -209,6 +226,26 @@ impl<T: Numeric> Tensor<T> {
     /// Note: The `get_data` function is designed to work seamlessly with all numeric types defined in the `numeric` module, ensuring broad compatibility.
     pub fn get_data(&self) -> Vec<T> {
         self._data()
+    }
+
+    /// Retrieves the shape of the `Tensor`.
+    ///
+    /// # Returns
+    /// A `Vec<u32>` containing a copy of the tensor's shape.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use iron_learn::Tensor;
+    ///
+    /// let tensor = Tensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
+    /// let shape = tensor.get_shape(); // Retrieves the data as Vec<f64>
+    ///
+    /// assert_eq!(vec![2, 2], shape);
+    /// ```
+    ///
+    pub fn get_shape(&self) -> Vec<u32> {
+        self._shape()
     }
 
     /// Implements the addition of two `Tensor` instances. The `+` operator also does the same but the operator moves the value, making the instance unusable later.
@@ -356,6 +393,30 @@ impl<T: Numeric> Tensor<T> {
     ///
     pub fn t(&self) -> Result<Self, String> {
         self._t()
+    }
+
+    /// Scales the tensor by a scalar value.
+    ///
+    /// This method takes a scalar value of type `T` and scales each element of the tensor by this value.
+    /// The result is a new tensor with the same shape as the original but with each element multiplied
+    /// by the scalar.
+    ///
+    /// # Parameters
+    /// * `scalar`: The value of type `T` to scale the tensor by.
+    ///
+    /// # Returns
+    /// A new `Tensor` instance with scaled values.
+    ///
+    /// # Examples
+    /// ```
+    /// use iron_learn::Tensor;
+    ///
+    /// let tensor = Tensor::new(vec![1, 3], vec![1, 2, 3]).unwrap();
+    /// let scaled_tensor = tensor.scale(2);
+    /// assert_eq!(scaled_tensor.get_data(), vec![2, 4, 6]);
+    /// ```
+    pub fn scale(&self, scalar: T) -> Self {
+        self._s(scalar)
     }
 }
 
