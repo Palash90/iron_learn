@@ -60,7 +60,7 @@ fn main() {
 
     let e = 10000;
 
-    for i in 0..e {
+    for _ in 0..e {
         w = gradient_descent(&x, &y, &w, l)
     }
 

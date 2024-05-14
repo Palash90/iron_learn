@@ -1,3 +1,5 @@
+//! The `gradient_descent` module provides gradient descent optimization
+
 use crate::Tensor;
 
 /// The `gradient_descent` function performs a single step of the gradient descent optimization algorithm.
