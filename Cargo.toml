@@ -1,9 +1,9 @@
 [package]
 name = "iron_learn"
 description = "A pure Rust Machine Learning Library with Generic Tensor and a Gradient Descent Optimization Function"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
-authors = ["Palash Kanti Kundu"]
+authors = ["Palash Kanti Kundu (https://www.linkedin.com/in/palash90)"]
 readme = "README.md"
 repository = "https://github.com/Palash90/iron_learn"
 license = "MIT"
