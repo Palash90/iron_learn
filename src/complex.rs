@@ -156,9 +156,6 @@ impl Div for Complex {
         let real = (a * c + b * d) / divisor;
         let imaginary = (b * c - a * d) / divisor;
 
-        Self {
-            real: real,
-            imaginary: imaginary,
-        }
+        Self { real, imaginary }
     }
 }

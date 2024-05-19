@@ -19,7 +19,7 @@ pub struct Tensor<T: Numeric> {
 impl<T: Numeric> Tensor<T> {
     fn _t(&self) -> Result<Self, String> {
         if self.shape.len() > 2 {
-            return Err(format!("Only 2D tensors can be transposed."));
+            return Err("Only 2D tensors can be transposed.".to_string());
         }
 
         if self.shape.len() == 1 {
@@ -71,17 +71,18 @@ impl<T: Numeric> Tensor<T> {
         })
     }
 
-    fn check_shape(shape: &Vec<u32>) -> Option<Result<Tensor<T>, String>> {
-        if shape.len() == 0 {
-            return Some(Err(format!(
-                "ShapeError: Tensor must have at least one dimension."
-            )));
+    fn check_shape(shape: &[u32]) -> Option<Result<Tensor<T>, String>> {
+        if shape.is_empty() {
+            return Some(Err(
+                "ShapeError: Tensor must have at least one dimension.".to_string()
+            ));
         }
 
         if shape.len() > 2 {
-            return Some(Err(format!(
+            return Some(Err(
                 "TemporaryShapeRestriction: Currently only accepting tensors upto 2 dimensions"
-            )));
+                    .to_string(),
+            ));
         }
         None
     }
@@ -103,7 +104,7 @@ impl<T: Numeric> Tensor<T> {
         let size = Self::calculate_length(&shape);
 
         if size != data.len().try_into().unwrap() {
-            let err = String::from(format!("DataError: Data length ({}) does not match total num of elements provided by dimensions ({}))", data.len(), size));
+            let err = format!("DataError: Data length ({}) does not match total num of elements provided by dimensions ({}))", data.len(), size);
             return Err(err);
         }
 
@@ -365,7 +366,7 @@ impl<T: Numeric> Tensor<T> {
     ///
     /// Note: This method supports all numeric types defined in the `numeric` module, ensuring compatibility with a wide range of data types.
     pub fn multiply(&self, rhs: &Self) -> Result<Self, String> {
-        self.hadamard(&rhs)
+        self.hadamard(rhs)
     }
 
     /// Transposes a 2D tensor.

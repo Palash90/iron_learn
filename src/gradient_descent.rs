@@ -30,7 +30,7 @@ use crate::Tensor;
 /// ```
 ///
 pub fn gradient_descent(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f64) -> Tensor<f64> {
-    let data_size = *(x.get_shape().get(0).unwrap()) as f64;
+    let data_size = *(x.get_shape().first().unwrap()) as f64;
     let prediction = x.mul(w).unwrap();
     let loss = y.sub(&prediction).unwrap();
     let d = x

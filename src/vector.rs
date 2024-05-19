@@ -12,10 +12,10 @@ use std::ops::Mul;
 ///
 /// This struct is a specialized version of a `Tensor` that is constrained to one dimension, representing a mathematical vector. It inherits all numerical operations from the `Tensor` through the `Numeric` trait.
 #[derive(Debug, PartialEq)]
-#[deprecated(
+/*#[deprecated(
     since = "0.2.0",
     note = "Supportability between different `Tensor` types are difficult, please use `Tensor` instead"
-)]
+)]*/
 pub struct Vector<T: Numeric> {
     tensor: Tensor<T>,
 }
