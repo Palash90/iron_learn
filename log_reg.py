@@ -9,7 +9,7 @@ X = np.hstack((np.ones((X.shape[0], 1)), X))
 print(X)
 
 # Initialize weights
-w = np.array([0.0,0.0,0.0])
+w = np.array([0.0,0.0])
 
 # Sigmoid function
 def sigmoid(X, w):
@@ -23,11 +23,12 @@ def loss(y, p):
     return -np.mean(y * np.log(p) + (1 - y) * np.log(1 - p))
 
 # Gradient descent (update weights)
-learning_rate = 0.001
+learning_rate = 0.00001
 for _ in range(100_000):
     gradient = X.T @ (sigmoid(X, w) - y) / len(y)
     w -= learning_rate * gradient
 print(w)
+
 # Threshold predictions
 predictions = (p >= 0.5).astype(int)
 

@@ -23,9 +23,9 @@ fn main() {
     let y = Tensor::new(vec![xy.m, 1], xy.y).unwrap();
     let mut w = Tensor::new(vec![xy.n, 1], vec![0.0; xy.n as usize]).unwrap();
 
-    let l = 0.001;
+    let l = 0.00001;
 
-    let e = 10000;
+    let e = 100_000;
     
     for _ in 0..e {
         w = gradient_descent(&x, &y, &w, l, false)
