@@ -32,7 +32,7 @@ fn main() {
         w = gradient_descent(&x, &y, &w, l, false)
     }
 
-    println!("{}", w); // Should return something close to [5, 12, 13, 50]
+    println!("{}", w);
 
     let x = Tensor::new(vec![6, 2], vec![0.5, 1.5, 1.0, 1.0, 1.5, 0.5, 3.0, 0.5, 2.0, 2.0, 1.0, 2.5]).unwrap();
     let y = Tensor::new(vec![6, 1], vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0]).unwrap();
@@ -51,5 +51,5 @@ fn main() {
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);
 
-    println!("{}", w); // Should return something close to [5, 12, 13, 50]
+    println!("{}", w);
 }
