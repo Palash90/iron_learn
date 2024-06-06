@@ -6,7 +6,7 @@ n = int(input("Enter number of features: "))
 w = np.random.randint(2, 10, (1, n))
 x = np.random.randint(5, 10, (m, n))
 y = x @ w.T
-noise = np.random.normal(0,1,y.shape)
+noise = np.random.normal(1, 5, y.shape)
 y = y + noise
 
 x = np.reshape(x, (m * n))
