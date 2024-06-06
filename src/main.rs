@@ -1,4 +1,4 @@
-use iron_learn::gradient_descent::gradient_descent;
+use iron_learn::{logistic_regression, linear_regression};
 use iron_learn::Tensor;
 use std::time::Instant;
 use serde::{Serialize, Deserialize};
@@ -28,7 +28,7 @@ fn main() {
     let e = 100_000;
     
     for _ in 0..e {
-        w = gradient_descent(&x, &y, &w, l, false)
+        w = linear_regression(&x, &y, &w, l)
     }
 
     let x = Tensor::new(vec![6, 3], vec![1.0, 0.5, 1.5, 1.0, 1.0, 1.0, 1.0, 1.5, 0.5, 1.0, 3.0, 0.5, 1.0, 2.0, 2.0, 1.0, 1.0, 2.5]).unwrap();
@@ -42,7 +42,7 @@ fn main() {
     let now = Instant::now();
 
     for _ in 0..e {
-        w = gradient_descent(&x, &y, &w, l, true)
+        w = logistic_regression(&x, &y, &w, l)
     }
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);

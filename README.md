@@ -2,7 +2,7 @@
 A pure Rust Machine Learning Library
 
 ## Status
-Version 0.3.0 released with limited Matrix Manipulation abilities like addition, subtraction, multiplication, scaling and transpose. Also, it adds on a new Gradient Descent function. Under active development for further implementation support.
+Version 0.4.0 released with Logistic Regression Algorithm. Now you can directly use `linear_regression` or `logistic_regression` functions instead of directly using `gradient_descent` function, which has been marked as deprecated and is going to introduce breaking changes and in future may be removed. Under active development for further implementation support.
 
 __*N.B:*__ This library was built as a product of Rust Learning Efforts. So, "School Grade" algorithm is used for Matrix Multiplication. I have plans for improving on the performance part though in future.
 
@@ -27,7 +27,7 @@ The `complex` module is experimental and provides a representation of complex nu
 This module defines all supported numeric types necessary for machine learning operations, including integer, unsigned, and floating-point variants, as well as the custom type `Complex`.
 
 ### `gradient_descent`
-The `gradient_descent` function performs a single step of the gradient descent optimization algorithm.
+The `gradient_descent` function performs a single step of the gradient descent optimization algorithm. It can work for both Linear Regression and Logistic Regression, configured by a boolean parameter.
 
 ### ~~`matrix`~~ (Use 2-Dimensional `Tensor` instead)
 The `matrix` module provides the `Matrix` structure which serves as a wrapper for the `Tensor` object of two dimensions, enabling matrix operations. It defines the `+` and `*` operators for matrix addition and multiplication, respectively, mirroring the behavior of tensors. It also enables `multiply` method to support hadamard product of two matrices.
@@ -115,7 +115,7 @@ let learning_rate: f64 = 0.01;
 let w = Tensor::new(vec![2, 1], vec![3.0, 4.0]).unwrap();
 let x = Tensor::new(vec![1, 2], vec![3.0, 4.0]).unwrap();
 let y = Tensor::new(vec![1, 1], vec![5.0]).unwrap();
-let w = gradient_descent(&x, &y, &w, learning_rate);
+let w = gradient_descent(&x, &y, &w, learning_rate, true);
 ```
 
 ### Complex Number Arithmatic
