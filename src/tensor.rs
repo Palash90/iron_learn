@@ -2,8 +2,8 @@
 //! for linear algebra computations integral to machine learning applications.
 
 mod display;
-use crate::numeric::Numeric;
-use std::ops::{Add, Mul, Sub};
+use crate::numeric::{SignedNumeric, Numeric};
+use std::ops::{Add, Mul, Sub, Neg};
 
 /// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
 /// for the manipulation of multidimensional data. It is designed to be compatible with all numeric types defined in the `numeric` module,
@@ -17,6 +17,11 @@ pub struct Tensor<T: Numeric> {
 
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
 impl<T: Numeric> Tensor<T> {
+    pub fn _exp(operand: &Self) -> Tensor<f64> {
+        let result = operand.data.iter().map(|t| f64::exp(t.f64())).collect();
+        Tensor::new(operand.shape.clone(), result).unwrap()
+    }
+
     fn _t(&self) -> Result<Self, String> {
         if self.shape.len() > 2 {
             return Err("Only 2D tensors can be transposed.".to_string());
@@ -177,6 +182,26 @@ impl<T: Numeric> Tensor<T> {
 
 // The public API of Tensor type
 impl<T: Numeric> Tensor<T> {
+    /// Return a new instance of a `Tensor` with each value raised to `e`.
+    ///
+    /// It requires one parameter:
+    /// - `operand`: A `Tensor` object.
+    ///
+    /// # Returns
+    /// - New `Tensor` instance with all the values raised to `e` of the input `Tensor`
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use iron_learn::Tensor;
+    ///
+    /// let tensor = Tensor::exp(&Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap());
+    /// ```
+    ///
+    pub fn exp(operand: &Self) -> Tensor<f64> {
+        Self::_exp(operand)
+    }
+
     /// Constructs a new instance of a `Tensor`.
     ///
     /// This associated function initializes a `Tensor` with a specified shape and data. It requires two parameters:
@@ -524,6 +549,14 @@ impl<T: Numeric> Mul for Tensor<T> {
     fn mul(self, rhs: Self) -> Result<Self, String> {
         self._mul(&rhs)
     }
+}
+
+impl<T: SignedNumeric> Neg for Tensor<T> {
+    type Output = Self;
+    fn neg(self) -> Self { 
+        let result : Vec<T> = self.data.iter().map(|t| -*t).collect();
+        Tensor::new(self.shape, result).unwrap()
+     }
 }
 
 #[cfg(test)]

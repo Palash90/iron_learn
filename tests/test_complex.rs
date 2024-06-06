@@ -32,4 +32,8 @@ fn test_complex() {
 
     let r = b / a;
     assert_eq!(Complex::new(11.0 / 5.0, -(2.0 / 5.0)), r);
+
+    // Test Negation
+    let r = -a;
+    assert_eq!(Complex::new(-1.0, -2.0), r);
 }

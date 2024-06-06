@@ -25,13 +25,28 @@ fn main() {
 
     let l = 0.0001;
 
-    let e = 10000;
+    let e = 100000;
+    
+    for _ in 0..e {
+       // println!("{:?}", w.get_data());
+        w = gradient_descent(&x, &y, &w, l, false)
+    }
+
+    println!("{}", w); // Should return something close to [5, 12, 13, 50]
+
+    let x = Tensor::new(vec![6, 2], vec![0.5, 1.5, 1.0, 1.0, 1.5, 0.5, 3.0, 0.5, 2.0, 2.0, 1.0, 2.5]).unwrap();
+    let y = Tensor::new(vec![6, 1], vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0]).unwrap();
+    let mut w = Tensor::new(vec![2, 1], vec![8.0, 8.0]).unwrap();
+
+    let l = 0.0001;
+
+    let e = 100000;
     
     let now = Instant::now();
 
-    for i in 0..e {
-        w = gradient_descent(&x, &y, &w, l)
-
+    for _ in 0..e {
+       // println!("{:?}", w.get_data());
+        w = gradient_descent(&x, &y, &w, l, true)
     }
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);

@@ -159,3 +159,26 @@ impl Div for Complex {
         Self { real, imaginary }
     }
 }
+
+impl std::ops::Neg for Complex {
+    type Output = Self;
+
+    /// Negates a complex number.
+    ///
+    /// # Returns
+    /// The negative real and imaginary part.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use iron_learn::Complex;
+    ///
+    /// let a = Complex::new(1.0, 2.0);
+    /// 
+    /// let r = -a;
+    /// assert_eq!(Complex::new(-1.0, -2.0), r);
+    /// ```
+    fn neg(self) -> Self::Output {
+        Complex::new(self.real * -1.0, self.imaginary * -1.0)
+    }
+}

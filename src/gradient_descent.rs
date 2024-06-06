@@ -26,12 +26,24 @@ use crate::Tensor;
 /// let x = Tensor::new(vec![1, 2], vec![3.0, 4.0]).unwrap();
 /// let y = Tensor::new(vec![1, 1], vec![5.0]).unwrap();
 ///
-/// let w = gradient_descent(&x, &y, &w, learning_rate);
+/// let w = gradient_descent(&x, &y, &w, learning_rate, false); // For linear regression
 /// ```
 ///
-pub fn gradient_descent(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f64) -> Tensor<f64> {
+pub fn gradient_descent(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f64, logistic: bool) -> Tensor<f64> {
     let data_size = *(x.get_shape().first().unwrap()) as f64;
-    let prediction = x.mul(w).unwrap();
+    let prediction = match logistic {
+        false => x.mul(w).unwrap(),
+        true => {
+            let result = x.mul(w).unwrap();
+            let result = -result;
+            let result = Tensor::exp(&result);
+            let shape = result.get_shape();
+
+            let result = result.get_data().iter().map(|t|1.0/(1.0 + t)).collect();
+            Tensor::new(shape, result).unwrap()
+        }
+    };
+    
     let loss = y.sub(&prediction).unwrap();
     let d = x
         .t()

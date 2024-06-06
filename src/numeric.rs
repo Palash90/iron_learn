@@ -31,14 +31,20 @@ pub trait Numeric:
     + std::ops::Add<Output = Self>
     + std::ops::Sub<Output = Self>
     + std::ops::Mul<Output = Self>
-    + std::ops::Div<Output = Self>
-{
+    + std::ops::Div<Output = Self> {
     /// Returns the zero value of the type.
     fn zero() -> Self;
 
     /// Returns the one value of the type.
     fn one() -> Self;
+
+    /// Returns f64 equivalent of t
+    fn f64(&self) -> f64;
 }
+
+/// The `SignedNumeric` defines all the `Numeric` types that can be signed like `i32`, `i64` etc.
+pub trait SignedNumeric:Numeric
+ + std::ops::Neg<Output = Self>{}
 
 // Implementations of the Numeric trait for various built-in numeric types.
 impl Numeric for i8 {
@@ -48,6 +54,9 @@ impl Numeric for i8 {
     fn one() -> Self {
         1
     }
+    fn f64(&self) -> f64 {
+        *self as f64
+    }
 }
 impl Numeric for i16 {
     fn zero() -> Self {
@@ -55,6 +64,9 @@ impl Numeric for i16 {
     }
     fn one() -> Self {
         1
+    }
+    fn f64(&self) -> f64 {
+        *self as f64
     }
 }
 impl Numeric for i32 {
@@ -64,6 +76,9 @@ impl Numeric for i32 {
     fn one() -> Self {
         1
     }
+    fn f64(&self) -> f64 {
+        *self as f64
+    }
 }
 impl Numeric for i64 {
     fn zero() -> Self {
@@ -71,6 +86,9 @@ impl Numeric for i64 {
     }
     fn one() -> Self {
         1
+    }
+    fn f64(&self) -> f64 {
+        *self as f64
     }
 }
 impl Numeric for i128 {
@@ -80,6 +98,9 @@ impl Numeric for i128 {
     fn one() -> Self {
         1
     }
+    fn f64(&self) -> f64 {
+        *self as f64
+    }
 }
 impl Numeric for isize {
     fn zero() -> Self {
@@ -88,7 +109,12 @@ impl Numeric for isize {
     fn one() -> Self {
         1
     }
+    fn f64(&self) -> f64 {
+        *self as f64
+    }
 }
+
+
 impl Numeric for u8 {
     fn zero() -> Self {
         0
@@ -96,13 +122,20 @@ impl Numeric for u8 {
     fn one() -> Self {
         1
     }
+    fn f64(&self) -> f64 {
+        *self as f64
+    }
 }
+
 impl Numeric for u16 {
     fn zero() -> Self {
         0
     }
     fn one() -> Self {
         1
+    }
+    fn f64(&self) -> f64 {
+        *self as f64
     }
 }
 impl Numeric for u32 {
@@ -112,6 +145,9 @@ impl Numeric for u32 {
     fn one() -> Self {
         1
     }
+    fn f64(&self) -> f64 {
+        *self as f64
+    }
 }
 impl Numeric for u64 {
     fn zero() -> Self {
@@ -119,6 +155,9 @@ impl Numeric for u64 {
     }
     fn one() -> Self {
         1
+    }
+    fn f64(&self) -> f64 {
+        *self as f64
     }
 }
 impl Numeric for u128 {
@@ -128,6 +167,9 @@ impl Numeric for u128 {
     fn one() -> Self {
         1
     }
+    fn f64(&self) -> f64 {
+        *self as f64
+    }
 }
 impl Numeric for usize {
     fn zero() -> Self {
@@ -136,13 +178,21 @@ impl Numeric for usize {
     fn one() -> Self {
         1
     }
+    fn f64(&self) -> f64 {
+        *self as f64
+    }
 }
+
+
 impl Numeric for f32 {
     fn zero() -> Self {
         0.0
     }
     fn one() -> Self {
         1.0
+    }
+    fn f64(&self) -> f64 {
+        *self as f64
     }
 }
 impl Numeric for f64 {
@@ -151,6 +201,9 @@ impl Numeric for f64 {
     }
     fn one() -> Self {
         1.0
+    }
+    fn f64(&self) -> f64 {
+        *self as f64
     }
 }
 
@@ -165,4 +218,18 @@ impl Numeric for Complex {
     fn one() -> Self {
         Complex::new(1.0, 0.0)
     }
+
+    fn f64(&self) -> f64 {
+        panic!("InvalidOperation: Trying to convert a complex number to floating point number");
+    }
 }
+
+impl SignedNumeric for i8{}
+impl SignedNumeric for i16{}
+impl SignedNumeric for i32{}
+impl SignedNumeric for i64{}
+impl SignedNumeric for i128{}
+impl SignedNumeric for isize{}
+impl SignedNumeric for f64{}
+impl SignedNumeric for f32{}
+impl SignedNumeric for Complex{}
