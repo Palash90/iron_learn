@@ -1,15 +1,18 @@
 import numpy as np
+import json
+
+f = open('data.json')
+data = json.load(f)
 
 # Generate synthetic data (replace with your own dataset)
-X = np.array([[0.5, 1.5], [1.0, 1.0], [1.5, 0.5], [3.0, 0.5], [2.0, 2.0], [1.0, 2.5]]) #np.random.rand(100, 2)  # Features (design matrix)
-y = np.array([0,0,0,1,1,1]) #np.random.randint(0, 2, size=100)  # Binary outcome (0 or 1)
-
-# Add bias term to X
-X = np.hstack((np.ones((X.shape[0], 1)), X))
-print(X)
+X = np.array(data["logistic"]["x"])
+X = np.reshape(X, (data["logistic"]["m"],data["logistic"]["n"]))
+y = np.array(data["logistic"]["y"]) 
 
 # Initialize weights
-w = np.array([0.0,0.0])
+w = np.zeros(data["logistic"]["n"])
+
+print(X.shape, w.shape, y.shape)
 
 # Sigmoid function
 def sigmoid(X, w):
@@ -24,14 +27,18 @@ def loss(y, p):
 
 # Gradient descent (update weights)
 learning_rate = 0.00001
-for _ in range(100_000):
+lambda_ = 0.0
+e = 100_000_00
+e = 100_000_0
+for _ in range(e):
     gradient = X.T @ (sigmoid(X, w) - y) / len(y)
+    gradient += lambda_ * w / len(y) 
     w -= learning_rate * gradient
 print(w)
 
-# Threshold predictions
-predictions = (p >= 0.5).astype(int)
+yhat = sigmoid(X, w)
+yhat = np.where(yhat > 0.5, 1.0, 0.0)
+yhat = np.reshape(yhat, (data["logistic"]["m"]))
 
-# Evaluate model performance (accuracy, precision, recall, etc.)
+print("Predictions meet original", y == yhat)
 
-# Your custom dataset and evaluation metrics will replace the synthetic data and placeholders.

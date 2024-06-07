@@ -11,6 +11,7 @@ use crate::Tensor;
 /// * `y` - The collected target values arranged in a m * 1 matrix, where m is the number of data points.
 /// * `l` - The learning rate, which controls the size of the update step.
 /// * `logistic` - The indicator for Logistic Regression. If set to true, the gradient descent used `Sigmoid` function as classification algorithm. 
+/// * `lambda` - The regularization parameter to prevent overfitting. 
 /// # Returns
 ///
 /// The updated weight matrix
@@ -26,14 +27,14 @@ use crate::Tensor;
 /// let x = Tensor::new(vec![1, 2], vec![3.0, 4.0]).unwrap();
 /// let y = Tensor::new(vec![1, 1], vec![5.0]).unwrap();
 ///
-/// let w = gradient_descent(&x, &y, &w, learning_rate, false); // For linear regression
+/// let w = gradient_descent(&x, &y, &w, learning_rate, false, 10.0); // For linear regression
 /// ```
 ///
 /// 
 #[deprecated(
     since = "0.4.0"
 )]
-pub fn gradient_descent(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f64, logistic: bool) -> Tensor<f64> {
+pub fn gradient_descent(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f64, logistic: bool, lambda: f64) -> Tensor<f64> {
     let data_size = *(x.get_shape().first().unwrap()) as f64;
     let lines = x.mul(w).unwrap();
 
@@ -42,24 +43,28 @@ pub fn gradient_descent(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f6
         false => lines
     };
     
-    let loss = y.sub(&prediction).unwrap();
+    let loss = prediction.sub(&y).unwrap();
     let d = x
         .t()
         .unwrap()
-        .mul(&loss)
+        .mul(&loss) // Multiply `X` to loss
         .unwrap()
-        .scale(-1.0 * l / data_size);
+        .add(&(w.scale(lambda/data_size)))// Add Regularization to parameters
+        .unwrap()
+        .scale(l / data_size); // Scale gradient by learning rate
+        
+
     w.sub(&d).unwrap()
 }
 
 /// Same as `gradient_descent`, only without the logistic flag parameter. This function invokes `gradient_descent` with the `logistic` flag set to `false`.
 pub fn linear_regression(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f64) -> Tensor<f64> {
-    gradient_descent(x, y, w, l, false)
+    gradient_descent(x, y, w, l, false, 0.0)
 }
 
 /// Same as `gradient_descent`, only without the logistic flag parameter. This function invokes `gradient_descent` with the `logistic` flag set to `true`.
 pub fn logistic_regression(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f64) -> Tensor<f64> {
-    gradient_descent(x, y, w, l, true)
+    gradient_descent(x, y, w, l, true, 0.0)
 }
 
 fn sigmoid(lines: Tensor<f64>) -> Tensor<f64> {

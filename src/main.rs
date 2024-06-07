@@ -12,33 +12,40 @@ struct XY {
     y: Vec<f64> // A matrix of data length m
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+struct Data {
+    linear: XY,
+    logistic: XY
+}
 fn main() {
+    let l = 0.00001;
+
+    let e = 100_000_00;
+    let e = 100_000_0;
 
     let contents = fs::read_to_string("data.json")
         .expect("Should have been able to read the file");
 
-    let xy: XY = serde_json::from_str(&contents).unwrap();
+    let xy: Data = serde_json::from_str(&contents).unwrap();
+    let xy = xy.linear;
 
     let x = Tensor::new(vec![xy.m, xy.n], xy.x).unwrap();
     let y = Tensor::new(vec![xy.m, 1], xy.y).unwrap();
     let mut w = Tensor::new(vec![xy.n, 1], vec![0.0; xy.n as usize]).unwrap();
 
-    let l = 0.00001;
-
-    let e = 100_000;
-    
     for _ in 0..e {
-        w = linear_regression(&x, &y, &w, l)
+        //w = linear_regression(&x, &y, &w, l)
     }
 
-    let x = Tensor::new(vec![6, 3], vec![1.0, 0.5, 1.5, 1.0, 1.0, 1.0, 1.0, 1.5, 0.5, 1.0, 3.0, 0.5, 1.0, 2.0, 2.0, 1.0, 1.0, 2.5]).unwrap();
-    let y = Tensor::new(vec![6, 1], vec![0.0, 0.0, 0.0, 1.0, 1.0, 1.0]).unwrap();
-    let mut w = Tensor::new(vec![3, 1], vec![0.0, 0.0, 0.0]).unwrap();
+    println!("{}", w);
 
-    let l = 0.001;
+    let xy: Data = serde_json::from_str(&contents).unwrap();
+    let xy = xy.linear;
 
-    let e = 100_000;
-    
+    let x = Tensor::new(vec![xy.m, xy.n], xy.x).unwrap();
+    let y = Tensor::new(vec![xy.m, 1], xy.y).unwrap();
+    let mut w = Tensor::new(vec![xy.n, 1], vec![0.0; xy.n as usize]).unwrap();
+
     let now = Instant::now();
 
     for _ in 0..e {
