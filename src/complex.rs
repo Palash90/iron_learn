@@ -174,7 +174,7 @@ impl std::ops::Neg for Complex {
     /// use iron_learn::Complex;
     ///
     /// let a = Complex::new(1.0, 2.0);
-    /// 
+    ///
     /// let r = -a;
     /// assert_eq!(Complex::new(-1.0, -2.0), r);
     /// ```

@@ -2,8 +2,8 @@
 //! for linear algebra computations integral to machine learning applications.
 
 mod display;
-use crate::numeric::{SignedNumeric, Numeric};
-use std::ops::{Add, Mul, Sub, Neg};
+use crate::numeric::{Numeric, SignedNumeric};
+use std::ops::{Add, Mul, Neg, Sub};
 
 /// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
 /// for the manipulation of multidimensional data. It is designed to be compatible with all numeric types defined in the `numeric` module,
@@ -553,10 +553,10 @@ impl<T: Numeric> Mul for Tensor<T> {
 
 impl<T: SignedNumeric> Neg for Tensor<T> {
     type Output = Self;
-    fn neg(self) -> Self { 
-        let result : Vec<T> = self.data.iter().map(|t| -*t).collect();
+    fn neg(self) -> Self {
+        let result: Vec<T> = self.data.iter().map(|t| -*t).collect();
         Tensor::new(self.shape, result).unwrap()
-     }
+    }
 }
 
 #[cfg(test)]

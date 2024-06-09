@@ -31,7 +31,8 @@ pub trait Numeric:
     + std::ops::Add<Output = Self>
     + std::ops::Sub<Output = Self>
     + std::ops::Mul<Output = Self>
-    + std::ops::Div<Output = Self> {
+    + std::ops::Div<Output = Self>
+{
     /// Returns the zero value of the type.
     fn zero() -> Self;
 
@@ -43,8 +44,7 @@ pub trait Numeric:
 }
 
 /// The `SignedNumeric` defines all the `Numeric` types that can be signed like `i32`, `i64` etc.
-pub trait SignedNumeric:Numeric
- + std::ops::Neg<Output = Self>{}
+pub trait SignedNumeric: Numeric + std::ops::Neg<Output = Self> {}
 
 // Implementations of the Numeric trait for various built-in numeric types.
 impl Numeric for i8 {
@@ -114,7 +114,6 @@ impl Numeric for isize {
     }
 }
 
-
 impl Numeric for u8 {
     fn zero() -> Self {
         0
@@ -183,7 +182,6 @@ impl Numeric for usize {
     }
 }
 
-
 impl Numeric for f32 {
     fn zero() -> Self {
         0.0
@@ -224,12 +222,12 @@ impl Numeric for Complex {
     }
 }
 
-impl SignedNumeric for i8{}
-impl SignedNumeric for i16{}
-impl SignedNumeric for i32{}
-impl SignedNumeric for i64{}
-impl SignedNumeric for i128{}
-impl SignedNumeric for isize{}
-impl SignedNumeric for f64{}
-impl SignedNumeric for f32{}
-impl SignedNumeric for Complex{}
+impl SignedNumeric for i8 {}
+impl SignedNumeric for i16 {}
+impl SignedNumeric for i32 {}
+impl SignedNumeric for i64 {}
+impl SignedNumeric for i128 {}
+impl SignedNumeric for isize {}
+impl SignedNumeric for f64 {}
+impl SignedNumeric for f32 {}
+impl SignedNumeric for Complex {}
