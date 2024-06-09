@@ -49,8 +49,8 @@ pub fn gradient_descent(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f6
         .unwrap()
         .mul(&loss) // Multiply `X` to loss
         .unwrap()
-        .add(&(w.scale(lambda/data_size)))// Add Regularization to parameters
-        .unwrap()
+        //.add(&(w.scale(lambda/data_size)))// Add Regularization to parameters
+        //.unwrap()
         .scale(l / data_size); // Scale gradient by learning rate
         
 
@@ -64,7 +64,7 @@ pub fn linear_regression(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f
 
 /// Same as `gradient_descent`, only without the logistic flag parameter. This function invokes `gradient_descent` with the `logistic` flag set to `true`.
 pub fn logistic_regression(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f64) -> Tensor<f64> {
-    gradient_descent(x, y, w, l, true, 0.0)
+    gradient_descent(x, y, w, l, true, 1.0)
 }
 
 fn sigmoid(lines: Tensor<f64>) -> Tensor<f64> {

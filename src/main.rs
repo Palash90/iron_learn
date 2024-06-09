@@ -18,7 +18,7 @@ struct Data {
     logistic: XY
 }
 fn main() {
-    let l = 0.00001;
+    let l = 0.0015;
 
     let e = 100_000_00;
     let e = 100_000_0;
@@ -34,13 +34,13 @@ fn main() {
     let mut w = Tensor::new(vec![xy.n, 1], vec![0.0; xy.n as usize]).unwrap();
 
     for _ in 0..e {
-        //w = linear_regression(&x, &y, &w, l)
+        w = linear_regression(&x, &y, &w, l)
     }
 
     println!("{}", w);
 
     let xy: Data = serde_json::from_str(&contents).unwrap();
-    let xy = xy.linear;
+    let xy = xy.logistic;
 
     let x = Tensor::new(vec![xy.m, xy.n], xy.x).unwrap();
     let y = Tensor::new(vec![xy.m, 1], xy.y).unwrap();
