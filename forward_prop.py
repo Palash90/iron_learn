@@ -1,7 +1,7 @@
 import numpy as np
 # Define the activation function
 def g(z):
-    return 1/(1+np.exp(-z))
+    return 1/( 1 +  np.exp(-z))
 
 def my_dense(a_in, W, b):
     """
@@ -18,7 +18,10 @@ def my_dense(a_in, W, b):
     for j in range(units):               
         w = W[:,j]                                    
         z = np.dot(w, a_in) + b[j]         
-        a_out[j] = g(z)               
+        print("Z ", z)
+        gz = g(z)
+        print("g", gz)
+        a_out = gz               
     return(a_out)
 
 # A 2 layer Neural Network
@@ -35,9 +38,9 @@ def my_predict(X, W1, b1, W2, b2):
         p[i,0] = my_sequential(X[i], W1, b1, W2, b2)
     return(p)
 
-X = np.array()
-W1 = np.array()
-b1 = np.array()
-W2 = np.array()
-b2 = np.array()
+X = np.array([1,2])
+W1 = np.array([[3, 4],[6, 7]])
+b1 = np.array([8, 9])
+W2 = np.array([[7]])
+b2 = np.array([8])
 my_predict(X, W1, b1, W2, b2)
