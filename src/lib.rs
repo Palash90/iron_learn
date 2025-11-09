@@ -22,6 +22,7 @@ pub use crate::complex::Complex;
 pub use crate::gradient_descent::gradient_descent;
 pub use crate::gradient_descent::linear_regression;
 pub use crate::gradient_descent::logistic_regression;
+pub use crate::gradient_descent::{predict_logistic, predict_linear};
 pub use crate::matrix::Matrix;
 pub use crate::numeric::Numeric;
 pub use crate::tensor::Tensor;

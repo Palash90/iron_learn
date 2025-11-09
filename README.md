@@ -2,6 +2,10 @@
 A pure Rust Machine Learning Library
 
 ## Status
+Version 0.4.1 released with prediction functions - `predict_linear` and `predict_logistic`. These functions are added to quickly get the result on test data sets. In this version, normalization was added for input data set for better accuracy.
+
+This is also the first version that was ran against Kaggle data sets to check it's accuracy.
+
 Version 0.4.0 released with Logistic Regression Algorithm. Now you can directly use `linear_regression` or `logistic_regression` functions instead of directly using `gradient_descent` function, which has been marked as deprecated and is going to introduce breaking changes and in future may be removed. Under active development for further implementation support.
 
 __*N.B:*__ This library was built as a product of Rust Learning Efforts. So, "School Grade" algorithm is used for Matrix Multiplication. I have plans for improving on the performance part though in future.
@@ -27,7 +31,8 @@ The `complex` module is experimental and provides a representation of complex nu
 This module defines all supported numeric types necessary for machine learning operations, including integer, unsigned, and floating-point variants, as well as the custom type `Complex`.
 
 ### `gradient_descent`
-The `gradient_descent` function performs a single step of the gradient descent optimization algorithm. It can work for both Linear Regression and Logistic Regression, configured by a boolean parameter.
+The `gradient_descent` function performs a single step of the gradient descent optimization algorithm. It can work for both Linear Regression and Logistic Regression, configured by a boolean parameter. The 0.4.1 version also includes two new functions for prediction
+on test data.
 
 ### ~~`matrix`~~ (Use 2-Dimensional `Tensor` instead)
 The `matrix` module provides the `Matrix` structure which serves as a wrapper for the `Tensor` object of two dimensions, enabling matrix operations. It defines the `+` and `*` operators for matrix addition and multiplication, respectively, mirroring the behavior of tensors. It also enables `multiply` method to support hadamard product of two matrices.
