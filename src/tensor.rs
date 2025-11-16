@@ -8,7 +8,6 @@ use cust::memory::{CopyDestination, DeviceBuffer};
 use cust::module::Module;
 use cust::stream::{Stream, StreamFlags};
 use std::ops::{Add, Mul, Neg, Sub};
-use std::time::Instant;
 
 /// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
 /// for the manipulation of multidimensional data. It is designed to be compatible with all numeric types defined in the `numeric` module,
@@ -151,14 +150,11 @@ impl<T: Numeric> Tensor<T> {
         // println!("Launching GPU Kernel for Matrix Multiplication...");
         // Keep the context alive for the whole function scope.
 
-        let now = Instant::now();
 
         let d_a = DeviceBuffer::from_slice(&self.data).unwrap();
         let d_b = DeviceBuffer::from_slice(&rhs.data).unwrap();
         let d_c = DeviceBuffer::from_slice(&data).unwrap();
 
-        let elapsed = now.elapsed();
-        println!("Host to Device Copy took: {:.2?}", elapsed);
 
         // PTX produced from kernels/matrix_mul.cu
         let ptx = include_str!("../kernels/matrix_mul.ptx");
@@ -174,7 +170,6 @@ impl<T: Numeric> Tensor<T> {
         let grid_y = ((rows as u32) + TILE - 1) / TILE;
         let grid = (grid_x, grid_y, 1);
 
-        let now = Instant::now();
         unsafe {
             let result = launch!(
                 function<<<grid, block, 0, stream>>>(
@@ -200,15 +195,8 @@ impl<T: Numeric> Tensor<T> {
             Err(e) => return Err(format!("CUDA Stream Synchronization Error: {}", e)),
         }
 
-        let elapsed = now.elapsed();
-        println!("Device took for multiplication: {:.2?}", elapsed);
-
-        let now = Instant::now();
-
         let result = d_c.copy_to(&mut data);
 
-        let elapsed = now.elapsed();
-        println!("Device to Host copy took: {:.2?}", elapsed);
 
         match result {
             Ok(_) => {}
@@ -251,23 +239,7 @@ impl<T: Numeric> Tensor<T> {
             );
             return Err(s);
         }
-        
-        let now = Instant::now();
-        let result = self._gpu_mul(rhs).unwrap();
-
-        println!("{}", result);
-
-        let elapsed = now.elapsed();
-        println!("GPU Matrix Multiplication took: {:.2?}", elapsed);
-        let now = Instant::now();
-        let result = self._cpu_mul(rhs);
-
-        let elapsed = now.elapsed();
-        println!("CPU Matrix Multiplication took: {:.2?}", elapsed);
-        println!("");
-        println!("");
-        println!("");
-        result
+        self._cpu_mul(rhs)
     }
 
     fn _s(&self, scalar: T) -> Self {
