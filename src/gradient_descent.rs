@@ -76,18 +76,18 @@ fn normalize_features(x: &Tensor<f64>) -> Tensor<f64> {
     let m = shape[0] as usize;
     let n = shape[1] as usize;
     let mut normalized_data = vec![0.0; m * n];
-    
+
     // For each feature
     for j in 0..n {
         let mut mean = 0.0;
         let mut variance = 0.0;
-        
+
         // Calculate mean
         for i in 0..m {
             mean += x.get_data()[i * n + j];
         }
         mean /= m as f64;
-        
+
         // Calculate variance
         for i in 0..m {
             let diff = x.get_data()[i * n + j] - mean;
@@ -95,7 +95,7 @@ fn normalize_features(x: &Tensor<f64>) -> Tensor<f64> {
         }
         variance /= m as f64;
         let std_dev = variance.sqrt();
-        
+
         // Normalize feature
         for i in 0..m {
             normalized_data[i * n + j] = if std_dev > 1e-8 {
@@ -105,17 +105,17 @@ fn normalize_features(x: &Tensor<f64>) -> Tensor<f64> {
             };
         }
     }
-    
+
     Tensor::new(shape.clone(), normalized_data).unwrap()
 }
 
 /// Adds a column of 1s to the input features matrix to handle bias term
 fn add_bias_term(x: &Tensor<f64>) -> Tensor<f64> {
     let shape = x.get_shape();
-    let m = shape[0] as usize;  // number of examples
-    let n = shape[1] as usize;  // number of features
+    let m = shape[0] as usize; // number of examples
+    let n = shape[1] as usize; // number of features
     let mut data = Vec::with_capacity(m * (n + 1));
-    
+
     // For each example
     for i in 0..m {
         // Add 1 as the bias term
@@ -125,7 +125,7 @@ fn add_bias_term(x: &Tensor<f64>) -> Tensor<f64> {
             data.push(x.get_data()[i * n + j]);
         }
     }
-    
+
     Tensor::new(vec![shape[0], shape[1] + 1], data).unwrap()
 }
 
@@ -151,14 +151,14 @@ fn sigmoid(z: Tensor<f64>) -> Tensor<f64> {
 }
 
 /// Makes predictions for linear regression.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `x` - The test input features arranged in a m * n matrix, where m is number of test points and n is number of features
 /// * `w` - The trained weights arranged in (n+1) * 1 tensor (includes bias weight)
-/// 
+///
 /// # Returns
-/// 
+///
 /// A tensor of predicted values
 pub fn predict_linear(x: &Tensor<f64>, w: &Tensor<f64>) -> Tensor<f64> {
     // First normalize features
@@ -169,14 +169,14 @@ pub fn predict_linear(x: &Tensor<f64>, w: &Tensor<f64>) -> Tensor<f64> {
 }
 
 /// Predicts binary classes for logistic regression. Returns 1 if the probability is >= 0.5, 0 otherwise.
-/// 
+///
 /// # Arguments
-/// 
+///
 /// * `x` - The test input features arranged in a m * n matrix, where m is number of test points and n is number of features
 /// * `w` - The trained weights arranged in n * 1 tensor
-/// 
+///
 /// # Returns
-/// 
+///
 /// A tensor of binary predictions (0 or 1)
 pub fn predict_logistic(x: &Tensor<f64>, w: &Tensor<f64>) -> Tensor<f64> {
     // First normalize features
@@ -186,7 +186,11 @@ pub fn predict_logistic(x: &Tensor<f64>, w: &Tensor<f64>) -> Tensor<f64> {
     let z = x_with_bias.mul(w).unwrap();
     let probabilities = sigmoid(z);
     let shape = probabilities.get_shape();
-    let predictions = probabilities.get_data().iter().map(|&p| if p >= 0.5 { 1.0 } else { 0.0 }).collect();
-    
+    let predictions = probabilities
+        .get_data()
+        .iter()
+        .map(|&p| if p >= 0.5 { 1.0 } else { 0.0 })
+        .collect();
+
     Tensor::new(shape, predictions).unwrap()
 }

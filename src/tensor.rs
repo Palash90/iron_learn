@@ -3,6 +3,10 @@
 
 mod display;
 use crate::numeric::{Numeric, SignedNumeric};
+use cust::launch;
+use cust::memory::{CopyDestination, DeviceBuffer};
+use cust::module::Module;
+use cust::stream::{Stream, StreamFlags};
 use std::ops::{Add, Mul, Neg, Sub};
 
 /// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
@@ -136,15 +140,74 @@ impl<T: Numeric> Tensor<T> {
         })
     }
 
-    fn _mul(&self, rhs: &Self) -> Result<Self, String> {
-        if self.shape[1] != rhs.shape[0] {
-            let s = format!(
-                "ShapeMismatch:The dimensions of two matrices are not compatible for multiplication- {:?} {:?}",
-                self.shape, rhs.shape
+    fn _gpu_mul(&self, rhs: &Self) -> Result<Self, String> {
+        let rows = self.shape[0] as usize;
+        let cols = rhs.shape[1] as usize;
+        let common_dim = self.shape[1] as usize;
+
+        let mut data = vec![T::zero(); rows * cols];
+
+        // println!("Launching GPU Kernel for Matrix Multiplication...");
+        // Keep the context alive for the whole function scope.
+        
+
+        let d_a = DeviceBuffer::from_slice(&self.data).unwrap();
+        let d_b = DeviceBuffer::from_slice(&rhs.data).unwrap();
+        let d_c = DeviceBuffer::from_slice(&data).unwrap();
+
+        // PTX produced from kernels/matrix_mul.cu
+        let ptx = include_str!("../kernels/matrix_mul.ptx");
+        let module = Module::from_ptx(ptx, &[]).unwrap();
+        let function = module.get_function("matrix_mul").unwrap();
+
+        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+
+        // Kernel launch params (must match TILE used in the .cu)
+        const TILE: u32 = 16;
+        let block = (TILE, TILE, 1);
+        let grid_x = ((cols as u32) + TILE - 1) / TILE;
+        let grid_y = ((rows as u32) + TILE - 1) / TILE;
+        let grid = (grid_x, grid_y, 1);
+
+        unsafe {
+            let result = launch!(
+                function<<<grid, block, 0, stream>>>(
+                    d_a.as_device_ptr(),
+                    d_b.as_device_ptr(),
+                    d_c.as_device_ptr(),
+                    rows as i32,
+                    cols as i32,
+                    common_dim as i32
+                )
             );
-            return Err(s);
+
+            match result {
+                Ok(_) => {}
+                Err(e) => return Err(format!("CUDA Kernel Launch Error: {}", e)),
+            }
         }
 
+        let result = stream.synchronize();
+
+        match result {
+            Ok(_) => {}
+            Err(e) => return Err(format!("CUDA Stream Synchronization Error: {}", e)),
+        }
+
+        let result = d_c.copy_to(&mut data);
+
+        match result {
+            Ok(_) => {}
+            Err(e) => return Err(format!("CUDA Device to Host Copy Error: {}", e)),
+        }
+
+        Ok(Tensor {
+            shape: vec![rows as u32, cols as u32],
+            data,
+        })
+    }
+
+    fn _cpu_mul(&self, rhs: &Self) -> Result<Self, String> {
         let rows = self.shape[0] as usize;
         let cols = rhs.shape[1] as usize;
         let common_dim = self.shape[1] as usize;
@@ -164,6 +227,18 @@ impl<T: Numeric> Tensor<T> {
             shape: vec![rows as u32, cols as u32],
             data,
         })
+    }
+
+    fn _mul(&self, rhs: &Self) -> Result<Self, String> {
+        if self.shape[1] != rhs.shape[0] {
+            let s = format!(
+                "ShapeMismatch:The dimensions of two matrices are not compatible for multiplication- {:?} {:?}",
+                self.shape, rhs.shape
+            );
+            return Err(s);
+        }
+
+        self._gpu_mul(rhs)
     }
 
     fn _s(&self, scalar: T) -> Self {

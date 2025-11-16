@@ -1,16 +1,17 @@
 use iron_learn::Tensor;
-use iron_learn::{linear_regression, logistic_regression, predict_logistic, predict_linear};
+use iron_learn::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::time::Instant;
+use cust::prelude::*;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct XY {
-    m: u32,      // Number of data points
-    n: u32,      // Number of features
-    x: Vec<f64>, // A matrix of data length m * n
-    y: Vec<f64>, // A matrix of data length m
-    m_test: u32, // Number of test data points
+    m: u32,           // Number of data points
+    n: u32,           // Number of features
+    x: Vec<f64>,      // A matrix of data length m * n
+    y: Vec<f64>,      // A matrix of data length m
+    m_test: u32,      // Number of test data points
     x_test: Vec<f64>, // A matrix of test data length m_test * n
     y_test: Vec<f64>, // A matrix of test data length m_test
 }
@@ -32,11 +33,19 @@ fn run_logistic(xy: &XY, l: f64, e: u32) {
     // Sanity checks: ensure x and y lengths match m and n
     let expected_x_len = (xy.m * xy.n) as usize;
     if xy.x.len() != expected_x_len {
-        eprintln!("Error: xy.x.len() = {}, but expected m * n = {}. Aborting logistic run.", xy.x.len(), expected_x_len);
+        eprintln!(
+            "Error: xy.x.len() = {}, but expected m * n = {}. Aborting logistic run.",
+            xy.x.len(),
+            expected_x_len
+        );
         return;
     }
     if xy.y.len() != xy.m as usize {
-        eprintln!("Error: xy.y.len() = {}, but expected m = {}. Aborting logistic run.", xy.y.len(), xy.m);
+        eprintln!(
+            "Error: xy.y.len() = {}, but expected m = {}. Aborting logistic run.",
+            xy.y.len(),
+            xy.m
+        );
         return;
     }
 
@@ -63,20 +72,19 @@ fn run_logistic(xy: &XY, l: f64, e: u32) {
     // Make predictions (predict_logistic will add bias term internally)
     let predictions = predict_logistic(&x_test, &w);
 
-    println!("Predictions: {}", predictions);
-    
     // Calculate accuracy
     let mut correct = 0;
     let total = xy.m_test as usize;
-    
+
     for i in 0..total {
         let pred = predictions.get_data()[i];
         let actual = y_test.get_data()[i];
-        if (pred - actual).abs() < 1e-10 {  // Using small epsilon for floating point comparison
+        if (pred - actual).abs() < 1e-10 {
+            // Using small epsilon for floating point comparison
             correct += 1;
         }
     }
-    
+
     let accuracy = (correct as f64) / (total as f64) * 100.0;
     println!("\nResults:");
     println!("Total samples: {}", total);
@@ -95,11 +103,19 @@ fn run_linear(xy: &XY, l: f64, e: u32) {
     // Sanity checks: ensure x and y lengths match m and n
     let expected_x_len = (xy.m * xy.n) as usize;
     if xy.x.len() != expected_x_len {
-        eprintln!("Error: xy.x.len() = {}, but expected m * n = {}. Aborting linear run.", xy.x.len(), expected_x_len);
+        eprintln!(
+            "Error: xy.x.len() = {}, but expected m * n = {}. Aborting linear run.",
+            xy.x.len(),
+            expected_x_len
+        );
         return;
     }
     if xy.y.len() != xy.m as usize {
-        eprintln!("Error: xy.y.len() = {}, but expected m = {}. Aborting linear run.", xy.y.len(), xy.m);
+        eprintln!(
+            "Error: xy.y.len() = {}, but expected m = {}. Aborting linear run.",
+            xy.y.len(),
+            xy.m
+        );
         return;
     }
 
@@ -132,19 +148,17 @@ fn run_linear(xy: &XY, l: f64, e: u32) {
     // Make predictions using the trained weights
     let predictions = predict_linear(&x_test, &w);
 
-    println!("Predictions: {}", predictions);
-    
     // Calculate Mean Squared Error
     let mut total_squared_error = 0.0;
     let total = xy.m_test as usize;
-    
+
     for i in 0..total {
         let pred = predictions.get_data()[i];
         let actual = y_test.get_data()[i];
         let error = pred - actual;
         total_squared_error += error * error;
     }
-    
+
     let mse = total_squared_error / (total as f64);
     println!("\nResults:");
     println!("Total test samples: {}", total);
@@ -152,6 +166,8 @@ fn run_linear(xy: &XY, l: f64, e: u32) {
     println!("Root MSE: {:.4}", mse.sqrt());
 }
 fn main() {
+    let _ctx = cust::quick_init();
+
     let l = 0.001;
 
     let e = 10000;
@@ -160,7 +176,10 @@ fn main() {
 
     // Parse once and destructure into `linear` and `logistic` datasets
     let data: Data = serde_json::from_str(&contents).unwrap();
-    let Data { linear: xy, logistic } = data;
+    let Data {
+        linear: xy,
+        logistic,
+    } = data;
 
     // Run linear regression using the extracted function
     run_linear(&xy, l, e);

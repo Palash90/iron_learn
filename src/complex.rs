@@ -2,8 +2,10 @@
 
 use std::ops::{Add, Div, Mul, Sub};
 
+use cust::DeviceCopy;
+
 /// A complex number represented by its real and imaginary parts.
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone, DeviceCopy)]
 pub struct Complex {
     real: f64,
     imaginary: f64,
