@@ -4,6 +4,8 @@ use std::ops::{Add, Div, Mul, Sub};
 
 use cust::DeviceCopy;
 
+use std::fmt;
+
 /// A complex number represented by its real and imaginary parts.
 #[derive(Debug, PartialEq, Copy, Clone, DeviceCopy)]
 pub struct Complex {
@@ -32,6 +34,27 @@ impl Complex {
         Self { real, imaginary }
     }
 }
+
+impl fmt::Display for Complex {
+    /// Formats the complex number as a string.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use iron_learn::Complex;
+    ///
+    /// let a = Complex::new(1.0, 2.0);
+    /// println!("{}", a); // Output: "1 + 2i"
+    /// ```
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.imaginary >= 0.0 {
+            write!(f, "{} + {}i", self.real, self.imaginary)
+        } else {
+            write!(f, "{} - {}i", self.real, -self.imaginary)
+        }
+    }
+}
+
 impl Add for Complex {
     type Output = Self;
 

@@ -1,9 +1,9 @@
+use cust::prelude::*;
 use iron_learn::Tensor;
 use iron_learn::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::time::Instant;
-use cust::prelude::*;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct XY {
@@ -170,7 +170,7 @@ fn main() {
 
     let l = 0.001;
 
-    let e = 10000;
+    let e = 10;
 
     let contents = fs::read_to_string("data.json").expect("Should have been able to read the file");
 

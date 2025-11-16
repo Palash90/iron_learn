@@ -19,16 +19,16 @@ impl<T: Numeric + fmt::Display> Tensor<T> {
         f: &mut fmt::Formatter,
     ) -> fmt::Result {
         if shape.is_empty() {
-            return write!(f, "{}", data[index]);
+            return write!(f, "{:.2}\t", data[index]);
         }
 
         let dim_size = shape[0] as usize;
         if dim > 0 {
-            write!(f, "[")?;
+            write!(f, " ")?;
 
             for i in 0..dim_size {
                 if i > 0 {
-                    write!(f, ", ")?;
+                    write!(f, " ")?;
                 }
                 self.display_tensor(
                     index + i * self.stride(shape),
@@ -39,7 +39,7 @@ impl<T: Numeric + fmt::Display> Tensor<T> {
                 )?;
             }
 
-            write!(f, "]")?;
+            write!(f, "\n")?;
             if dim == self.shape.len() {
                 writeln!(f)?; // Newline for the outermost dimension
             }

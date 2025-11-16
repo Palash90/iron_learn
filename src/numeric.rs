@@ -35,6 +35,7 @@ pub trait Numeric:
     + std::ops::Sub<Output = Self>
     + std::ops::Mul<Output = Self>
     + std::ops::Div<Output = Self>
+    + std::fmt::Display
 {
     /// Returns the zero value of the type.
     fn zero() -> Self;
