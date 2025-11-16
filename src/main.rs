@@ -63,8 +63,6 @@ fn run_logistic(xy: &XY, l: f64, e: u32) {
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);
 
-    println!("Final weights: {}", w);
-
     // Initialize test data (no need to add bias here, predict_logistic will handle that)
     let x_test = Tensor::new(vec![xy.m_test, xy.n], xy.x_test.clone()).unwrap();
     let y_test = Tensor::new(vec![xy.m_test, 1], xy.y_test.clone()).unwrap();
@@ -133,7 +131,6 @@ fn run_linear(xy: &XY, l: f64, e: u32) {
 
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);
-    println!("Final weights: {}", w);
 
     // Skip prediction if there's no test data
     if xy.m_test == 0 {
@@ -170,7 +167,7 @@ fn main() {
 
     let l = 0.001;
 
-    let e = 10;
+    let e = 5000;
 
     let contents = fs::read_to_string("data.json").expect("Should have been able to read the file");
 
