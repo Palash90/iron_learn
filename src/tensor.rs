@@ -10,6 +10,7 @@ use cust::memory::{CopyDestination, DeviceBuffer};
 use cust::module::Module;
 use cust::stream::{Stream, StreamFlags};
 use std::ops::{Add, Mul, Neg, Sub};
+use std::time::Instant;
 
 /// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
 /// for the manipulation of multidimensional data. It is designed to be compatible with all numeric types defined in the `numeric` module,
@@ -19,6 +20,22 @@ use std::ops::{Add, Mul, Neg, Sub};
 pub struct Tensor<T: Numeric> {
     shape: Vec<u32>,
     data: Vec<T>,
+}
+impl<T> Tensor<T>
+where
+    T: Numeric,
+{
+    pub fn print_matrix(&self) {
+        let rows = self.shape[0] as usize;
+        let cols = self.shape[1] as usize;
+
+        for r in 0..rows {
+            for c in 0..cols {
+                print!("{}\t", self.data[r * cols + c]);
+            }
+            println!();
+        }
+    }
 }
 
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
@@ -149,20 +166,28 @@ impl<T: Numeric> Tensor<T> {
 
         let mut data = vec![T::zero(); rows * cols];
 
-        // println!("Launching GPU Kernel for Matrix Multiplication...");
-        // Keep the context alive for the whole function scope.
+        let mut h_a = Vec::<f64>::new();
+        let mut h_b = Vec::<f64>::new();
 
-        let d_a = match DeviceBuffer::from_slice(&self.data) {
+        for i in 0..self.data.len() {
+            h_a.push(self.data[i].f64());
+        }
+
+        for i in 0..rhs.data.len() {
+            h_b.push(rhs.data[i].f64());
+        }
+
+        let d_a = match DeviceBuffer::from_slice(h_a.as_slice()) {
             Ok(buf) => buf,
             Err(e) => return Err(format!("CUDA Device Buffer Creation Error for LHS: {}", e)),
         };
 
-        let d_b = match DeviceBuffer::from_slice(&rhs.data) {
+        let d_b = match DeviceBuffer::from_slice(h_b.as_slice()) {
             Ok(buf) => buf,
             Err(e) => return Err(format!("CUDA Device Buffer Creation Error for RHS: {}", e)),
         };
 
-        let d_c = match DeviceBuffer::from_slice(&data) {
+        let d_c = match DeviceBuffer::from_slice(data.as_slice()) {
             Ok(buf) => buf,
             Err(e) => {
                 return Err(format!(
@@ -172,6 +197,7 @@ impl<T: Numeric> Tensor<T> {
             }
         };
 
+
         // PTX produced from kernels/matrix_mul.cu
         let ptx = include_str!("../kernels/matrix_mul.ptx");
         let module = Module::from_ptx(ptx, &[]).unwrap();
@@ -180,7 +206,7 @@ impl<T: Numeric> Tensor<T> {
             Err(e) => return Err(format!("CUDA Kernel Function Retrieval Error: {}", e)),
         };
 
-        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+        let stream = Stream::new(StreamFlags::NON_BLOCKING, 1i32.into()).unwrap();
 
         // Kernel launch params (must match TILE used in the .cu)
         const TILE: u32 = 32;
@@ -189,6 +215,7 @@ impl<T: Numeric> Tensor<T> {
         let grid_y = ((rows as u32) + TILE - 1) / TILE;
         let grid = (grid_x, grid_y, 1);
 
+        let start = Instant::now();
         unsafe {
             let result = launch!(
                 function<<<grid, block, 0, stream>>>(
@@ -196,28 +223,22 @@ impl<T: Numeric> Tensor<T> {
                     d_b.as_device_ptr(),
                     d_c.as_device_ptr(),
                     rows as i32,
+                    common_dim as i32,
                     cols as i32,
-                    common_dim as i32
                 )
             );
-
-            match stream.synchronize() {
-                Ok(_) => {}
-                Err(e) => return Err(format!("CUDA Stream Synchronization Error: {}", e)),
-            }
-
             match result {
                 Ok(_) => {}
                 Err(e) => return Err(format!("CUDA Kernel Launch Error: {}", e)),
             }
         }
-
-        let result = stream.synchronize();
-
-        match result {
+        match stream.synchronize() {
             Ok(_) => {}
             Err(e) => return Err(format!("CUDA Stream Synchronization Error: {}", e)),
         }
+
+        let duration = start.elapsed();
+        println!("GPU Matrix Multiplication Time: {:.2?}\n", duration);
 
         let result = d_c.copy_to(&mut data);
 

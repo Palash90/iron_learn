@@ -53,23 +53,5 @@ fn main() {
         false => println!("GPU is not enabled."),
     }
 
-    let A = Tensor::new(
-        vec![4, 4],
-        vec![
-            1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0,
-        ],
-    )
-    .unwrap();
-    let B = Tensor::new(
-        vec![4, 4],
-        vec![
-            1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0,
-        ],
-    )
-    .unwrap();
-    println!("Tensor A:\n{:?}", A);
-    println!("Tensor B:\n{:?}", B);
-    let C = (A * B).unwrap();
-
-    println!("Tensor C (A + B):\n{:?}", C);
+    run_ml();
 }

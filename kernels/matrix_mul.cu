@@ -6,8 +6,7 @@
 #define N 40
 
 // CUDA kernel for matrix multiplication
-extern "C"
-__global__ void matrixMulKernel(float *A, float *B, float *C, int numARows, int numAColumns, int numBColumns)
+extern "C" __global__ void matrixMulKernel(double *A, double *B, double *C, int numARows, int numAColumns, int numBColumns)
 {
     int Row = blockIdx.y * blockDim.y + threadIdx.y;
     int Col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -25,7 +24,6 @@ __global__ void matrixMulKernel(float *A, float *B, float *C, int numARows, int 
     }
 }
 
-
 // Utility function to check CUDA errors
 void checkCudaError(cudaError_t err, const char *msg)
 {
@@ -36,7 +34,7 @@ void checkCudaError(cudaError_t err, const char *msg)
     }
 }
 
-void printMatrix(float *A, int rows, int cols)
+void printMatrix(double *A, int rows, int cols)
 {
     for (int i = 0; i < rows; i++)
     {
@@ -54,7 +52,7 @@ int main()
     int size = N * N * sizeof(float);
 
     // Host matrices
-    float h_A[N * N], h_B[N * N], h_C[N * N];
+    double h_A[N * N], h_B[N * N], h_C[N * N];
 
     // Initialize matrices A and B
     for (int i = 0; i < N * N; i++)
@@ -69,7 +67,7 @@ int main()
     printMatrix(h_B, N, N);
 
     // Device matrices
-    float *d_A, *d_B, *d_C;
+    double *d_A, *d_B, *d_C;
     checkCudaError(cudaMalloc((void **)&d_A, size), "Allocating d_A");
     checkCudaError(cudaMalloc((void **)&d_B, size), "Allocating d_B");
     checkCudaError(cudaMalloc((void **)&d_C, size), "Allocating d_C");
@@ -108,4 +106,3 @@ int main()
 
     return 0;
 }
-
