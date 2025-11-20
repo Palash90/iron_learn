@@ -20,7 +20,7 @@ fn main() {
         .arg(kernel_src)
         .arg("-o")
         .arg(&ptx_path)
-        .args(&["-ptx", "-arch=sm_50", "--allow-unsupported-compiler", "-lcublas"])
+        .args(&["-ptx", "-lcublas"])
         .status();
 
     match compilation_result {
