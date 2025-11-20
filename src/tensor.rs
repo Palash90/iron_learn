@@ -152,14 +152,34 @@ impl<T: Numeric> Tensor<T> {
         // println!("Launching GPU Kernel for Matrix Multiplication...");
         // Keep the context alive for the whole function scope.
 
-        let d_a = DeviceBuffer::from_slice(&self.data).unwrap();
-        let d_b = DeviceBuffer::from_slice(&rhs.data).unwrap();
-        let d_c = DeviceBuffer::from_slice(&data).unwrap();
+        let d_a = match DeviceBuffer::from_slice(&self.data) {
+            Ok(buf) => buf,
+            Err(e) => return Err(format!("CUDA Device Buffer Creation Error for LHS: {}", e)),
+        };
+
+        let d_b = match DeviceBuffer::from_slice(&rhs.data) {
+            Ok(buf) => buf,
+            Err(e) => return Err(format!("CUDA Device Buffer Creation Error for RHS: {}", e)),
+        };
+
+        let d_c = match DeviceBuffer::from_slice(&data) {
+            Ok(buf) => buf,
+            Err(e) => {
+                return Err(format!(
+                    "CUDA Device Buffer Creation Error for RESULT: {}",
+                    e
+                ))
+            }
+        };
 
         // PTX produced from kernels/matrix_mul.cu
         let ptx = include_str!("../kernels/matrix_mul.ptx");
         let module = Module::from_ptx(ptx, &[]).unwrap();
-        let function = module.get_function("matrix_mul").unwrap();
+        let function =  match module.get_function("matrix_mul") {
+            Ok(func) => func,
+            Err(e) => return Err(format!("CUDA Kernel Function Retrieval Error: {}", e)),
+            
+        };
 
         let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
 

@@ -23,23 +23,35 @@ pub fn run_ml() {
     run_logistic(&logistic, l, e);
 }
 
-fn main() {
+fn init() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() > 1 && args[1] == "gpu" {
-        println!("GPU support enabled. Running on GPU.");
-
         // Initialize CUDA and create a default context
-        let _context = cust::quick_init().expect("Failed to initialize CUDA");
-        println!("CUDA initialized successfully!");
-        init_context("Iron Learn", 1, true, Some(_context));
+        let _context = cust::quick_init();
+
+        match _context {
+            Err(e) => {
+                eprintln!("Failed to initialize CUDA: {}", e);
+                init_context("Iron Learn", 1, false, None);
+            }
+            Ok(ctx) => {
+                init_context("Iron Learn", 1, true, Some(ctx));
+            }
+        };
     } else {
         init_context("Iron Learn", 1, false, None);
-        println!("GPU support not required. Running on CPU.");
     }
+}
 
+fn main() {
+    init();
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
-    print!("Welcome to {} v{}.", ctx.app_name, ctx.version);
+    println!("Welcome to {} v{}.", ctx.app_name, ctx.version);
+    match ctx.gpu_enabled {
+        true => println!("GPU is enabled."),
+        false => println!("GPU is not enabled."),
+    }
 
     run_ml();
 }

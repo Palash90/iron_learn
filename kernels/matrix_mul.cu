@@ -1,7 +1,9 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-__global__ void add(const float* A, const float* B, float* C, int N) {
+extern "C" __global__
+
+void matrix_mul(const float* A, const float* B, float* C, int N) {
     // To DO: Device a row major indexing
 	int rowID = threadIdx.y + blockIdx.y * blockDim.y; 	// Row address
 	int colID = threadIdx.x + blockIdx.x * blockDim.x;	// Column Address
