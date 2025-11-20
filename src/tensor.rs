@@ -159,99 +159,6 @@ impl<T: Numeric> Tensor<T> {
         })
     }
 
-    fn _gpu_mul(&self, rhs: &Self) -> Result<Self, String> {
-        let rows = self.shape[0] as usize;
-        let cols = rhs.shape[1] as usize;
-        let common_dim = self.shape[1] as usize;
-
-        let mut data = vec![T::zero(); rows * cols];
-
-        let mut h_a = Vec::<f64>::new();
-        let mut h_b = Vec::<f64>::new();
-
-        for i in 0..self.data.len() {
-            h_a.push(self.data[i].f64());
-        }
-
-        for i in 0..rhs.data.len() {
-            h_b.push(rhs.data[i].f64());
-        }
-
-        let d_a = match DeviceBuffer::from_slice(h_a.as_slice()) {
-            Ok(buf) => buf,
-            Err(e) => return Err(format!("CUDA Device Buffer Creation Error for LHS: {}", e)),
-        };
-
-        let d_b = match DeviceBuffer::from_slice(h_b.as_slice()) {
-            Ok(buf) => buf,
-            Err(e) => return Err(format!("CUDA Device Buffer Creation Error for RHS: {}", e)),
-        };
-
-        let d_c = match DeviceBuffer::from_slice(data.as_slice()) {
-            Ok(buf) => buf,
-            Err(e) => {
-                return Err(format!(
-                    "CUDA Device Buffer Creation Error for RESULT: {}",
-                    e
-                ))
-            }
-        };
-
-        // PTX produced from kernels/matrix_mul.cu
-        let ptx = include_str!("../kernels/matrix_mul.ptx");
-        let module = Module::from_ptx(ptx, &[]).unwrap();
-        let function = match module.get_function("matrixMulKernel") {
-            Ok(func) => func,
-            Err(e) => return Err(format!("CUDA Kernel Function Retrieval Error: {}", e)),
-        };
-
-        let stream = Stream::new(StreamFlags::NON_BLOCKING, 1i32.into()).unwrap();
-
-        // Kernel launch params (must match TILE used in the .cu)
-        const TILE: u32 = 32;
-        let block = (TILE, TILE, 1);
-        let grid_x = ((cols as u32) + TILE - 1) / TILE;
-        let grid_y = ((rows as u32) + TILE - 1) / TILE;
-        let grid = (grid_x, grid_y, 1);
-
-        let start = Instant::now();
-        unsafe {
-            let result = launch!(
-                function<<<grid, block, 0, stream>>>(
-                    d_a.as_device_ptr(),
-                    d_b.as_device_ptr(),
-                    d_c.as_device_ptr(),
-                    rows as i32,
-                    common_dim as i32,
-                    cols as i32,
-                )
-            );
-            match result {
-                Ok(_) => {}
-                Err(e) => return Err(format!("CUDA Kernel Launch Error: {}", e)),
-            }
-        }
-        match stream.synchronize() {
-            Ok(_) => {}
-            Err(e) => return Err(format!("CUDA Stream Synchronization Error: {}", e)),
-        }
-
-        let duration = start.elapsed();
-        println!("GPU Matrix Multiplication Time: {:.2?}\n", duration);
-
-        let result = d_c.copy_to(&mut data);
-
-        match result {
-            Ok(_) => {}
-            Err(e) => return Err(format!("CUDA Device to Host Copy Error: {}", e)),
-        }
-
-        Ok(Tensor {
-            shape: vec![rows as u32, cols as u32],
-            data,
-        })
-    }
-
     fn _cpu_mul(&self, rhs: &Self) -> Result<Self, String> {
         let rows = self.shape[0] as usize;
         let cols = rhs.shape[1] as usize;
@@ -295,11 +202,6 @@ impl<T: Numeric> Tensor<T> {
                 }
             }
         };
-
-        if context.gpu_enabled {
-            return self._gpu_mul(rhs);
-        }
-
         self._cpu_mul(rhs)
     }
 

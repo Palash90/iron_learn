@@ -74,7 +74,7 @@ fn add_bias_column(x: &[f64], rows: usize, cols: usize) -> Vec<f64> {
 
 // ---- Prediction (uses same stats and bias as training) ----
 
-pub fn predict_logistic_gpu(
+fn predict_logistic_gpu(
     module: &Module,
     stream: &Stream,
     x: &Vec<f64>,           // raw test features
@@ -89,9 +89,9 @@ pub fn predict_logistic_gpu(
 
     // Device buffers
     let d_X = DeviceBuffer::from_slice(&x_bias)?;
-    let mut d_lines = DeviceBuffer::<f64>::zeroed(rows)?;
-    let mut d_prob = DeviceBuffer::<f64>::zeroed(rows)?;
-    let mut d_pred = DeviceBuffer::<f64>::zeroed(rows)?;
+    let d_lines = DeviceBuffer::<f64>::zeroed(rows)?;
+    let d_prob = DeviceBuffer::<f64>::zeroed(rows)?;
+    let d_pred = DeviceBuffer::<f64>::zeroed(rows)?;
 
     // Kernels
     let gemv = module.get_function("gemvRowMajor")?;
@@ -172,10 +172,10 @@ pub fn run_ml_cuda() -> cust::error::CudaResult<()> {
     let d_X = DeviceBuffer::from_slice(&x_bias)?;                // (rows × (cols+1))
     let d_y = DeviceBuffer::from_slice(&logistic.y)?;            // (rows)
     let d_w = DeviceBuffer::from_slice(&vec![0.0f64; cols + 1])?; // weights incl. bias
-    let mut d_lines = DeviceBuffer::<f64>::zeroed(rows)?;
-    let mut d_prob = DeviceBuffer::<f64>::zeroed(rows)?;
-    let mut d_loss = DeviceBuffer::<f64>::zeroed(rows)?;
-    let mut d_grad = DeviceBuffer::<f64>::zeroed(cols + 1)?;      // gradient incl. bias
+    let d_lines = DeviceBuffer::<f64>::zeroed(rows)?;
+    let d_prob = DeviceBuffer::<f64>::zeroed(rows)?;
+    let d_loss = DeviceBuffer::<f64>::zeroed(rows)?;
+    let d_grad = DeviceBuffer::<f64>::zeroed(cols + 1)?;      // gradient incl. bias
 
     let stream = Stream::new(StreamFlags::NON_BLOCKING, None)?;
 
