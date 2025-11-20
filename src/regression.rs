@@ -5,13 +5,13 @@ use std::time::Instant;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct XY {
-    m: u32,           // Number of data points
-    n: u32,           // Number of features
-    x: Vec<f64>,      // A matrix of data length m * n
-    y: Vec<f64>,      // A matrix of data length m
-    m_test: u32,      // Number of test data points
-    x_test: Vec<f64>, // A matrix of test data length m_test * n
-    y_test: Vec<f64>, // A matrix of test data length m_test
+    pub m: u32,           // Number of data points
+    pub n: u32,           // Number of features
+    pub x: Vec<f64>,      // A matrix of data length m * n
+    pub y: Vec<f64>,      // A matrix of data length m
+    pub m_test: u32,      // Number of test data points
+    pub x_test: Vec<f64>, // A matrix of test data length m_test * n
+    pub y_test: Vec<f64>, // A matrix of test data length m_test
 }
 
 #[derive(Debug, Deserialize, Serialize)]

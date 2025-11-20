@@ -197,7 +197,6 @@ impl<T: Numeric> Tensor<T> {
             }
         };
 
-
         // PTX produced from kernels/matrix_mul.cu
         let ptx = include_str!("../kernels/matrix_mul.ptx");
         let module = Module::from_ptx(ptx, &[]).unwrap();
