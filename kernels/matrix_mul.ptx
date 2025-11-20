@@ -10,52 +10,118 @@
 .target sm_52
 .address_size 64
 
-	// .globl	matrix_mul
+	// .globl	matrixMulKernel
 
-.visible .entry matrix_mul(
-	.param .u64 matrix_mul_param_0,
-	.param .u64 matrix_mul_param_1,
-	.param .u64 matrix_mul_param_2,
-	.param .u32 matrix_mul_param_3
+.visible .entry matrixMulKernel(
+	.param .u64 matrixMulKernel_param_0,
+	.param .u64 matrixMulKernel_param_1,
+	.param .u64 matrixMulKernel_param_2,
+	.param .u32 matrixMulKernel_param_3,
+	.param .u32 matrixMulKernel_param_4,
+	.param .u32 matrixMulKernel_param_5
 )
 {
-	.reg .pred 	%p<4>;
-	.reg .f32 	%f<4>;
-	.reg .b32 	%r<11>;
-	.reg .b64 	%rd<11>;
+	.reg .pred 	%p<9>;
+	.reg .f32 	%f<30>;
+	.reg .b32 	%r<32>;
+	.reg .b64 	%rd<35>;
 
 
-	ld.param.u64 	%rd1, [matrix_mul_param_0];
-	ld.param.u64 	%rd2, [matrix_mul_param_1];
-	ld.param.u64 	%rd3, [matrix_mul_param_2];
-	ld.param.u32 	%r3, [matrix_mul_param_3];
-	mov.u32 	%r4, %tid.y;
-	mov.u32 	%r5, %ntid.y;
-	mov.u32 	%r6, %ctaid.y;
-	mad.lo.s32 	%r1, %r6, %r5, %r4;
-	mov.u32 	%r7, %ntid.x;
-	mov.u32 	%r8, %ctaid.x;
-	mov.u32 	%r9, %tid.x;
-	mad.lo.s32 	%r2, %r8, %r7, %r9;
-	setp.ge.s32 	%p1, %r1, %r3;
-	setp.ge.s32 	%p2, %r2, %r3;
+	ld.param.u64 	%rd18, [matrixMulKernel_param_0];
+	ld.param.u64 	%rd19, [matrixMulKernel_param_1];
+	ld.param.u64 	%rd17, [matrixMulKernel_param_2];
+	ld.param.u32 	%r14, [matrixMulKernel_param_3];
+	ld.param.u32 	%r12, [matrixMulKernel_param_4];
+	ld.param.u32 	%r13, [matrixMulKernel_param_5];
+	cvta.to.global.u64 	%rd1, %rd19;
+	cvta.to.global.u64 	%rd2, %rd18;
+	mov.u32 	%r15, %ntid.y;
+	mov.u32 	%r16, %ctaid.y;
+	mov.u32 	%r17, %tid.y;
+	mad.lo.s32 	%r1, %r16, %r15, %r17;
+	mov.u32 	%r18, %ntid.x;
+	mov.u32 	%r19, %ctaid.x;
+	mov.u32 	%r20, %tid.x;
+	mad.lo.s32 	%r2, %r19, %r18, %r20;
+	setp.ge.s32 	%p1, %r1, %r14;
+	setp.ge.s32 	%p2, %r2, %r13;
 	or.pred  	%p3, %p1, %p2;
-	@%p3 bra 	$L__BB0_2;
+	@%p3 bra 	$L__BB0_9;
 
-	cvta.to.global.u64 	%rd4, %rd1;
-	mad.lo.s32 	%r10, %r1, %r3, %r2;
-	mul.wide.s32 	%rd5, %r10, 4;
-	add.s64 	%rd6, %rd4, %rd5;
-	cvta.to.global.u64 	%rd7, %rd2;
-	add.s64 	%rd8, %rd7, %rd5;
-	ld.global.f32 	%f1, [%rd8];
-	ld.global.f32 	%f2, [%rd6];
-	add.f32 	%f3, %f2, %f1;
-	cvta.to.global.u64 	%rd9, %rd3;
-	add.s64 	%rd10, %rd9, %rd5;
-	st.global.f32 	[%rd10], %f3;
+	setp.lt.s32 	%p4, %r12, 1;
+	mov.f32 	%f29, 0f00000000;
+	@%p4 bra 	$L__BB0_8;
 
-$L__BB0_2:
+	add.s32 	%r22, %r12, -1;
+	and.b32  	%r31, %r12, 3;
+	setp.lt.u32 	%p5, %r22, 3;
+	mov.f32 	%f29, 0f00000000;
+	mov.u32 	%r30, 0;
+	@%p5 bra 	$L__BB0_5;
+
+	sub.s32 	%r29, %r12, %r31;
+	mul.wide.s32 	%rd20, %r2, 4;
+	add.s64 	%rd32, %rd1, %rd20;
+	mul.lo.s32 	%r24, %r12, %r1;
+	mul.wide.s32 	%rd21, %r24, 4;
+	add.s64 	%rd22, %rd2, %rd21;
+	add.s64 	%rd31, %rd22, 8;
+	mul.wide.s32 	%rd5, %r13, 4;
+
+$L__BB0_4:
+	ld.global.f32 	%f12, [%rd32];
+	ld.global.f32 	%f13, [%rd31+-8];
+	fma.rn.f32 	%f14, %f13, %f12, %f29;
+	add.s64 	%rd23, %rd32, %rd5;
+	ld.global.f32 	%f15, [%rd23];
+	ld.global.f32 	%f16, [%rd31+-4];
+	fma.rn.f32 	%f17, %f16, %f15, %f14;
+	add.s64 	%rd24, %rd23, %rd5;
+	ld.global.f32 	%f18, [%rd24];
+	ld.global.f32 	%f19, [%rd31];
+	fma.rn.f32 	%f20, %f19, %f18, %f17;
+	add.s64 	%rd25, %rd24, %rd5;
+	add.s64 	%rd32, %rd25, %rd5;
+	ld.global.f32 	%f21, [%rd25];
+	ld.global.f32 	%f22, [%rd31+4];
+	fma.rn.f32 	%f29, %f22, %f21, %f20;
+	add.s32 	%r30, %r30, 4;
+	add.s64 	%rd31, %rd31, 16;
+	add.s32 	%r29, %r29, -4;
+	setp.ne.s32 	%p6, %r29, 0;
+	@%p6 bra 	$L__BB0_4;
+
+$L__BB0_5:
+	setp.eq.s32 	%p7, %r31, 0;
+	@%p7 bra 	$L__BB0_8;
+
+	mad.lo.s32 	%r25, %r30, %r13, %r2;
+	mul.wide.s32 	%rd26, %r25, 4;
+	add.s64 	%rd34, %rd1, %rd26;
+	mul.wide.s32 	%rd11, %r13, 4;
+	mad.lo.s32 	%r26, %r12, %r1, %r30;
+	mul.wide.s32 	%rd27, %r26, 4;
+	add.s64 	%rd33, %rd2, %rd27;
+
+$L__BB0_7:
+	.pragma "nounroll";
+	ld.global.f32 	%f23, [%rd34];
+	ld.global.f32 	%f24, [%rd33];
+	fma.rn.f32 	%f29, %f24, %f23, %f29;
+	add.s64 	%rd34, %rd34, %rd11;
+	add.s64 	%rd33, %rd33, 4;
+	add.s32 	%r31, %r31, -1;
+	setp.ne.s32 	%p8, %r31, 0;
+	@%p8 bra 	$L__BB0_7;
+
+$L__BB0_8:
+	mad.lo.s32 	%r27, %r1, %r13, %r2;
+	cvta.to.global.u64 	%rd28, %rd17;
+	mul.wide.s32 	%rd29, %r27, 4;
+	add.s64 	%rd30, %rd28, %rd29;
+	st.global.f32 	[%rd30], %f29;
+
+$L__BB0_9:
 	ret;
 
 }

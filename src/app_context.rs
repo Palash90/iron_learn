@@ -24,7 +24,8 @@ pub fn init_context(
         gpu_enabled,
         context,
     };
-    GLOBAL_CONTEXT
-        .set(ctx)
-        .expect("Context can only be initialized once");
+    match GLOBAL_CONTEXT.set(ctx) {
+        Ok(_) => (),
+        Err(_) => println!("AppContext has already been initialized!"),
+    }
 }

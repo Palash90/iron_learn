@@ -4,10 +4,10 @@
 mod display;
 use crate::app_context::GLOBAL_CONTEXT;
 use crate::numeric::{Numeric, SignedNumeric};
+use crate::AppContext;
 use cust::launch;
 use cust::memory::{CopyDestination, DeviceBuffer};
 use cust::module::Module;
-use cust::prelude::Context;
 use cust::stream::{Stream, StreamFlags};
 use std::ops::{Add, Mul, Neg, Sub};
 
@@ -175,16 +175,15 @@ impl<T: Numeric> Tensor<T> {
         // PTX produced from kernels/matrix_mul.cu
         let ptx = include_str!("../kernels/matrix_mul.ptx");
         let module = Module::from_ptx(ptx, &[]).unwrap();
-        let function =  match module.get_function("matrix_mul") {
+        let function = match module.get_function("matrixMulKernel") {
             Ok(func) => func,
             Err(e) => return Err(format!("CUDA Kernel Function Retrieval Error: {}", e)),
-            
         };
 
         let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
 
         // Kernel launch params (must match TILE used in the .cu)
-        const TILE: u32 = 16;
+        const TILE: u32 = 32;
         let block = (TILE, TILE, 1);
         let grid_x = ((cols as u32) + TILE - 1) / TILE;
         let grid_y = ((rows as u32) + TILE - 1) / TILE;
@@ -201,6 +200,11 @@ impl<T: Numeric> Tensor<T> {
                     common_dim as i32
                 )
             );
+
+            match stream.synchronize() {
+                Ok(_) => {}
+                Err(e) => return Err(format!("CUDA Stream Synchronization Error: {}", e)),
+            }
 
             match result {
                 Ok(_) => {}
@@ -251,8 +255,6 @@ impl<T: Numeric> Tensor<T> {
     }
 
     fn _mul(&self, rhs: &Self) -> Result<Self, String> {
-        GLOBAL_CONTEXT.get().expect("Context not initialized");
-
         if self.shape[1] != rhs.shape[0] {
             let s = format!(
                 "ShapeMismatch:The dimensions of two matrices are not compatible for multiplication- {:?} {:?}",
@@ -260,7 +262,25 @@ impl<T: Numeric> Tensor<T> {
             );
             return Err(s);
         }
-        self._gpu_mul(rhs)
+
+        let context = match GLOBAL_CONTEXT.get() {
+            Some(ctx) => ctx,
+            None => {
+                println!("Application Context Error: Global context is not initialized.",);
+                &AppContext {
+                    app_name: "default",
+                    version: 1,
+                    gpu_enabled: false,
+                    context: None,
+                }
+            }
+        };
+
+        if context.gpu_enabled {
+            return self._gpu_mul(rhs);
+        }
+
+        self._cpu_mul(rhs)
     }
 
     fn _s(&self, scalar: T) -> Self {
