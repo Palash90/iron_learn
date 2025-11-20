@@ -1,24 +1,6 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-// CUDA kernel for matrix multiplication
-extern "C" __global__ void matrixMulKernel(double *A, double *B, double *C, int numARows, int numAColumns, int numBColumns)
-{
-    int Row = blockIdx.y * blockDim.y + threadIdx.y;
-    int Col = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (Row < numARows && Col < numBColumns)
-    {
-        double Cvalue = 0.0;
-
-        for (int k = 0; k < numAColumns; ++k)
-        {
-            Cvalue += A[Row * numAColumns + k] * B[k * numBColumns + Col];
-        }
-
-        C[Row * numBColumns + Col] = Cvalue;
-    }
-}
 
 extern "C" __global__
 void vectorSub(const double* a, const double* b, double* out, int n) {
@@ -115,5 +97,18 @@ void thresholdKernel(const double* in, double* out, int n) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i < n) {
         out[i] = (in[i] >= 0.5 ? 1.0 : 0.0);
+    }
+}
+
+extern "C" __global__
+void gradGemvXT(const double* X, const double* loss, double* grad,
+                int rows, int cols) {
+    int c = blockIdx.x * blockDim.x + threadIdx.x;
+    if (c < cols) {
+        double sum = 0.0;
+        for (int r = 0; r < rows; ++r) {
+            sum += X[r * cols + c] * loss[r];
+        }
+        grad[c] = sum;
     }
 }

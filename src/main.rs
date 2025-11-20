@@ -1,111 +1,104 @@
 use cust::error::CudaResult;
-use cust::launch;
-use cust::memory::{CopyDestination, DeviceBuffer};
+use cust::memory::DeviceBuffer;
 use cust::module::Module;
+use cust::prelude::*;
 use cust::stream::{Stream, StreamFlags};
-use iron_learn::*;
-use std::env;
-use std::fs;
+use iron_learn::{Data, GLOBAL_CONTEXT, Tensor, init_context};
+use std::{env, fs};
 use std::time::Instant;
 
-pub fn run_ml() {
-    let l = 0.001;
+// ---- Helpers: normalization + bias ----
 
-    let e = 5000;
-
-    let contents = fs::read_to_string("data.json").expect("Should have been able to read the file");
-
-    // Parse once and destructure into `linear` and `logistic` datasets
-    let data: Data = serde_json::from_str(&contents).unwrap();
-    let Data {
-        linear: xy,
-        logistic,
-    } = data;
-
-    // Run linear regression using the extracted function
-    run_linear(&xy, l, e);
-
-    // Call the extracted function to run logistic regression using the `logistic` dataset
-    run_logistic(&logistic, l, e);
+#[derive(Clone, Debug)]
+struct NormStats {
+    means: Vec<f64>,
+    stds: Vec<f64>,
 }
 
-use cust::prelude::*;
+fn compute_norm_stats(x: &[f64], rows: usize, cols: usize) -> NormStats {
+    let mut means = vec![0.0; cols];
+    let mut stds = vec![0.0; cols];
 
-/// Normalize features column-wise to zero mean and unit variance.
-/// Input: flat Vec<f64> of shape [rows * cols], row-major.
-/// Output: normalized Vec<f64> of same shape.
-pub fn normalize_features_vec(x: &Vec<f64>, rows: usize, cols: usize) -> Vec<f64> {
-    let mut normalized = vec![0.0; rows * cols];
-
-    for c in 0..cols {
-        // Extract column
-        let mut col_vals = Vec::with_capacity(rows);
-        for r in 0..rows {
-            col_vals.push(x[r * cols + c]);
-        }
-
-        // Compute mean and std
-        let mean: f64 = col_vals.iter().sum::<f64>() / rows as f64;
-        let var: f64 = col_vals.iter().map(|&v| (v - mean).powi(2)).sum::<f64>() / rows as f64;
-        let std = var.sqrt();
-
-        // Normalize
-        for r in 0..rows {
-            let idx = r * cols + c;
-            normalized[idx] = if std > 1e-12 {
-                (x[idx] - mean) / std
-            } else {
-                0.0
-            };
-        }
-    }
-
-    normalized
-}
-
-/// Add bias term (column of 1s) to features.
-/// Input: Vec<f64> of shape [rows * cols].
-/// Output: Vec<f64> of shape [rows * (cols+1)], with last column = 1.0.
-pub fn add_bias_term_vec(x: &Vec<f64>, rows: usize, cols: usize) -> Vec<f64> {
-    let mut with_bias = vec![0.0; rows * (cols + 1)];
-
+    // means
     for r in 0..rows {
-        // Copy original features
+        let base = r * cols;
         for c in 0..cols {
-            with_bias[r * (cols + 1) + c] = x[r * cols + c];
+            means[c] += x[base + c];
         }
-        // Add bias term
-        with_bias[r * (cols + 1) + cols] = 1.0;
+    }
+    for c in 0..cols {
+        means[c] /= rows as f64;
     }
 
-    with_bias
+    // stds
+    for r in 0..rows {
+        let base = r * cols;
+        for c in 0..cols {
+            let d = x[base + c] - means[c];
+            stds[c] += d * d;
+        }
+    }
+    for c in 0..cols {
+        stds[c] = (stds[c] / (rows as f64)).sqrt();
+        if stds[c] == 0.0 {
+            stds[c] = 1.0; // avoid divide-by-zero
+        }
+    }
+
+    NormStats { means, stds }
 }
 
-// GPU version of predict_logistic
+fn normalize_with_stats(x: &[f64], rows: usize, cols: usize, stats: &NormStats) -> Vec<f64> {
+    let mut out = vec![0.0; rows * cols];
+    for r in 0..rows {
+        let base = r * cols;
+        for c in 0..cols {
+            out[base + c] = (x[base + c] - stats.means[c]) / stats.stds[c];
+        }
+    }
+    out
+}
+
+fn add_bias_column(x: &[f64], rows: usize, cols: usize) -> Vec<f64> {
+    let mut out = vec![0.0; rows * (cols + 1)];
+    for r in 0..rows {
+        // copy features
+        let src_base = r * cols;
+        let dst_base = r * (cols + 1);
+        out[dst_base..dst_base + cols].copy_from_slice(&x[src_base..src_base + cols]);
+        // bias = 1.0
+        out[dst_base + cols] = 1.0;
+    }
+    out
+}
+
+// ---- Prediction (uses same stats and bias as training) ----
+
 pub fn predict_logistic_gpu(
     module: &Module,
     stream: &Stream,
-    x: &Vec<f64>, // raw features
+    x: &Vec<f64>,           // raw test features
     rows: usize,
-    cols: usize,
-    w: &DeviceBuffer<f64>, // weights already on GPU
+    cols: usize,            // feature columns (without bias)
+    w: &DeviceBuffer<f64>,  // weights on GPU (length cols+1)
+    stats: &NormStats,      // training stats for normalization
 ) -> CudaResult<Vec<f64>> {
-    // --- Preprocess on CPU before sending to GPU ---
-    let x_normalized = normalize_features_vec(x, rows, cols);
-    let x_with_bias = add_bias_term_vec(&x_normalized, rows, cols);
+    // Preprocess test: normalize + add bias
+    let x_norm = normalize_with_stats(x, rows, cols, stats);
+    let x_bias = add_bias_column(&x_norm, rows, cols);
 
-    // Copy features to GPU
-    let mut d_X = DeviceBuffer::from_slice(&x_with_bias)?;
+    // Device buffers
+    let d_X = DeviceBuffer::from_slice(&x_bias)?;
     let mut d_lines = DeviceBuffer::<f64>::zeroed(rows)?;
     let mut d_prob = DeviceBuffer::<f64>::zeroed(rows)?;
     let mut d_pred = DeviceBuffer::<f64>::zeroed(rows)?;
 
-    // Retrieve kernels
+    // Kernels
     let gemv = module.get_function("gemvRowMajor")?;
     let sigmoid = module.get_function("sigmoidKernel")?;
     let threshold = module.get_function("thresholdKernel")?;
 
-    // --- 1. z = X * w ---
+    // z = X * w
     let block1d = (256, 1, 1);
     let grid_rows = ((rows as u32) + 255) / 256;
     unsafe {
@@ -114,11 +107,11 @@ pub fn predict_logistic_gpu(
             w.as_device_ptr(),
             d_lines.as_device_ptr(),
             rows as i32,
-            (cols+1) as i32 // +1 for bias
+            (cols + 1) as i32 // includes bias
         ))?;
     }
 
-    // --- 2. probabilities = sigmoid(z) ---
+    // prob = sigmoid(z)
     unsafe {
         launch!(sigmoid<<<(grid_rows,1,1), block1d, 0, stream>>>(
             d_lines.as_device_ptr(),
@@ -127,7 +120,7 @@ pub fn predict_logistic_gpu(
         ))?;
     }
 
-    // --- 3. predictions = threshold(probabilities, 0.5) ---
+    // pred = threshold(prob, 0.5)
     unsafe {
         launch!(threshold<<<(grid_rows,1,1), block1d, 0, stream>>>(
             d_prob.as_device_ptr(),
@@ -138,16 +131,17 @@ pub fn predict_logistic_gpu(
 
     stream.synchronize()?;
 
-    // Copy predictions back to host
+    // Copy back
     let mut predictions = vec![0.0f64; rows];
     d_pred.copy_to(&mut predictions)?;
-
     Ok(predictions)
 }
 
+// ---- Training orchestrator (uses gemv for logits and gradGemvXT for gradient) ----
+
 pub fn run_ml_cuda() -> cust::error::CudaResult<()> {
-    let l: f32 = 0.001; // learning rate
-    let e: usize = 5000; // epochs
+    let l: f64 = 0.001;    // learning rate
+    let e: usize = 10000;  // epochs
 
     let contents = fs::read_to_string("data.json").expect("Failed to read data.json");
     let data: Data = serde_json::from_str(&contents).unwrap();
@@ -156,107 +150,107 @@ pub fn run_ml_cuda() -> cust::error::CudaResult<()> {
     let rows = logistic.m as usize;
     let cols = logistic.n as usize;
 
+    // Compute normalization stats on training data
+    let stats = compute_norm_stats(&logistic.x, rows, cols);
+    let x_norm = normalize_with_stats(&logistic.x, rows, cols, &stats);
+    let x_bias = add_bias_column(&x_norm, rows, cols); // training with bias
+
     // Load PTX module
     let ptx = include_str!("../kernels/gradient_descent.ptx");
     let module = Module::from_ptx(ptx, &[])?;
 
     // Retrieve kernels
-    let matrix_mul = module.get_function("matrixMulKernel")?;
+    let gemv = module.get_function("gemvRowMajor")?;
     let sigmoid = module.get_function("sigmoidKernel")?;
     let vector_sub = module.get_function("vectorSub")?;
     let scale_vec = module.get_function("scaleVector")?;
     let update_w = module.get_function("updateWeights")?;
+    // Gradient via X^T · loss
+    let grad_xt = module.get_function("gradGemvXT")?; // ensure this kernel exists in your PTX
 
     // Allocate device buffers
-    let d_X = DeviceBuffer::from_slice(&logistic.x)?;
-    let d_y = DeviceBuffer::from_slice(&logistic.y)?;
-    let d_w = DeviceBuffer::from_slice(&vec![0.0f64; cols])?;
-    let d_lines = DeviceBuffer::<f32>::zeroed(rows)?;
-    let d_prediction = DeviceBuffer::<f32>::zeroed(rows)?;
-    let d_loss = DeviceBuffer::<f32>::zeroed(rows)?;
-    let d_grad = DeviceBuffer::<f32>::zeroed(cols)?;
+    let d_X = DeviceBuffer::from_slice(&x_bias)?;                // (rows × (cols+1))
+    let d_y = DeviceBuffer::from_slice(&logistic.y)?;            // (rows)
+    let d_w = DeviceBuffer::from_slice(&vec![0.0f64; cols + 1])?; // weights incl. bias
+    let mut d_lines = DeviceBuffer::<f64>::zeroed(rows)?;
+    let mut d_prob = DeviceBuffer::<f64>::zeroed(rows)?;
+    let mut d_loss = DeviceBuffer::<f64>::zeroed(rows)?;
+    let mut d_grad = DeviceBuffer::<f64>::zeroed(cols + 1)?;      // gradient incl. bias
 
     let stream = Stream::new(StreamFlags::NON_BLOCKING, None)?;
 
     // Kernel launch params
-    const TILE: u32 = 32;
-    let block2d = (TILE, TILE, 1);
-    let grid_x = ((cols as u32) + TILE - 1) / TILE;
-    let grid_y = ((rows as u32) + TILE - 1) / TILE;
-    let grid2d = (grid_x, grid_y, 1);
-
     let block1d = (256, 1, 1);
     let grid_rows = ((rows as u32) + 255) / 256;
-    let grid_cols = ((cols as u32) + 255) / 256;
+    let grid_cols = (((cols + 1) as u32) + 255) / 256;
 
     let start = Instant::now();
 
     // Training loop
     for i in 0..e {
-        // 1. lines = X * w
+        // 1) lines = X * w   (gemv over rows)
         unsafe {
-            launch!(matrix_mul<<<grid2d, block2d, 0, stream>>>(
+            launch!(gemv<<<(grid_rows,1,1), block1d, 0, stream>>>(
                 d_X.as_device_ptr(),
                 d_w.as_device_ptr(),
                 d_lines.as_device_ptr(),
                 rows as i32,
-                cols as i32,
-                1i32
+                (cols + 1) as i32
             ))?;
         }
 
-        // 2. prediction = sigmoid(lines)
+        // 2) prob = sigmoid(lines)
         unsafe {
             launch!(sigmoid<<<(grid_rows,1,1), block1d, 0, stream>>>(
                 d_lines.as_device_ptr(),
-                d_prediction.as_device_ptr(),
+                d_prob.as_device_ptr(),
                 rows as i32
             ))?;
         }
 
-        // 3. loss = prediction - y
+        // 3) loss = prob - y
         unsafe {
             launch!(vector_sub<<<(grid_rows,1,1), block1d, 0, stream>>>(
-                d_prediction.as_device_ptr(),
+                d_prob.as_device_ptr(),
                 d_y.as_device_ptr(),
                 d_loss.as_device_ptr(),
                 rows as i32
             ))?;
         }
 
-        // 4. gradient = X^T * loss
+        // 4) grad = X^T * loss   (accumulate per-feature, incl. bias)
         unsafe {
-            launch!(matrix_mul<<<(grid_x,1,1), block2d, 0, stream>>>(
-                d_X.as_device_ptr(),
-                d_loss.as_device_ptr(),
-                d_grad.as_device_ptr(),
-                cols as i32,
+            launch!(grad_xt<<<(grid_cols,1,1), block1d, 0, stream>>>(
+                d_X.as_device_ptr(),     // (rows × (cols+1)), row-major
+                d_loss.as_device_ptr(),  // (rows)
+                d_grad.as_device_ptr(),  // (cols+1)
                 rows as i32,
-                1i32
+                (cols + 1) as i32
             ))?;
         }
 
-        // 5. scale gradient
+        // 5) scale gradient by (l / m)
         unsafe {
             launch!(scale_vec<<<(grid_cols,1,1), block1d, 0, stream>>>(
                 d_grad.as_device_ptr(),
-                l / rows as f32,
-                cols as i32
+                l / rows as f64,
+                (cols + 1) as i32
             ))?;
         }
 
-        // 6. update weights
+        // 6) update weights: w -= grad
         unsafe {
             launch!(update_w<<<(grid_cols,1,1), block1d, 0, stream>>>(
                 d_w.as_device_ptr(),
                 d_grad.as_device_ptr(),
-                cols as i32
+                (cols + 1) as i32
             ))?;
         }
 
         stream.synchronize()?;
 
         if i % 500 == 0 {
+            // Optional: log training loss on host (cross-entropy)
             println!("Iteration {} complete", i);
         }
     }
@@ -265,29 +259,29 @@ pub fn run_ml_cuda() -> cust::error::CudaResult<()> {
     println!("GPU Logistic Regression Training Time: {:.2?}", duration);
 
     // Copy final weights back
-    let mut w_host = vec![0.0f64; cols];
+    let mut w_host = vec![0.0f64; cols + 1];
     d_w.copy_to(&mut w_host)?;
-    println!("Final weights (first 10): {:?}", &w_host[..10]);
+    println!("Final weights (first 10): {:?}", &w_host[..w_host.len().min(10)]);
 
-    // Initialize test data (no need to add bias here, predict_logistic will handle that)
+    // Predict on test (same preprocessing)
     let y_test = Tensor::new(vec![logistic.m_test, 1], logistic.y_test.clone()).unwrap();
+    let preds = predict_logistic_gpu(
+        &module,
+        &stream,
+        &logistic.x_test.clone(),
+        logistic.m_test as usize,
+        cols,                // features without bias
+        &d_w,                // weights with bias
+        &stats,              // training normalization stats
+    )?;
 
-    // Make predictions (predict_logistic will add bias term internally)
-    let predictions = predict_logistic_gpu(&module, &stream, &logistic.x_test.clone(), logistic.m_test as usize, 1, &d_w);
-
-    // Calculate accuracy
+    // Accuracy: direct comparison (preds are 0/1)
     let mut correct = 0;
     let total = logistic.m_test as usize;
-
     for i in 0..total {
-        let pred:f64 = match predictions.clone().unwrap().get(i) {
-            Some(&val) => val,
-            None => 0.0,
-        };
+        let pred = preds[i];
         let actual = y_test.get_data()[i];
-
-        if (pred - actual).abs() < 1e-10 {
-            // Using small epsilon for floating point comparison
+        if pred == actual {
             correct += 1;
         }
     }
@@ -300,7 +294,6 @@ pub fn run_ml_cuda() -> cust::error::CudaResult<()> {
 
     Ok(())
 }
-
 fn init() {
     let args: Vec<String> = env::args().collect();
 
