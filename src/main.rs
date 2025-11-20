@@ -1,4 +1,3 @@
-use cust::prelude::*;
 use iron_learn::Tensor;
 use iron_learn::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use serde::{Deserialize, Serialize};
@@ -56,8 +55,13 @@ fn run_logistic(xy: &XY, l: f64, e: u32) {
     let mut w = Tensor::new(vec![xy.n + 1, 1], vec![0.0; (xy.n + 1) as usize]).unwrap();
 
     let now = Instant::now();
+    let iter10 = Instant::now();
 
-    for _ in 0..e {
+    for i in 0..e {
+        if i % 10 == 0 {
+            print!("Iteration: {} took {:.2?} \n", i, iter10.elapsed());
+        }
+
         w = logistic_regression(&x, &y, &w, l)
     }
     let elapsed = now.elapsed();
@@ -163,8 +167,6 @@ fn run_linear(xy: &XY, l: f64, e: u32) {
     println!("Root MSE: {:.4}", mse.sqrt());
 }
 fn main() {
-    let _ctx = cust::quick_init();
-
     let l = 0.001;
 
     let e = 5000;
