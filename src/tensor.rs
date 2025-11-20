@@ -2,10 +2,12 @@
 //! for linear algebra computations integral to machine learning applications.
 
 mod display;
+use crate::app_context::GLOBAL_CONTEXT;
 use crate::numeric::{Numeric, SignedNumeric};
 use cust::launch;
 use cust::memory::{CopyDestination, DeviceBuffer};
 use cust::module::Module;
+use cust::prelude::Context;
 use cust::stream::{Stream, StreamFlags};
 use std::ops::{Add, Mul, Neg, Sub};
 
@@ -150,11 +152,9 @@ impl<T: Numeric> Tensor<T> {
         // println!("Launching GPU Kernel for Matrix Multiplication...");
         // Keep the context alive for the whole function scope.
 
-
         let d_a = DeviceBuffer::from_slice(&self.data).unwrap();
         let d_b = DeviceBuffer::from_slice(&rhs.data).unwrap();
         let d_c = DeviceBuffer::from_slice(&data).unwrap();
-
 
         // PTX produced from kernels/matrix_mul.cu
         let ptx = include_str!("../kernels/matrix_mul.ptx");
@@ -197,7 +197,6 @@ impl<T: Numeric> Tensor<T> {
 
         let result = d_c.copy_to(&mut data);
 
-
         match result {
             Ok(_) => {}
             Err(e) => return Err(format!("CUDA Device to Host Copy Error: {}", e)),
@@ -232,6 +231,8 @@ impl<T: Numeric> Tensor<T> {
     }
 
     fn _mul(&self, rhs: &Self) -> Result<Self, String> {
+        GLOBAL_CONTEXT.get().expect("Context not initialized");
+
         if self.shape[1] != rhs.shape[0] {
             let s = format!(
                 "ShapeMismatch:The dimensions of two matrices are not compatible for multiplication- {:?} {:?}",
@@ -239,7 +240,7 @@ impl<T: Numeric> Tensor<T> {
             );
             return Err(s);
         }
-        self._cpu_mul(rhs)
+        self._gpu_mul(rhs)
     }
 
     fn _s(&self, scalar: T) -> Self {
