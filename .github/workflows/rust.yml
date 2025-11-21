@@ -19,13 +19,12 @@ jobs:
       id: cuda-toolkit
       with:
         cuda: '12.5.0'
-
-    - run: echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
-
-    - run: echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
-
-    - run: nvcc -V
-           
+    - name: Show CUDA version
+      run: echo "Installed cuda version is: ${{steps.cuda-toolkit.outputs.cuda}}"
+    - name: Show CUDA path
+      run: echo "Cuda install location: ${{steps.cuda-toolkit.outputs.CUDA_PATH}}"
+    - name: Verify nvcc
+      run: nvcc -V
     - name: Build
       run: cargo build --verbose
     - name: Run tests
