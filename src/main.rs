@@ -86,17 +86,20 @@ fn init() {
     }
 }
 
-fn main() {
-    init();
-    
-    let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
-    println!("\n╔════════════════════════════════════╗");
+fn greet(ctx: &iron_learn::AppContext) {
+    println!("\n╔════════════════════════════════╗");
     println!("║ {} v{}", ctx.app_name, ctx.version);
     println!("║ Mode: {}", if ctx.gpu_enabled { "GPU" } else { "CPU" });
     println!("║ Learning Rate: {}", ctx.learning_rate);
     println!("║ Epochs: {}", ctx.epochs);
-    println!("╚════════════════════════════════════╝\n");
+    println!("╚════════════════════════════════╝\n");
+}
 
+fn main() {
+    init();
+    
+    let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
+    greet(ctx);
     // Execute appropriate training pipeline
     if ctx.gpu_enabled {
         match run_logistics_cuda() {
