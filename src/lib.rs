@@ -13,25 +13,21 @@
 
 mod app_context;
 mod complex;
-pub mod gradient_descent;
-mod matrix;
+mod gpu_regression;
+mod gradient_descent;
 mod numeric;
 mod regression;
 mod tensor;
-mod vector;
 
-pub use crate::app_context::init_context;
-pub use crate::app_context::AppContext;
-pub use crate::app_context::GLOBAL_CONTEXT;
+pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::complex::Complex;
+pub use crate::gpu_regression::run_ml_cuda;
 pub use crate::gradient_descent::gradient_descent;
 pub use crate::gradient_descent::linear_regression;
 pub use crate::gradient_descent::logistic_regression;
 pub use crate::gradient_descent::{predict_linear, predict_logistic};
-pub use crate::matrix::Matrix;
 pub use crate::numeric::Numeric;
 pub use crate::regression::Data;
 pub use crate::regression::XY;
 pub use crate::regression::{run_linear, run_logistic};
 pub use crate::tensor::Tensor;
-pub use crate::vector::Vector;

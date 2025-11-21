@@ -18,27 +18,23 @@ use crate::Tensor;
 ///
 /// # Example
 ///
-/// ```
-/// use iron_learn::Tensor;
-/// use iron_learn::gradient_descent::gradient_descent;
-///
-/// let learning_rate: f64 = 0.01;
-/// let w = Tensor::new(vec![2, 1], vec![3.0, 4.0]).unwrap();
-/// let x = Tensor::new(vec![1, 2], vec![3.0, 4.0]).unwrap();
-/// let y = Tensor::new(vec![1, 1], vec![5.0]).unwrap();
-///
-/// let w = gradient_descent(&x, &y, &w, learning_rate, false, 10.0); // For linear regression
+/// ```rust
+/// use iron_learn::{Tensor, gradient_descent};
+/// let x = Tensor::new(vec![3, 2], vec![1.0, 2.0, 1.0, 3.0, 1.0, 4.0]).unwrap(); // 3 data points, 2 features (including bias)
+/// let y = Tensor::new(vec![3, 1], vec![5.0, 7.0, 9.0]).unwrap(); // target values
+/// let w = Tensor::new(vec![2, 1], vec![0.1, 0.2]).unwrap(); // initial weights
+/// let learning_rate = 0.01;
+/// let updated_w = gradient_descent(&x, &y, &w, learning_rate, false);
+/// println!("Updated weights: {:?}", updated_w.get_data());
 /// ```
 ///
 ///
-#[deprecated(since = "0.4.0")]
 pub fn gradient_descent(
     x: &Tensor<f64>,
     y: &Tensor<f64>,
     w: &Tensor<f64>,
     l: f64,
     logistic: bool,
-    lambda: f64,
 ) -> Tensor<f64> {
     let data_size = *(x.get_shape().first().unwrap()) as f64;
     let lines = x.mul(w).unwrap();
@@ -66,7 +62,7 @@ pub fn linear_regression(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f
     // Normalize features and add bias term for linear regression to improve numeric stability
     let x_normalized = normalize_features(x);
     let x_with_bias = add_bias_term(&x_normalized);
-    gradient_descent(&x_with_bias, y, w, l, false, 0.0)
+    gradient_descent(&x_with_bias, y, w, l, false)
 }
 
 /// Same as `gradient_descent`, only without the logistic flag parameter. This function invokes `gradient_descent` with the `logistic` flag set to `true`.
@@ -139,7 +135,7 @@ pub fn logistic_regression(
     let x_normalized = normalize_features(x);
     // Then add bias term
     let x_with_bias = add_bias_term(&x_normalized);
-    gradient_descent(&x_with_bias, y, w, l, true, 1.0)
+    gradient_descent(&x_with_bias, y, w, l, true)
 }
 
 fn sigmoid(z: Tensor<f64>) -> Tensor<f64> {

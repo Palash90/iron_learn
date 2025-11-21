@@ -2,15 +2,8 @@
 //! for linear algebra computations integral to machine learning applications.
 
 mod display;
-use crate::app_context::GLOBAL_CONTEXT;
 use crate::numeric::{Numeric, SignedNumeric};
-use crate::AppContext;
-use cust::launch;
-use cust::memory::{CopyDestination, DeviceBuffer};
-use cust::module::Module;
-use cust::stream::{Stream, StreamFlags};
 use std::ops::{Add, Mul, Neg, Sub};
-use std::time::Instant;
 
 /// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
 /// for the manipulation of multidimensional data. It is designed to be compatible with all numeric types defined in the `numeric` module,
@@ -131,7 +124,7 @@ impl<T: Numeric> Tensor<T> {
 
         let size = Self::calculate_length(&shape);
 
-        if size != data.len().try_into().unwrap() {
+        if size != (data.len() as u32) {
             let err = format!("DataError: Data length ({}) does not match total num of elements provided by dimensions ({}))", data.len(), size);
             return Err(err);
         }
@@ -190,18 +183,6 @@ impl<T: Numeric> Tensor<T> {
             return Err(s);
         }
 
-        let context = match GLOBAL_CONTEXT.get() {
-            Some(ctx) => ctx,
-            None => {
-                println!("Application Context Error: Global context is not initialized.",);
-                &AppContext {
-                    app_name: "default",
-                    version: 1,
-                    gpu_enabled: false,
-                    context: None,
-                }
-            }
-        };
         self._cpu_mul(rhs)
     }
 
