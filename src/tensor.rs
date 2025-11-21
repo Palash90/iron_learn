@@ -1,13 +1,65 @@
-//! The `tensor` module provides the foundational structures and operations
-//! for linear algebra computations integral to machine learning applications.
+//! # Tensor Module - Linear Algebra Core
+//!
+//! Provides the foundational `Tensor` data structure and comprehensive operations for
+//! linear algebra computations essential to machine learning applications.
+//!
+//! ## Design Philosophy
+//!
+//! The tensor module is built around these key principles:
+//! - **Generic**: Works with all numeric types through the `Numeric` trait
+//! - **Safe**: Result-based error handling; no panics on invalid operations
+//! - **Flexible**: Both consuming and borrowing variants of operations
+//! - **Clear**: Extensive documentation and examples for all public APIs
+//!
+//! ## Data Representation
+//!
+//! Tensors are represented in **row-major order** for compatibility with standard
+//! mathematical libraries. Shape is defined as a vector of dimensions, supporting
+//! multi-dimensional arrays (though currently restricted to 2D matrices).
+//!
+//! ## Operation Modes
+//!
+//! Two patterns are provided for each operation:
+//! - **Consuming** (`+`, `-`, `*`): Take ownership, suitable for single-use computations
+//! - **Borrowing** (`add()`, `sub()`, `mul()`): Borrow references, enable reuse
+//!
+//! ## Performance Characteristics
+//!
+//! Operations use foundational algorithms appropriate for educational and small-scale use.
+//! GPU acceleration is available through the `gpu_regression` module for large-scale workloads.
 
 mod display;
 use crate::numeric::{Numeric, SignedNumeric};
 use std::ops::{Add, Mul, Neg, Sub};
 
 /// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
-/// for the manipulation of multidimensional data. It is designed to be compatible with all numeric types defined in the `numeric` module,
-/// ensuring versatility and broad applicability in various machine learning contexts.
+/// for the manipulation of multidimensional data.
+///
+/// # Characteristics
+///
+/// - **Generic**: Type-agnostic through the `Numeric` trait; works with f64, f32, i32, i64, u32, u64, and Complex
+/// - **Row-Major Layout**: Data stored in row-major order for standard matrix conventions
+/// - **Type Safe**: All operations return `Result` types for explicit error handling
+/// - **Flexible API**: Both ownership-taking operators and borrowing methods available
+///
+/// # Limitations
+///
+/// Currently restricted to 2-dimensional matrices. N-dimensional support is planned for future releases.
+///
+/// # Examples
+///
+/// ```rust
+/// # use iron_learn::Tensor;
+/// // Create a 2x2 matrix
+/// let a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+/// let b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+///
+/// // Borrowing method (non-consuming)
+/// let c = a.add(&b).unwrap();
+///
+/// // Both a and b can still be used
+/// let d = a.mul(&b).unwrap();
+/// ```
 
 #[derive(Debug, PartialEq)]
 pub struct Tensor<T: Numeric> {

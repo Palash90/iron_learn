@@ -1,8 +1,52 @@
+//! # Regression Module - High-Level Training Interface
+//!
+//! Provides orchestrated training and evaluation functions for both linear and logistic regression.
+//!
+//! This module offers a higher-level abstraction over the core gradient descent functions,
+//! handling data management, training loops, and performance evaluation automatically.
+//!
+//! ## Features
+//!
+//! - **Data Management**: Structures for organizing train/test splits
+//! - **Training Orchestration**: Complete training loops with progress reporting
+//! - **Performance Metrics**:
+//!   - Logistic regression: Classification accuracy
+//!   - Linear regression: Mean squared error (MSE)
+//! - **Input Flexibility**: JSON deserialization for data loading
+//! - **Validation**: Sanity checks on data dimensions
+
 use crate::Tensor;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
 
+/// Training and test data container for regression tasks
+///
+/// Organizes feature and label data for both training and testing phases.
+///
+/// # Fields
+///
+/// * `m` - Number of training samples
+/// * `n` - Number of features per sample
+/// * `x` - Training feature matrix (length: m × n), stored row-major
+/// * `y` - Training labels (length: m)
+/// * `m_test` - Number of test samples
+/// * `x_test` - Test feature matrix (length: m_test × n)
+/// * `y_test` - Test labels (length: m_test)
+///
+/// # JSON Format
+///
+/// ```json
+/// {
+///   "m": 100,
+///   "n": 5,
+///   "x": [1.0, 2.0, ...],
+///   "y": [0.0, 1.0, ...],
+///   "m_test": 20,
+///   "x_test": [...],
+///   "y_test": [...]
+/// }
+/// ```
 #[derive(Debug, Deserialize, Serialize)]
 pub struct XY {
     pub m: u32,           // Number of data points
@@ -14,13 +58,50 @@ pub struct XY {
     pub y_test: Vec<f64>, // A matrix of test data length m_test
 }
 
+/// Container for complete dataset with both linear and logistic regression splits
+///
+/// Used for loading datasets configured for multiple regression tasks from JSON.
+///
+/// # Fields
+///
+/// * `linear` - Data configuration for linear regression
+/// * `logistic` - Data configuration for logistic regression (binary classification)
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Data {
     pub linear: XY,
     pub logistic: XY,
 }
 
-// Extracted function: runs the logistic regression flow that was previously in `main`
+/// Trains and evaluates logistic regression model
+///
+/// High-level training orchestration for binary classification. Automates:
+/// - Training loop with specified learning rate and epochs
+/// - Feature normalization and bias handling (automatic)
+/// - Test set evaluation with accuracy metrics
+/// - Progress reporting every 10 iterations
+///
+/// # Arguments
+///
+/// * `xy` - Data container with training and test sets
+/// * `l` - Learning rate controlling gradient descent step size
+/// * `e` - Number of training epochs
+///
+/// # Output
+///
+/// Prints:
+/// - Dataset dimensions for verification
+/// - Iteration progress (every 10 steps)
+/// - Total training time
+/// - Classification accuracy on test set
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use iron_learn::regression::{XY, run_logistic};
+///
+/// let xy = XY { /* ... */ };
+/// run_logistic(&xy, 0.01, 10000);  // Learning rate 0.01, 10k iterations
+/// ```
 pub fn run_logistic(xy: &XY, l: f64, e: u32) {
     print!("\nLogistic Regression\n");
     print!("Number of examples (m): {}\n", xy.m);
@@ -93,7 +174,36 @@ pub fn run_logistic(xy: &XY, l: f64, e: u32) {
     println!("Accuracy: {:.2}%", accuracy);
 }
 
-// Extracted function: runs the linear regression flow that was previously in `main`
+/// Trains and evaluates linear regression model
+///
+/// High-level training orchestration for continuous value prediction. Automates:
+/// - Training loop with specified learning rate and epochs
+/// - Feature normalization and bias handling (automatic)
+/// - Test set evaluation with MSE metrics
+/// - Graceful handling of missing test data
+///
+/// # Arguments
+///
+/// * `xy` - Data container with training and optional test sets
+/// * `l` - Learning rate controlling gradient descent step size
+/// * `e` - Number of training epochs
+///
+/// # Output
+///
+/// Prints:
+/// - Dataset dimensions for verification
+/// - Total training time
+/// - Mean squared error (MSE) and root MSE on test set (if available)
+/// - Message if no test data is provided
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use iron_learn::regression::{XY, run_linear};
+///
+/// let xy = XY { /* ... */ };
+/// run_linear(&xy, 0.01, 10000);  // Learning rate 0.01, 10k iterations
+/// ```
 pub fn run_linear(xy: &XY, l: f64, e: u32) {
     print!("\nLinear Regression\n");
     print!("Number of examples (m): {}\n", xy.m);
@@ -163,5 +273,5 @@ pub fn run_linear(xy: &XY, l: f64, e: u32) {
     println!("\nResults:");
     println!("Total test samples: {}", total);
     println!("Mean Squared Error: {:.4}", mse);
-    println!("Root MSE: {:.4}", mse.sqrt());
+    println!("Root MSE: {:.4}", mse.sqrt() as f64);
 }
