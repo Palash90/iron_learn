@@ -1,58 +1,57 @@
-//! # Iron Learn - Machine Learning Library
+//! # Iron Learn - A Rust Machine Learning Library
 //!
-//! A high-performance, pure Rust machine learning library featuring GPU-accelerated optimization,
-//! comprehensive tensor operations, and support for complex-valued computations.
+//! A pure Rust, type-safe machine learning library in pure Rust with GPU acceleration.
+//! Provides tensor operations, gradient-based optimization, and support for complex-valued computations.
 //!
-//! ## Version
-//! 0.5.0 - GPU Optmization Release
+//! ## Key Features
 //!
-//! ## Features
+//! - **GPU-Accelerated Training**: CUDA kernels for efficient large-scale optimization
+//! - **Type Safety**: All operations return `Result` types; no unwrap-induced panics
+//! - **Zero-Copy Borrowing**: Compute without unnecessary allocations
+//! - **Generic Numerics**: Works with f64, f32, i32, i64, Complex, and custom types
+//! - **Automatic Preprocessing**: Feature normalization and bias handling built-in
 //!
-//! - **GPU Acceleration**: CUDA-powered gradient descent with efficient kernel implementations
-//! - **Tensor Framework**: Multi-dimensional tensor abstractions with generic numeric types
-//! - **Optimization Algorithms**: Linear and logistic regression with feature normalization
-//! - **Complex Number Support**: Native complex-valued tensor operations
-//! - **Type Safety**: Comprehensive error handling with Result-based API
+//! ## Modules
 //!
-//! ## Architecture
+//! - `tensor`: Core multi-dimensional array operations
+//! - `complex`: Complex number arithmetic
+//! - `numeric`: Generic type system for computations
+//! - `gradient_descent`: CPU optimization algorithms
+//! - `gpu_regression`: CUDA-accelerated training
+//! - `regression`: High-level training interface
+//! - `app_context`: Global application state
 //!
-//! The library is organized into specialized modules that work together seamlessly:
-//!
-//! - `tensor`: Core multi-dimensional array abstraction with linear algebra operations
-//! - `complex`: Complex number arithmetic and tensor operations
-//! - `numeric`: Generic numeric type system enabling type-agnostic algorithms
-//! - `gradient_descent`: CPU optimization with feature normalization and regression variants
-//! - `gpu_regression`: GPU-accelerated logistic regression using CUDA
-//! - `regression`: High-level training and evaluation framework
-//! - `app_context`: Global application state and GPU capability management
-//!
-//! ## Quick Start
+//! ## Quick Example
 //!
 //! ```rust
-//! use iron_learn::{Tensor, gradient_descent};
+//! use iron_learn::{Tensor, linear_regression};
 //!
-//! // Create tensors for linear regression
-//! let x = Tensor::new(vec![3, 2], vec![1.0, 2.0, 1.0, 3.0, 1.0, 4.0])?;
-//! let y = Tensor::new(vec![3, 1], vec![5.0, 7.0, 9.0])?;
-//! let w = Tensor::new(vec![2, 1], vec![0.1, 0.2])?;
+//! let x = Tensor::new(vec![10, 3], vec![/* data */])?;
+//! let y = Tensor::new(vec![10, 1], vec![/* labels */])?;
+//! let mut w = Tensor::new(vec![4, 1], vec![0.0; 4])?;
 //!
-//! // Perform gradient descent step
-//! let updated_w = gradient_descent(&x, &y, &w, 0.01, false);
+//! for _ in 0..1000 {
+//!     w = linear_regression(&x, &y, &w, 0.01)?;
+//! }
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
 //!
+//! ## Version
+//!
+//! 0.5.0 - GPU-Accelerated Release
 
 mod app_context;
 mod complex;
 mod gpu_regression;
 mod gradient_descent;
 mod numeric;
+mod read_file;
 mod regression;
 mod tensor;
 
 pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::complex::Complex;
-pub use crate::gpu_regression::run_ml_cuda;
+pub use crate::gpu_regression::run_logistics_cuda;
 pub use crate::gradient_descent::gradient_descent;
 pub use crate::gradient_descent::linear_regression;
 pub use crate::gradient_descent::logistic_regression;

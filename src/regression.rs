@@ -15,8 +15,8 @@
 //! - **Input Flexibility**: JSON deserialization for data loading
 //! - **Validation**: Sanity checks on data dimensions
 
-use crate::Tensor;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
+use crate::{Tensor, GLOBAL_CONTEXT};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
 
@@ -47,7 +47,7 @@ use std::time::Instant;
 ///   "y_test": [...]
 /// }
 /// ```
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct XY {
     pub m: u32,           // Number of data points
     pub n: u32,           // Number of features
@@ -66,7 +66,7 @@ pub struct XY {
 ///
 /// * `linear` - Data configuration for linear regression
 /// * `logistic` - Data configuration for logistic regression (binary classification)
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Data {
     pub linear: XY,
     pub logistic: XY,
@@ -102,7 +102,13 @@ pub struct Data {
 /// let xy = XY { /* ... */ };
 /// run_logistic(&xy, 0.01, 10000);  // Learning rate 0.01, 10k iterations
 /// ```
-pub fn run_logistic(xy: &XY, l: f64, e: u32) {
+pub fn run_logistic() {
+    let l = GLOBAL_CONTEXT.get().unwrap().learning_rate;
+    let e = GLOBAL_CONTEXT.get().unwrap().epochs;
+    let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
+
+    let Data { logistic: xy, .. } = crate::read_file::deserialize_data(&data_path).unwrap();
+
     print!("\nLogistic Regression\n");
     print!("Number of examples (m): {}\n", xy.m);
     print!("Number of features (n): {}\n", xy.n);
@@ -204,7 +210,12 @@ pub fn run_logistic(xy: &XY, l: f64, e: u32) {
 /// let xy = XY { /* ... */ };
 /// run_linear(&xy, 0.01, 10000);  // Learning rate 0.01, 10k iterations
 /// ```
-pub fn run_linear(xy: &XY, l: f64, e: u32) {
+pub fn run_linear() {
+    let l = GLOBAL_CONTEXT.get().unwrap().learning_rate;
+    let e = GLOBAL_CONTEXT.get().unwrap().epochs;
+    let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
+
+    let Data { linear: xy, .. } = crate::read_file::deserialize_data(data_path).unwrap();
     print!("\nLinear Regression\n");
     print!("Number of examples (m): {}\n", xy.m);
     print!("Number of features (n): {}\n", xy.n);

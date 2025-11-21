@@ -1,10 +1,10 @@
-use crate::{Data, Tensor};
+use crate::read_file::deserialize_data;
+use crate::{Data, Tensor, GLOBAL_CONTEXT};
 use cust::error::CudaResult;
 use cust::memory::DeviceBuffer;
 use cust::module::Module;
 use cust::prelude::*;
 use cust::stream::{Stream, StreamFlags};
-use std::fs;
 use std::time::Instant;
 
 /// GPU-accelerated normalization and bias helpers for logistic regression preprocessing
@@ -141,13 +141,15 @@ pub fn predict_logistic_gpu(
 /// Main GPU training function for logistic regression
 /// Implements gradient descent using CUDA kernels for efficient computation
 /// Returns accuracy metrics on test set upon completion
-pub fn run_ml_cuda() -> cust::error::CudaResult<()> {
-    let l: f64 = 0.001; // Learning rate
-    let e: usize = 10_000_000; // Training epochs
+/// # Arguments
+///
+/// * `data_path` - The file path to the JSON data containing training and test sets. Data should be in the expected format for logistic regression.
+pub fn run_logistics_cuda() -> cust::error::CudaResult<()> {
+    let l = GLOBAL_CONTEXT.get().unwrap().learning_rate;
+    let e = GLOBAL_CONTEXT.get().unwrap().epochs;
+    let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let contents = fs::read_to_string("data.json").expect("Failed to read data.json");
-    let data: Data = serde_json::from_str(&contents).unwrap();
-    let Data { logistic, .. } = data;
+    let Data { logistic, .. } = deserialize_data(data_path).unwrap();
 
     let rows = logistic.m as usize;
     let cols = logistic.n as usize;

@@ -230,7 +230,12 @@ fn add_bias_term(x: &Tensor<f64>) -> Tensor<f64> {
 /// let w = Tensor::new(vec![6, 1], vec![0.0; 6]).unwrap();
 /// let w = logistic_regression(&x, &y, &w, 0.01);
 /// ```
-pub fn logistic_regression(x: &Tensor<f64>, y: &Tensor<f64>, w: &Tensor<f64>, l: f64) -> Tensor<f64> {
+pub fn logistic_regression(
+    x: &Tensor<f64>,
+    y: &Tensor<f64>,
+    w: &Tensor<f64>,
+    l: f64,
+) -> Tensor<f64> {
     let x_normalized = normalize_features(x);
     let x_with_bias = add_bias_term(&x_normalized);
     gradient_descent(&x_with_bias, y, w, l, true)
