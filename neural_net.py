@@ -1,4 +1,5 @@
 import numpy as np;
+import json;
 
 class LinearLayer:
     def __init__(self, inputSize, outputSize):
@@ -41,7 +42,13 @@ def tanh_prime(x):
     return 1-np.tanh(x)**2
 
 def sigmoid(x):
-    return 1/(1 + np.exp(-x))
+    out = np.empty_like(x)
+    pos_mask = (x >= 0)
+    out[pos_mask] = 1 / (1 + np.exp(-x[pos_mask]))
+    neg_mask = (x < 0)
+    exp_x = np.exp(x[neg_mask])
+    out[neg_mask] = exp_x / (exp_x + 1)
+    return out
 
 def sigmoid_prime(x):
     return sigmoid(x)*(1-sigmoid(x))
@@ -58,6 +65,12 @@ def log_loss(y, y_hat):
 
 def log_loss_prime(y, y_hat):
     return 2*(y_hat-y)/y.size
+
+def relu(x):
+    return np.maximum(0, x)
+
+def relu_prime(x):
+    return np.where(x > 0, 1, 0)
 
 class NeuralNet:
     def __init__(self, loss, loss_prime):
@@ -92,6 +105,8 @@ class NeuralNet:
 
         # training loop
         for i in range(epochs):
+            if(i % 100 == 0):
+                print(f"Epoch {i}")
             err = 0
             for j in range(samples):
                 # forward propagation
@@ -116,15 +131,54 @@ class NeuralNet:
 x_train = np.array([[[0,0]], [[0,1]], [[1,0]], [[1,1]]])
 y_train = np.array([[[0]], [[1]], [[1]], [[0]]])
 
-# network
-net = NeuralNet(log_loss, log_loss_prime)
-net.add(LinearLayer(2, 3))
-net.add(ActivationLayer(sigmoid, sigmoid_prime))
-net.add(LinearLayer(3, 1))
-net.add(ActivationLayer(sigmoid, sigmoid_prime))
+# Open and read the JSON file
+with open('data.json', 'r') as file:
+    data = json.load(file)
 
-net.fit(x_train, y_train, epochs=100000, learning_rate=0.1)
+data_field  = 'linear'  # Change this to 'logistic_2' to use the other dataset
+m = data[data_field]['m']
+n = data[data_field]['n']
+m_test = data[data_field]['m_test']
+x_train = np.array(data[data_field]['x']).reshape(m, 1, n)
+x_mean = np.mean(x_train, axis=(0,1))
+x_std = np.std(x_train, axis=(0,1))
+x_train_norm = (x_train - x_mean) / (x_std + 1e-8)
+
+y_train = np.array(data[data_field]['y']).reshape(m, 1, 1)
+y_mean = np.mean(y_train)
+y_std = np.std(y_train)
+y_train_norm = (y_train - y_mean) / (y_std + 1e-8)
+
+x_test = np.array(data[data_field]['x_test']).reshape(m_test, 1, n)
+x_test_norm = (x_test - x_mean) / (x_std + 1e-8)
+
+y_test = np.array(data[data_field]['y_test']).reshape(m_test, 1)
+y_test_norm = (y_test - y_mean) / (y_std + 1e-8)
+
+
+# network
+net = NeuralNet(mse, mse_prime)
+net.add(LinearLayer(n, 1))
+#net.add(ActivationLayer(relu, relu_prime))
+#net.add(LinearLayer(6, 1))
+#net.add(ActivationLayer(sigmoid, sigmoid_prime))
+
+net.fit(x_train_norm, y_train_norm, epochs=10000, learning_rate=0.1)
 
 # test
-out = net.predict(x_train)
-print(out)
+y_pred = net.predict(x_test_norm)
+y_pred = np.array(y_pred).reshape(m_test, 1)
+
+# Denormalize predictions
+y_pred_rescaled = y_pred * y_std + y_mean
+
+# Compare to raw targets
+print("Sample predictions vs actuals:")
+for i in range(min(10, m_test)):
+    print(f"Index {i}: predicted {y_pred_rescaled[i][0]:.2f}, actual {y_test[i][0]:.2f}")
+
+# Regression metrics
+mse_test = np.mean((y_pred_rescaled[:, 0] - y_test[:, 0])**2)
+mae_test = np.mean(np.abs(y_pred_rescaled[:, 0] - y_test[:, 0]))
+print(f"\nTest MSE: {mse_test:.4f}")
+print(f"Test MAE: {mae_test:.4f}")
