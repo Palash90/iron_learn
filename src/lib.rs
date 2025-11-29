@@ -51,7 +51,7 @@ mod tensor;
 
 pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::complex::Complex;
-pub use crate::gpu_regression::run_logistics_cuda;
+pub use crate::gpu_regression::{run_linear_cuda, run_logistics_cuda};
 pub use crate::gradient_descent::gradient_descent;
 pub use crate::gradient_descent::linear_regression;
 pub use crate::gradient_descent::logistic_regression;

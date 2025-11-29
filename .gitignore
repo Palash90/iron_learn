@@ -1,1 +1,14 @@
 /target
+.venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+.idea/
+.vscode/
+*.log
+coverage/
+dist/
+build/
+*.egg-info/
+lib/

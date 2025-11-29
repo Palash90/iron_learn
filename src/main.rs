@@ -17,8 +17,10 @@
 //! - `epochs`: Number of training iterations (default: 10000)
 //! - `data_file`: Path to JSON data file (default: data.json)
 
+use iron_learn::{
+    init_context, run_linear, run_linear_cuda, run_logistic, run_logistics_cuda, GLOBAL_CONTEXT,
+};
 use std::env;
-use iron_learn::{init_context, run_linear, run_logistic, run_logistics_cuda, GLOBAL_CONTEXT};
 
 /// Parse command-line arguments and configure the application
 ///
@@ -35,13 +37,16 @@ fn init() {
     };
 
     // Parse hyperparameters with defaults
-    let learning_rate = args.get(2)
+    let learning_rate = args
+        .get(2)
         .and_then(|s| s.parse::<f64>().ok())
         .unwrap_or(0.01);
-    let epochs = args.get(3)
+    let epochs = args
+        .get(3)
         .and_then(|s| s.parse::<u32>().ok())
         .unwrap_or(10000);
-    let data_path = args.get(4)
+    let data_path = args
+        .get(4)
         .map(|s| s.to_owned())
         .unwrap_or_else(|| "data.json".to_owned());
 
@@ -92,16 +97,21 @@ fn greet(ctx: &iron_learn::AppContext) {
     println!("║ Mode: {}", if ctx.gpu_enabled { "GPU" } else { "CPU" });
     println!("║ Learning Rate: {}", ctx.learning_rate);
     println!("║ Epochs: {}", ctx.epochs);
+    println!("║ Data Path: {}", ctx.data_path);
     println!("╚════════════════════════════════╝\n");
 }
 
 fn main() {
     init();
-    
+
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
     greet(ctx);
     // Execute appropriate training pipeline
     if ctx.gpu_enabled {
+        match run_linear_cuda() {
+            Ok(_) => println!("\n✓ Training completed successfully"),
+            Err(e) => eprintln!("\n✗ Training failed: {}", e),
+        }
         match run_logistics_cuda() {
             Ok(_) => println!("\n✓ Training completed successfully"),
             Err(e) => eprintln!("\n✗ Training failed: {}", e),
