@@ -1,6 +1,8 @@
+use crate::numeric::Numeric;
+use crate::tensor::{Tensor, TensorBackend};
 
 #[derive(Debug, PartialEq)]
-pub struct CpuTensor<T: Numeric> {
+struct CpuTensor<T: Numeric> {
     shape: Vec<u32>,
     data: Vec<T>, // Data is on the CPU Host memory
 }

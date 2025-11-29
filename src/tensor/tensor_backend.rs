@@ -1,6 +1,7 @@
 use crate::numeric::Numeric;
+use crate::tensor::Tensor;
 
-pub trait TensorBackend {
+trait TensorBackend<T: Numeric> {
     fn from_data(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String>
     where
         Self: Numeric;
