@@ -1,4 +1,4 @@
-import numpy as np;
+import cupy as np;
 import json;
 
 class LinearLayer:
@@ -124,7 +124,7 @@ class NeuralNet:
 
             # calculate average error on all samples
             err /= samples
-            #print('epoch %d/%d   error=%f' % (i+1, epochs, err))
+            # print('epoch %d/%d   error=%f' % (i+1, epochs, err))
 
 
 # training data
@@ -135,7 +135,7 @@ y_train = np.array([[[0]], [[1]], [[1]], [[0]]])
 with open('data.json', 'r') as file:
     data = json.load(file)
 
-data_field  = 'linear'  # Change this to 'logistic_2' to use the other dataset
+data_field  = 'logistic'  # Change this to 'logistic_2' to use the other dataset
 m = data[data_field]['m']
 n = data[data_field]['n']
 m_test = data[data_field]['m_test']
@@ -159,11 +159,11 @@ y_test_norm = (y_test - y_mean) / (y_std + 1e-8)
 # network
 net = NeuralNet(mse, mse_prime)
 net.add(LinearLayer(n, 1))
-#net.add(ActivationLayer(relu, relu_prime))
+net.add(ActivationLayer(sigmoid, sigmoid_prime))
 #net.add(LinearLayer(6, 1))
 #net.add(ActivationLayer(sigmoid, sigmoid_prime))
 
-net.fit(x_train_norm, y_train_norm, epochs=10000, learning_rate=0.1)
+net.fit(x_train_norm, y_train_norm, epochs=1000, learning_rate=0.1)
 
 # test
 y_pred = net.predict(x_test_norm)
@@ -174,8 +174,15 @@ y_pred_rescaled = y_pred * y_std + y_mean
 
 # Compare to raw targets
 print("Sample predictions vs actuals:")
-for i in range(min(10, m_test)):
-    print(f"Index {i}: predicted {y_pred_rescaled[i][0]:.2f}, actual {y_test[i][0]:.2f}")
+not_matched_count = 0
+for i in range(m_test):
+    prediction = y_pred_rescaled[i][0] > 0.5
+    actual = y_test[i][0] > 0.5
+    if prediction == actual:
+        not_matched_count += 1
+        print(f"Index {i}: predicted {prediction}, actual {actual} MATCHED")
+
+print(f"\nTotal matched: {not_matched_count} out of {m_test}: accuracy {not_matched_count/m_test:.4f}")
 
 # Regression metrics
 mse_test = np.mean((y_pred_rescaled[:, 0] - y_test[:, 0])**2)

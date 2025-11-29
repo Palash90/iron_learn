@@ -184,9 +184,9 @@ pub fn run_logistics_cuda() -> cust::error::CudaResult<()> {
     let stream = Stream::new(StreamFlags::NON_BLOCKING, None)?;
 
     // Configure kernel launch parameters
-    let block1d = (256, 1, 1);
-    let grid_rows = ((rows as u32) + 255) / 256;
-    let grid_cols = (((cols + 1) as u32) + 255) / 256;
+    let block1d = (1024, 1, 1);
+    let grid_rows = ((rows as u32) + 2047) / 2048;
+    let grid_cols = (((cols + 1) as u32) + 2047) / 2048;
 
     let start = Instant::now();
 
