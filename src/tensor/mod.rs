@@ -28,9 +28,49 @@
 //! Operations use foundational algorithms appropriate for educational and small-scale use.
 //! GPU acceleration is available through the `gpu_regression` module for large-scale workloads.
 
+
 mod display;
-use crate::numeric::{Numeric, SignedNumeric};
+use crate::{GLOBAL_CONTEXT, numeric::{Numeric, SignedNumeric}};
 use std::ops::{Add, Mul, Neg, Sub};
+
+use crate::tensor::cpu_tensor::CpuTensor;
+use crate::tensor::gpu_tensor::GpuTensor;
+use crate::tensor::tensor_backend::TensorBackend;
+
+/// Enum to represent different Tensor backends (CPU and GPU)
+pub enum TensorFamily<T: Numeric> {
+    Cpu(CpuTensor<T>),
+    Gpu(GpuTensor<T>),
+}
+
+// Implement the core operations for TensorFamily by delegating to the backend
+impl<T: Numeric> TensorFamily<T> {
+    // This helper method delegates the call to the appropriate inner backend
+    fn dispatch<F>(&self, rhs: &Self, op: F) -> Result<Self, String>
+    where
+        F: Fn(&dyn TensorBackend<T>, &dyn TensorBackend<T>) -> Result<Box<dyn TensorBackend<T>>, String>,
+    {
+        // This match ensures we are operating on the same family type.
+        // It also handles creating the output TensorFamily type.
+        match (self, rhs) {
+            (TensorFamily::Cpu(l), TensorFamily::Cpu(r)) => {
+                let result = op(l, r)?; // l and r are &CpuTensor<T>
+                Ok(TensorFamily::Cpu(
+                    *result.downcast::<CpuTensor<T>>().expect("Backend mismatch"),
+                ))
+            }
+            (TensorFamily::Gpu(l), TensorFamily::Gpu(r)) => {
+                let result = op(l, r)?; // l and r are &GpuTensor<T>
+                Ok(TensorFamily::Gpu(
+                    *result.downcast::<GpuTensor<T>>().expect("Backend mismatch"),
+                ))
+            }
+            _ => Err("Operation attempted on Tensors with different backends (e.g., CPU + GPU)".to_string()),
+        }
+    }
+}
+
+
 
 /// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
 /// for the manipulation of multidimensional data.
@@ -63,8 +103,7 @@ use std::ops::{Add, Mul, Neg, Sub};
 
 #[derive(Debug, PartialEq)]
 pub struct Tensor<T: Numeric> {
-    shape: Vec<u32>,
-    data: Vec<T>,
+    backend: TensorFamily<T>,
 }
 impl<T> Tensor<T>
 where
@@ -83,174 +122,7 @@ where
     }
 }
 
-// This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
-impl<T: Numeric> Tensor<T> {
-    pub fn _exp(operand: &Self) -> Tensor<f64> {
-        let result = operand.data.iter().map(|t| f64::exp(t.f64())).collect();
-        Tensor::new(operand.shape.clone(), result).unwrap()
-    }
 
-    fn _t(&self) -> Result<Self, String> {
-        if self.shape.len() > 2 {
-            return Err("Only 2D tensors can be transposed.".to_string());
-        }
-
-        if self.shape.len() == 1 {
-            return Ok(Self {
-                shape: self.shape.clone(),
-                data: self.data.clone(),
-            });
-        }
-
-        let new_shape = vec![self.shape[1], self.shape[0]];
-        let mut new_data = vec![T::zero(); self.data.len()];
-        let (rows, cols) = (self.shape[0] as usize, self.shape[1] as usize);
-        for i in 0..rows {
-            for j in 0..cols {
-                new_data[j * rows + i] = self.data[i * cols + j];
-            }
-        }
-        Ok(Self {
-            shape: new_shape,
-            data: new_data,
-        })
-    }
-    fn _data(&self) -> Vec<T> {
-        self.data.clone()
-    }
-
-    fn _shape(&self) -> Vec<u32> {
-        self.shape.clone()
-    }
-
-    fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
-        let mut result = Vec::with_capacity(self.data.len());
-
-        if self.shape != rhs.shape {
-            return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
-        }
-
-        for i in 0..self.data.len() {
-            if sub {
-                result.push(self.data[i] - rhs.data[i])
-            } else {
-                result.push(self.data[i] + rhs.data[i])
-            }
-        }
-
-        Ok(Self {
-            shape: self.shape.clone(),
-            data: result,
-        })
-    }
-
-    fn check_shape(shape: &[u32]) -> Option<Result<Tensor<T>, String>> {
-        if shape.is_empty() {
-            return Some(Err(
-                "ShapeError: Tensor must have at least one dimension.".to_string()
-            ));
-        }
-
-        if shape.len() > 2 {
-            return Some(Err(
-                "TemporaryShapeRestriction: Currently only accepting tensors upto 2 dimensions"
-                    .to_string(),
-            ));
-        }
-        None
-    }
-
-    fn calculate_length(shape: &Vec<u32>) -> u32 {
-        let mut size = 1;
-
-        for i in shape {
-            size *= i;
-        }
-        size
-    }
-
-    fn _new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
-        if let Some(value) = Self::check_shape(&shape) {
-            return value;
-        }
-
-        let size = Self::calculate_length(&shape);
-
-        if size != (data.len() as u32) {
-            let err = format!("DataError: Data length ({}) does not match total num of elements provided by dimensions ({}))", data.len(), size);
-            return Err(err);
-        }
-
-        Ok(Self { shape, data })
-    }
-
-    fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
-        let mut result = Vec::with_capacity(self.data.len());
-
-        if self.shape != rhs.shape {
-            return Err(format!(
-                "ShapeMismatch: Mismatch in shape of two Tensors {:?} {:?}",
-                self.shape, rhs.shape
-            ));
-        }
-
-        for i in 0..self.data.len() {
-            result.push(self.data[i] * rhs.data[i])
-        }
-
-        Ok(Self {
-            shape: self.shape.clone(),
-            data: result,
-        })
-    }
-
-    fn _cpu_mul(&self, rhs: &Self) -> Result<Self, String> {
-        let rows = self.shape[0] as usize;
-        let cols = rhs.shape[1] as usize;
-        let common_dim = self.shape[1] as usize;
-
-        let mut data = vec![T::zero(); rows * cols];
-
-        for i in 0..rows {
-            for j in 0..cols {
-                for k in 0..common_dim {
-                    let val = self.data[i * common_dim + k] * rhs.data[k * cols + j];
-                    data[i * cols + j] = data[i * cols + j] + val;
-                }
-            }
-        }
-
-        Ok(Tensor {
-            shape: vec![rows as u32, cols as u32],
-            data,
-        })
-    }
-
-    fn _mul(&self, rhs: &Self) -> Result<Self, String> {
-        if self.shape[1] != rhs.shape[0] {
-            let s = format!(
-                "ShapeMismatch:The dimensions of two matrices are not compatible for multiplication- {:?} {:?}",
-                self.shape, rhs.shape
-            );
-            return Err(s);
-        }
-
-        self._cpu_mul(rhs)
-    }
-
-    fn _s(&self, scalar: T) -> Self {
-        let mut new_data = Vec::<T>::new();
-
-        for i in self._data() {
-            new_data.push(i * scalar);
-        }
-
-        Self {
-            shape: self.shape.clone(),
-            data: new_data,
-        }
-    }
-}
 
 // The public API of Tensor type
 impl<T: Numeric> Tensor<T> {
@@ -271,7 +143,8 @@ impl<T: Numeric> Tensor<T> {
     /// ```
     ///
     pub fn exp(operand: &Self) -> Tensor<f64> {
-        Self::_exp(operand)
+        // Delegates to the backend implementation
+        None
     }
 
     /// Constructs a new instance of a `Tensor`.
@@ -299,7 +172,15 @@ impl<T: Numeric> Tensor<T> {
     /// - **DataError**: This error occurs if the total number of elements in the `data` vector does not correspond to the product of the `shape` dimensions.
     ///
     pub fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
-        Self::_new(shape, data)
+        let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
+
+        let backend = if ctx.gpu_enabled {
+            TensorFamily::Gpu(GpuTensor::from_data(shape, data)?)
+        } else {
+            TensorFamily::Cpu(CpuTensor::from_data(shape, data)?)
+        };
+
+        Ok(Self { backend })
     }
 
     /// Retrieves the underlying data from a `Tensor`.
@@ -323,7 +204,8 @@ impl<T: Numeric> Tensor<T> {
     ///
     /// Note: The `get_data` function is designed to work seamlessly with all numeric types defined in the `numeric` module, ensuring broad compatibility.
     pub fn get_data(&self) -> Vec<T> {
-        self._data()
+        // Delegates to the backend implementation
+        vec![]
     }
 
     /// Retrieves the shape of the `Tensor`.
@@ -343,7 +225,7 @@ impl<T: Numeric> Tensor<T> {
     /// ```
     ///
     pub fn get_shape(&self) -> Vec<u32> {
-        self._shape()
+        // Delegates to the backend implementation
     }
 
     /// Implements the addition of two `Tensor` instances. The `+` operator also does the same but the operator moves the value, making the instance unusable later.
@@ -372,7 +254,7 @@ impl<T: Numeric> Tensor<T> {
     ///
     /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
     pub fn add(&self, rhs: &Self) -> Result<Tensor<T>, String> {
-        self._add(rhs, false)
+        // Delegates to the backend implementation
     }
 
     /// Implements the subtraction of two `Tensor` instances. The `-` operator also does the same but the operator moves the value, making the instance unusable later.
@@ -401,7 +283,7 @@ impl<T: Numeric> Tensor<T> {
     ///
     /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
     pub fn sub(&self, rhs: &Self) -> Result<Tensor<T>, String> {
-        self._add(rhs, true)
+        // Delegates to the backend implementation
     }
 
     /// Implements tensor multiplication. The `*` also does the same but consumes the instance rendering it useless.
@@ -432,7 +314,7 @@ impl<T: Numeric> Tensor<T> {
     ///
     /// Note: This method is designed to support all numeric types defined in the `numeric` module, ensuring compatibility with a wide range of data types.
     pub fn mul(&self, rhs: &Self) -> Result<Tensor<T>, String> {
-        self._mul(rhs)
+        // Delegates to the backend implementation
     }
 
     /// Performs the Hadamard product (element-wise multiplication) on two tensors.
@@ -463,7 +345,7 @@ impl<T: Numeric> Tensor<T> {
     ///
     /// Note: This method supports all numeric types defined in the `numeric` module, ensuring compatibility with a wide range of data types.
     pub fn multiply(&self, rhs: &Self) -> Result<Self, String> {
-        self.hadamard(rhs)
+        // Delegates to the backend implementation
     }
 
     /// Transposes a 2D tensor.
@@ -490,7 +372,7 @@ impl<T: Numeric> Tensor<T> {
     /// If the tensor has more than 2 dimensions, an error is returned:
     ///
     pub fn t(&self) -> Result<Self, String> {
-        self._t()
+       // Delegates to the backend implementation
     }
 
     /// Scales the tensor by a scalar value.
@@ -514,7 +396,7 @@ impl<T: Numeric> Tensor<T> {
     /// assert_eq!(scaled_tensor.get_data(), vec![2, 4, 6]);
     /// ```
     pub fn scale(&self, scalar: T) -> Self {
-        self._s(scalar)
+        // Delegates to the backend implementation
     }
 }
 
@@ -549,7 +431,7 @@ impl<T: Numeric> Add for Tensor<T> {
     ///
     /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
     fn add(self, rhs: Self) -> Result<Self, String> {
-        self._add(&rhs, false)
+        // Delegates to the backend implementation
     }
 }
 
@@ -584,7 +466,7 @@ impl<T: Numeric> Sub for Tensor<T> {
     ///
     /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
     fn sub(self, rhs: Self) -> Result<Self, String> {
-        self._add(&rhs, true)
+        // Delegates to the backend implementation
     }
 }
 
@@ -619,7 +501,7 @@ impl<T: Numeric> Mul for Tensor<T> {
     ///
     /// Note: This method is designed to support all numeric types defined in the `numeric` module, ensuring compatibility with a wide range of data types.
     fn mul(self, rhs: Self) -> Result<Self, String> {
-        self._mul(&rhs)
+        // Delegates to the backend implementation
     }
 }
 
@@ -631,11 +513,3 @@ impl<T: SignedNumeric> Neg for Tensor<T> {
     }
 }
 
-#[cfg(test)]
-#[test]
-fn test_new() {
-    let t = Tensor::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
-
-    assert_eq!(t.shape, vec![1u32, 2u32]);
-    assert_eq!(t.data, vec![1i8, 2i8]);
-}

@@ -201,6 +201,7 @@ def run(epochs, learning_rate, data_field='linear'):
 
     print("Starting training...")
     net.fit(x_train_norm, y_train_norm, epochs=epochs, learning_rate=learning_rate)
+    print("Training finished.")
 
     # test
     y_pred = net.predict(x_test_norm) # y_pred shape is (m_test, 1)
