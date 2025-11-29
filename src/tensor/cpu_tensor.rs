@@ -144,8 +144,8 @@ impl<T: Numeric> TensorBackend<T> for CpuTensor<T> {
             }
         }
 
-        Ok(Tensor {
-            shape: vec![rows as u32, cols as u32],
+        Ok(Self {
+            shape: vec![self.shape[0], rhs.shape[1]],
             data,
         })
     }
