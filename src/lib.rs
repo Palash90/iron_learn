@@ -49,6 +49,7 @@ mod numeric;
 mod read_file;
 mod regression;
 mod tensor;
+mod normalizer;
 
 pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::complex::Complex;
@@ -63,3 +64,4 @@ pub use crate::regression::Data;
 pub use crate::regression::XY;
 pub use crate::regression::{run_linear, run_logistic};
 pub use crate::tensor::Tensor;
+pub use crate::normalizer::normalize_features;

@@ -1,44 +1,9 @@
+use std::vec;
+
 use crate::Data;
 use crate::{tensor::Tensor, Numeric};
+use crate::normalizer::{normalize_features, normalize_features_mean_std, denormalize_features};
 
-
-fn normalize_features(x: &Tensor<f64>) -> Tensor<f64> {
-    let shape = x.get_shape();
-    let m = shape[0] as usize;
-    let n = shape[1] as usize;
-    let mut normalized_data = vec![0.0; m * n];
-
-    // For each feature
-    for j in 0..n {
-        let mut mean = 0.0;
-        let mut variance = 0.0;
-
-        // Calculate mean
-        for i in 0..m {
-            mean += x.get_data()[i * n + j];
-        }
-        mean /= m as f64;
-
-        // Calculate variance
-        for i in 0..m {
-            let diff = x.get_data()[i * n + j] - mean;
-            variance += diff * diff;
-        }
-        variance /= m as f64;
-        let std_dev = variance.sqrt();
-
-        // Normalize feature
-        for i in 0..m {
-            normalized_data[i * n + j] = if std_dev > 1e-8 {
-                (x.get_data()[i * n + j] - mean) / std_dev
-            } else {
-                x.get_data()[i * n + j] - mean
-            };
-        }
-    }
-
-    Tensor::new(shape.clone(), normalized_data).unwrap()
-}
 
 pub trait Layer {
     fn forward(&mut self, input: Tensor<f64>) -> Tensor<f64>;
@@ -223,6 +188,7 @@ impl NeuralNetwork {
 
     pub fn backward(&mut self, predicted: &Tensor<f64>, actual: &Tensor<f64>, learning_rate: f64) {
         let mut error = (self.loss_derivative)(predicted, actual);
+        println!("Loss: {:.4}", error);
         for layer in self.layers.iter_mut().rev() {
             error = layer.backward(&error, learning_rate);
         }
@@ -235,7 +201,8 @@ impl NeuralNetwork {
         epochs: u32,
         learning_rate: f64,
     ) {
-        for _ in 0..epochs {
+        for i in 0..epochs {
+            println!("Epoch {}/{}", i + 1, epochs);
             let predicted = self.forward(x_train.clone());
             self.backward(&predicted, y_train, learning_rate);
         }
@@ -263,10 +230,12 @@ pub fn run_neural_network() {
     let x_train = Tensor::new(vec![xy.m, xy.n], xy.x.clone()).unwrap();
     let y_train = Tensor::new(vec![xy.m, 1], xy.y.clone()).unwrap();
 
-    let x_train = normalize_features(&x_train);
+    let (x_train, x_mean, x_std) = normalize_features_mean_std(&x_train);
 
-    let epochs = 10000;
-    let learning_rate = 0.001;
+    let (y_train, y_mean, y_std) = normalize_features_mean_std(&y_train);
+
+    let epochs = 500;
+    let learning_rate = 0.01;
 
     let input_size = x_train.get_shape()[1];
     let output_size = y_train.get_shape()[1];
@@ -278,10 +247,14 @@ pub fn run_neural_network() {
     // Initialize test data (the linear_regression function will handle normalization and bias)
     let x_test = Tensor::new(vec![xy.m_test, xy.n], xy.x_test.clone()).unwrap();
     let y_test = Tensor::new(vec![xy.m_test, 1], xy.y_test.clone()).unwrap();
-    let x_test = normalize_features(&x_test);
+
+    let x_test = normalize_features(&x_test, &x_mean, &x_std);
 
     // Make predictions using the trained weights
     let predictions = nn.forward(x_test);
+
+    // Denormalize predictions
+    let predictions = denormalize_features(&predictions, &y_mean, &y_std);
 
     // Calculate Mean Squared Error
     let mut total_squared_error = 0.0;
