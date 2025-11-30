@@ -61,7 +61,7 @@ use std::ops::{Add, Mul, Neg, Sub};
 /// let d = a.mul(&b).unwrap();
 /// ```
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Tensor<T: Numeric> {
     shape: Vec<u32>,
     data: Vec<T>,
@@ -373,6 +373,18 @@ impl<T: Numeric> Tensor<T> {
     /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
     pub fn add(&self, rhs: &Self) -> Result<Tensor<T>, String> {
         self._add(rhs, false)
+    }
+    /// Computes the sum of all elements in the `Tensor` row-wise so that we get one column.
+    pub fn sum(&self) -> Tensor<T> {
+        let mut sum_vector = vec![T::zero(); self.shape[1] as usize];
+        let rows = self.shape[0] as usize;
+        let cols = self.shape[1] as usize;
+        for r in 0..rows {
+            for c in 0..cols {
+                sum_vector[c] = sum_vector[c] + self.data[r * cols + c];
+            }
+        }
+        Tensor::new(vec![1, self.shape[1]], sum_vector).unwrap()
     }
 
     /// Implements the subtraction of two `Tensor` instances. The `-` operator also does the same but the operator moves the value, making the instance unusable later.

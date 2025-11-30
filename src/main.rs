@@ -18,7 +18,8 @@
 //! - `data_file`: Path to JSON data file (default: data.json)
 
 use iron_learn::{
-    init_context, run_linear, run_linear_cuda, run_logistic, run_logistics_cuda, GLOBAL_CONTEXT,
+    init_context, run_linear, run_linear_cuda, run_logistic, run_logistics_cuda,
+    run_neural_network, GLOBAL_CONTEXT,
 };
 use std::env;
 
@@ -106,6 +107,10 @@ fn main() {
 
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
     greet(ctx);
+
+    run_neural_network();
+
+    /*
     // Execute appropriate training pipeline
     if ctx.gpu_enabled {
         match run_linear_cuda() {
@@ -121,5 +126,5 @@ fn main() {
         run_linear();
         run_logistic();
         println!("\n✓ All training tasks completed");
-    }
+    } */
 }
