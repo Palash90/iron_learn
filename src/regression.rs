@@ -97,10 +97,9 @@ pub struct Data {
 /// # Example
 ///
 /// ```rust,no_run
-/// use iron_learn::regression::{XY, run_logistic};
+/// use iron_learn::{run_logistic};
 ///
-/// let xy = XY { /* ... */ };
-/// run_logistic(&xy, 0.01, 10000);  // Learning rate 0.01, 10k iterations
+/// run_logistic();  // Learning rate 0.01, 10k iterations
 /// ```
 pub fn run_logistic() {
     let l = GLOBAL_CONTEXT.get().unwrap().learning_rate;
@@ -205,10 +204,9 @@ pub fn run_logistic() {
 /// # Example
 ///
 /// ```rust,no_run
-/// use iron_learn::regression::{XY, run_linear};
+/// use iron_learn::run_linear;
 ///
-/// let xy = XY { /* ... */ };
-/// run_linear(&xy, 0.01, 10000);  // Learning rate 0.01, 10k iterations
+/// run_linear();  // Learning rate 0.01, 10k iterations
 /// ```
 pub fn run_linear() {
     let l = GLOBAL_CONTEXT.get().unwrap().learning_rate;

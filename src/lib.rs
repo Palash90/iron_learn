@@ -26,12 +26,12 @@
 //! ```rust
 //! use iron_learn::{Tensor, linear_regression};
 //!
-//! let x = Tensor::new(vec![10, 3], vec![/* data */])?;
-//! let y = Tensor::new(vec![10, 1], vec![/* labels */])?;
+//! let x = Tensor::new(vec![4, 3], vec![0.0; 12])?;
+//! let y = Tensor::new(vec![4, 1], vec![1.0; 4])?;
 //! let mut w = Tensor::new(vec![4, 1], vec![0.0; 4])?;
 //!
 //! for _ in 0..1000 {
-//!     w = linear_regression(&x, &y, &w, 0.01)?;
+//!     w = linear_regression(&x, &y, &w, 0.01);
 //! }
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
