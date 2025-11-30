@@ -154,13 +154,13 @@ class NeuralNet:
 def build_neural_net(features, outputs):
     net = NeuralNet(mse, mse_prime)
 
-    net.add(LinearLayer(features, outputs))
-#   net.add(ActivationLayer(relu, relu_prime))
+    net.add(LinearLayer(features, 6))
+    net.add(ActivationLayer(relu, relu_prime))
     
-#    net.add(LinearLayer(6, 6))
-#    net.add(ActivationLayer(relu, relu_prime))
+    net.add(LinearLayer(6, 6))
+    net.add(ActivationLayer(relu, relu_prime))
     
-#    net.add(LinearLayer(6, outputs))
+    net.add(LinearLayer(6, outputs))
     
     return net
 

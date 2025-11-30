@@ -1,8 +1,49 @@
+use crate::Data;
 use crate::{tensor::Tensor, Numeric};
+
+
+fn normalize_features(x: &Tensor<f64>) -> Tensor<f64> {
+    let shape = x.get_shape();
+    let m = shape[0] as usize;
+    let n = shape[1] as usize;
+    let mut normalized_data = vec![0.0; m * n];
+
+    // For each feature
+    for j in 0..n {
+        let mut mean = 0.0;
+        let mut variance = 0.0;
+
+        // Calculate mean
+        for i in 0..m {
+            mean += x.get_data()[i * n + j];
+        }
+        mean /= m as f64;
+
+        // Calculate variance
+        for i in 0..m {
+            let diff = x.get_data()[i * n + j] - mean;
+            variance += diff * diff;
+        }
+        variance /= m as f64;
+        let std_dev = variance.sqrt();
+
+        // Normalize feature
+        for i in 0..m {
+            normalized_data[i * n + j] = if std_dev > 1e-8 {
+                (x.get_data()[i * n + j] - mean) / std_dev
+            } else {
+                x.get_data()[i * n + j] - mean
+            };
+        }
+    }
+
+    Tensor::new(shape.clone(), normalized_data).unwrap()
+}
 
 pub trait Layer {
     fn forward(&mut self, input: Tensor<f64>) -> Tensor<f64>;
     fn backward(&mut self, error: &Tensor<f64>, learning_rate: f64) -> Tensor<f64>;
+    fn get_type(&self) -> &str;
 }
 
 struct LinearLayer {
@@ -12,12 +53,12 @@ struct LinearLayer {
 }
 
 impl LinearLayer {
-    fn new(input_size: u32, output_size: u32) -> Self {
+    fn new(features: u32, output_size: u32) -> Self {
         // Weights shape: [input_size, output_size]
         // This allows: input [batch_size, input_size] × weights [input_size, output_size] = output [batch_size, output_size]
         let weights = Tensor::new(
-            vec![input_size, output_size],
-            vec![0.0; input_size as usize * output_size as usize],
+            vec![features, output_size],
+            vec![0.0; features as usize * output_size as usize],
         )
         .unwrap();
         let bias = Tensor::new(vec![1, output_size], vec![0.0; output_size as usize]).unwrap();
@@ -30,6 +71,9 @@ impl LinearLayer {
 }
 
 impl Layer for LinearLayer {
+    fn get_type(&self) -> &str {
+        "LinearLayer"
+    }
     fn forward(&mut self, input: Tensor<f64>) -> Tensor<f64> {
         self.input = Some(input);
         let weighted_input = (self.input.clone()).unwrap().mul(&self.weights).unwrap();
@@ -100,6 +144,9 @@ impl ActivationLayer {
 }
 
 impl Layer for ActivationLayer {
+    fn get_type(&self) -> &str {
+        "ActivationLayer"
+    }
     fn forward(&mut self, input: Tensor<f64>) -> Tensor<f64> {
         self.input = Some(input);
         let output = (self.activation)(&self.input.clone().unwrap());
@@ -195,30 +242,61 @@ impl NeuralNetwork {
     }
 }
 
-fn build_neural_net(input_size: u32, hidden_size: u32, output_size: u32) -> NeuralNetwork {
+fn build_neural_net(features: u32, output_size: u32) -> NeuralNetwork {
     let mut nn = NeuralNetwork::new(mse, mse_derivative);
-    nn.add_layer(Box::new(LinearLayer::new(input_size, hidden_size)));
+
+    nn.add_layer(Box::new(LinearLayer::new(features, 6)));
     nn.add_layer(Box::new(ActivationLayer::new(relu, relu_derivative)));
-    nn.add_layer(Box::new(LinearLayer::new(hidden_size, output_size)));
+
+    nn.add_layer(Box::new(LinearLayer::new(6, 6)));
+    nn.add_layer(Box::new(ActivationLayer::new(relu, relu_derivative)));
+
+    nn.add_layer(Box::new(LinearLayer::new(6, output_size)));
+    
     nn
 }
 
 pub fn run_neural_network() {
     // Placeholder for loading data
-    let x_train = Tensor::new(vec![100, 3], vec![0.0; 300]).unwrap(); // 100 samples, 3 features
-    let y_train = Tensor::new(vec![100, 1], vec![0.0; 100]).unwrap(); // 100 samples, 1 target
+    let Data { linear: xy, .. } = crate::read_file::deserialize_data("data.json").unwrap();
 
-    let epochs = 1000;
-    let learning_rate = 0.01;
+    let x_train = Tensor::new(vec![xy.m, xy.n], xy.x.clone()).unwrap();
+    let y_train = Tensor::new(vec![xy.m, 1], xy.y.clone()).unwrap();
+
+    let x_train = normalize_features(&x_train);
+
+    let epochs = 10000;
+    let learning_rate = 0.001;
 
     let input_size = x_train.get_shape()[1];
-    let hidden_size = 16;
     let output_size = y_train.get_shape()[1];
 
-    let mut nn = build_neural_net(input_size, hidden_size, output_size);
+    let mut nn = build_neural_net(input_size, output_size);
 
     nn.train(&x_train, &y_train, epochs, learning_rate);
 
-    println!("Training completed.");
-    println!("Neural network structure:");
+    // Initialize test data (the linear_regression function will handle normalization and bias)
+    let x_test = Tensor::new(vec![xy.m_test, xy.n], xy.x_test.clone()).unwrap();
+    let y_test = Tensor::new(vec![xy.m_test, 1], xy.y_test.clone()).unwrap();
+    let x_test = normalize_features(&x_test);
+
+    // Make predictions using the trained weights
+    let predictions = nn.forward(x_test);
+
+    // Calculate Mean Squared Error
+    let mut total_squared_error = 0.0;
+    let total = xy.m_test as usize;
+
+    for i in 0..total {
+        let pred = predictions.get_data()[i];
+        let actual = y_test.get_data()[i];
+        let error = pred - actual;
+        total_squared_error += error * error;
+    }
+
+    let mse = total_squared_error / (total as f64);
+    println!("\nResults:");
+    println!("Total test samples: {}", total);
+    println!("Mean Squared Error: {:.4}", mse);
+    println!("Root MSE: {:.4}", mse.sqrt() as f64);
 }
