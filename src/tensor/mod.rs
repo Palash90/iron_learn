@@ -184,7 +184,7 @@ impl<T: Numeric> Tensor<T> {
         Ok(Self { shape, data })
     }
 
-    fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
+    pub fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
         let mut result = Vec::with_capacity(self.data.len());
 
         if self.shape != rhs.shape {

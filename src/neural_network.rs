@@ -58,13 +58,13 @@ impl Layer for LinearLayer {
         // error shape: [batch_size, output_size]
         // self.weights shape: [input_size, output_size]
         // self.input shape: [batch_size, input_size]
-        
+
         // Gradient w.r.t. input: error × weights^T → [batch_size, output_size] × [output_size, input_size]
         let input_error = error.mul(&self.weights.t().unwrap()).unwrap();
-        
+
         // Gradient w.r.t. weights: input^T × error → [input_size, batch_size] × [batch_size, output_size]
         let weights_error = self.input.clone().unwrap().t().unwrap().mul(error).unwrap();
-        
+
         // Gradient w.r.t. bias: sum error across batch dimension
         let biases_error = error.sum();
 
@@ -111,7 +111,7 @@ impl Layer for ActivationLayer {
     fn backward(&mut self, error: &Tensor<f64>, learning_rate: f64) -> Tensor<f64> {
         let input_derivative = (self.activation_derivative)(&self.input.clone().unwrap());
 
-        input_derivative.mul(&error).unwrap()
+        input_derivative.hadamard(&error).unwrap()
     }
 }
 
@@ -203,21 +203,6 @@ fn build_neural_net(input_size: u32, hidden_size: u32, output_size: u32) -> Neur
     nn
 }
 
-fn train_neural_network(
-    x_train: &Tensor<f64>,
-    y_train: &Tensor<f64>,
-    epochs: u32,
-    learning_rate: f64,
-) {
-    let input_size = x_train.get_shape()[1];
-    let hidden_size = 16;
-    let output_size = y_train.get_shape()[1];
-
-    let mut nn = build_neural_net(input_size, hidden_size, output_size);
-
-    nn.train(x_train, y_train, epochs, learning_rate);
-}
-
 pub fn run_neural_network() {
     // Placeholder for loading data
     let x_train = Tensor::new(vec![100, 3], vec![0.0; 300]).unwrap(); // 100 samples, 3 features
@@ -226,5 +211,14 @@ pub fn run_neural_network() {
     let epochs = 1000;
     let learning_rate = 0.01;
 
-    train_neural_network(&x_train, &y_train, epochs, learning_rate);
+    let input_size = x_train.get_shape()[1];
+    let hidden_size = 16;
+    let output_size = y_train.get_shape()[1];
+
+    let mut nn = build_neural_net(input_size, hidden_size, output_size);
+
+    nn.train(&x_train, &y_train, epochs, learning_rate);
+
+    println!("Training completed.");
+    println!("Neural network structure:");
 }
