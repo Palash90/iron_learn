@@ -12,3 +12,4 @@ dist/
 build/
 *.egg-info/
 lib/
+training_log*
