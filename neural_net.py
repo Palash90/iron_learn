@@ -149,11 +149,6 @@ class NeuralNet:
         
         np.cuda.runtime.deviceSynchronize()
         end_time = time.time()
-        with open('training_log_'+str(epochs)+'_'+str(learning_rate)+'.csv', 'w') as f:
-            f.write('Epochs,Error\n')
-            for epoch, error in epoch_error:
-                f.write(f'{epoch},{error}\n')
-
         print(f"\nTraining completed in {end_time - start_time:.4f} seconds.")
 
 def build_neural_net(features, outputs):
