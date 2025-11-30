@@ -222,4 +222,4 @@ def run(epochs, learning_rate, data_field='linear'):
         print(f"\nTest Accuracy: {accuracy.get():.4f}% ({correct.get()} out of {m_test})")
 
 if __name__ == "__main__":
-    run(epochs=10000, learning_rate=0.005, data_field='linear')
+    run(epochs=500, learning_rate=0.01, data_field='linear')

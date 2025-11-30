@@ -1,9 +1,10 @@
 use std::vec;
+use rand::thread_rng;
+use rand::Rng;
 
+use crate::normalizer::{denormalize_features, normalize_features, normalize_features_mean_std};
 use crate::Data;
 use crate::{tensor::Tensor, Numeric};
-use crate::normalizer::{normalize_features, normalize_features_mean_std, denormalize_features};
-
 
 pub trait Layer {
     fn forward(&mut self, input: Tensor<f64>) -> Tensor<f64>;
@@ -19,13 +20,17 @@ struct LinearLayer {
 
 impl LinearLayer {
     fn new(features: u32, output_size: u32) -> Self {
-        // Weights shape: [input_size, output_size]
-        // This allows: input [batch_size, input_size] × weights [input_size, output_size] = output [batch_size, output_size]
-        let weights = Tensor::new(
-            vec![features, output_size],
-            vec![0.0; features as usize * output_size as usize],
-        )
-        .unwrap();
+        let fan_in = features as f64;
+        let fan_out = output_size as f64;
+        let limit = (6.0 / (fan_in + fan_out)).sqrt(); // Xavier uniform
+        let mut rng = thread_rng();
+        let mut w = Vec::with_capacity((features * output_size) as usize);
+        for _ in 0..(features * output_size) {
+            let val: f64 = rng.gen_range(-limit..limit);
+            w.push(val);
+        }
+
+        let weights = Tensor::new(vec![features, output_size], w).unwrap();
         let bias = Tensor::new(vec![1, output_size], vec![0.0; output_size as usize]).unwrap();
         LinearLayer {
             weights,
@@ -188,7 +193,6 @@ impl NeuralNetwork {
 
     pub fn backward(&mut self, predicted: &Tensor<f64>, actual: &Tensor<f64>, learning_rate: f64) {
         let mut error = (self.loss_derivative)(predicted, actual);
-        println!("Loss: {:.4}", error);
         for layer in self.layers.iter_mut().rev() {
             error = layer.backward(&error, learning_rate);
         }
@@ -202,8 +206,8 @@ impl NeuralNetwork {
         learning_rate: f64,
     ) {
         for i in 0..epochs {
-            println!("Epoch {}/{}", i + 1, epochs);
             let predicted = self.forward(x_train.clone());
+
             self.backward(&predicted, y_train, learning_rate);
         }
     }
@@ -219,7 +223,7 @@ fn build_neural_net(features: u32, output_size: u32) -> NeuralNetwork {
     nn.add_layer(Box::new(ActivationLayer::new(relu, relu_derivative)));
 
     nn.add_layer(Box::new(LinearLayer::new(6, output_size)));
-    
+
     nn
 }
 
@@ -234,7 +238,7 @@ pub fn run_neural_network() {
 
     let (y_train, y_mean, y_std) = normalize_features_mean_std(&y_train);
 
-    let epochs = 500;
+    let epochs = 5000;
     let learning_rate = 0.01;
 
     let input_size = x_train.get_shape()[1];
