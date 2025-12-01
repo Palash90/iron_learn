@@ -154,14 +154,24 @@ class NeuralNet:
 def build_neural_net(features, outputs):
     net = NeuralNet(mse, mse_prime)
 
-    net.add(LinearLayer(features, 6))
+    net.add(LinearLayer(features, 12))
     net.add(ActivationLayer(relu, relu_prime))
     
-    net.add(LinearLayer(6, 6))
+    net.add(LinearLayer(12, 12))
     net.add(ActivationLayer(relu, relu_prime))
-    
-    net.add(LinearLayer(6, outputs))
-    
+
+    net.add(LinearLayer(12, 12))
+    net.add(ActivationLayer(relu, relu_prime))
+
+    net.add(LinearLayer(12, 6))
+    net.add(ActivationLayer(relu, relu_prime))
+
+    net.add(LinearLayer(6, 3))
+    net.add(ActivationLayer(relu, relu_prime))
+
+    net.add(LinearLayer(3, outputs))
+    net.add(ActivationLayer(sigmoid, sigmoid_prime))
+
     return net
 
 def run(epochs, learning_rate, data_field='linear'):
@@ -213,7 +223,7 @@ def run(epochs, learning_rate, data_field='linear'):
         print(f"\nTest MSE: {mse_test.get():.4f}")
         print(f"Test MAE: {mae_test.get():.4f}")
     
-    elif data_field == 'classification':
+    elif data_field == 'logistic':
         # Classification accuracy
         correct = np.sum((y_pred_rescaled[:, 0] > 0.5) == (y_test[:, 0] > 0.5))
         accuracy = correct / m_test * 100
@@ -222,4 +232,4 @@ def run(epochs, learning_rate, data_field='linear'):
         print(f"\nTest Accuracy: {accuracy.get():.4f}% ({correct.get()} out of {m_test})")
 
 if __name__ == "__main__":
-    run(epochs=500, learning_rate=0.01, data_field='linear')
+    run(epochs=1000, learning_rate=0.0001, data_field='logistic')
