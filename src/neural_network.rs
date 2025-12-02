@@ -1,6 +1,7 @@
-use std::vec;
 use rand::thread_rng;
 use rand::Rng;
+use std::vec;
+use std::fs;
 
 use crate::normalizer::{denormalize_features, normalize_features, normalize_features_mean_std};
 use crate::Data;
@@ -132,6 +133,50 @@ impl Layer for ActivationLayer {
     }
 }
 
+fn log_loss(predicted: &Tensor<f64>, actual: &Tensor<f64>) -> f64 {
+    let epsilon = 1e-15;
+    let clipped_preds: Vec<f64> = predicted
+        .get_data()
+        .iter()
+        .map(|&p| p.max(epsilon).min(1.0 - epsilon))
+        .collect();
+    let mut loss = 0.0;
+    for (p, a) in clipped_preds.iter().zip(actual.get_data().iter()) {
+        loss += -a * p.ln() - (1.0 - a) * (1.0 - p).ln();
+    }
+    loss / (predicted.get_data().len() as f64)
+}
+fn log_loss_derivative(predicted: &Tensor<f64>, actual: &Tensor<f64>) -> Tensor<f64> {
+    let epsilon = 1e-15;
+    let clipped_preds: Vec<f64> = predicted
+        .get_data()
+        .iter()
+        .map(|&p| p.max(epsilon).min(1.0 - epsilon))
+        .collect();
+
+    let data: Vec<f64> = clipped_preds
+        .iter()
+        .zip(actual.get_data().iter())
+        .map(|(&p, &a)| -(a / p) + (1.0 - a) / (1.0 - p))
+        .collect();
+
+    Tensor::new(predicted.get_shape().clone(), data).unwrap()
+}
+fn sigmoid(x: &Tensor<f64>) -> Tensor<f64> {
+    let data: Vec<f64> = x.get_data().iter().map(|&v| 1.0 / (1.0 + (-v).exp())).collect();
+    Tensor::new(x.get_shape().clone(), data).unwrap()
+}
+
+fn sigmoid_prime(x: &Tensor<f64>) -> Tensor<f64> {
+    let s = sigmoid(x);
+    let data: Vec<f64> = s
+        .get_data()
+        .iter()
+        .map(|&v| v * (1.0 - v))
+        .collect();
+    Tensor::new(x.get_shape().clone(), data).unwrap()
+}
+
 fn relu(x: &Tensor<f64>) -> Tensor<f64> {
     let data: Vec<f64> = x
         .get_data()
@@ -214,29 +259,35 @@ impl NeuralNetwork {
 }
 
 fn build_neural_net(features: u32, output_size: u32) -> NeuralNetwork {
-    let mut nn = NeuralNetwork::new(mse, mse_derivative);
+    let mut nn = NeuralNetwork::new(log_loss, log_loss_derivative);
 
-    nn.add_layer(Box::new(LinearLayer::new(features, 6)));
+    nn.add_layer(Box::new(LinearLayer::new(features, 21)));
     nn.add_layer(Box::new(ActivationLayer::new(relu, relu_derivative)));
 
-    nn.add_layer(Box::new(LinearLayer::new(6, 6)));
+    nn.add_layer(Box::new(LinearLayer::new(21, 21)));
+    nn.add_layer(Box::new(ActivationLayer::new(relu, relu_derivative)));
+
+    nn.add_layer(Box::new(LinearLayer::new(21, 6)));
     nn.add_layer(Box::new(ActivationLayer::new(relu, relu_derivative)));
 
     nn.add_layer(Box::new(LinearLayer::new(6, output_size)));
+    nn.add_layer(Box::new(ActivationLayer::new(sigmoid, sigmoid_prime)));
 
     nn
 }
 
 pub fn run_neural_network() {
     // Placeholder for loading data
-    let Data { linear: xy, .. } = crate::read_file::deserialize_data("data.json").unwrap();
+    let Data {
+        neural_network: xy, ..
+    } = crate::read_file::deserialize_data("data.json").unwrap();
 
     let x_train = Tensor::new(vec![xy.m, xy.n], xy.x.clone()).unwrap();
     let y_train = Tensor::new(vec![xy.m, 1], xy.y.clone()).unwrap();
 
-    let (x_train, x_mean, x_std) = normalize_features_mean_std(&x_train);
+    // let (x_train, x_mean, x_std) = normalize_features_mean_std(&x_train);
 
-    let (y_train, y_mean, y_std) = normalize_features_mean_std(&y_train);
+    // let (y_train, y_mean, y_std) = normalize_features_mean_std(&y_train);
 
     let epochs = 5000;
     let learning_rate = 0.01;
@@ -252,13 +303,13 @@ pub fn run_neural_network() {
     let x_test = Tensor::new(vec![xy.m_test, xy.n], xy.x_test.clone()).unwrap();
     let y_test = Tensor::new(vec![xy.m_test, 1], xy.y_test.clone()).unwrap();
 
-    let x_test = normalize_features(&x_test, &x_mean, &x_std);
+    // let x_test = normalize_features(&x_test, &x_mean, &x_std);
 
     // Make predictions using the trained weights
     let predictions = nn.forward(x_test);
 
     // Denormalize predictions
-    let predictions = denormalize_features(&predictions, &y_mean, &y_std);
+    // let predictions = denormalize_features(&predictions, &y_mean, &y_std);
 
     // Calculate Mean Squared Error
     let mut total_squared_error = 0.0;
@@ -267,9 +318,11 @@ pub fn run_neural_network() {
     for i in 0..total {
         let pred = predictions.get_data()[i];
         let actual = y_test.get_data()[i];
+        println!("Predicted: {:.4}, Actual: {:.4}, {}", pred, actual, if (pred - actual).abs() < 0.5 { "✓" } else { "✗" });
         let error = pred - actual;
         total_squared_error += error * error;
     }
+
 
     let mse = total_squared_error / (total as f64);
     println!("\nResults:");

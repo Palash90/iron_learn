@@ -211,7 +211,7 @@ def run(epochs, learning_rate, data_field='linear'):
     y_pred = net.predict(x_test_norm) # y_pred shape is (m_test, 1)
 
     # Denormalize predictions
-    y_pred_rescaled = y_pred * y_std + y_mean
+    y_pred_rescaled = y_pred # * y_std + y_mean
 
     if data_field == 'linear':
         # Regression metrics for linear output
@@ -230,6 +230,11 @@ def run(epochs, learning_rate, data_field='linear'):
 
         print(f"\nFinal Results after {epochs} epochs and learning rate {learning_rate}:")
         print(f"\nTest Accuracy: {accuracy.get():.4f}% ({correct.get()} out of {m_test})")
+    else:
+        correct = np.sum((y_pred_rescaled[:, 0] > 0.5) == (y_test[:, 0] > 0.5))
+
+        print(f"\nFinal Results after {epochs} epochs and learning rate {learning_rate}:")
+        print(f"\nTest Correct Predictions: {correct.get()} out of {m_test}")
 
 if __name__ == "__main__":
-    run(epochs=1000, learning_rate=0.0001, data_field='logistic')
+    run(epochs=10000, learning_rate=0.0001, data_field='neural_network')

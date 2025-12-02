@@ -66,10 +66,12 @@ pub struct XY {
 ///
 /// * `linear` - Data configuration for linear regression
 /// * `logistic` - Data configuration for logistic regression (binary classification)
+/// * `neural_network` - Data configuration for neural network (can be any function)
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Data {
     pub linear: XY,
     pub logistic: XY,
+    pub neural_network: XY,
 }
 
 /// Trains and evaluates logistic regression model
