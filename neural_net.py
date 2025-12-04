@@ -2,6 +2,121 @@ import cupy as np
 import json
 import time # Added for benchmarking
 
+
+import matplotlib.pyplot as plt
+
+import networkx as nx
+
+import networkx as nx
+import matplotlib.pyplot as plt
+
+import networkx as nx
+import matplotlib.pyplot as plt
+
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def visualize_architecture(net):
+    """
+    Visualizes the architecture using layer names for labels.
+    """
+    layer_sizes = []
+    layer_names = []
+    
+    # 1. Inspect the network to find layer sizes and names
+    for info in net.layer_info:
+        layer = info['layer']
+        
+        if isinstance(layer, LinearLayer):
+            # Extract input size from the first Linear layer
+            if not layer_sizes:
+                layer_sizes.append(layer.weights.shape[0])
+                
+            # Extract output size (and therefore the next layer's size)
+            layer_sizes.append(layer.weights.shape[1])
+            layer_names.append(info['name'])
+            
+    print(f"Detected Layer Sizes: {layer_sizes}")
+    print(f"Detected Layer Names: {layer_names}") # Names are one fewer than sizes
+
+    # 2. Setup the Graph (The rest of the logic remains mostly the same)
+    G = nx.DiGraph()
+    subset_sizes = layer_sizes
+    pos = {}
+    node_colors = []
+    
+    # Spacing parameters
+    v_spacing = 1.0
+    h_spacing = 2.5 # Increased horizontal spacing to accommodate labels
+    
+    # 3. Create Nodes and Edges (Same as before)
+    for i, layer_size in enumerate(subset_sizes):
+        layer_top = (layer_size - 1) / 2.0 * v_spacing
+        for j in range(layer_size):
+            node_id = f'{i}_{j}'
+            G.add_node(node_id, layer=i)
+            pos[node_id] = (i * h_spacing, layer_top - j * v_spacing)
+            
+            # Color logic: Input=Gold, Hidden=Blue, Output=Red
+            if i == 0: color = 'gold'
+            elif i == len(subset_sizes) - 1: color = 'salmon'
+            else: color = 'skyblue'
+            node_colors.append(color)
+            
+            # Connect to previous layer
+            if i > 0:
+                prev_layer_size = subset_sizes[i-1]
+                for k in range(prev_layer_size):
+                    G.add_edge(f'{i-1}_{k}', node_id)
+
+    # 4. Draw and Add Labels
+    plt.figure(figsize=(14, 8)) # Increased figure size
+    nx.draw(G, pos, 
+            node_size=500, 
+            node_color=node_colors, 
+            edge_color='gray', 
+            with_labels=False, 
+            arrows=True,
+            alpha=0.9)
+            
+    # Add Layer Labels (Layer names are added at the position of the next layer's nodes)
+    for i, name in enumerate(layer_names):
+        # We place the label slightly above the first node of the layer
+        x_pos, y_pos = pos[f'{i+1}_0'] 
+        plt.text(x_pos, y_pos + 1.5, name, 
+                 fontsize=12, ha='center', fontweight='bold', color='darkslategray')
+            
+    plt.title("Neural Network Architecture Visualization")
+    plt.axis('off')
+    plt.show()
+
+def plot_training_loss(loss_history):
+    plt.figure(figsize=(10, 6))
+    plt.plot(loss_history, label='Training Loss')
+    plt.title('Model Training Progress')
+    plt.xlabel('Epochs')
+    plt.ylabel('MSE Loss')
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    plt.show()
+
+def plot_predictions(y_actual, y_predicted):
+    # Convert CuPy arrays to NumPy for plotting if necessary
+    if hasattr(y_actual, 'get'): y_actual = y_actual.get()
+    if hasattr(y_predicted, 'get'): y_predicted = y_predicted.get()
+    
+    plt.figure(figsize=(10, 6))
+    
+    # Scatter plot for actual data
+    plt.scatter(range(len(y_actual)), y_actual, color='blue', alpha=0.5, label='Actual Data', s=10)
+    
+    # Line or scatter for predictions
+    plt.plot(range(len(y_predicted)), y_predicted, color='red', linewidth=2, label='Model Prediction')
+    
+    plt.title('Actual vs Predicted')
+    plt.legend()
+    plt.show()
+
 # --- Layer Classes ---
 
 class LinearLayer:
@@ -99,9 +214,11 @@ class NeuralNet:
         self.layers = []
         self.loss = loss
         self.loss_prime = loss_prime
+        self.layer_info = []
 
-    def add(self, layer):
+    def add(self, layer, name):
         self.layers.append(layer)
+        self.layer_info.append({'layer': layer, 'name': name, 'type': layer.__class__.__name__})
 
     # --- VECTORIZED PREDICT ---
     def predict(self, input_data):
@@ -114,8 +231,7 @@ class NeuralNet:
 
     # --- VECTORIZED FIT ---
     def fit(self, x_train, y_train, epochs, learning_rate):
-        # x_train, y_train are now (N, features) and (N, targets) arrays
-        samples = len(x_train) 
+        loss_history = [] # For network architecture and loss graph visualization
         
         # Ensure all data is on the GPU (it should be, but good practice)
         x_train = np.asarray(x_train, dtype=np.float32)
@@ -136,6 +252,7 @@ class NeuralNet:
 
             # 3. Backward Propagation (over the entire batch)
             error = self.loss_prime(y_train, output)
+            loss_history.append(float(err))
             for layer in reversed(self.layers):
                 error = layer.backward(error, learning_rate)
             
@@ -150,27 +267,28 @@ class NeuralNet:
         np.cuda.runtime.deviceSynchronize()
         end_time = time.time()
         print(f"\nTraining completed in {end_time - start_time:.4f} seconds.")
+        return loss_history
 
 def build_neural_net(features, outputs):
     net = NeuralNet(mse, mse_prime)
 
-    net.add(LinearLayer(features, 12))
-    net.add(ActivationLayer(relu, relu_prime))
+    net.add(LinearLayer(features, 12), name = "Input Layer")
+    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
     
-    net.add(LinearLayer(12, 12))
-    net.add(ActivationLayer(relu, relu_prime))
+    net.add(LinearLayer(12, 12), name="Hidden Layer 1")
+    net.add(ActivationLayer(relu, relu_prime), "Hidden Activation Layer 1")
 
-    net.add(LinearLayer(12, 12))
-    net.add(ActivationLayer(relu, relu_prime))
+    net.add(LinearLayer(12, 12), name="Hidden Layer 2")
+    net.add(ActivationLayer(relu, relu_prime), "Hidden Activation Layer 2")
 
-    net.add(LinearLayer(12, 6))
-    net.add(ActivationLayer(relu, relu_prime))
+    net.add(LinearLayer(12, 6), name="Hidden Layer 3")
+    net.add(ActivationLayer(relu, relu_prime), "Hidden Activation Layer 3")
 
-    net.add(LinearLayer(6, 3))
-    net.add(ActivationLayer(relu, relu_prime))
+    net.add(LinearLayer(6, 3), name="Hidden Layer 4")
+    net.add(ActivationLayer(relu, relu_prime), "Hidden Activation Layer 4")
 
-    net.add(LinearLayer(3, outputs))
-    net.add(ActivationLayer(sigmoid, sigmoid_prime))
+    net.add(LinearLayer(3, outputs), name="Output Layer")
+    net.add(ActivationLayer(sigmoid, sigmoid_prime), "Final Activation Layer")
 
     return net
 
@@ -205,7 +323,12 @@ def run(epochs, learning_rate, data_field='linear'):
     net = build_neural_net(n, 1)
 
     print("Starting training...")
-    net.fit(x_train_norm, y_train_norm, epochs=epochs, learning_rate=learning_rate)
+    history = net.fit(x_train_norm, y_train_norm, epochs=epochs, learning_rate=learning_rate)
+
+    plot_training_loss(history)
+
+    if n <= 20: 
+        visualize_architecture(net)
 
     # test
     y_pred = net.predict(x_test_norm) # y_pred shape is (m_test, 1)
@@ -237,4 +360,4 @@ def run(epochs, learning_rate, data_field='linear'):
         print(f"\nTest Correct Predictions: {correct.get()} out of {m_test}")
 
 if __name__ == "__main__":
-    run(epochs=10000, learning_rate=0.0001, data_field='neural_network')
+    run(epochs=10000, learning_rate=0.0001, data_field='logistic')
