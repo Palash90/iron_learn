@@ -9,7 +9,7 @@ def visualize_architecture(net):
     Visualizes the architecture using layer names for labels.
     """
     layer_sizes = []
-    layer_names = []
+    layer_names = ["Input"]
 
     linear_layers = [info for info in net.layer_info if isinstance(info['layer'], LinearLayer)]
 
@@ -61,9 +61,17 @@ def visualize_architecture(net):
             with_labels=False, 
             arrows=True,
             alpha=0.9)
+    
+    if layer_names:
+        input_layer_name = layer_names[0]
+        x_pos_in, y_pos_in = pos[f'0_0'] # Target the position of the yellow nodes
+        
+        plt.text(x_pos_in, y_pos_in + 1.5, input_layer_name, 
+                 fontsize=12, ha='center', fontweight='bold', color='darkslategray')
             
-    for i, name in enumerate(layer_names):
-        x_pos, y_pos = pos[f'{i+1}_0'] 
+    for i, name in enumerate(layer_names[1:]):
+        graph_index = i + 1
+        x_pos, y_pos = pos[f'{graph_index}_0'] 
         plt.text(x_pos, y_pos + 1.5, name, 
                  fontsize=12, ha='center', fontweight='bold', color='darkslategray')
             
