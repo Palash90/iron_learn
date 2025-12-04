@@ -79,30 +79,6 @@ def visualize_architecture(net):
     plt.axis('off')
     plt.show(block=False)
 
-def plot_training_loss(loss_history):
-    plt.figure(figsize=(10, 6))
-    plt.plot(loss_history, label='Training Loss')
-    plt.title('Model Training Progress')
-    plt.xlabel('Epochs')
-    plt.ylabel('MSE Loss')
-    plt.grid(True, alpha=0.3)
-    plt.legend()
-    plt.show(block=False)
-
-def plot_predictions(y_actual, y_predicted):
-    if hasattr(y_actual, 'get'): y_actual = y_actual.get()
-    if hasattr(y_predicted, 'get'): y_predicted = y_predicted.get()
-    
-    plt.figure(figsize=(10, 6))
-    
-    plt.scatter(range(len(y_actual)), y_actual, color='blue', alpha=0.5, label='Actual Data', s=10)
-    
-    plt.plot(range(len(y_predicted)), y_predicted, color='red', linewidth=2, label='Model Prediction')
-    
-    plt.title('Actual vs Predicted')
-    plt.legend()
-    plt.show(block=False)
-
 class LinearLayer:
     def __init__(self, inputSize, outputSize):
         self.weights = np.random.randn(inputSize, outputSize, dtype=np.float32)
@@ -189,8 +165,6 @@ class NeuralNet:
         return output
 
     def fit(self, x_train, y_train, epochs, learning_rate):
-        loss_history = [] 
-        
         x_train = np.asarray(x_train, dtype=np.float32)
         y_train = np.asarray(y_train, dtype=np.float32)
 
@@ -206,7 +180,6 @@ class NeuralNet:
             err = self.loss(y_train, output)
 
             error = self.loss_prime(y_train, output)
-            loss_history.append(float(err))
             for layer in reversed(self.layers):
                 error = layer.backward(error, learning_rate)
             
@@ -218,17 +191,22 @@ class NeuralNet:
         np.cuda.runtime.deviceSynchronize()
         end_time = time.time()
         print(f"\nTraining completed in {end_time - start_time:.4f} seconds.")
-        return loss_history
 
 def build_neural_net(features, outputs):
     net = NeuralNet(binary_cross_entropy, binary_cross_entropy_prime)
 
-    net.add(LinearLayer(features, 3), name = "Hidden Layer 1")
+    net.add(LinearLayer(features, 27), name = "Hidden Layer 1")
     net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
 
-    net.add(LinearLayer(3, 3), name = "Hidden Layer 2")
+    net.add(LinearLayer(27, 19), name = "Hidden Layer 2")
+    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
+
+    net.add(LinearLayer(19, 6), name = "Hidden Layer 3")
     net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
     
+    net.add(LinearLayer(6, 3), name = "Hidden Layer 4")
+    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
+
     net.add(LinearLayer(3, outputs), name="Output Layer")
     net.add(ActivationLayer(sigmoid, sigmoid_prime), "Final Activation Layer")
 
@@ -260,9 +238,7 @@ def run(epochs, learning_rate, data_field='linear'):
     net = build_neural_net(n, 1)
 
     print("Starting training...")
-    history = net.fit(x_train_norm, y_train_norm, epochs=epochs, learning_rate=learning_rate)
-
-    plot_training_loss(history)
+    net.fit(x_train_norm, y_train_norm, epochs=epochs, learning_rate=learning_rate)
 
     if n <= 20: 
         visualize_architecture(net)
@@ -297,5 +273,5 @@ def run(epochs, learning_rate, data_field='linear'):
         print(f"\nTest Correct Predictions: {correct.get()} out of {m_test}")
 
 if __name__ == "__main__":
-    run(epochs=10000, learning_rate=0.0001, data_field='logistic')
+    run(epochs=10000, learning_rate=0.0001, data_field='neural_network')
     input()
