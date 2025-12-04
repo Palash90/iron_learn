@@ -10,16 +10,20 @@ def visualize_architecture(net):
     """
     layer_sizes = []
     layer_names = []
+
+    linear_layers = [info for info in net.layer_info if isinstance(info['layer'], LinearLayer)]
+
+    if not linear_layers:
+        print("No Linear Layers found to visualize.")
+        return
     
-    for info in net.layer_info:
+    first_layer = linear_layers[0]['layer']
+    layer_sizes.append(first_layer.weights.shape[0])
+
+    for info in linear_layers:
         layer = info['layer']
-        
-        if isinstance(layer, LinearLayer):
-            if not layer_sizes:
-                layer_sizes.append(layer.weights.shape[0])
-                
-            layer_sizes.append(layer.weights.shape[1])
-            layer_names.append(info['name'])
+        layer_sizes.append(layer.weights.shape[1])
+        layer_names.append(info['name'])
             
     print(f"Detected Layer Sizes: {layer_sizes}")
     print(f"Detected Layer Names: {layer_names}")
@@ -65,7 +69,7 @@ def visualize_architecture(net):
             
     plt.title("Neural Network Architecture Visualization")
     plt.axis('off')
-    plt.show()
+    plt.show(block=False)
 
 def plot_training_loss(loss_history):
     plt.figure(figsize=(10, 6))
@@ -75,7 +79,7 @@ def plot_training_loss(loss_history):
     plt.ylabel('MSE Loss')
     plt.grid(True, alpha=0.3)
     plt.legend()
-    plt.show()
+    plt.show(block=False)
 
 def plot_predictions(y_actual, y_predicted):
     if hasattr(y_actual, 'get'): y_actual = y_actual.get()
@@ -89,7 +93,7 @@ def plot_predictions(y_actual, y_predicted):
     
     plt.title('Actual vs Predicted')
     plt.legend()
-    plt.show()
+    plt.show(block=False)
 
 class LinearLayer:
     def __init__(self, inputSize, outputSize):
@@ -209,7 +213,7 @@ class NeuralNet:
         return loss_history
 
 def build_neural_net(features, outputs):
-    net = NeuralNet(mse, mse_prime)
+    net = NeuralNet(binary_cross_entropy, binary_cross_entropy_prime)
 
     net.add(LinearLayer(features, 12), name = "Input Layer")
     net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
@@ -232,7 +236,7 @@ def build_neural_net(features, outputs):
     return net
 
 def run(epochs, learning_rate, data_field='linear'):
-    with open('data.json', 'r') as file:
+    with open('../data.json', 'r') as file:
         data = json.load(file)
 
     m = data[data_field]['m']
@@ -295,3 +299,4 @@ def run(epochs, learning_rate, data_field='linear'):
 
 if __name__ == "__main__":
     run(epochs=10000, learning_rate=0.0001, data_field='logistic')
+    input()
