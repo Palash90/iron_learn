@@ -1,18 +1,6 @@
 import cupy as np
 import json
 import time # Added for benchmarking
-
-
-import matplotlib.pyplot as plt
-
-import networkx as nx
-
-import networkx as nx
-import matplotlib.pyplot as plt
-
-import networkx as nx
-import matplotlib.pyplot as plt
-
 import networkx as nx
 import matplotlib.pyplot as plt
 
