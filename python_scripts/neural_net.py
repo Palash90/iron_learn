@@ -215,21 +215,12 @@ class NeuralNet:
 def build_neural_net(features, outputs):
     net = NeuralNet(binary_cross_entropy, binary_cross_entropy_prime)
 
-    net.add(LinearLayer(features, 12), name = "Input Layer")
+    net.add(LinearLayer(features, 3), name = "Hidden Layer 1")
+    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
+
+    net.add(LinearLayer(3, 3), name = "Hidden Layer 2")
     net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
     
-    net.add(LinearLayer(12, 12), name="Hidden Layer 1")
-    net.add(ActivationLayer(relu, relu_prime), "Hidden Activation Layer 1")
-
-    net.add(LinearLayer(12, 12), name="Hidden Layer 2")
-    net.add(ActivationLayer(relu, relu_prime), "Hidden Activation Layer 2")
-
-    net.add(LinearLayer(12, 6), name="Hidden Layer 3")
-    net.add(ActivationLayer(relu, relu_prime), "Hidden Activation Layer 3")
-
-    net.add(LinearLayer(6, 3), name="Hidden Layer 4")
-    net.add(ActivationLayer(relu, relu_prime), "Hidden Activation Layer 4")
-
     net.add(LinearLayer(3, outputs), name="Output Layer")
     net.add(ActivationLayer(sigmoid, sigmoid_prime), "Final Activation Layer")
 
