@@ -4,7 +4,7 @@ import time
 import networkx as nx
 import matplotlib.pyplot as plt
 
-def visualize_architecture(net):
+def visualize_network(net):
     """
     Visualizes the architecture using layer names for labels.
     """
@@ -53,29 +53,37 @@ def visualize_architecture(net):
                 for k in range(prev_layer_size):
                     G.add_edge(f'{i-1}_{k}', node_id)
 
-    plt.figure(figsize=(14, 8))
+    text_color = 'white'
+    dark_navy = '#0A0A1F'
+
+    fig = plt.figure(figsize=(14, 8), facecolor=dark_navy) 
+    ax = fig.add_subplot(111)
+    ax.set_facecolor(dark_navy)
+
     nx.draw(G, pos, 
             node_size=500, 
             node_color=node_colors, 
-            edge_color='gray', 
+            edge_color='silver', 
             with_labels=False, 
             arrows=True,
             alpha=0.9)
     
+    
+    
     if layer_names:
         input_layer_name = layer_names[0]
-        x_pos_in, y_pos_in = pos[f'0_0'] # Target the position of the yellow nodes
+        x_pos_in, y_pos_in = pos[f'0_0'] 
         
         plt.text(x_pos_in, y_pos_in + 1.5, input_layer_name, 
-                 fontsize=12, ha='center', fontweight='bold', color='darkslategray')
+                 fontsize=12, ha='center', fontweight='bold', color=text_color)
             
     for i, name in enumerate(layer_names[1:]):
         graph_index = i + 1
         x_pos, y_pos = pos[f'{graph_index}_0'] 
         plt.text(x_pos, y_pos + 1.5, name, 
-                 fontsize=12, ha='center', fontweight='bold', color='darkslategray')
+                 fontsize=12, ha='center', fontweight='bold', color=text_color)
             
-    plt.title("Neural Network Architecture Visualization")
+    fig.set_facecolor(dark_navy)
     plt.axis('off')
     plt.show(block=False)
 
@@ -195,19 +203,25 @@ class NeuralNet:
 def build_neural_net(features, outputs):
     net = NeuralNet(binary_cross_entropy, binary_cross_entropy_prime)
 
-    net.add(LinearLayer(features, 27), name = "Hidden Layer 1")
+    net.add(LinearLayer(features, 4), name = "Hidden Layer 1")
     net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
 
-    net.add(LinearLayer(27, 19), name = "Hidden Layer 2")
+    net.add(LinearLayer(4, 8), name = "Hidden Layer 3")
     net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
 
-    net.add(LinearLayer(19, 6), name = "Hidden Layer 3")
+    net.add(LinearLayer(8, 16), name = "Hidden Layer 3")
+    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
+
+    net.add(LinearLayer(16, 8), name = "Hidden Layer 3")
+    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
+
+    net.add(LinearLayer(8, 4), name = "Hidden Layer 3")
     net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
     
-    net.add(LinearLayer(6, 3), name = "Hidden Layer 4")
+    net.add(LinearLayer(4, 2), name = "Hidden Layer 4")
     net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
 
-    net.add(LinearLayer(3, outputs), name="Output Layer")
+    net.add(LinearLayer(2, outputs), name="Output")
     net.add(ActivationLayer(sigmoid, sigmoid_prime), "Final Activation Layer")
 
     return net
@@ -236,12 +250,10 @@ def run(epochs, learning_rate, data_field='linear'):
     y_test = np.array(data[data_field]['y_test'], dtype=np.float32).reshape(m_test, 1)
 
     net = build_neural_net(n, 1)
+    visualize_network(net)
 
     print("Starting training...")
     net.fit(x_train_norm, y_train_norm, epochs=epochs, learning_rate=learning_rate)
-
-    if n <= 20: 
-        visualize_architecture(net)
 
     # test
     y_pred = net.predict(x_test_norm)
