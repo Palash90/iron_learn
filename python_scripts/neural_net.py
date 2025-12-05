@@ -3,6 +3,8 @@ import json
 import time 
 import networkx as nx
 import matplotlib.pyplot as plt
+import pandas as pd 
+import numpy
 
 def visualize_network(net):
     """
@@ -172,7 +174,7 @@ class NeuralNet:
             output = layer.forward(output)
         return output
 
-    def fit(self, x_train, y_train, epochs, learning_rate):
+    def fit(self, x_train, y_train, epochs, learning_rate, norm_factors, checkpoint):
         x_train = np.asarray(x_train, dtype=np.float32)
         y_train = np.asarray(y_train, dtype=np.float32)
 
@@ -180,7 +182,26 @@ class NeuralNet:
 
         epoch_error = []
 
+        epoch_range_start_time = time.time()
+
         for i in range(epochs):
+            if (i + 1) % checkpoint == 0: # Save every 500 epochs
+                self.save_weights(f'checkpoint_epoch_{i+1}.npz')
+
+            if i % 100 == 0:
+                epoch_range_end_time = time.time()
+                print(f"\n\t{i} epochs completed in {epoch_range_end_time - epoch_range_start_time:.4f} seconds.")
+                epoch_range_start_time = time.time()
+            
+            if i % 1000 == 0:
+                print(f"\n\t\tDrawing at epoch {i}")
+                draw_time_start = time.time()
+                draw_image_from_predictions(self, 474, 474, norm_factors, i)
+                draw_time_end = time.time()
+                print(f"\n\t\tDrawing completed in {draw_time_end - draw_time_start:.4f} seconds.")
+                draw_time_start = time.time()
+
+            
             output = x_train
             for layer in self.layers:
                 output = layer.forward(output)
@@ -198,30 +219,83 @@ class NeuralNet:
         
         np.cuda.runtime.deviceSynchronize()
         end_time = time.time()
+        self.save_weights('final_model_weights.npz')
         print(f"\nTraining completed in {end_time - start_time:.4f} seconds.")
 
-def build_neural_net(features, outputs):
+    def save_weights(self, filepath):
+        state_dict = {}
+        for i, info in enumerate(self.layer_info):
+            if isinstance(info['layer'], LinearLayer):
+                layer = info['layer']
+                state_dict[f'W{i}_{info["name"]}'] = layer.weights.get() 
+                state_dict[f'B{i}_{info["name"]}'] = layer.biases.get()
+        
+        numpy.savez_compressed(filepath, **state_dict)
+        print(f"✅ Weights and biases saved to {filepath}")
+
+    
+    def load_weights(self, filepath):
+        """Loads weights and biases into the Linear Layers."""
+        try:
+            loaded_data = numpy.load(filepath, allow_pickle=True)
+            linear_layer_index = 0
+            
+            for i, info in enumerate(self.layer_info):
+                if isinstance(info['layer'], LinearLayer):
+                    layer = info['layer']
+                    w_key = f'W{i}_{info["name"]}'
+                    b_key = f'B{i}_{info["name"]}'
+                    
+                    if w_key in loaded_data and b_key in loaded_data:
+                        loaded_weights = np.asarray(loaded_data[w_key])
+                        loaded_biases = np.asarray(loaded_data[b_key])
+                        
+                        if layer.weights.shape == loaded_weights.shape and layer.biases.shape == loaded_biases.shape:
+                             layer.weights = loaded_weights
+                             layer.biases = loaded_biases
+                             print(f"Loaded weights for {info['name']} (Layer {i})")
+                        else:
+                             print(f"❌ Dimension mismatch for {info['name']} (Layer {i}). Skipping load.")
+                             
+                    else:
+                        print(f"❌ Key missing for {info['name']} (Layer {i}). Skipping load.")
+                        
+                    linear_layer_index += 1
+            
+            print(f"✅ Weights and biases loaded from {filepath}")
+            return True
+            
+        except FileNotFoundError:
+            print(f"❌ Error: Weights file not found at {filepath}")
+            return False
+        except Exception as e:
+            print(f"❌ An error occurred during loading: {e}")
+            return False
+        
+
+def build_neural_net(features, outputs, hidden_length):
     net = NeuralNet(binary_cross_entropy, binary_cross_entropy_prime)
 
-    net.add(LinearLayer(features, 4), name = "Hidden Layer 1")
-    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
 
-    net.add(LinearLayer(4, 8), name = "Hidden Layer 3")
-    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
+    net.add(LinearLayer(features, hidden_length), name = "Hidden Layer 1")
+    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
 
-    net.add(LinearLayer(8, 16), name = "Hidden Layer 3")
-    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
+    net.add(LinearLayer(hidden_length, hidden_length), name = "Hidden Layer 3")
+    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
 
-    net.add(LinearLayer(16, 8), name = "Hidden Layer 3")
-    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
+    net.add(LinearLayer(hidden_length, 2 * hidden_length), name = "Hidden Layer 3")
+    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
 
-    net.add(LinearLayer(8, 4), name = "Hidden Layer 3")
-    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
+    net.add(LinearLayer(2 * hidden_length, hidden_length), name = "Hidden Layer 3")
+    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
+
+    net.add(LinearLayer(hidden_length, int(hidden_length / 2)), name = "Hidden Layer 3")
+    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
     
-    net.add(LinearLayer(4, 2), name = "Hidden Layer 4")
-    net.add(ActivationLayer(relu, relu_prime), "Activation Layer")
+    net.add(LinearLayer(int(hidden_length / 2), int(hidden_length / 2)), name = "Hidden Layer 4")
+    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
 
-    net.add(LinearLayer(2, outputs), name="Output")
+    net.add(LinearLayer(int(hidden_length / 2), outputs), name="Output")
     net.add(ActivationLayer(sigmoid, sigmoid_prime), "Final Activation Layer")
 
     return net
@@ -284,6 +358,83 @@ def run(epochs, learning_rate, data_field='linear'):
         print(f"\nFinal Results after {epochs} epochs and learning rate {learning_rate}:")
         print(f"\nTest Correct Predictions: {correct.get()} out of {m_test}")
 
+
+def load_data_from_csv(csv_path):
+    try:
+        df = pd.read_csv(csv_path)
+        
+        X = df[['x', 'y']].values.astype(np.float32)
+        
+        Y = df[['pixel_value']].values.astype(np.float32)
+        
+        max_x_index = df['x'].max()
+        max_y_index = df['y'].max()
+
+        norm_factors = (max_x_index, max_y_index)
+        
+        X[:, 0] = X[:, 0] / max_x_index 
+        X[:, 1] = X[:, 1] / max_y_index
+        
+        print(f"Loaded {len(X)} data points.")
+        print(f"X shape (Input): {X.shape}, Y shape (Target): {Y.shape}")
+        
+        return X, Y, norm_factors
+    except FileNotFoundError:
+        print(f"❌ Error: CSV file not found at '{csv_path}'. Run the conversion first!")
+        return None, None
+    except Exception as e:
+        print(f"❌ An error occurred during data loading: {e}")
+        return None, None
+
+
+def draw_image_from_predictions(net, width, height, norm_factors, epoch):
+    print("\n🖼️ Generating image from network predictions...")
+
+    max_x_index, max_y_index = norm_factors
+
+    x_range = np.arange(0, width, dtype=np.float32)
+    y_range = np.arange(0, height, dtype=np.float32)
+    
+    x_norm = x_range / max_x_index
+    y_norm = y_range / max_y_index
+
+    X_grid_x, X_grid_y = np.meshgrid(x_norm, y_norm)
+    
+    X_predict = np.stack([X_grid_x.ravel(), X_grid_y.ravel()], axis=1)
+
+    predictions = net.predict(X_predict)
+
+    predicted_image = predictions.reshape((height, width))
+
+    plt.figure(figsize=(width/100, height/100))
+    
+    plt.imshow(np.asnumpy(predicted_image), cmap='gray_r', vmin=0, vmax=1, 
+               extent=[0, width, height, 0]) 
+    
+    plt.title('Image Reconstructed by Neural Network after ' + str(epoch) + ' epochs')
+    plt.axis('off')
+    plt.show()
+    print("🖼️ Displayed reconstructed image.")
+
+
+
 if __name__ == "__main__":
-    run(epochs=10000, learning_rate=0.0001, data_field='neural_network')
+    X_train, Y_train, norm_factors = load_data_from_csv("pixel_data.csv")
+
+    if X_train is not None:
+        INPUT_FEATURES = X_train.shape[1]  # Should be 2 (x, y)
+        OUTPUT_NODES = Y_train.shape[1]    # Should be 1 (pixel_value)
+        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 2)
+        EPOCHS = 501  # Image reconstruction often requires many epochs
+        LEARNING_RATE = 0.01
+
+        RESUME_FILE = 'final_model_weights.npz' # Or 'checkpoint_epoch_X.npz'
+        if net.load_weights(RESUME_FILE):
+             print(f"Resuming training from {RESUME_FILE}")
+             # You may need to adjust EPOCHS if resuming from a checkpoint
+        else:
+             print("Starting training from scratch.")
+
+        print(f"\n🚀 Starting training for {EPOCHS} epochs...")
+        net.fit(X_train, Y_train, epochs=EPOCHS, learning_rate=LEARNING_RATE, norm_factors=norm_factors, checkpoint=500)    
     input()
