@@ -384,7 +384,7 @@ def load_data_from_csv(csv_path):
 def draw_predictions_scatter(co_ordinates, epoch, width, height, values):
     print(f"\n🎨 Generating scatter plot visualization at epoch {epoch}...")
 
-    print(values)
+    print(values.shape)
 
     x_coords = np.asnumpy(co_ordinates[:, 0]) 
     y_coords = np.asnumpy(co_ordinates[:, 1]) 
@@ -420,22 +420,22 @@ def draw_predictions_scatter(co_ordinates, epoch, width, height, values):
     print(f"🖼️ Saved scatter plot: {file_name} successfully!")
 
 if __name__ == "__main__":
-    X_train, Y_train, norm_factors = load_data_from_csv("pixel_data_200.csv")
+    X_train, Y_train, norm_factors = load_data_from_csv("x_pixel_data.csv")
 
     IMAGE_WIDTH = norm_factors[0] + 1
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 1000
-    EPOCHS = 2000001
+    EPOCHS = 2
     LEARNING_RATE = 0.01
-    EPOCH_OFFSET = 20000 
-    RESUME_FILE = 'final_model_weights.npz'
+    EPOCH_OFFSET = 0 
+    RESUME_FILE = '200_final_output/checkpoint/checkpoint_epoch_1290201.npz'
     TIME_CHECK = 100
     LAST_EPOCH = 0
 
     X_train = np.asarray(X_train)
     Y_train = np.asarray(Y_train)
 
-    draw_predictions_scatter(X_train, -1 + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, Y_train)
+    # draw_predictions_scatter(X_train, 1.2 + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, Y_train)
 
     epoch_start_time =  time.time()
 
@@ -443,9 +443,9 @@ if __name__ == "__main__":
         global epoch_start_time, LAST_EPOCH
 
         if epoch % CHECKPOINT == 0:
-            net.save_weights(f'output/checkpoint/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
+            pass # net.save_weights(f'output/checkpoint/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
 
-        if epoch % 5000 == 0:
+        if epoch % 2 == 0:
             (f"\n\t\tDrawing at epoch {epoch}")
             predictions = net.predict(X_train)
             draw_predictions_scatter(X_train, epoch + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, predictions)
@@ -467,5 +467,4 @@ if __name__ == "__main__":
              print("Starting training from scratch.")
 
         print(f"\n🚀 Starting training for {EPOCHS} epochs...")
-        net.fit(X_train, Y_train, epochs=EPOCHS, epoch_offset=EPOCH_OFFSET, learning_rate=LEARNING_RATE, hook=epoch_hook)    
-    input()
+        net.fit(X_train, Y_train, epochs=EPOCHS, epoch_offset=EPOCH_OFFSET, learning_rate=LEARNING_RATE, hook=epoch_hook)  
