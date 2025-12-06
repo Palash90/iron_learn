@@ -99,8 +99,8 @@ def draw_pixel_csv(input_csv_path, image_width, image_height):
 
 
 # --- Configuration and Execution ---
-IMAGE_FILE = 'lion_bw.webp'      # **CHANGE THIS to your image file name (e.g., lion_bw.png)**
-OUTPUT_CSV_FILE = 'pixel_data.csv'
+IMAGE_FILE = 'lion_bw_200.webp'      # **CHANGE THIS to your image file name (e.g., lion_bw.png)**
+OUTPUT_CSV_FILE = 'pixel_data_200.csv'
 
 # NOTE: We need the original image dimensions for the Matplotlib plotting function
 # to properly size and orient the plot. We'll get them before conversion.

@@ -1,6 +1,7 @@
 import cupy as np
 import json
-import time 
+import time
+import math
 import networkx as nx
 import matplotlib.pyplot as plt
 import pandas as pd 
@@ -174,7 +175,7 @@ class NeuralNet:
             output = layer.forward(output)
         return output
 
-    def fit(self, x_train, y_train, epochs, learning_rate, hook):
+    def fit(self, x_train, y_train, epochs, epoch_offset, learning_rate, hook):
         x_train = np.asarray(x_train, dtype=np.float32)
         y_train = np.asarray(y_train, dtype=np.float32)
 
@@ -182,8 +183,15 @@ class NeuralNet:
 
         epoch_error = []
 
+        lr_min = 1e-6 
+        lr_max = learning_rate
+        
+
         for i in range(epochs):
             hook(self, i)
+
+            decay_factor = 0.5 * (1 + math.cos(math.pi * i / (epochs+epoch_offset)))
+            current_lr = lr_min + (lr_max - lr_min) * decay_factor    
             
             output = x_train
             for layer in self.layers:
@@ -193,7 +201,7 @@ class NeuralNet:
 
             error = self.loss_prime(y_train, output)
             for layer in reversed(self.layers):
-                error = layer.backward(error, learning_rate)
+                error = layer.backward(error, current_lr)
             
             epoch_error.append([i, err])
 
@@ -407,19 +415,20 @@ def draw_predictions_scatter(co_ordinates, epoch, width, height, values):
 
     plt.title(f'Predictions Scatter Plot at Epoch {epoch}')
     # Save the plot
-    plt.savefig("output/plot_"+ str(epoch) +".png", dpi=300, bbox_inches='tight')
-    print("🖼️ Saved scatter plot successfully!")
+    file_name = "output/image/plot_"+ str(epoch) +".png"
+    plt.savefig(file_name, dpi=300, bbox_inches='tight')
+    print(f"🖼️ Saved scatter plot: {file_name} successfully!")
 
 if __name__ == "__main__":
-    X_train, Y_train, norm_factors = load_data_from_csv("pixel_data.csv")
+    X_train, Y_train, norm_factors = load_data_from_csv("pixel_data_200.csv")
 
     IMAGE_WIDTH = norm_factors[0] + 1
     IMAGE_HEIGHT = norm_factors[1] + 1
-    CHECKPOINT = 200
-    EPOCHS = 20001
-    LEARNING_RATE = 0.005
-    EPOCH_OFFSET = 10800 
-    RESUME_FILE = f'output/checkpoint_epoch_{EPOCH_OFFSET+1}.npz' # or, 'output/final_model_weights.npz'
+    CHECKPOINT = 1000
+    EPOCHS = 2000001
+    LEARNING_RATE = 0.01
+    EPOCH_OFFSET = 20000 
+    RESUME_FILE = 'final_model_weights.npz'
     TIME_CHECK = 100
     LAST_EPOCH = 0
 
@@ -434,9 +443,9 @@ if __name__ == "__main__":
         global epoch_start_time, LAST_EPOCH
 
         if epoch % CHECKPOINT == 0:
-            net.save_weights(f'output/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
+            net.save_weights(f'output/checkpoint/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
 
-        if epoch % 100 == 0:
+        if epoch % 5000 == 0:
             (f"\n\t\tDrawing at epoch {epoch}")
             predictions = net.predict(X_train)
             draw_predictions_scatter(X_train, epoch + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, predictions)
@@ -450,7 +459,7 @@ if __name__ == "__main__":
     if X_train is not None:
         INPUT_FEATURES = X_train.shape[1] 
         OUTPUT_NODES = Y_train.shape[1]
-        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 75, tanh, tanh_prime)
+        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 50, tanh, tanh_prime)
         
         if net.load_weights(RESUME_FILE):
              print(f"Resuming training from {RESUME_FILE}")
@@ -458,5 +467,5 @@ if __name__ == "__main__":
              print("Starting training from scratch.")
 
         print(f"\n🚀 Starting training for {EPOCHS} epochs...")
-        net.fit(X_train, Y_train, epochs=EPOCHS, learning_rate=LEARNING_RATE, hook=epoch_hook)    
+        net.fit(X_train, Y_train, epochs=EPOCHS, epoch_offset=EPOCH_OFFSET, learning_rate=LEARNING_RATE, hook=epoch_hook)    
     input()
