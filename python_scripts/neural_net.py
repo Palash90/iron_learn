@@ -256,27 +256,30 @@ class NeuralNet:
             return False
         
 
-def build_neural_net(features, outputs, hidden_length):
+def build_neural_net(features, outputs, hidden_length, activation_fn, activation_prime):
     net = NeuralNet(binary_cross_entropy, binary_cross_entropy_prime)
 
 
     net.add(LinearLayer(features, hidden_length), name = "Hidden Layer 1")
-    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
+    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
 
     net.add(LinearLayer(hidden_length, hidden_length), name = "Hidden Layer 3")
-    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
+    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
 
     net.add(LinearLayer(hidden_length, 2 * hidden_length), name = "Hidden Layer 3")
-    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
+    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
 
     net.add(LinearLayer(2 * hidden_length, hidden_length), name = "Hidden Layer 3")
-    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
+    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
 
     net.add(LinearLayer(hidden_length, int(hidden_length / 2)), name = "Hidden Layer 3")
-    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
+    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
     
     net.add(LinearLayer(int(hidden_length / 2), int(hidden_length / 2)), name = "Hidden Layer 4")
-    net.add(ActivationLayer(tanh, tanh_prime), "Activation Layer")
+    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
+
+    net.add(LinearLayer(int(hidden_length / 2), int(hidden_length / 2)), name = "Hidden Layer 4")
+    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
 
     net.add(LinearLayer(int(hidden_length / 2), outputs), name="Output")
     net.add(ActivationLayer(sigmoid, sigmoid_prime), "Final Activation Layer")
@@ -370,18 +373,18 @@ def load_data_from_csv(csv_path):
         return None, None
 
 
-def draw_predictions_scatter(net, x_train, epoch, width, height):
+def draw_predictions_scatter(co_ordinates, epoch, width, height, values):
     print(f"\n🎨 Generating scatter plot visualization at epoch {epoch}...")
 
-    predictions = net.predict(x_train)
+    print(values)
 
-    x_coords = np.asnumpy(x_train[:, 0]) 
-    y_coords = np.asnumpy(x_train[:, 1]) 
+    x_coords = np.asnumpy(co_ordinates[:, 0]) 
+    y_coords = np.asnumpy(co_ordinates[:, 1]) 
     
     x_coords_denorm = x_coords * width
     y_coords_denorm = y_coords * height
     
-    pixel_values = np.asnumpy(predictions[:, 0])
+    pixel_values = np.asnumpy(values[:, 0])
     
     fig, ax = plt.subplots(figsize=(5, 5)) 
 
@@ -414,32 +417,40 @@ if __name__ == "__main__":
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 200
     EPOCHS = 20001
-    LEARNING_RATE = 0.01
+    LEARNING_RATE = 0.001
     EPOCH_OFFSET = 0 
     RESUME_FILE = f'checkpoint_epoch_{EPOCH_OFFSET}.npz' # or, 'output/final_model_weights.npz'
     TIME_CHECK = 100
+    LAST_EPOCH = 0
 
     X_train = np.asarray(X_train)
     Y_train = np.asarray(Y_train)
 
+    draw_predictions_scatter(X_train, -1 + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, Y_train)
+
     epoch_start_time =  time.time()
 
     def epoch_hook(net, epoch):
-        if (epoch + 1) % CHECKPOINT == 0:
+        global epoch_start_time, LAST_EPOCH
+
+        if epoch % CHECKPOINT == 0:
             net.save_weights(f'output/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
 
-        if epoch % 1000 == 0:
+        if epoch % 100 == 0:
             (f"\n\t\tDrawing at epoch {epoch}")
-            draw_predictions_scatter(net, X_train, epoch + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT)
+            predictions = net.predict(X_train)
+            draw_predictions_scatter(X_train, epoch + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, predictions)
         
         if epoch % TIME_CHECK == 0:
             epoch_end_time = time.time()
-            print(f"Elapsed time {epoch_end_time - epoch_start_time: .2f} seconds for {TIME_CHECK} iterations")
+            print(f"Elapsed time {epoch_end_time - epoch_start_time: .2f} seconds for {TIME_CHECK} iterations {LAST_EPOCH} - {epoch}")
+            epoch_start_time = time.time()
+            LAST_EPOCH = epoch
 
     if X_train is not None:
         INPUT_FEATURES = X_train.shape[1] 
         OUTPUT_NODES = Y_train.shape[1]
-        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 125)
+        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 50, tanh, tanh_prime)
         
         if net.load_weights(RESUME_FILE):
              print(f"Resuming training from {RESUME_FILE}")
