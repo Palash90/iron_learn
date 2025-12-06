@@ -417,9 +417,9 @@ if __name__ == "__main__":
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 200
     EPOCHS = 20001
-    LEARNING_RATE = 0.01
+    LEARNING_RATE = 0.005
     EPOCH_OFFSET = 10800 
-    RESUME_FILE = f'checkpoint_epoch_{EPOCH_OFFSET}.npz' # or, 'output/final_model_weights.npz'
+    RESUME_FILE = f'output/checkpoint_epoch_{EPOCH_OFFSET+1}.npz' # or, 'output/final_model_weights.npz'
     TIME_CHECK = 100
     LAST_EPOCH = 0
 
