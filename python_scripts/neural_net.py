@@ -417,7 +417,7 @@ if __name__ == "__main__":
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 200
     EPOCHS = 20001
-    LEARNING_RATE = 0.001
+    LEARNING_RATE = 0.01
     EPOCH_OFFSET = 0 
     RESUME_FILE = f'checkpoint_epoch_{EPOCH_OFFSET}.npz' # or, 'output/final_model_weights.npz'
     TIME_CHECK = 100
@@ -450,7 +450,7 @@ if __name__ == "__main__":
     if X_train is not None:
         INPUT_FEATURES = X_train.shape[1] 
         OUTPUT_NODES = Y_train.shape[1]
-        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 50, tanh, tanh_prime)
+        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 75, tanh, tanh_prime)
         
         if net.load_weights(RESUME_FILE):
              print(f"Resuming training from {RESUME_FILE}")
