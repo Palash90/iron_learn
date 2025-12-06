@@ -413,7 +413,11 @@ if __name__ == "__main__":
     IMAGE_WIDTH = norm_factors[0] + 1
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 200
-    EPOCH_OFFSET = 0 # Change it for rerun
+    EPOCHS = 20001
+    LEARNING_RATE = 0.01
+    EPOCH_OFFSET = 0 
+    RESUME_FILE = f'checkpoint_epoch_{EPOCH_OFFSET}.npz' # or, 'output/final_model_weights.npz'
+    TIME_CHECK = 100
 
     X_train = np.asarray(X_train)
     Y_train = np.asarray(Y_train)
@@ -428,21 +432,17 @@ if __name__ == "__main__":
             (f"\n\t\tDrawing at epoch {epoch}")
             draw_predictions_scatter(net, X_train, epoch + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT)
         
-        if epoch % 100 == 0:
+        if epoch % TIME_CHECK == 0:
             epoch_end_time = time.time()
-            print(f"Elapsed time {epoch_end_time - epoch_start_time}")
+            print(f"Elapsed time {epoch_end_time - epoch_start_time: .2f} seconds for {TIME_CHECK} iterations")
 
     if X_train is not None:
-        INPUT_FEATURES = X_train.shape[1]  # Should be 2 (x, y)
-        OUTPUT_NODES = Y_train.shape[1]    # Should be 1 (pixel_value)
-        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 1)
-        EPOCHS = 10001  # Image reconstruction often requires many epochs
-        LEARNING_RATE = 0.01
-
-        RESUME_FILE = f'checkpoint_epoch_{EPOCH_OFFSET}.npz' # 'output/final_model_weights.npz' # Or 
+        INPUT_FEATURES = X_train.shape[1] 
+        OUTPUT_NODES = Y_train.shape[1]
+        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 125)
+        
         if net.load_weights(RESUME_FILE):
              print(f"Resuming training from {RESUME_FILE}")
-             # You may need to adjust EPOCHS if resuming from a checkpoint
         else:
              print("Starting training from scratch.")
 
