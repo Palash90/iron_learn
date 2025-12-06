@@ -174,7 +174,7 @@ class NeuralNet:
             output = layer.forward(output)
         return output
 
-    def fit(self, x_train, y_train, epochs, learning_rate, norm_factors, checkpoint):
+    def fit(self, x_train, y_train, epochs, learning_rate, hook):
         x_train = np.asarray(x_train, dtype=np.float32)
         y_train = np.asarray(y_train, dtype=np.float32)
 
@@ -182,25 +182,8 @@ class NeuralNet:
 
         epoch_error = []
 
-        epoch_range_start_time = time.time()
-
         for i in range(epochs):
-            if (i + 1) % checkpoint == 0: # Save every 500 epochs
-                self.save_weights(f'checkpoint_epoch_{i+1}.npz')
-
-            if i % 100 == 0:
-                epoch_range_end_time = time.time()
-                print(f"\n\t{i} epochs completed in {epoch_range_end_time - epoch_range_start_time:.4f} seconds.")
-                epoch_range_start_time = time.time()
-            
-            if i % 1000 == 0:
-                print(f"\n\t\tDrawing at epoch {i}")
-                draw_time_start = time.time()
-                draw_image_from_predictions(self, 474, 474, norm_factors, i)
-                draw_time_end = time.time()
-                print(f"\n\t\tDrawing completed in {draw_time_end - draw_time_start:.4f} seconds.")
-                draw_time_start = time.time()
-
+            hook(self, i)
             
             output = x_train
             for layer in self.layers:
@@ -387,48 +370,76 @@ def load_data_from_csv(csv_path):
         return None, None
 
 
-def draw_image_from_predictions(net, width, height, norm_factors, epoch):
-    print("\n🖼️ Generating image from network predictions...")
+def draw_predictions_scatter(net, x_train, epoch, width, height):
+    print(f"\n🎨 Generating scatter plot visualization at epoch {epoch}...")
 
-    max_x_index, max_y_index = norm_factors
+    predictions = net.predict(x_train)
 
-    x_range = np.arange(0, width, dtype=np.float32)
-    y_range = np.arange(0, height, dtype=np.float32)
+    x_coords = np.asnumpy(x_train[:, 0]) 
+    y_coords = np.asnumpy(x_train[:, 1]) 
     
-    x_norm = x_range / max_x_index
-    y_norm = y_range / max_y_index
-
-    X_grid_x, X_grid_y = np.meshgrid(x_norm, y_norm)
+    x_coords_denorm = x_coords * width
+    y_coords_denorm = y_coords * height
     
-    X_predict = np.stack([X_grid_x.ravel(), X_grid_y.ravel()], axis=1)
-
-    predictions = net.predict(X_predict)
-
-    predicted_image = predictions.reshape((height, width))
-
-    plt.figure(figsize=(width/100, height/100))
+    pixel_values = np.asnumpy(predictions[:, 0])
     
-    plt.imshow(np.asnumpy(predicted_image), cmap='gray_r', vmin=0, vmax=1, 
-               extent=[0, width, height, 0]) 
-    
-    plt.title('Image Reconstructed by Neural Network after ' + str(epoch) + ' epochs')
-    plt.axis('off')
-    plt.show()
-    print("🖼️ Displayed reconstructed image.")
+    fig, ax = plt.subplots(figsize=(5, 5)) 
 
+    ax.scatter(
+        x_coords_denorm, 
+        y_coords_denorm, 
+        c=pixel_values, 
+        cmap='gray_r', 
+        vmin=0, 
+        vmax=1,
+        s=1, 
+        marker='s' 
+    )
 
+    ax.set_xlim(0, width)
+    ax.set_ylim(height, 0) 
+    ax.set_aspect('equal')
+
+    ax.axis('off')
+
+    plt.title(f'Predictions Scatter Plot at Epoch {epoch}')
+    # Save the plot
+    plt.savefig("output/plot_"+ str(epoch) +".png", dpi=300, bbox_inches='tight')
+    print("🖼️ Saved scatter plot successfully!")
 
 if __name__ == "__main__":
     X_train, Y_train, norm_factors = load_data_from_csv("pixel_data.csv")
 
+    IMAGE_WIDTH = norm_factors[0] + 1
+    IMAGE_HEIGHT = norm_factors[1] + 1
+    CHECKPOINT = 200
+    EPOCH_OFFSET = 0 # Change it for rerun
+
+    X_train = np.asarray(X_train)
+    Y_train = np.asarray(Y_train)
+
+    epoch_start_time =  time.time()
+
+    def epoch_hook(net, epoch):
+        if (epoch + 1) % CHECKPOINT == 0:
+            net.save_weights(f'output/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
+
+        if epoch % 1000 == 0:
+            (f"\n\t\tDrawing at epoch {epoch}")
+            draw_predictions_scatter(net, X_train, epoch + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT)
+        
+        if epoch % 100 == 0:
+            epoch_end_time = time.time()
+            print(f"Elapsed time {epoch_end_time - epoch_start_time}")
+
     if X_train is not None:
         INPUT_FEATURES = X_train.shape[1]  # Should be 2 (x, y)
         OUTPUT_NODES = Y_train.shape[1]    # Should be 1 (pixel_value)
-        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 2)
-        EPOCHS = 501  # Image reconstruction often requires many epochs
+        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 1)
+        EPOCHS = 10001  # Image reconstruction often requires many epochs
         LEARNING_RATE = 0.01
 
-        RESUME_FILE = 'final_model_weights.npz' # Or 'checkpoint_epoch_X.npz'
+        RESUME_FILE = f'checkpoint_epoch_{EPOCH_OFFSET}.npz' # 'output/final_model_weights.npz' # Or 
         if net.load_weights(RESUME_FILE):
              print(f"Resuming training from {RESUME_FILE}")
              # You may need to adjust EPOCHS if resuming from a checkpoint
@@ -436,5 +447,5 @@ if __name__ == "__main__":
              print("Starting training from scratch.")
 
         print(f"\n🚀 Starting training for {EPOCHS} epochs...")
-        net.fit(X_train, Y_train, epochs=EPOCHS, learning_rate=LEARNING_RATE, norm_factors=norm_factors, checkpoint=500)    
+        net.fit(X_train, Y_train, epochs=EPOCHS, learning_rate=LEARNING_RATE, hook=epoch_hook)    
     input()
