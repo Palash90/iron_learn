@@ -1,11 +1,9 @@
-use rand::thread_rng;
+use rand::rng;
 use rand::Rng;
 use std::vec;
-use std::fs;
 
-use crate::normalizer::{denormalize_features, normalize_features, normalize_features_mean_std};
 use crate::Data;
-use crate::{tensor::Tensor, Numeric};
+use crate::{tensor::Tensor};
 
 pub trait Layer {
     fn forward(&mut self, input: Tensor<f64>) -> Tensor<f64>;
@@ -24,10 +22,10 @@ impl LinearLayer {
         let fan_in = features as f64;
         let fan_out = output_size as f64;
         let limit = (6.0 / (fan_in + fan_out)).sqrt(); // Xavier uniform
-        let mut rng = thread_rng();
+        let mut rng = rng();
         let mut w = Vec::with_capacity((features * output_size) as usize);
         for _ in 0..(features * output_size) {
-            let val: f64 = rng.gen_range(-limit..limit);
+            let val: f64 = rng.random_range(-limit..limit);
             w.push(val);
         }
 

@@ -50,6 +50,7 @@ mod read_file;
 mod regression;
 mod tensor;
 mod normalizer;
+mod cuda_tensor;
 
 pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::complex::Complex;
@@ -65,3 +66,4 @@ pub use crate::regression::XY;
 pub use crate::regression::{run_linear, run_logistic};
 pub use crate::tensor::Tensor;
 pub use crate::normalizer::normalize_features;
+pub  use crate::cuda_tensor::GpuTensor;
