@@ -223,7 +223,7 @@ if __name__ == "__main__":
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 1000
     EPOCHS = 200001
-    LEARNING_RATE = 0.01
+    LEARNING_RATE = 0.0001
     EPOCH_OFFSET = 0 
     RESUME_FILE = ''
     TIME_CHECK = 1000
@@ -256,7 +256,8 @@ if __name__ == "__main__":
     if X_train is not None:
         INPUT_FEATURES = X_train.shape[1] 
         OUTPUT_NODES = Y_train.shape[1]
-        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 50, tanh, tanh_prime)
+        # net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 50, tanh, tanh_prime)
+        net = build_siren_net(INPUT_FEATURES, OUTPUT_NODES, 50)
         
         if net.load_weights(RESUME_FILE):
              print(f"Resuming training from {RESUME_FILE}")

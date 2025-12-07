@@ -36,6 +36,58 @@ class ActivationLayer:
     def backward(self, error, lr):
         return self.fPrime(self.input) * error
 
+class SinusoidalLayer:
+    def __init__(self, inputSize, outputSize, is_first=False, w0=30.0):
+        # SIREN specific weight initialization
+        if is_first:
+            # First layer: Uniform distribution over [-1/inputSize, 1/inputSize]
+            limit = 1.0 / inputSize
+        else:
+            # Other layers: Uniform distribution over [-sqrt(6/inputSize), sqrt(6/inputSize)]
+            # This is standard initialization for sine activation, often called 'Kaiming Uniform' or 'Fan-in'
+            limit = np.sqrt(6.0 / inputSize)
+
+        # Initialize weights and biases
+        self.weights = np.random.uniform(-limit, limit, (inputSize, outputSize), dtype=np.float32)
+        self.biases = np.random.uniform(-limit, limit, (1, outputSize), dtype=np.float32)
+        
+        self.w0 = w0 # Frequency parameter (common value is 30.0)
+        self.is_first = is_first
+        
+    def forward(self, input):
+        self.input = input
+        # Linear part: z = input @ weights + biases
+        z = self.input @ self.weights + self.biases 
+        
+        # Activation part: output = sin(w0 * z)
+        self.output = np.sin(self.w0 * z)
+        return self.output
+    
+    def backward(self, error, lr):
+        # 1. Derivative of the activation: d(sin(w0*z))/dz = w0 * cos(w0*z)
+        z = self.input @ self.weights + self.biases
+        grad_activation = self.w0 * np.cos(self.w0 * z)
+        
+        # Error propagated back to the linear layer's output (z)
+        error_z = error * grad_activation 
+        
+        # 2. Backpropagate through the linear layer logic
+        # dE/dW = input.T @ dE/dz
+        weights_error = self.input.T @ error_z 
+        
+        # dE/db = sum(dE/dz, axis=0)
+        biases_error = np.sum(error_z, axis=0, keepdims=True)
+        
+        # 3. Propagate error to the previous layer's input (dE/dX)
+        # dE/dX = dE/dz @ weights.T
+        input_error = error_z @ self.weights.T 
+        
+        # 4. Update weights and biases
+        self.weights -= lr * weights_error
+        self.biases -= lr * biases_error 
+        
+        return input_error
+
 class NeuralNet:
     def __init__(self, loss, loss_prime):
         self.layers = []

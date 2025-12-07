@@ -1,5 +1,11 @@
 import cupy as np;
 
+def sin(x):
+    return np.sin(x)
+
+def sin_prime(x):
+    return np.cos(x)
+
 def tanh(x):
     return np.tanh(x)
 
