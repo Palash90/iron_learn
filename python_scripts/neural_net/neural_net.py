@@ -1,11 +1,11 @@
-import cupy as np
 import json
 import time
-import math
 import networkx as nx
 import matplotlib.pyplot as plt
 import pandas as pd 
 import numpy
+from layers import *
+from builder import *
 
 def visualize_network(net):
     """
@@ -89,210 +89,6 @@ def visualize_network(net):
     fig.set_facecolor(dark_navy)
     plt.axis('off')
     plt.show(block=False)
-
-class LinearLayer:
-    def __init__(self, inputSize, outputSize):
-        self.weights = np.random.randn(inputSize, outputSize, dtype=np.float32)
-        self.biases = np.random.randn(1, outputSize, dtype=np.float32) 
-        
-    def forward(self, input):
-        self.input = input
-        self.output = self.input @ self.weights + self.biases 
-        return self.output
-    
-    def backward(self, error, lr):
-        input_error = error @ self.weights.T 
-        weights_error = self.input.T @ error 
-        
-        biases_error = np.sum(error, axis=0, keepdims=True)
-        
-        self.weights -= lr * weights_error
-        self.biases -= lr * biases_error 
-        return input_error
-    
-class ActivationLayer:
-    def __init__(self, activation, fPrime):
-        self.activation = activation
-        self.fPrime = fPrime
-    
-    def forward(self, input):
-        self.input = input
-        self.output = self.activation(self.input)
-        return self.output
-    
-    def backward(self, error, lr):
-        return self.fPrime(self.input) * error
-
-def tanh(x):
-    return np.tanh(x)
-
-def tanh_prime(x):
-    return 1 - np.tanh(x)**2
-
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-def sigmoid_prime(x):
-    s = sigmoid(x)
-    return s * (1 - s)
-
-def relu(x):
-    return np.maximum(0, x)
-
-def relu_prime(x):
-    return np.where(x > 0, 1, 0)
-
-def mse(y, y_hat):
-    return np.mean(np.power(y - y_hat, 2))
-
-def mse_prime(y, y_hat):
-    return 2 * (y_hat - y) / y.size 
-
-def binary_cross_entropy(y, y_hat):
-    epsilon = 1e-12
-    y_hat = np.clip(y_hat, epsilon, 1. - epsilon)
-    return -np.mean(y * np.log(y_hat) + (1 - y) * np.log(1 - y_hat))
-
-def binary_cross_entropy_prime(y, y_hat):
-    epsilon = 1e-12
-    y_hat = np.clip(y_hat, epsilon, 1. - epsilon)
-    return ((1 - y) / (1 - y_hat) - y / y_hat) / y.size
-
-class NeuralNet:
-    def __init__(self, loss, loss_prime):
-        self.layers = []
-        self.loss = loss
-        self.loss_prime = loss_prime
-        self.layer_info = []
-
-    def add(self, layer, name):
-        self.layers.append(layer)
-        self.layer_info.append({'layer': layer, 'name': name, 'type': layer.__class__.__name__})
-
-    def predict(self, input_data):
-        output = input_data 
-        for layer in self.layers:
-            output = layer.forward(output)
-        return output
-
-    def fit(self, x_train, y_train, epochs, epoch_offset, learning_rate, hook):
-        x_train = np.asarray(x_train, dtype=np.float32)
-        y_train = np.asarray(y_train, dtype=np.float32)
-
-        start_time = time.time()
-
-        epoch_error = []
-
-        lr_min = 1e-6 
-        lr_max = learning_rate
-        
-
-        for i in range(epochs):
-            hook(self, i)
-
-            decay_factor = 0.5 * (1 + math.cos(math.pi * i / (epochs+epoch_offset)))
-            current_lr = lr_min + (lr_max - lr_min) * decay_factor    
-            
-            output = x_train
-            for layer in self.layers:
-                output = layer.forward(output)
-
-            err = self.loss(y_train, output)
-
-            error = self.loss_prime(y_train, output)
-            for layer in reversed(self.layers):
-                error = layer.backward(error, current_lr)
-            
-            epoch_error.append([i, err])
-
-            if i == 0 or (i + 1) % 1000 == 0:
-                np.cuda.runtime.deviceSynchronize() 
-        
-        np.cuda.runtime.deviceSynchronize()
-        end_time = time.time()
-        self.save_weights('final_model_weights.npz')
-        print(f"\nTraining completed in {end_time - start_time:.4f} seconds.")
-
-    def save_weights(self, filepath):
-        state_dict = {}
-        for i, info in enumerate(self.layer_info):
-            if isinstance(info['layer'], LinearLayer):
-                layer = info['layer']
-                state_dict[f'W{i}_{info["name"]}'] = layer.weights.get() 
-                state_dict[f'B{i}_{info["name"]}'] = layer.biases.get()
-        
-        numpy.savez_compressed(filepath, **state_dict)
-        print(f"✅ Weights and biases saved to {filepath}")
-
-    
-    def load_weights(self, filepath):
-        """Loads weights and biases into the Linear Layers."""
-        try:
-            loaded_data = numpy.load(filepath, allow_pickle=True)
-            linear_layer_index = 0
-            
-            for i, info in enumerate(self.layer_info):
-                if isinstance(info['layer'], LinearLayer):
-                    layer = info['layer']
-                    w_key = f'W{i}_{info["name"]}'
-                    b_key = f'B{i}_{info["name"]}'
-                    
-                    if w_key in loaded_data and b_key in loaded_data:
-                        loaded_weights = np.asarray(loaded_data[w_key])
-                        loaded_biases = np.asarray(loaded_data[b_key])
-                        
-                        if layer.weights.shape == loaded_weights.shape and layer.biases.shape == loaded_biases.shape:
-                             layer.weights = loaded_weights
-                             layer.biases = loaded_biases
-                             print(f"Loaded weights for {info['name']} (Layer {i})")
-                        else:
-                             print(f"❌ Dimension mismatch for {info['name']} (Layer {i}). Skipping load.")
-                             
-                    else:
-                        print(f"❌ Key missing for {info['name']} (Layer {i}). Skipping load.")
-                        
-                    linear_layer_index += 1
-            
-            print(f"✅ Weights and biases loaded from {filepath}")
-            return True
-            
-        except FileNotFoundError:
-            print(f"❌ Error: Weights file not found at {filepath}")
-            return False
-        except Exception as e:
-            print(f"❌ An error occurred during loading: {e}")
-            return False
-        
-
-def build_neural_net(features, outputs, hidden_length, activation_fn, activation_prime):
-    net = NeuralNet(binary_cross_entropy, binary_cross_entropy_prime)
-
-
-    net.add(LinearLayer(features, hidden_length), name = "Hidden Layer 1")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(hidden_length, hidden_length), name = "Hidden Layer 3")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(hidden_length, 2 * hidden_length), name = "Hidden Layer 3")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(2 * hidden_length, hidden_length), name = "Hidden Layer 3")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(hidden_length, int(hidden_length / 2)), name = "Hidden Layer 3")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-    
-    net.add(LinearLayer(int(hidden_length / 2), int(hidden_length / 2)), name = "Hidden Layer 4")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(int(hidden_length / 2), int(hidden_length / 2)), name = "Hidden Layer 4")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(int(hidden_length / 2), outputs), name="Output")
-    net.add(ActivationLayer(sigmoid, sigmoid_prime), "Final Activation Layer")
-
-    return net
 
 def run(epochs, learning_rate, data_field='linear'):
     with open('../data.json', 'r') as file:
@@ -417,19 +213,20 @@ def draw_predictions_scatter(co_ordinates, epoch, width, height, values):
     # Save the plot
     file_name = "output/image/plot_"+ str(epoch) +".png"
     plt.savefig(file_name, dpi=300, bbox_inches='tight')
+    plt.close()
     print(f"🖼️ Saved scatter plot: {file_name} successfully!")
 
 if __name__ == "__main__":
-    X_train, Y_train, norm_factors = load_data_from_csv("x_pixel_data.csv")
+    X_train, Y_train, norm_factors = load_data_from_csv("../image_inputs/pixel_data_200.csv")
 
     IMAGE_WIDTH = norm_factors[0] + 1
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 1000
-    EPOCHS = 2
+    EPOCHS = 200001
     LEARNING_RATE = 0.01
     EPOCH_OFFSET = 0 
-    RESUME_FILE = '200_final_output/checkpoint/checkpoint_epoch_1290201.npz'
-    TIME_CHECK = 100
+    RESUME_FILE = ''
+    TIME_CHECK = 1000
     LAST_EPOCH = 0
 
     X_train = np.asarray(X_train)
@@ -445,7 +242,7 @@ if __name__ == "__main__":
         if epoch % CHECKPOINT == 0:
             pass # net.save_weights(f'output/checkpoint/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
 
-        if epoch % 2 == 0:
+        if epoch % 5000 == 0:
             (f"\n\t\tDrawing at epoch {epoch}")
             predictions = net.predict(X_train)
             draw_predictions_scatter(X_train, epoch + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, predictions)
