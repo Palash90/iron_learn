@@ -209,7 +209,10 @@ def draw_predictions_scatter(co_ordinates, epoch, width, height, values):
 
     ax.axis('off')
 
-    plt.title(f'Predictions Scatter Plot at Epoch {epoch}')
+    if epoch != 'ORIGINAL':
+        plt.title(f'Image drawn on {epoch}-th try')
+    else:
+        plot.title('Original Image')
     # Save the plot
     file_name = "output/image/plot_"+ str(epoch) +".png"
     plt.savefig(file_name, dpi=300, bbox_inches='tight')
@@ -230,9 +233,11 @@ if __name__ == "__main__":
     LAST_EPOCH = 0
 
     X_train = np.asarray(X_train)
+    # X_train = 2 * X_train - 1
+
     Y_train = np.asarray(Y_train)
 
-    # draw_predictions_scatter(X_train, 1.2 + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, Y_train)
+    draw_predictions_scatter(X_train, "ORIGINAL", IMAGE_WIDTH, IMAGE_HEIGHT, Y_train)
 
     epoch_start_time =  time.time()
 
