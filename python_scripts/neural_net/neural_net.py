@@ -212,7 +212,7 @@ def draw_predictions_scatter(co_ordinates, epoch, width, height, values):
     if epoch != 'ORIGINAL':
         plt.title(f'Image drawn on {epoch}-th try')
     else:
-        plot.title('Original Image')
+        plt.title('Original Image')
     # Save the plot
     file_name = "output/image/plot_"+ str(epoch) +".png"
     plt.savefig(file_name, dpi=300, bbox_inches='tight')
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 1000
     EPOCHS = 200001
-    LEARNING_RATE = 0.0001
+    LEARNING_RATE = 0.0005
     EPOCH_OFFSET = 0 
     RESUME_FILE = ''
     TIME_CHECK = 1000
@@ -247,7 +247,7 @@ if __name__ == "__main__":
         if epoch % CHECKPOINT == 0:
             pass # net.save_weights(f'output/checkpoint/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
 
-        if epoch % 5000 == 0:
+        if epoch % 1000 == 0:
             (f"\n\t\tDrawing at epoch {epoch}")
             predictions = net.predict(X_train)
             draw_predictions_scatter(X_train, epoch + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, predictions)
