@@ -259,7 +259,8 @@ pub fn run_logistics_cuda() -> cust::error::CudaResult<()> {
                 d_prob.as_device_ptr(),
                 d_y.as_device_ptr(),
                 d_loss.as_device_ptr(),
-                rows as i32
+                rows as i32,
+                1
             ))?;
         }
 
@@ -421,7 +422,8 @@ pub fn run_linear_cuda() -> cust::error::CudaResult<()> {
                 d_lines.as_device_ptr(), // Prediction (h(x) = z)
                 d_y.as_device_ptr(),
                 d_loss.as_device_ptr(),
-                rows as i32
+                rows as i32,
+                1
             ))?;
         }
 

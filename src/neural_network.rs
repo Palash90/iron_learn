@@ -2,8 +2,8 @@ use rand::rng;
 use rand::Rng;
 use std::vec;
 
+use crate::tensor::Tensor;
 use crate::Data;
-use crate::{tensor::Tensor};
 
 pub trait Layer {
     fn forward(&mut self, input: Tensor<f64>) -> Tensor<f64>;
@@ -161,17 +161,17 @@ fn log_loss_derivative(predicted: &Tensor<f64>, actual: &Tensor<f64>) -> Tensor<
     Tensor::new(predicted.get_shape().clone(), data).unwrap()
 }
 fn sigmoid(x: &Tensor<f64>) -> Tensor<f64> {
-    let data: Vec<f64> = x.get_data().iter().map(|&v| 1.0 / (1.0 + (-v).exp())).collect();
+    let data: Vec<f64> = x
+        .get_data()
+        .iter()
+        .map(|&v| 1.0 / (1.0 + (-v).exp()))
+        .collect();
     Tensor::new(x.get_shape().clone(), data).unwrap()
 }
 
 fn sigmoid_prime(x: &Tensor<f64>) -> Tensor<f64> {
     let s = sigmoid(x);
-    let data: Vec<f64> = s
-        .get_data()
-        .iter()
-        .map(|&v| v * (1.0 - v))
-        .collect();
+    let data: Vec<f64> = s.get_data().iter().map(|&v| v * (1.0 - v)).collect();
     Tensor::new(x.get_shape().clone(), data).unwrap()
 }
 
@@ -316,11 +316,19 @@ pub fn run_neural_network() {
     for i in 0..total {
         let pred = predictions.get_data()[i];
         let actual = y_test.get_data()[i];
-        println!("Predicted: {:.4}, Actual: {:.4}, {}", pred, actual, if (pred - actual).abs() < 0.5 { "✓" } else { "✗" });
+        println!(
+            "Predicted: {:.4}, Actual: {:.4}, {}",
+            pred,
+            actual,
+            if (pred - actual).abs() < 0.5 {
+                "✓"
+            } else {
+                "✗"
+            }
+        );
         let error = pred - actual;
         total_squared_error += error * error;
     }
-
 
     let mse = total_squared_error / (total as f64);
     println!("\nResults:");

@@ -61,7 +61,7 @@ impl<T: Numeric> GpuTensor<T> {
     }
 
     fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
-        unimplemented!("Add Sub");
+        
     }
 
     fn check_shape(shape: &[u32]) -> Option<Result<GpuTensor<T>, String>> {

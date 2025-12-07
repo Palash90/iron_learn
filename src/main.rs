@@ -19,7 +19,7 @@
 
 use iron_learn::{
     init_context, run_linear, run_linear_cuda, run_logistic, run_logistics_cuda,
-    run_neural_network, GLOBAL_CONTEXT, GpuTensor
+    run_neural_network, GpuTensor, GLOBAL_CONTEXT,
 };
 use std::{env, vec};
 
@@ -110,13 +110,11 @@ fn main() {
 
     // run_neural_network();
 
-    let t = GpuTensor::new(vec![1,2], vec![1,2]);
-    let t2 = GpuTensor::new(vec![1,2], vec![1,2]);
+    let t = GpuTensor::new(vec![1, 2], vec![1, 2]);
+    let t2 = GpuTensor::new(vec![1, 2], vec![1, 2]);
 
-    println!("t and t2 are equal: {}", t == t2)
-    
+    println!("t and t2 are equal: {}", t == t2);
 
-    /*
     // Execute appropriate training pipeline
     if ctx.gpu_enabled {
         match run_linear_cuda() {
@@ -132,5 +130,5 @@ fn main() {
         run_linear();
         run_logistic();
         println!("\n✓ All training tasks completed");
-    } */
+    }
 }

@@ -1,6 +1,5 @@
 use crate::tensor::Tensor;
 
-
 pub fn denormalize_features(
     normalized_data: &Tensor<f64>,
     mean: &Vec<f64>,
@@ -24,11 +23,7 @@ pub fn denormalize_features(
     Tensor::new(shape.clone(), denormalized_data).unwrap()
 }
 
-pub fn normalize_features(
-    data: &Tensor<f64>,
-    mean: &Vec<f64>,
-    std: &Vec<f64>,
-) -> Tensor<f64> {
+pub fn normalize_features(data: &Tensor<f64>, mean: &Vec<f64>, std: &Vec<f64>) -> Tensor<f64> {
     let shape = data.get_shape();
     let m = shape[0] as usize;
     let n = shape[1] as usize;

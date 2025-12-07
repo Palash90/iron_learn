@@ -15,19 +15,10 @@ fn init() {
         }
         Err(e) => {
             eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
-            init_context(
-                "Iron Learn",
-                5,
-                "".to_string(),
-                0.01,
-                1,
-                false,
-                None,
-            );
+            init_context("Iron Learn", 5, "".to_string(), 0.01, 1, false, None);
         }
     }
 }
-
 
 #[cfg(test)]
 #[test]
@@ -271,7 +262,7 @@ fn test_complex_tensor_mul() {
 #[test]
 fn test_complex_tensor_add() {
     init();
-    
+
     let a = crate::Complex::new(1.0, 2.0);
     let b = crate::Complex::new(3.0, 4.0);
     let c = crate::Complex::new(5.0, 6.0);

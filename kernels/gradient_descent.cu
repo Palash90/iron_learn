@@ -3,10 +3,15 @@
 
 
 extern "C" __global__
-void vectorSub(const double* a, const double* b, double* out, int n) {
+void vectorSub(const double* a, const double* b, double* out, int n, int sub) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n) {
-        out[idx] = a[idx] - b[idx];
+        if(sub == 1) {
+            out[idx] = a[idx] - b[idx];
+        } else {
+            out[idx] = a[idx] + b[idx];
+        }
+        
     }
 }
 
@@ -118,5 +123,26 @@ void compareMemory(const double* a, const double* b, size_t size, int* result) {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size) {
         if (a[idx] != b[idx]) atomicExch(result, 0);
+    }
+}
+
+extern "C" __global__ 
+void transpose_naive(const float* A, float* B, int M, int N) {
+    // 1. Calculate the coordinates (row, col) for the output matrix B
+    int col_b = blockIdx.x * blockDim.x + threadIdx.x; // Column index in B
+    int row_b = blockIdx.y * blockDim.y + threadIdx.y; // Row index in B
+
+    // Check if the thread is within the bounds of the output matrix B (N x M)
+    if (row_b < N && col_b < M) {
+        // 2. Transposition Rule: B[row_b][col_b] = A[col_b][row_b]
+        
+        // Input Matrix A (M x N) index: row_a = col_b, col_a = row_b
+        int index_a = col_b * N + row_b; 
+        
+        // Output Matrix B (N x M) index: 
+        int index_b = row_b * M + col_b;
+
+        // Perform the transpose
+        B[index_b] = A[index_a];
     }
 }
