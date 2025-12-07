@@ -32,7 +32,7 @@ def build_neural_net(features, outputs, hidden_length, activation_fn, activation
     return net
 
 def build_siren_net(features, outputs, hidden_length):
-    net = NeuralNet(mse, mse_prime)
+    net = NeuralNet(binary_cross_entropy, binary_cross_entropy_prime)
     net.add(SinusoidalLayer(features, hidden_length, is_first=True), name="SIREN Layer 1")
 
     net.add(SinusoidalLayer(hidden_length, hidden_length), name="SIREN Layer 2")
@@ -43,7 +43,7 @@ def build_siren_net(features, outputs, hidden_length):
     net.add(SinusoidalLayer(int(hidden_length / 2), int(hidden_length / 2)), name="SIREN Layer 7")
 
     net.add(LinearLayer(int(hidden_length / 2), outputs), name="Output Linear")
-    #net.add(ActivationLayer(sigmoid, sigmoid_prime), "Final Activation Layer")
+    net.add(ActivationLayer(sigmoid, sigmoid_prime), "Final Activation Layer")
 
     return net
 

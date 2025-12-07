@@ -37,7 +37,7 @@ class ActivationLayer:
         return self.fPrime(self.input) * error
 
 class SinusoidalLayer:
-    def __init__(self, inputSize, outputSize, is_first=False, w0=30.0):
+    def __init__(self, inputSize, outputSize, is_first=False, w0=30):
         # SIREN specific weight initialization
         if is_first:
             # First layer: Uniform distribution over [-1/inputSize, 1/inputSize]

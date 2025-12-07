@@ -226,7 +226,7 @@ if __name__ == "__main__":
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 1000
     EPOCHS = 200001
-    LEARNING_RATE = 0.0005
+    LEARNING_RATE = 0.00005
     EPOCH_OFFSET = 0 
     RESUME_FILE = ''
     TIME_CHECK = 1000
