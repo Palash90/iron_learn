@@ -1,5 +1,6 @@
-use cust::{device, prelude::DeviceBuffer};
+use cust::{device, memory::CopyDestination, prelude::DeviceBuffer};
 
+use crate::init_context;
 use crate::numeric::{Numeric, SignedNumeric};
 use std::ops::{Add, Mul, Neg, Sub};
 
@@ -41,7 +42,10 @@ impl<T: Numeric> GpuTensor<T> {
     }
 
     fn _data(&self) -> Vec<T> {
-        unimplemented!("Data Copy from Device")
+        let mut data = vec![T::zero(); (self.shape[0] * self.shape[1]) as usize];
+
+        self.device_buffer.copy_to(&mut data);
+        data
     }
 
     fn _shape(&self) -> Vec<u32> {
@@ -118,7 +122,7 @@ impl<T: Numeric> GpuTensor<T> {
         self._gpu_mul(rhs)
     }
 
-    fn _s(&self, scalar: T)-> Result<Self, String> {
+    fn _s(&self, scalar: T) -> Result<Self, String> {
         unimplemented!();
     }
 }
@@ -210,8 +214,20 @@ impl<T: SignedNumeric> Neg for GpuTensor<T> {
 #[cfg(test)]
 #[test]
 fn test_new() {
+    match cust::quick_init() {
+        Ok(context) => {
+            eprintln!("✓ GPU initialization successful");
+            init_context("Iron Learn", 5, String::new(), 0.0, 0, true, Some(context));
+        }
+        Err(e) => {
+            return;
+        }
+    };
+
     let t = GpuTensor::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
 
+    println!("GPU tensor got created");
+
     assert_eq!(t.shape, vec![1u32, 2u32]);
-    assert_eq!(t.data, vec![1i8, 2i8]);
+    assert_eq!(t.get_data(), vec![1i8, 2i8]);
 }
