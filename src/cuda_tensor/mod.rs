@@ -1,3 +1,7 @@
+use cust::launch;
+use cust::module::Module;
+use cust::stream::Stream;
+use cust::stream::StreamFlags;
 use cust::{device, memory::CopyDestination, prelude::DeviceBuffer};
 
 use crate::init_context;
@@ -6,8 +10,12 @@ use std::ops::{Add, Mul, Neg, Sub};
 
 #[derive(Debug)]
 pub struct GpuTensor<T: Numeric> {
+    module: Module,
     shape: Vec<u32>,
     device_buffer: DeviceBuffer<T>,
+    block_1d: (u32, u32, u32),
+    grid_rows: u32,
+    grid_cols: u32,
 }
 impl<T> GpuTensor<T>
 where
@@ -93,10 +101,17 @@ impl<T: Numeric> GpuTensor<T> {
             return Err(err);
         }
 
+        let ptx = include_str!("../../kernels/gradient_descent.ptx");
+        let module = Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
+
         match DeviceBuffer::from_slice(&data) {
             Ok(device_buffer) => Ok(Self {
-                shape,
+                module: module,
+                shape: shape.clone(),
                 device_buffer,
+                block_1d: (1024, 1, 1),
+                grid_rows: ((shape[0] as u32) + 2047) / 2048,
+                grid_cols: (((shape[1] + 1) as u32) + 2047) / 2048,
             }),
             Err(_) => Err("CUDA Error".to_string()),
         }
@@ -208,6 +223,49 @@ impl<T: SignedNumeric> Neg for GpuTensor<T> {
     type Output = Result<Self, String>;
     fn neg(self) -> Result<Self, String> {
         unimplemented!();
+    }
+}
+
+impl<T: Numeric> PartialEq for GpuTensor<T> {
+    fn eq(&self, other: &Self) -> bool {
+        if self.get_shape() != other.get_shape() {
+            return false;
+        }
+
+        let compare = match self.module.get_function("compareMemory") {
+            Ok(m) => m,
+            Err(_) => return false,
+        };
+
+        let mut result_host = [1i32];
+
+        let mut result_device = match DeviceBuffer::from_slice(&result_host) {
+            Ok(device_buf) => device_buf,
+            Err(_) => return false,
+        };
+
+        let stream = Stream::new(StreamFlags::NON_BLOCKING, None);
+
+        match stream {
+            Ok(stream) => {
+                unsafe {
+                    launch!(compare<<<(self.grid_rows,1,1), self.block_1d, 0, stream>>>(
+                        self.device_buffer.as_device_ptr(),
+                        other.device_buffer.as_device_ptr(),
+                        (self.get_shape()[0] * self.get_shape()[1]) as i32,
+                        result_device.as_device_ptr(),
+                    ));
+                }
+
+                stream.synchronize();
+
+                result_host[0] == 1
+            }
+            Err(e) => {
+                println!("{}", e.to_string());
+                false
+            }
+        }
     }
 }
 

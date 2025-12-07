@@ -650,4 +650,46 @@ $L__BB7_9:
 	ret;
 
 }
+	// .globl	compareMemory
+.visible .entry compareMemory(
+	.param .u64 compareMemory_param_0,
+	.param .u64 compareMemory_param_1,
+	.param .u64 compareMemory_param_2,
+	.param .u64 compareMemory_param_3
+)
+{
+	.reg .pred 	%p<3>;
+	.reg .b16 	%rs<3>;
+	.reg .b32 	%r<6>;
+	.reg .b64 	%rd<11>;
+
+
+	ld.param.u64 	%rd2, [compareMemory_param_0];
+	ld.param.u64 	%rd3, [compareMemory_param_1];
+	ld.param.u64 	%rd5, [compareMemory_param_2];
+	ld.param.u64 	%rd4, [compareMemory_param_3];
+	mov.u32 	%r1, %ntid.x;
+	mov.u32 	%r2, %ctaid.x;
+	mov.u32 	%r3, %tid.x;
+	mad.lo.s32 	%r4, %r2, %r1, %r3;
+	cvt.u64.u32 	%rd1, %r4;
+	setp.ge.u64 	%p1, %rd1, %rd5;
+	@%p1 bra 	$L__BB8_3;
+
+	cvta.to.global.u64 	%rd6, %rd2;
+	add.s64 	%rd7, %rd6, %rd1;
+	cvta.to.global.u64 	%rd8, %rd3;
+	add.s64 	%rd9, %rd8, %rd1;
+	ld.global.u8 	%rs1, [%rd9];
+	ld.global.u8 	%rs2, [%rd7];
+	setp.eq.s16 	%p2, %rs2, %rs1;
+	@%p2 bra 	$L__BB8_3;
+
+	cvta.to.global.u64 	%rd10, %rd4;
+	atom.global.exch.b32 	%r5, [%rd10], 0;
+
+$L__BB8_3:
+	ret;
+
+}
 

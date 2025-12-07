@@ -19,9 +19,9 @@
 
 use iron_learn::{
     init_context, run_linear, run_linear_cuda, run_logistic, run_logistics_cuda,
-    run_neural_network, GLOBAL_CONTEXT,
+    run_neural_network, GLOBAL_CONTEXT, GpuTensor
 };
-use std::env;
+use std::{env, vec};
 
 /// Parse command-line arguments and configure the application
 ///
@@ -108,7 +108,13 @@ fn main() {
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
     greet(ctx);
 
-    run_neural_network();
+    // run_neural_network();
+
+    let t = GpuTensor::new(vec![1,2], vec![1,2]);
+    let t2 = GpuTensor::new(vec![1,2], vec![1,2]);
+
+    println!("t and t2 are equal: {}", t == t2)
+    
 
     /*
     // Execute appropriate training pipeline

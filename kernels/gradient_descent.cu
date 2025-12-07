@@ -112,3 +112,11 @@ void gradGemvXT(const double* X, const double* loss, double* grad,
         grad[c] = sum;
     }
 }
+
+extern "C" __global__ 
+void compareMemory(const double* a, const double* b, size_t size, int* result) {
+    size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < size) {
+        if (a[idx] != b[idx]) atomicExch(result, 0);
+    }
+}
