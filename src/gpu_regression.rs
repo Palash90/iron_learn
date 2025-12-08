@@ -201,7 +201,7 @@ pub fn run_logistics_cuda() -> cust::error::CudaResult<()> {
     let x_bias = add_bias_column(&x_norm, rows, cols); // Include bias column
 
     // Load compiled CUDA kernels from PTX module
-    let ptx = include_str!("../kernels/gradient_descent.ptx");
+    let ptx = include_str!("../kernels/gpu_kernels.ptx");
     let module = Module::from_ptx(ptx, &[])?;
 
     // Retrieve kernel function references
@@ -367,7 +367,7 @@ pub fn run_linear_cuda() -> cust::error::CudaResult<()> {
     let x_bias = add_bias_column(&x_norm, rows, cols); // Include bias column
 
     // 2. Load Kernels and Allocate Buffers (Shared logic for all linear models)
-    let ptx = include_str!("../kernels/gradient_descent.ptx");
+    let ptx = include_str!("../kernels/gpu_kernels.ptx");
     let module = Module::from_ptx(ptx, &[])?;
 
     // Retrieve kernel function references

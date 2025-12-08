@@ -3,7 +3,7 @@
 
 
 extern "C" __global__
-void vectorSub(const double* a, const double* b, double* out, int n, int sub) {
+void vector_add(const double* a, const double* b, double* out, int n, int sub) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n) {
         if(sub == 1) {

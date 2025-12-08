@@ -1,4 +1,5 @@
 use cust::launch;
+use cust::memory::bytemuck::Zeroable;
 use cust::module::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
@@ -13,11 +14,8 @@ pub struct GpuTensor<T: Numeric> {
     module: Module,
     shape: Vec<u32>,
     device_buffer: DeviceBuffer<T>,
-    block_1d: (u32, u32, u32),
-    grid_rows: u32,
-    grid_cols: u32,
 }
-impl<T> GpuTensor<T>
+impl<T: Numeric + Zeroable> GpuTensor<T>
 where
     T: Numeric,
 {
@@ -34,7 +32,7 @@ where
     }
 }
 
-impl<T: Numeric> GpuTensor<T> {
+impl<T: Numeric + Zeroable> GpuTensor<T> {
     pub fn _exp(operand: &Self) {
         unimplemented!("Tensor Exponential unimplemented");
     }
@@ -61,7 +59,43 @@ impl<T: Numeric> GpuTensor<T> {
     }
 
     fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
-        
+        if self.shape != rhs.shape {
+            return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
+        }
+
+        let add = match self.module.get_function("vector_add") {
+            Ok(m) => m,
+            Err(e) => return Err(e.to_string()),
+        };
+
+        let mut total_elements;
+        if self.shape.len() == 2 {
+            total_elements = (self.shape[0] * self.shape[1]) as usize;
+        } else {
+            total_elements = self.shape[0] as usize
+        }
+
+        let result = DeviceBuffer::<T>::zeroed(total_elements).unwrap();
+
+        let total_size_u32 = total_elements as u32;
+        let threads_per_block = 1024;
+
+        let grid_1d = (total_size_u32 + threads_per_block - 1) / threads_per_block;
+
+        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+        unsafe {
+            launch!(add<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
+                self.device_buffer.as_device_ptr(),
+                rhs.device_buffer.as_device_ptr(),
+                result.as_device_ptr(),
+                total_size_u32 as i32,
+                0
+            ));
+        }
+
+        stream.synchronize();
+
+        Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
     fn check_shape(shape: &[u32]) -> Option<Result<GpuTensor<T>, String>> {
@@ -101,7 +135,7 @@ impl<T: Numeric> GpuTensor<T> {
             return Err(err);
         }
 
-        let ptx = include_str!("../../kernels/gradient_descent.ptx");
+        let ptx = include_str!("../../kernels/gpu_kernels.ptx");
         let module = Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
 
         match DeviceBuffer::from_slice(&data) {
@@ -109,11 +143,19 @@ impl<T: Numeric> GpuTensor<T> {
                 module: module,
                 shape: shape.clone(),
                 device_buffer,
-                block_1d: (1024, 1, 1),
-                grid_rows: ((shape[0] as u32) + 2047) / 2048,
-                grid_cols: (((shape[1] + 1) as u32) + 2047) / 2048,
             }),
             Err(_) => Err("CUDA Error".to_string()),
+        }
+    }
+
+    fn _with_device_buffer(shape: Vec<u32>, device_buffer: DeviceBuffer<T>) -> Self {
+        let ptx = include_str!("../../kernels/gpu_kernels.ptx");
+        let module = Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
+
+        Self {
+            module: module,
+            shape: shape.clone(),
+            device_buffer,
         }
     }
 
@@ -142,11 +184,7 @@ impl<T: Numeric> GpuTensor<T> {
     }
 }
 
-impl<T: Numeric> GpuTensor<T> {
-    pub fn to_device() {}
-
-    pub fn from_device() {}
-
+impl<T: Numeric + Zeroable> GpuTensor<T> {
     pub fn exp(operand: &Self) {
         Self::_exp(operand)
     }
@@ -195,7 +233,7 @@ impl<T: Numeric> GpuTensor<T> {
     }
 }
 
-impl<T: Numeric> Add for GpuTensor<T> {
+impl<T: Numeric + Zeroable> Add for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn add(self, rhs: Self) -> Result<Self, String> {
@@ -203,7 +241,7 @@ impl<T: Numeric> Add for GpuTensor<T> {
     }
 }
 
-impl<T: Numeric> Sub for GpuTensor<T> {
+impl<T: Numeric + Zeroable> Sub for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn sub(self, rhs: Self) -> Result<Self, String> {
@@ -211,7 +249,7 @@ impl<T: Numeric> Sub for GpuTensor<T> {
     }
 }
 
-impl<T: Numeric> Mul for GpuTensor<T> {
+impl<T: Numeric + Zeroable> Mul for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn mul(self, rhs: Self) -> Result<Self, String> {
@@ -219,50 +257,86 @@ impl<T: Numeric> Mul for GpuTensor<T> {
     }
 }
 
-impl<T: SignedNumeric> Neg for GpuTensor<T> {
+impl<T: SignedNumeric + Zeroable> Neg for GpuTensor<T> {
     type Output = Result<Self, String>;
     fn neg(self) -> Result<Self, String> {
         unimplemented!();
     }
 }
 
-impl<T: Numeric> PartialEq for GpuTensor<T> {
+impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
     fn eq(&self, other: &Self) -> bool {
-        if self.get_shape() != other.get_shape() {
+        // 1. Shape Check
+        if self.shape != other.shape {
             return false;
         }
 
+        // 2. Calculate total elements robustly (FIXED)
+        // Use the total product of the shape elements, which is correct for 1D or 2D.
+        let element_count = self.shape.iter().product::<u32>();
+
+        if element_count == 0 {
+            return true; // Two empty tensors are equal
+        }
+
+        let total_size_i32 = element_count as i32;
+        let threads_per_block = 1024;
+
+        let grid_1d = (element_count + threads_per_block - 1) / threads_per_block;
+
+        // 3. Get the kernel function
         let compare = match self.module.get_function("compareMemory") {
             Ok(m) => m,
-            Err(_) => return false,
+            Err(e) => {
+                eprintln!("Error getting kernel 'compareMemory': {}", e);
+                return false;
+            }
         };
 
+        // 4. Prepare host and device result buffers
+        // result_host starts at 1 (equal). Kernel sets to 0 (not equal) on mismatch.
         let mut result_host = [1i32];
-
         let mut result_device = match DeviceBuffer::from_slice(&result_host) {
             Ok(device_buf) => device_buf,
-            Err(_) => return false,
+            Err(e) => {
+                eprintln!("Error creating device buffer for result: {}", e);
+                return false;
+            }
         };
 
-        let stream = Stream::new(StreamFlags::NON_BLOCKING, None);
+        // 5. Create stream
+        let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
+            Ok(s) => s,
+            Err(e) => {
+                eprintln!("Error creating stream: {}", e);
+                return false;
+            }
+        };
 
-        match stream {
-            Ok(stream) => {
-                unsafe {
-                    launch!(compare<<<(self.grid_rows,1,1), self.block_1d, 0, stream>>>(
-                        self.device_buffer.as_device_ptr(),
-                        other.device_buffer.as_device_ptr(),
-                        (self.get_shape()[0] * self.get_shape()[1]) as i32,
-                        result_device.as_device_ptr(),
-                    ));
-                }
+        // 6. Launch the kernel
+        unsafe {
+            launch!(compare<<<(grid_1d, 1, 1), threads_per_block, 0, stream>>>(
+                self.device_buffer.as_device_ptr(),
+                other.device_buffer.as_device_ptr(),
+                total_size_i32, // Use the correct calculated size
+                result_device.as_device_ptr(),
+            ));
+        }
 
-                stream.synchronize();
+        // 7. Synchronize stream
+        if let Err(e) = stream.synchronize() {
+            eprintln!("Error synchronizing stream: {}", e);
+            return false;
+        }
 
+        // 8. Copy result back from GPU to CPU (CRITICAL FIX)
+        match result_device.copy_to(&mut result_host) {
+            Ok(_) => {
+                // If the value copied back is 1, they are equal.
                 result_host[0] == 1
             }
             Err(e) => {
-                println!("{}", e.to_string());
+                eprintln!("Error copying result from device to host: {}", e);
                 false
             }
         }

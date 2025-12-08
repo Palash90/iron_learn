@@ -10,15 +10,15 @@
 .target sm_52
 .address_size 64
 
-	// .globl	vectorSub
+	// .globl	vector_add
 // _ZZ14accuracyKernelE13block_correct has been demoted
 
-.visible .entry vectorSub(
-	.param .u64 vectorSub_param_0,
-	.param .u64 vectorSub_param_1,
-	.param .u64 vectorSub_param_2,
-	.param .u32 vectorSub_param_3,
-	.param .u32 vectorSub_param_4
+.visible .entry vector_add(
+	.param .u64 vector_add_param_0,
+	.param .u64 vector_add_param_1,
+	.param .u64 vector_add_param_2,
+	.param .u32 vector_add_param_3,
+	.param .u32 vector_add_param_4
 )
 {
 	.reg .pred 	%p<3>;
@@ -27,11 +27,11 @@
 	.reg .b64 	%rd<11>;
 
 
-	ld.param.u64 	%rd2, [vectorSub_param_0];
-	ld.param.u64 	%rd3, [vectorSub_param_1];
-	ld.param.u64 	%rd4, [vectorSub_param_2];
-	ld.param.u32 	%r3, [vectorSub_param_3];
-	ld.param.u32 	%r2, [vectorSub_param_4];
+	ld.param.u64 	%rd2, [vector_add_param_0];
+	ld.param.u64 	%rd3, [vector_add_param_1];
+	ld.param.u64 	%rd4, [vector_add_param_2];
+	ld.param.u32 	%r3, [vector_add_param_3];
+	ld.param.u32 	%r2, [vector_add_param_4];
 	mov.u32 	%r4, %ntid.x;
 	mov.u32 	%r5, %ctaid.x;
 	mov.u32 	%r6, %tid.x;
