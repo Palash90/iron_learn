@@ -172,7 +172,38 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _gpu_mul(&self, rhs: &Self) -> Result<Self, String> {
-        unimplemented!("Need to call GemmV");
+        // Set up common block size
+        let block_dim = 16;
+
+        // Calculate grid size using ceiling division
+        let grid_x = (rhs.shape[1] + block_dim - 1) / block_dim;
+        let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
+
+        let total_elements = self.shape[0] * rhs.shape[1];
+
+        let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
+
+        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+
+        let mat_mul = match self.module.get_function("matrixMul") {
+            Ok(m) => m,
+            Err(e) => return Err(e.to_string()),
+        };
+
+        unsafe {
+            launch!(mat_mul<<<(grid_x, grid_y, 1), (block_dim, block_dim, 1), 0, stream>>>(
+                self.device_buffer.as_device_ptr(),
+                rhs.device_buffer.as_device_ptr(),
+                result.as_device_ptr(),
+                self.shape[0] as i32,
+                rhs.shape[1] as i32,
+                self.shape[1] as i32
+            ));
+        }
+
+        stream.synchronize();
+        let result_shape = vec![self.shape[0], rhs.shape[1]];
+        Ok(Self::_with_device_buffer(result_shape, result))
     }
 
     fn _mul(&self, rhs: &Self) -> Result<Self, String> {
@@ -287,7 +318,7 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
             return true; // Two empty tensors are equal
         }
 
-        let total_size_i32 = element_count as i32;
+        let total_size = element_count as u64;
         let threads_per_block = 1024;
 
         let grid_1d = (element_count + threads_per_block - 1) / threads_per_block;
@@ -326,7 +357,7 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
             launch!(compare<<<(grid_1d, 1, 1), threads_per_block, 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 other.device_buffer.as_device_ptr(),
-                total_size_i32, // Use the correct calculated size
+                total_size, // Use the correct calculated size
                 result_device.as_device_ptr(),
             ));
         }

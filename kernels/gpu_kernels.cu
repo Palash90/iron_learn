@@ -172,3 +172,42 @@ extern "C" __global__ void transpose_naive(const float *A, float *B, int M, int 
         B[index_b] = A[index_a];
     }
 }
+
+extern "C" __global__ void matrixMul(
+    const double *A,  // Matrix A (M x K)
+    const double *B,  // Matrix B (K x N)
+    double *C,        // Result Matrix C (M x N)
+    int M,            // Height of C (rows of A)
+    int N,            // Width of C (columns of B)
+    int K             // Inner dimension
+)
+{
+    // Map thread indices to the row and column of the output matrix C.
+    // row (i) is calculated along the Y dimension (BlockIdx.y, ThreadIdx.y)
+    // col (j) is calculated along the X dimension (BlockIdx.x, ThreadIdx.x)
+    
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Check bounds: Ensure the thread is within the dimensions of the result matrix C (M x N)
+    if (row < M && col < N) {
+        
+        double sum = 0.0;
+        
+        // Loop over the inner dimension K to compute the dot product
+        // C[row][col] = sum over k ( A[row][k] * B[k][col] )
+        for (int k = 0; k < K; ++k) {
+            
+            // A[row][k] is at index (row * K + k)
+            double a_val = A[row * K + k];
+            
+            // B[k][col] is at index (k * N + col)
+            double b_val = B[k * N + col];
+            
+            sum += a_val * b_val;
+        }
+
+        // Write the result to the output matrix C[row][col]
+        C[row * N + col] = sum;
+    }
+}
