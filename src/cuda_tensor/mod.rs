@@ -21,7 +21,10 @@ where
 {
     pub fn print_matrix(&self) {
         let rows = self.shape[0] as usize;
-        let cols = self.shape[1] as usize;
+        let cols = match self.shape.len() {
+            2 => self.shape[1] as usize,
+            _ => 1,
+        };
 
         for r in 0..rows {
             for c in 0..cols {
@@ -48,7 +51,12 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _data(&self) -> Vec<T> {
-        let mut data = vec![T::zero(); (self.shape[0] * self.shape[1]) as usize];
+        let total_elements = match self.shape.len() {
+            2 => (self.shape[0] * self.shape[1]) as usize,
+            _ => self.shape[0] as usize,
+        };
+
+        let mut data = vec![T::zero(); (total_elements) as usize];
 
         self.device_buffer.copy_to(&mut data);
         data

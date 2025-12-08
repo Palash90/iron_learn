@@ -29,7 +29,15 @@ pub fn add_i8() {
     let m2 = GpuTensor::new(vec![1], vec![3i8]).unwrap();
     let result = GpuTensor::new(vec![1], vec![4i8]).unwrap();
 
-    assert_eq!(result, (m1 + m2).unwrap());
+    m1.print_matrix();
+    m2.print_matrix();
+
+    let m3 = (m1 + m2).unwrap();
+
+    m3.print_matrix();
+    result.print_matrix();
+
+    assert_eq!(result, m3);
 
     let m1 = GpuTensor::<i8>::new(vec![1, 2], vec![1i8, 2i8]).unwrap();
     let m2 = GpuTensor::new(vec![1, 2], vec![3i8, 4i8]).unwrap();

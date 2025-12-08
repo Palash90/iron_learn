@@ -207,7 +207,7 @@ pub fn run_logistics_cuda() -> cust::error::CudaResult<()> {
     // Retrieve kernel function references
     let gemv = module.get_function("gemvRowMajor")?;
     let sigmoid = module.get_function("sigmoidKernel")?;
-    let vector_sub = module.get_function("vectorSub")?;
+    let vector_sub = module.get_function("vector_add")?;
     let scale_vec = module.get_function("scaleVector")?;
     let update_w = module.get_function("updateWeights")?;
     // Compute gradient via matrix-transpose multiplication: grad = X^T · loss_vector
@@ -372,7 +372,7 @@ pub fn run_linear_cuda() -> cust::error::CudaResult<()> {
 
     // Retrieve kernel function references
     let gemv = module.get_function("gemvRowMajor")?;
-    let vector_sub = module.get_function("vectorSub")?;
+    let vector_sub = module.get_function("vector_add")?;
     let scale_vec = module.get_function("scaleVector")?;
     let update_w = module.get_function("updateWeights")?;
     let grad_xt = module.get_function("gradGemvXT")?;
