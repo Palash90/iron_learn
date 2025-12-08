@@ -307,7 +307,7 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
         let mut result_device = match DeviceBuffer::from_slice(&result_host) {
             Ok(device_buf) => device_buf,
             Err(e) => {
-                eprintln!("Error creating device buffer for result: {}", e);
+                eprintln!("Error creating device buffer for result: {:?}", e);
                 return false;
             }
         };
@@ -340,6 +340,7 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
         // 8. Copy result back from GPU to CPU (CRITICAL FIX)
         match result_device.copy_to(&mut result_host) {
             Ok(_) => {
+                println!("Copied from device to host {:?}", result_host);
                 // If the value copied back is 1, they are equal.
                 result_host[0] == 1
             }

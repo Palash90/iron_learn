@@ -672,7 +672,7 @@ $L__BB7_9:
 {
 	.reg .pred 	%p<3>;
 	.reg .b32 	%r<6>;
-	.reg .f64 	%fd<3>;
+	.reg .f64 	%fd<5>;
 	.reg .b64 	%rd<12>;
 
 
@@ -695,7 +695,9 @@ $L__BB7_9:
 	add.s64 	%rd10, %rd9, %rd7;
 	ld.global.f64 	%fd1, [%rd10];
 	ld.global.f64 	%fd2, [%rd8];
-	setp.eq.f64 	%p2, %fd2, %fd1;
+	sub.f64 	%fd3, %fd2, %fd1;
+	abs.f64 	%fd4, %fd3;
+	setp.leu.f64 	%p2, %fd4, 0d3E112E0BE826D695;
 	@%p2 bra 	$L__BB8_3;
 
 	cvta.to.global.u64 	%rd11, %rd4;
