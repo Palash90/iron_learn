@@ -36,18 +36,79 @@ where
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
-    pub fn _exp(operand: &Self) {
-        unimplemented!("Tensor Exponential unimplemented");
+    pub fn _exp(&self) -> Result<Self, String> {
+                // Set up common block size
+        let block_dim = 16;
+
+        // Calculate grid size using ceiling division
+        let grid_x = (self.shape[1] + block_dim - 1) / block_dim;
+        let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
+
+        let total_elements = match self.shape.len() {
+            2 => self.shape[0] * self.shape[1],
+            _ => self.shape[0]
+        };
+
+        let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
+
+        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+
+        let exp = match self.module.get_function("element_exp") {
+            Ok(m) => m,
+            Err(e) => return Err(e.to_string()),
+        };
+
+        unsafe {
+            launch!(exp<<<(grid_x, grid_y, 1), (block_dim, block_dim, 1), 0, stream>>>(
+                self.device_buffer.as_device_ptr(),
+                result.as_device_ptr(),
+                total_elements as i32
+            ));
+        }
+
+        stream.synchronize();
+        Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
     fn _t(&self) -> Result<Self, String> {
-        if self.shape.len() > 2 {
+        if self.shape.len() != 2 {
             return Err("Only 2D tensors can be transposed.".to_string());
         }
 
+        let transpose = match self.module.get_function("transpose_naive") {
+            Ok(m) => m,
+            Err(e) => return Err(e.to_string()),
+        };
+
+        let total_elements = self.shape[0] * self.shape[1];
+        let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
         let new_shape = vec![self.shape[1], self.shape[0]];
 
-        unimplemented!("Tensor Transpose Unimplemented");
+        const BLOCK_DIM_X: u32 = 16;
+        const BLOCK_DIM_Y: u32 = 16;
+
+        let m = self.shape[0] as i32;
+        let n = self.shape[1] as i32;
+
+        let grid_x = (n as u32 + BLOCK_DIM_X - 1) / BLOCK_DIM_X;
+        let grid_y = (m as u32 + BLOCK_DIM_Y - 1) / BLOCK_DIM_Y;
+
+        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+
+        unsafe {
+            launch!(transpose<<<(grid_x, grid_y, 1), (BLOCK_DIM_X, BLOCK_DIM_Y, 1), 0, stream>>>(
+                self.device_buffer.as_device_ptr(),
+                result.as_device_ptr(),
+                m,
+                n
+                )
+
+            );
+        }
+
+        stream.synchronize();
+
+        Ok(Self::_with_device_buffer(new_shape, result))
     }
 
     fn _data(&self) -> Vec<T> {
@@ -168,7 +229,47 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     pub fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
-        unimplemented!();
+        if self.shape != rhs.shape {
+            let s = format!(
+                "ShapeMismatch:The dimensions of two matrices are not compatible for hadamard product- {:?} {:?}",
+                self.shape, rhs.shape
+            );
+            return Err(s);
+        }
+
+        // Set up common block size
+        let block_dim = 16;
+
+        // Calculate grid size using ceiling division
+        let grid_x = (rhs.shape[1] + block_dim - 1) / block_dim;
+        let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
+
+        let total_elements = match self.shape.len() {
+            2 => self.shape[0] * self.shape[1],
+            _ => self.shape[0]
+        };
+
+        let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
+
+        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+
+        let hadamard = match self.module.get_function("hadamardProd") {
+            Ok(m) => m,
+            Err(e) => return Err(e.to_string()),
+        };
+
+        unsafe {
+            launch!(hadamard<<<(grid_x, grid_y, 1), (block_dim, block_dim, 1), 0, stream>>>(
+                self.device_buffer.as_device_ptr(),
+                rhs.device_buffer.as_device_ptr(),
+                result.as_device_ptr(),
+                total_elements as i32
+            ));
+        }
+
+        stream.synchronize();
+        Ok(Self::_with_device_buffer(self.shape.clone(), result))
+    
     }
 
     fn _gpu_mul(&self, rhs: &Self) -> Result<Self, String> {
@@ -224,8 +325,8 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
-    pub fn exp(operand: &Self) {
-        Self::_exp(operand)
+    pub fn exp(&self) -> Result<Self, String> {
+        self._exp()
     }
 
     pub fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
@@ -245,10 +346,19 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
     pub fn sum(&self) -> Result<Self, String> {
         let mut sum_vector = vec![T::zero(); self.shape[1] as usize];
+
         let rows = self.shape[0] as usize;
         let cols = self.shape[1] as usize;
 
-        unimplemented!();
+        let data = self.get_data();
+        
+        for r in 0..rows {
+            for c in 0..cols {
+                sum_vector[c] = sum_vector[c] + data[r * cols + c];
+            }
+        }
+
+        Self::new(vec![1, self.shape[1]], sum_vector)
     }
 
     pub fn sub(&self, rhs: &Self) -> Result<Self, String> {

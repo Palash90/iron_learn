@@ -26,6 +26,15 @@ extern "C" __global__ void scaleVector(double *v, double scale, int n)
     }
 }
 
+extern "C" __global__ void element_exp(const double *s, double *r, double scale, int n)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < n)
+    {
+        r[idx] = exp(s[idx]);
+    }
+}
+
 extern "C" __global__ void updateWeights(double *w, const double *grad, int n)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -153,23 +162,12 @@ extern "C" __global__ void compareMemory(const double *a, const double *b, size_
 
 extern "C" __global__ void transpose_naive(const float *A, float *B, int M, int N)
 {
-    // 1. Calculate the coordinates (row, col) for the output matrix B
-    int col_b = blockIdx.x * blockDim.x + threadIdx.x; // Column index in B
-    int row_b = blockIdx.y * blockDim.y + threadIdx.y; // Row index in B
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
 
-    // Check if the thread is within the bounds of the output matrix B (N x M)
-    if (row_b < N && col_b < M)
+    if (row < M && col < N)
     {
-        // 2. Transposition Rule: B[row_b][col_b] = A[col_b][row_b]
-
-        // Input Matrix A (M x N) index: row_a = col_b, col_a = row_b
-        int index_a = col_b * N + row_b;
-
-        // Output Matrix B (N x M) index:
-        int index_b = row_b * M + col_b;
-
-        // Perform the transpose
-        B[index_b] = A[index_a];
+        B[col * M + row] = A[row * N + col];
     }
 }
 
@@ -209,5 +207,98 @@ extern "C" __global__ void matrixMul(
 
         // Write the result to the output matrix C[row][col]
         C[row * N + col] = sum;
+    }
+}
+
+extern "C" __global__ void hadamardProd(const double *A, const double *B, double *C, int n)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < n)
+    {
+        C[idx] = A[idx] * B[idx];
+    }
+}
+
+extern "C" __global__ void reluKernel(const double *in, double *out, int n)
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n)
+    {
+        // Equivalent to out[i] = (in[i] > 0.0) ? in[i] : 0.0;
+        out[i] = fmax(0.0, in[i]);
+    }
+}
+
+extern "C" __global__ void reluDerivativeKernel(const double *in, double *out, int n)
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n)
+    {
+        // out[i] = (in[i] > 0.0) ? 1.0 : 0.0;
+        out[i] = (in[i] > 0.0) ? 1.0 : 0.0;
+    }
+}
+
+extern "C" __global__ void sigmoidPrimeKernel(const double *S, double *out, int n)
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n)
+    {
+        // S is the sigmoid output S(x)
+        out[i] = S[i] * (1.0 - S[i]);
+    }
+}
+
+extern "C" __global__ void sumReductionKernel(const double *in, double *out, int n)
+{
+    // Uses a simple shared memory reduction within each block
+    __shared__ double sdata[1024]; // Assuming max blockDim.x is 1024
+
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int tid = threadIdx.x;
+    
+    // Load data into shared memory
+    sdata[tid] = (idx < n) ? in[idx] : 0.0;
+    __syncthreads();
+
+    // Perform reduction in shared memory
+    for (unsigned int s = blockDim.x / 2; s > 0; s /= 2)
+    {
+        if (tid < s)
+        {
+            sdata[tid] += sdata[tid + s];
+        }
+        __syncthreads();
+    }
+
+    // Write result of block to global memory (out)
+    if (tid == 0)
+    {
+        // Note: 'out' must be sized to have one element per block (gridDim.x)
+        out[blockIdx.x] = sdata[0];
+    }
+}
+
+extern "C" __global__ void logLossDerivativeKernel(
+    const double *predicted, 
+    const double *actual, 
+    double *out, 
+    int n)
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n)
+    {
+        double p = predicted[i];
+        double a = actual[i];
+        
+        // Use a constant for epsilon
+        const double EPSILON = 1e-15;
+
+        // Clip predicted values for stability
+        if (p < EPSILON) p = EPSILON;
+        if (p > (1.0 - EPSILON)) p = (1.0 - EPSILON);
+
+        // Calculate derivative: -(a / p) + (1.0 - a) / (1.0 - p)
+        out[i] = -(a / p) + (1.0 - a) / (1.0 - p);
     }
 }
