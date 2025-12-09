@@ -18,12 +18,10 @@
 //! - `data_file`: Path to JSON data file (default: data.json)
 
 use cust::prelude::Module;
-use iron_learn::{
-    init_context, run_linear, run_logistic, GpuTensor, Tensor, GLOBAL_CONTEXT,
-};
-use std::env;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
+use iron_learn::{init_context, run_linear, run_logistic, GpuTensor, Tensor, GLOBAL_CONTEXT};
+use std::env;
 
 /// Parse command-line arguments and configure the application
 ///
@@ -132,13 +130,13 @@ fn main() {
     // Execute appropriate training pipeline
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
-        run_linear::<GpuTensor<f64>>();
-        run_logistic::<GpuTensor<f64>>();
+        let _ = run_linear::<GpuTensor<f64>>();
+        let _ = run_logistic::<GpuTensor<f64>>();
         println!("\n✓ All training tasks completed");
     } else {
         println!("Running CPU-based training...\n");
-        run_linear::<Tensor<f64>>();
-        run_logistic::<Tensor<f64>>();
+        let _ = run_linear::<Tensor<f64>>();
+        let _ = run_logistic::<Tensor<f64>>();
         println!("\n✓ All training tasks completed");
     }
 }

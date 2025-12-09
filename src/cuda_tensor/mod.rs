@@ -1,5 +1,5 @@
 use crate::numeric::{Numeric, SignedNumeric};
-use crate::{init_context, GLOBAL_CONTEXT};
+use crate::GLOBAL_CONTEXT;
 use std::ops::{Add, Mul, Neg, Sub};
 
 use cust::launch;
@@ -519,6 +519,8 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 }
 
+
+use crate::init_context;
 #[cfg(test)]
 #[test]
 fn test_new() {
