@@ -15,10 +15,11 @@ pub struct GpuTensor<T: Numeric> {
     shape: Vec<u32>,
     device_buffer: DeviceBuffer<T>,
 }
-
+#[derive(Clone, Copy)]
 enum OpType {
-    EXP,
-    SCALE,
+    EXP = 0,
+    SCALE = 1,
+    SIN = 2
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T>
@@ -65,17 +66,12 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             Err(e) => return Err(e.to_string()),
         };
 
-        let op = match op_type {
-            OpType::EXP => 0,
-            OpType::SCALE => 1,
-        };
-
         unsafe {
             launch!(operation<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
                 total_elements as i32,
-                op,
+                op_type as i32,
                 scale
             ));
         };
@@ -351,6 +347,9 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
+    pub fn sin(&self) -> Result<Self, String> {
+        self.element_op(OpType::SIN, T::zero())
+    }
     pub fn exp(&self) -> Result<Self, String> {
         self.element_op(OpType::EXP, T::zero())
     }

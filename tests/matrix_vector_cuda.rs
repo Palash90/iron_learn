@@ -152,6 +152,20 @@ pub fn scale_float() {
     assert_eq!(result, m2);
 }
 
+#[test]
+pub fn sin_float() {
+    init();
+
+    let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
+    let m2 = m1.sin().unwrap();
+    let result = GpuTensor::new(vec![2, 2], vec![f64::sin(1.0), f64::sin(2.0), f64::sin(-3.0), f64::sin(4.0)]).unwrap();
+
+    m2.print_matrix();
+    result.print_matrix();
+
+    assert_eq!(result, m2);
+}
+
 
 #[test]
 pub fn transpose() {

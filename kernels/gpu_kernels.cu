@@ -31,15 +31,22 @@ extern "C" __global__ void element_op(const double *s, double *r, int n, int op,
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n)
     {
-        if(op == 0){
+        if (op == 0)
+        {
             r[idx] = exp(s[idx]);
-        } else {
+        }
+
+        if (op == 1)
+        {
             r[idx] = s[idx] * scale;
         }
-        
+
+        if (op == 2)
+        {
+            r[idx] = sin(s[idx]);
+        }
     }
 }
-
 
 extern "C" __global__ void updateWeights(double *w, const double *grad, int n)
 {
@@ -178,36 +185,38 @@ extern "C" __global__ void transpose_naive(const double *A, double *B, int M, in
 }
 
 extern "C" __global__ void matrixMul(
-    const double *A,  // Matrix A (M x K)
-    const double *B,  // Matrix B (K x N)
-    double *C,        // Result Matrix C (M x N)
-    int M,            // Height of C (rows of A)
-    int N,            // Width of C (columns of B)
-    int K             // Inner dimension
+    const double *A, // Matrix A (M x K)
+    const double *B, // Matrix B (K x N)
+    double *C,       // Result Matrix C (M x N)
+    int M,           // Height of C (rows of A)
+    int N,           // Width of C (columns of B)
+    int K            // Inner dimension
 )
 {
     // Map thread indices to the row and column of the output matrix C.
     // row (i) is calculated along the Y dimension (BlockIdx.y, ThreadIdx.y)
     // col (j) is calculated along the X dimension (BlockIdx.x, ThreadIdx.x)
-    
+
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
 
     // Check bounds: Ensure the thread is within the dimensions of the result matrix C (M x N)
-    if (row < M && col < N) {
-        
+    if (row < M && col < N)
+    {
+
         double sum = 0.0;
-        
+
         // Loop over the inner dimension K to compute the dot product
         // C[row][col] = sum over k ( A[row][k] * B[k][col] )
-        for (int k = 0; k < K; ++k) {
-            
+        for (int k = 0; k < K; ++k)
+        {
+
             // A[row][k] is at index (row * K + k)
             double a_val = A[row * K + k];
-            
+
             // B[k][col] is at index (k * N + col)
             double b_val = B[k * N + col];
-            
+
             sum += a_val * b_val;
         }
 
@@ -262,7 +271,7 @@ extern "C" __global__ void sumReductionKernel(const double *in, double *out, int
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     int tid = threadIdx.x;
-    
+
     // Load data into shared memory
     sdata[tid] = (idx < n) ? in[idx] : 0.0;
     __syncthreads();
@@ -286,9 +295,9 @@ extern "C" __global__ void sumReductionKernel(const double *in, double *out, int
 }
 
 extern "C" __global__ void logLossDerivativeKernel(
-    const double *predicted, 
-    const double *actual, 
-    double *out, 
+    const double *predicted,
+    const double *actual,
+    double *out,
     int n)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -296,13 +305,15 @@ extern "C" __global__ void logLossDerivativeKernel(
     {
         double p = predicted[i];
         double a = actual[i];
-        
+
         // Use a constant for epsilon
         const double EPSILON = 1e-15;
 
         // Clip predicted values for stability
-        if (p < EPSILON) p = EPSILON;
-        if (p > (1.0 - EPSILON)) p = (1.0 - EPSILON);
+        if (p < EPSILON)
+            p = EPSILON;
+        if (p > (1.0 - EPSILON))
+            p = (1.0 - EPSILON);
 
         // Calculate derivative: -(a / p) + (1.0 - a) / (1.0 - p)
         out[i] = -(a / p) + (1.0 - a) / (1.0 - p);
