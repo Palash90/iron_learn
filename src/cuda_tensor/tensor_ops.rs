@@ -1,11 +1,11 @@
 use crate::cuda_tensor::OpType;
 use crate::cuda_tensor::Zeroable;
-use crate::tensor_commons::TensorOps;
+use crate::tensor::Tensor;
 use crate::GpuTensor;
 use crate::Numeric;
 use crate::GLOBAL_CONTEXT;
 
-impl<T: Numeric + Zeroable> TensorOps<T> for GpuTensor<T> {
+impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     fn get_shape(&self) -> &Vec<u32> {
         &self.shape
     }

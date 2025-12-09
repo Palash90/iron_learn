@@ -1,6 +1,6 @@
-use crate::tensor_commons::TensorOps;
+use crate::tensor::Tensor;
 
-pub fn add_bias_term<T: TensorOps<f64>>(x: &T) -> Result<T, String> {
+pub fn add_bias_term<T: Tensor<f64>>(x: &T) -> Result<T, String> {
     let shape = x.get_shape();
     let m = shape[0] as usize;
     let n = shape[1] as usize;
@@ -17,7 +17,7 @@ pub fn add_bias_term<T: TensorOps<f64>>(x: &T) -> Result<T, String> {
     T::new(vec![shape[0], shape[1] + 1], data)
 }
 
-pub fn gradient_descent<T: TensorOps<f64>>(
+pub fn gradient_descent<T: Tensor<f64>>(
     x: &T,
     y: &T,
     w: &T,
@@ -42,7 +42,7 @@ pub fn gradient_descent<T: TensorOps<f64>>(
     w.sub(&d)
 }
 
-pub fn linear_regression<T: TensorOps<f64>>(
+pub fn linear_regression<T: Tensor<f64>>(
     x: &T,
     y: &T,
     w: T,
@@ -58,7 +58,7 @@ pub fn linear_regression<T: TensorOps<f64>>(
     Ok(gradient_descent(&x_with_bias, y, &weight, l, false).unwrap())
 }
 
-pub fn logistic_regression<T: TensorOps<f64>>(
+pub fn logistic_regression<T: Tensor<f64>>(
     x: &T,
     y: &T,
     w: T,
@@ -75,12 +75,12 @@ pub fn logistic_regression<T: TensorOps<f64>>(
     Ok(gradient_descent(&x_with_bias, y, &weight, l, true).unwrap())
 }
 
-pub fn predict_linear<T: TensorOps<f64>>(x: &T, w: &T) -> Result<T, String> {
+pub fn predict_linear<T: Tensor<f64>>(x: &T, w: &T) -> Result<T, String> {
     let x_with_bias = add_bias_term(x)?;
     x_with_bias.mul(w)
 }
 
-pub fn predict_logistic<T: TensorOps<f64>>(x: &T, w: &T) -> Result<T, String> {
+pub fn predict_logistic<T: Tensor<f64>>(x: &T, w: &T) -> Result<T, String> {
     let x_with_bias = add_bias_term(x)?;
 
     let z = x_with_bias.mul(w)?;

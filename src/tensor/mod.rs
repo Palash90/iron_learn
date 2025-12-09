@@ -1,6 +1,6 @@
 use crate::Numeric;
 
-pub trait TensorOps<T: Numeric>: Sized {
+pub trait Tensor<T: Numeric>: Sized {
     // Methods required for general tensor algebra (borrowing)
     fn get_shape(&self) -> &Vec<u32>;
     fn mul(&self, rhs: &Self) -> Result<Self, String>;

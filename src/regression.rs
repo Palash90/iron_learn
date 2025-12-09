@@ -1,7 +1,7 @@
 use crate::normalizer::normalize_features_mean_std;
 use crate::normalizer::denormalize_features;
 use crate::normalize_features;
-use crate::tensor_commons::TensorOps;
+use crate::tensor::Tensor;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use crate::{CpuTensor, GLOBAL_CONTEXT};
 use serde::{Deserialize, Serialize};
@@ -25,7 +25,7 @@ pub struct Data {
     pub neural_network: XY,
 }
 
-pub fn run_logistic<T: TensorOps<f64>>() -> Result<(), String> {
+pub fn run_logistic<T: Tensor<f64>>() -> Result<(), String> {
     let l = GLOBAL_CONTEXT
         .get()
         .ok_or("GLOBAL_CONTEXT not initialized")?
@@ -81,7 +81,7 @@ pub fn run_logistic<T: TensorOps<f64>>() -> Result<(), String> {
     Ok(())
 }
 
-pub fn run_linear<T: TensorOps<f64>>() -> Result<(), String> {
+pub fn run_linear<T: Tensor<f64>>() -> Result<(), String> {
     let l = GLOBAL_CONTEXT
         .get()
         .ok_or("GLOBAL_CONTEXT not initialized")?

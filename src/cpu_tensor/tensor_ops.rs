@@ -1,8 +1,8 @@
 use crate::numeric::Numeric;
 use crate::cpu_tensor::CpuTensor;
-use crate::tensor_commons::TensorOps;
+use crate::tensor::Tensor;
 
-impl<T: Numeric + 'static> TensorOps<T> for CpuTensor<T>
+impl<T: Numeric + 'static> Tensor<T> for CpuTensor<T>
 where
     CpuTensor<T>: From<CpuTensor<f64>>,
 {

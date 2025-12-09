@@ -9,7 +9,7 @@ mod numeric;
 mod read_file;
 mod regression;
 mod cpu_tensor;
-mod tensor_commons;
+mod tensor;
 
 pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::complex::Complex;
