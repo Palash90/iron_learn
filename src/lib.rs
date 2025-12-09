@@ -8,7 +8,7 @@ mod normalizer;
 mod numeric;
 mod read_file;
 mod regression;
-mod tensor;
+mod cpu_tensor;
 mod tensor_commons;
 
 pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
@@ -25,4 +25,4 @@ pub use crate::numeric::Numeric;
 pub use crate::regression::Data;
 pub use crate::regression::XY;
 pub use crate::regression::{run_linear, run_logistic};
-pub use crate::tensor::CpuTensor;
+pub use crate::cpu_tensor::CpuTensor;

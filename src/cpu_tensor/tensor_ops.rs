@@ -1,5 +1,5 @@
 use crate::numeric::Numeric;
-use crate::tensor::CpuTensor;
+use crate::cpu_tensor::CpuTensor;
 use crate::tensor_commons::TensorOps;
 
 impl<T: Numeric + 'static> TensorOps<T> for CpuTensor<T>

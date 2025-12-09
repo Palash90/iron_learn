@@ -140,7 +140,7 @@ fn log_loss(predicted: &CpuTensor<f64>, actual: &CpuTensor<f64>) -> f64 {
         .collect();
     let mut loss = 0.0;
     for (p, a) in clipped_preds.iter().zip(actual.get_data().iter()) {
-        loss += -a * p.ln() - (1.0 - a) * (1.0 - p).ln();
+        loss += -a * p.ln() - (1.0f64 - a) * (1.0f64 - p).ln();
     }
     loss / (predicted.get_data().len() as f64)
 }

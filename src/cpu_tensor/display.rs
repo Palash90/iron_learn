@@ -1,5 +1,5 @@
 use crate::numeric::Numeric;
-use crate::tensor::CpuTensor;
+use crate::cpu_tensor::CpuTensor;
 use std::fmt;
 
 impl<T: Numeric + fmt::Display> fmt::Display for CpuTensor<T> {
