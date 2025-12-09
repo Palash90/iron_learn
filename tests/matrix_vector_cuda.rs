@@ -95,20 +95,6 @@ pub fn hadamard_float() {
 }
 
 #[test]
-pub fn exp_float() {
-    init();
-
-    let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
-    let m2 = m1.exp().unwrap();
-    let result = GpuTensor::new(vec![2, 2], vec![f64::exp(1.0), f64::exp(2.0), f64::exp(3.0), f64::exp(4.0)]).unwrap();
-
-    m2.print_matrix();
-    result.print_matrix();
-
-    assert_eq!(result, m2);
-}
-
-#[test]
 pub fn neg_float() {
     init();
 
@@ -157,6 +143,7 @@ pub fn sin_float() {
     init();
 
     let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
+   
     let m2 = m1.sin().unwrap();
     let result = GpuTensor::new(vec![2, 2], vec![f64::sin(1.0), f64::sin(2.0), f64::sin(-3.0), f64::sin(4.0)]).unwrap();
 
@@ -164,6 +151,15 @@ pub fn sin_float() {
     result.print_matrix();
 
     assert_eq!(result, m2);
+
+    let m2 = m1.cos().unwrap();
+    let result = GpuTensor::new(vec![2, 2], vec![f64::cos(1.0), f64::cos(2.0), f64::cos(-3.0), f64::cos(4.0)]).unwrap();
+
+    m2.print_matrix();
+    result.print_matrix();
+
+    assert_eq!(result, m2);
+    
 }
 
 

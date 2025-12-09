@@ -83,20 +83,29 @@ where
     }
 }
 
+enum OpType {
+    EXP = 0,
+    SIN = 2,
+    COS = 3,
+    TAN = 4,
+    TANH = 5,
+}
 
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
 impl<T: Numeric> Tensor<T> {
-     fn _exp(operand: &Self) -> Tensor<f64> {
-        let result = operand.data.iter().map(|t| f64::exp(t.f64())).collect();
+    fn element_op(operand: &Self, op_type: OpType) -> Tensor<f64> {
+        let result = match op_type {
+            OpType::EXP => operand.data.iter().map(|t| f64::exp(t.f64())).collect(),
+            OpType::COS => operand.data.iter().map(|t| f64::cos(t.f64())).collect(),
+            OpType::SIN => operand.data.iter().map(|t| f64::sin(t.f64())).collect(),
+            OpType::TAN => operand.data.iter().map(|t| f64::tan(t.f64())).collect(),
+            OpType::TANH => operand.data.iter().map(|t| f64::tanh(t.f64())).collect(),
+        };
+
         Tensor::new(operand.shape.clone(), result).unwrap()
     }
 
-     fn _sin(operand: &Self) -> Tensor<f64> {
-        let result = operand.data.iter().map(|t| f64::sin(t.f64())).collect();
-        Tensor::new(operand.shape.clone(), result).unwrap()
-    }
-
-     fn _t(&self) -> Result<Self, String> {
+    fn _t(&self) -> Result<Self, String> {
         if self.shape.len() > 2 {
             return Err("Only upto 2D tensors can be transposed.".to_string());
         }
@@ -118,15 +127,15 @@ impl<T: Numeric> Tensor<T> {
             data: new_data,
         })
     }
-     fn _data(&self) -> Vec<T> {
+    fn _data(&self) -> Vec<T> {
         self.data.clone()
     }
 
-     fn _shape(&self) -> Vec<u32> {
+    fn _shape(&self) -> Vec<u32> {
         self.shape.clone()
     }
 
-     fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
+    fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
         let mut result = Vec::with_capacity(self.data.len());
 
         if self.shape != rhs.shape {
@@ -147,7 +156,7 @@ impl<T: Numeric> Tensor<T> {
         })
     }
 
-     fn check_shape(shape: &[u32]) -> Option<Result<Tensor<T>, String>> {
+    fn check_shape(shape: &[u32]) -> Option<Result<Tensor<T>, String>> {
         if shape.is_empty() {
             return Some(Err(
                 "ShapeError: Tensor must have at least one dimension.".to_string()
@@ -163,7 +172,7 @@ impl<T: Numeric> Tensor<T> {
         None
     }
 
-     fn calculate_length(shape: &Vec<u32>) -> u32 {
+    fn calculate_length(shape: &Vec<u32>) -> u32 {
         let mut size = 1;
 
         for i in shape {
@@ -172,7 +181,7 @@ impl<T: Numeric> Tensor<T> {
         size
     }
 
-     fn _new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
+    fn _new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         if let Some(value) = Self::check_shape(&shape) {
             return value;
         }
@@ -187,7 +196,7 @@ impl<T: Numeric> Tensor<T> {
         Ok(Self { shape, data })
     }
 
-     fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
+    fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
         let mut result = Vec::with_capacity(self.data.len());
 
         if self.shape != rhs.shape {
@@ -229,7 +238,7 @@ impl<T: Numeric> Tensor<T> {
         })
     }
 
-     fn _mul(&self, rhs: &Self) -> Result<Self, String> {
+    fn _mul(&self, rhs: &Self) -> Result<Self, String> {
         if self.shape[1] != rhs.shape[0] {
             let s = format!(
                 "ShapeMismatch:The dimensions of two matrices are not compatible for multiplication- {:?} {:?}",
@@ -241,7 +250,7 @@ impl<T: Numeric> Tensor<T> {
         self._cpu_mul(rhs)
     }
 
-     fn _s(&self, scalar: T) -> Self {
+    fn _s(&self, scalar: T) -> Self {
         let mut new_data = Vec::<T>::new();
 
         for i in self._data() {
@@ -254,7 +263,6 @@ impl<T: Numeric> Tensor<T> {
         }
     }
 }
-
 
 // The public API of Tensor type
 impl<T: Numeric> Tensor<T> {
@@ -275,11 +283,23 @@ impl<T: Numeric> Tensor<T> {
     /// ```
     ///
     pub fn exp(operand: &Self) -> Tensor<f64> {
-        Self::_exp(operand)
+        Self::element_op(operand, OpType::EXP)
     }
 
     pub fn sin(operand: &Self) -> Tensor<f64> {
-        Self::_sin(operand)
+        Self::element_op(operand, OpType::SIN)
+    }
+
+    pub fn cos(operand: &Self) -> Tensor<f64> {
+        Self::element_op(operand, OpType::COS)
+    }
+
+    pub fn tan(operand: &Self) -> Tensor<f64> {
+        Self::element_op(operand, OpType::TAN)
+    }
+
+    pub fn tanh(operand: &Self) -> Tensor<f64> {
+        Self::element_op(operand, OpType::TANH)
     }
 
     /// Constructs a new instance of a `Tensor`.

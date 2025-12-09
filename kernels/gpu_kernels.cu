@@ -45,6 +45,21 @@ extern "C" __global__ void element_op(const double *s, double *r, int n, int op,
         {
             r[idx] = sin(s[idx]);
         }
+
+         if (op == 3)
+        {
+            r[idx] = cos(s[idx]);
+        }
+
+         if (op == 4)
+        {
+            r[idx] = tan(s[idx]);
+        }
+
+         if (op == 5)
+        {
+            r[idx] = tanh(s[idx]);
+        }
     }
 }
 

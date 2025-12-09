@@ -10,10 +10,13 @@ use cust::stream::StreamFlags;
 use cust::{device, memory::CopyDestination, prelude::DeviceBuffer};
 
 #[derive(Clone, Copy)]
-pub enum OpType {
+enum OpType {
     EXP = 0,
     SCALE = 1,
-    SIN = 2
+    SIN = 2,
+    COS = 3,
+    TAN = 4,
+    TANH = 5
 }
 
 #[derive(Debug)]
@@ -47,6 +50,20 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     pub fn sin(&self) -> Result<Self, String> {
         self.element_op(OpType::SIN, T::zero())
     }
+
+    pub fn cos(&self) -> Result<Self, String> {
+        self.element_op(OpType::COS, T::zero())
+    }
+
+    pub fn tan(&self) -> Result<Self, String> {
+        self.element_op(OpType::TAN, T::zero())
+    }
+
+    pub fn tanh(&self) -> Result<Self, String> {
+        self.element_op(OpType::TANH, T::zero())
+    }
+    
+
     pub fn exp(&self) -> Result<Self, String> {
         self.element_op(OpType::EXP, T::zero())
     }

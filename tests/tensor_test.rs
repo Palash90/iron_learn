@@ -86,11 +86,19 @@ pub fn transpose() {
 #[test]
 pub fn fn_test() {
     let m1 = Tensor::new(vec![1, 2], vec![1, 2]).unwrap();
-    let result = Tensor::new(vec![1, 2], vec![f64::sin(1.0), f64::sin(2.0)]).unwrap();
 
+    let result = Tensor::new(vec![1, 2], vec![f64::sin(1.0), f64::sin(2.0)]).unwrap();
     assert_eq!(result, Tensor::sin(&m1));
 
     let result = Tensor::new(vec![1, 2], vec![f64::exp(1.0), f64::exp(2.0)]).unwrap();
-
     assert_eq!(result, Tensor::exp(&m1));
+
+    let result = Tensor::new(vec![1, 2], vec![f64::cos(1.0), f64::cos(2.0)]).unwrap();
+    assert_eq!(result, Tensor::cos(&m1));
+
+    let result = Tensor::new(vec![1, 2], vec![f64::tan(1.0), f64::tan(2.0)]).unwrap();
+    assert_eq!(result, Tensor::tan(&m1));
+
+    let result = Tensor::new(vec![1, 2], vec![f64::tanh(1.0), f64::tanh(2.0)]).unwrap();
+    assert_eq!(result, Tensor::tanh(&m1));
 }
