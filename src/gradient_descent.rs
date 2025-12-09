@@ -45,32 +45,34 @@ pub fn gradient_descent<T: TensorOps<f64>>(
 pub fn linear_regression<T: TensorOps<f64>>(
     x: &T,
     y: &T,
-    w: &T,
+    w: T,
     l: f64,
     e: u32,
 ) -> Result<T, String> {
     let x_with_bias = add_bias_term(x)?;
+    let mut weight = w;
     for _ in 0..(e - 1) {
-        gradient_descent(&x_with_bias, y, w, l, false);
+        weight = gradient_descent(&x_with_bias, y, &weight, l, false).unwrap();
     }
 
-    Ok(gradient_descent(&x_with_bias, y, w, l, false).unwrap())
+    Ok(gradient_descent(&x_with_bias, y, &weight, l, false).unwrap())
 }
 
 pub fn logistic_regression<T: TensorOps<f64>>(
     x: &T,
     y: &T,
-    w: &T,
+    w: T,
     l: f64,
     e: u32,
 ) -> Result<T, String> {
     let x_with_bias = add_bias_term(x)?;
+    let mut weight = w;
 
     for _ in 0..(e - 1) {
-        gradient_descent(&x_with_bias, y, w, l, true);
+        weight = gradient_descent(&x_with_bias, y, &weight, l, true).unwrap();
     }
 
-    Ok(gradient_descent(&x_with_bias, y, w, l, true).unwrap())
+    Ok(gradient_descent(&x_with_bias, y, &weight, l, true).unwrap())
 }
 
 pub fn predict_linear<T: TensorOps<f64>>(x: &T, w: &T) -> Result<T, String> {

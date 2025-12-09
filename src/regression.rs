@@ -1,3 +1,6 @@
+use crate::normalizer::normalize_features_mean_std;
+use crate::normalizer::denormalize_features;
+use crate::normalize_features;
 use crate::tensor_commons::TensorOps;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use crate::{Tensor, GLOBAL_CONTEXT};
@@ -47,7 +50,7 @@ pub fn run_logistic<T: TensorOps<f64>>() -> Result<(), String> {
     let now = Instant::now();
     let iter10 = Instant::now();
 
-    w = logistic_regression(&x, &y, &w, l, e).unwrap();
+    w = logistic_regression(&x, &y, w, l, e).unwrap();
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);
 
@@ -98,11 +101,14 @@ pub fn run_linear<T: TensorOps<f64>>() -> Result<(), String> {
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
 
+    let (x, x_mean, x_std) = normalize_features_mean_std(&x);
+    let (y, y_mean, y_std) = normalize_features_mean_std(&y);
+
     let mut w = T::new(vec![xy.n + 1, 1], vec![0.0; (xy.n + 1) as usize])?;
 
     let now = Instant::now();
 
-    w = linear_regression(&x, &y, &w, l, e).unwrap();
+    w = linear_regression(&x, &y, w, l, e).unwrap();
 
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);
@@ -115,7 +121,11 @@ pub fn run_linear<T: TensorOps<f64>>() -> Result<(), String> {
     let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
     let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 
+    let x_test = normalize_features(&x_test, &x_mean, &x_std);
+
     let predictions = predict_linear(&x_test, &w)?;
+
+    let predictions = denormalize_features(&predictions, &y_mean, &y_std);
 
     let mut total_squared_error = 0.0;
     let total = xy.m_test as usize;

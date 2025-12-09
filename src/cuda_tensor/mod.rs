@@ -344,6 +344,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _data(&self) -> Vec<T> {
+        println!("Data call");
         let total_elements = match self.shape.len() {
             2 => (self.shape[0] * self.shape[1]) as usize,
             _ => self.shape[0] as usize,
@@ -426,6 +427,8 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
+        println!("New called");
+
         if let Some(value) = Self::check_shape(&shape) {
             return value;
         }
