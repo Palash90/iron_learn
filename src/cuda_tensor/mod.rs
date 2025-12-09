@@ -15,6 +15,12 @@ pub struct GpuTensor<T: Numeric> {
     shape: Vec<u32>,
     device_buffer: DeviceBuffer<T>,
 }
+
+enum OpType {
+    EXP,
+    SCALE,
+}
+
 impl<T: Numeric + Zeroable> GpuTensor<T>
 where
     T: Numeric,
@@ -36,7 +42,7 @@ where
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
-    pub fn _exp(&self) -> Result<Self, String> {
+    pub fn element_op(&self, op_type: OpType, scale: T) -> Result<Self, String> {
         // Set up common block size
         let block_dim = 16;
 
@@ -54,19 +60,25 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
 
-        let exp = match self.module.get_function("element_exp") {
+        let operation = match self.module.get_function("element_op") {
             Ok(m) => m,
             Err(e) => return Err(e.to_string()),
         };
 
+        let op = match op_type {
+            OpType::EXP => 0,
+            OpType::SCALE => 1,
+        };
+
         unsafe {
-            launch!(exp<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
+            launch!(operation<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
-                total_elements as i32
+                total_elements as i32,
+                op,
+                scale
             ));
-        }
-
+        };
         stream.synchronize();
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
@@ -78,8 +90,10 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         if self.shape.len() == 1 {
             unsafe {
-                let new_device_buffer =
-                    DeviceBuffer::from_raw_parts(self.device_buffer.as_device_ptr(), self.shape[0] as usize);
+                let new_device_buffer = DeviceBuffer::from_raw_parts(
+                    self.device_buffer.as_device_ptr(),
+                    self.shape[0] as usize,
+                );
 
                 return Ok(Self::_with_device_buffer(
                     self.shape.clone(),
@@ -334,15 +348,11 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         self._gpu_mul(rhs)
     }
-
-    fn _s(&self, scalar: T) -> Result<Self, String> {
-        unimplemented!();
-    }
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
     pub fn exp(&self) -> Result<Self, String> {
-        self._exp()
+        self.element_op(OpType::EXP, T::zero())
     }
 
     pub fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
@@ -394,7 +404,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     pub fn scale(&self, scalar: T) -> Result<Self, String> {
-        self._s(scalar)
+        self.element_op(OpType::SCALE, scalar)
     }
 }
 
@@ -425,7 +435,7 @@ impl<T: Numeric + Zeroable> Mul for GpuTensor<T> {
 impl<T: SignedNumeric + Zeroable> Neg for GpuTensor<T> {
     type Output = Result<Self, String>;
     fn neg(self) -> Result<Self, String> {
-        unimplemented!();
+        self.element_op(OpType::SCALE, -T::one())
     }
 }
 
@@ -514,7 +524,7 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
 fn test_new() {
     match cust::quick_init() {
         Ok(context) => {
-            eprintln!("✓ GPU initialization successful");
+            println!("✓ GPU initialization successful");
             init_context("Iron Learn", 5, String::new(), 0.0, 0, true, Some(context));
         }
         Err(e) => {

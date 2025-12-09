@@ -26,14 +26,20 @@ extern "C" __global__ void scaleVector(double *v, double scale, int n)
     }
 }
 
-extern "C" __global__ void element_exp(const double *s, double *r, int n)
+extern "C" __global__ void element_op(const double *s, double *r, int n, int op, double scale)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n)
     {
-        r[idx] = exp(s[idx]);
+        if(op == 0){
+            r[idx] = exp(s[idx]);
+        } else {
+            r[idx] = s[idx] * scale;
+        }
+        
     }
 }
+
 
 extern "C" __global__ void updateWeights(double *w, const double *grad, int n)
 {

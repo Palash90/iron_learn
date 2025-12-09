@@ -109,6 +109,51 @@ pub fn exp_float() {
 }
 
 #[test]
+pub fn neg_float() {
+    init();
+
+    let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
+    let m2 = (-m1).unwrap();
+    let result = GpuTensor::new(vec![2, 2], vec![-1.0, -2.0, 3.0, -4.0]).unwrap();
+
+    m2.print_matrix();
+    result.print_matrix();
+
+    assert_eq!(result, m2);
+
+    let m1 = GpuTensor::new(vec![1, 4], vec![1.0, 2.0, -3.0, -4.0]).unwrap();
+    let m2 = (-m1).unwrap();
+    let result = GpuTensor::new(vec![1, 4], vec![-1.0, -2.0, 3.0, 4.0]).unwrap();
+
+    assert_eq!(result, m2);
+}
+
+
+#[test]
+pub fn scale_float() {
+    init();
+
+    let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
+    let m2 = m1.scale(2.0).unwrap();
+    let result = GpuTensor::new(vec![2, 2], vec![2.0, 4.0, -6.0, 8.0]).unwrap();
+
+    m2.print_matrix();
+    result.print_matrix();
+
+    assert_eq!(result, m2);
+
+    let m1 = GpuTensor::new(vec![1, 4], vec![1.0, 2.0, -3.0, -4.0]).unwrap();
+    let m2 = m1.scale(3.0).unwrap();
+    let result = GpuTensor::new(vec![1, 4], vec![3.0, 6.0, -9.0, -12.0]).unwrap();
+
+    m2.print_matrix();
+    result.print_matrix();
+
+    assert_eq!(result, m2);
+}
+
+
+#[test]
 pub fn transpose() {
     init();
 
