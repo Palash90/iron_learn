@@ -1,6 +1,8 @@
 use crate::Numeric;
 
 pub trait Tensor<T: Numeric>: Sized {
+    fn empty() -> Self;
+
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String>;
     fn get_shape(&self) -> &Vec<u32>;
     fn get_data(&self) -> Vec<T>;

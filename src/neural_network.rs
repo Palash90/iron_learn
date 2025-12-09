@@ -34,7 +34,7 @@ impl<T: Tensor<f64>> LinearLayer<T> {
         LinearLayer {
             weights,
             bias,
-            input: None,
+            input: T::empty(),
         }
     }
 }
@@ -44,7 +44,7 @@ impl<T: Tensor<f64>> Layer<T> for LinearLayer<T> {
         "LinearLayer"
     }
     fn forward(&mut self, input: T) -> T {
-        self.input = Some(input);
+        self.input = input;
         let weighted_input = (self.input.clone()).unwrap().mul(&self.weights).unwrap();
 
         let batch_size = weighted_input.get_shape()[0];

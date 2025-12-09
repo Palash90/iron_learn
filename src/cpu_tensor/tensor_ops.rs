@@ -45,7 +45,11 @@ where
     }
 
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
-        Self::new(shape, data)
+        Self::new(shape, data) 
+    }
+
+    fn empty() -> Self {
+        Self::new(vec![], vec![]).expect("Nothing")
     }
 
     fn synchronize(&self) {}

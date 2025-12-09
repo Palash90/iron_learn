@@ -1,3 +1,5 @@
+use cust::memory::DeviceBuffer;
+
 use crate::cuda_tensor::OpType;
 use crate::cuda_tensor::Zeroable;
 use crate::tensor::Tensor;
@@ -36,6 +38,15 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
 
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         Self::_new(shape, data)
+    }
+
+    fn empty() -> Self {
+        unsafe {
+            Self {
+                shape: vec![],
+                device_buffer: DeviceBuffer::uninitialized(0).expect("CUDA buffer did not initialize"),
+            }
+        }
     }
 
     fn synchronize(&self) {
