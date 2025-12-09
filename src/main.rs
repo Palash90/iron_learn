@@ -19,7 +19,7 @@
 
 use iron_learn::{
     init_context, run_linear, run_linear_cuda, run_logistic, run_logistics_cuda,
-    run_neural_network, GpuTensor, GLOBAL_CONTEXT, Tensor
+    run_neural_network, GpuTensor, Tensor, GLOBAL_CONTEXT,
 };
 use std::{env, vec};
 
@@ -110,14 +110,10 @@ fn main() {
 
     // Execute appropriate training pipeline
     if ctx.gpu_enabled {
-        match run_linear_cuda() {
-            Ok(_) => println!("\n✓ Training completed successfully"),
-            Err(e) => eprintln!("\n✗ Training failed: {}", e),
-        }
-        match run_logistics_cuda() {
-            Ok(_) => println!("\n✓ Training completed successfully"),
-            Err(e) => eprintln!("\n✗ Training failed: {}", e),
-        }
+        println!("Running GPU-based training...\n");
+        run_linear::<GpuTensor<f64>>();
+       //  run_logistic::<GpuTensor<f64>>();
+        println!("\n✓ All training tasks completed");
     } else {
         println!("Running CPU-based training...\n");
         run_linear::<Tensor<f64>>();

@@ -48,6 +48,7 @@ where
     }
 
     fn get_data(&self) -> Vec<T> {
+        println!("Get Data Called on GPU");
         self._data()
     }
 

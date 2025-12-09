@@ -38,6 +38,7 @@ impl<T: Numeric + 'static> TensorOps<T> for Tensor<T> where Tensor<T>: From<Tens
     }
     
     fn get_data(&self) -> Vec<T> {
+        println!("Get Data Called on CPU");
         self.get_data()
     }
     
