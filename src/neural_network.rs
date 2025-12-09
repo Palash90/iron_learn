@@ -1,326 +1,206 @@
-use rand::rng;
-use rand::Rng;
-use std::vec;
-
+use crate::Numeric; // Assumed to be defined in your environment
+use std::f64::consts::PI;
+use rand::Rng; // For generating random initial weights
 use crate::tensor::Tensor;
-use crate::Data;
 
-pub trait Layer<T: Tensor<f64>> {
-    fn forward(&mut self, input: T) -> T;
-    fn backward(&mut self, error: &T, learning_rate: f64) -> T;
-    fn get_type(&self) -> &str;
+// --- TYPE ALIASES AND TRAIT DEFINITIONS ---
+
+// Set the generic type T to f64 for double precision.
+type MyNumeric = f64;
+type MyTensor = dyn Tensor<MyNumeric>;
+
+/// A common interface for all layers.
+pub trait Layer<T: Tensor<MyNumeric>> {
+    fn forward(&mut self, input: &T) -> Result<T, String>;
+    fn backward(&mut self, output_error: &T, learning_rate: MyNumeric) -> Result<T, String>;
+    fn get_parameters(&self) -> Option<(Vec<MyNumeric>, Vec<MyNumeric>)> { None }
+    fn name(&self) -> &str;
 }
 
-struct LinearLayer<T: Tensor<f64>> {
+// --- 1. The Linear Layer ---
+
+pub struct LinearLayer<T: Tensor<MyNumeric>> {
     weights: T,
-    bias: T,
-    input: T,
+    biases: T,
+    input_cache: Option<T>, 
+    name: String,
 }
 
-impl<T: Tensor<f64>> LinearLayer<T> {
-    fn new(features: u32, output_size: u32) -> Self {
-        let fan_in = features as f64;
-        let fan_out = output_size as f64;
-        let limit = (6.0 / (fan_in + fan_out)).sqrt();
-        let mut rng = rng();
-        let mut w = Vec::with_capacity((features * output_size) as usize);
-        for _ in 0..(features * output_size) {
-            let val: f64 = rng.random_range(-limit..limit);
-            w.push(val);
-        }
+impl<T: Tensor<MyNumeric>> LinearLayer<T> {
+    pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
+        let mut rng = rand::thread_rng();
+        let w_count = (input_size * output_size) as usize;
+        
+        // Initialize weights using f64
+        let w_data: Vec<MyNumeric> = (0..w_count).map(|_| rng.gen::<MyNumeric>() - 0.5).collect();
+        let weights = T::new(vec![input_size, output_size], w_data)?;
 
-        let weights = T::new(vec![features, output_size], w).unwrap();
-        let bias = T::new(vec![1, output_size], vec![0.0; output_size as usize]).unwrap();
-        LinearLayer {
-            weights,
-            bias,
-            input: T::empty(),
-        }
+        // Initialize biases using f64
+        let b_data = vec![0.0; output_size as usize];
+        let biases = T::new(vec![1, output_size], b_data)?;
+
+        Ok(Self { weights, biases, input_cache: None, name: name.to_string() })
     }
 }
 
-impl<T: Tensor<f64> + Clone> Layer<T> for LinearLayer<T> {
-    fn get_type(&self) -> &str {
-        "LinearLayer"
-    }
-    fn forward(&mut self, input: T) -> T {
-        self.input = input;
-        let weighted_input = self.input.mul(&self.weights).unwrap();
+impl<T: Tensor<MyNumeric>> Layer<T> for LinearLayer<T> {
+    fn name(&self) -> &str { &self.name }
 
-        let batch_size = weighted_input.get_shape()[0];
-        let output_size = weighted_input.get_shape()[1];
-
-        let mut broadcasted_bias_data = Vec::with_capacity((batch_size * output_size) as usize);
-
-        for _ in 0..batch_size {
-            let mut bias_data = self.bias.get_data().clone();
-            broadcasted_bias_data.append(&mut bias_data);
-        }
-
-        let broadcasted_bias =
-            T::new(vec![batch_size, output_size], broadcasted_bias_data).unwrap();
-
-        weighted_input.add(&broadcasted_bias).unwrap()
+    fn forward(&mut self, input: &T) -> Result<T, String> {
+        self.input_cache = Some(input.add(&T::empty())?); 
+        let matmul = input.mul(&self.weights)?;
+        let output = matmul.add(&self.biases)?;
+        Ok(output)
     }
 
-    fn backward(&mut self, error: &T, learning_rate: f64) -> T {
-        // error shape: [batch_size, output_size]
-        // self.weights shape: [input_size, output_size]
-        // self.input shape: [batch_size, input_size]
+    fn backward(&mut self, output_error: &T, lr: MyNumeric) -> Result<T, String> {
+        let input = self.input_cache.as_ref().ok_or("No forward pass cache!")?;
 
-        // Gradient w.r.t. input: error × weights^T → [batch_size, output_size] × [output_size, input_size]
-        let input_error = error.mul(&self.weights.t().unwrap()).unwrap();
+        // Calculate Input Error: error * weights.T
+        let w_t = self.weights.t()?;
+        let input_error = output_error.mul(&w_t)?;
 
-        // Gradient w.r.t. weights: input^T × error → [input_size, batch_size] × [batch_size, output_size]
-        let weights_error = self.input.clone().t().unwrap().mul(error).unwrap();
+        // Calculate Weights Gradient: input.T * error
+        let input_t = input.t()?;
+        let weights_grad = input_t.mul(output_error)?;
 
-        // Gradient w.r.t. bias: sum error across batch dimension
-        let biases_error = error.sum();
+        // Calculate Biases Gradient: sum(error)
+        let biases_grad = output_error.sum()?;
 
-        self.weights = self
-            .weights
-            .sub(&(weights_error.scale(learning_rate)).unwrap())
-            .unwrap();
-        self.bias = self
-            .bias
-            .sub(&(biases_error.unwrap().scale(learning_rate).unwrap()))
-            .unwrap();
+        // Update Parameters
+        let w_step = weights_grad.scale(-lr)?;
+        self.weights = self.weights.add(&w_step)?;
 
-        input_error
+        let b_step = biases_grad.scale(-lr)?; 
+        self.biases = self.biases.add(&b_step)?;
+
+        Ok(input_error)
+    }
+
+    fn get_parameters(&self) -> Option<(Vec<MyNumeric>, Vec<MyNumeric>)> {
+        Some((self.weights.get_data(), self.biases.get_data()))
     }
 }
 
-struct ActivationLayer<T: Tensor<f64>> {
-    activation: fn(&T) -> T,
-    activation_derivative: fn(&T) -> T,
-    input: Option<T>,
-    output: Option<T>,
+// --- 2. The Activation Layer ---
+
+pub enum ActivationType { Sigmoid, Tanh }
+
+pub struct ActivationLayer<T: Tensor<MyNumeric>> {
+    act_type: ActivationType,
+    output_cache: Option<T>, 
 }
 
-impl<T: Tensor<f64>> ActivationLayer<T> {
-    fn new(activation: fn(&T) -> T, activation_derivative: fn(&T) -> T) -> Self {
-        ActivationLayer {
-            activation,
-            activation_derivative,
-            input: None,
-            output: None,
-        }
+impl<T: Tensor<MyNumeric>> ActivationLayer<T> {
+    pub fn new(act_type: ActivationType) -> Self {
+        Self { act_type, output_cache: None }
     }
 }
 
-impl<T: Tensor<f64> + Clone > Layer<T> for ActivationLayer<T> {
-    fn get_type(&self) -> &str {
-        "ActivationLayer"
+impl<T: Tensor<MyNumeric>> Layer<T> for ActivationLayer<T> {
+    fn name(&self) -> &str { "Activation" }
+
+    fn forward(&mut self, input: &T) -> Result<T, String> {
+        let output = match self.act_type {
+            ActivationType::Sigmoid => input.sigmoid()?,
+            ActivationType::Tanh => input.tanh()?,
+        };
+        self.output_cache = Some(output.add(&T::empty())?); 
+        Ok(output)
     }
-    fn forward(&mut self, input: T) -> T {
-        self.input = Some(input);
-        let output = (self.activation)(&self.input.clone().unwrap());
-        self.output = Some(output.clone());
 
-        output
+    fn backward(&mut self, output_error: &T, _lr: MyNumeric) -> Result<T, String> {
+        let out = self.output_cache.as_ref().unwrap();
+        
+        let prime = match self.act_type {
+            ActivationType::Sigmoid => {
+                // Sigmoid Prime: s * (1 - s)
+                // Note: The '1.0' in the vector is now f64
+                let shape = out.get_shape();
+                let ones_data = vec![1.0; shape.iter().product::<u32>() as usize];
+                let ones = T::new(shape.clone(), ones_data)?;
+                
+                let one_minus_s = ones.sub(out)?;
+                out.multiply(&one_minus_s)? // Hadamard product
+            },
+            ActivationType::Tanh => T::empty() // Placeholder
+        };
+
+        // Element-wise multiplication: fPrime * error
+        prime.multiply(output_error)
     }
-
-    fn backward(&mut self, error: &T, learning_rate: f64) -> T {
-        let input_derivative = (self.activation_derivative)(&self.input.clone().unwrap());
-
-        input_derivative.multiply(&error).unwrap()
-    }
 }
 
-fn log_loss<T: Tensor<f64>>(predicted: &T, actual: &T) -> f64 {
-    let epsilon = 1e-15;
-    let clipped_preds: Vec<f64> = predicted
-        .get_data()
-        .iter()
-        .map(|&p| p.max(epsilon).min(1.0 - epsilon))
-        .collect();
-    let mut loss = 0.0;
-    for (p, a) in clipped_preds.iter().zip(actual.get_data().iter()) {
-        loss += -a * p.ln() - (1.0f64 - a) * (1.0f64 - p).ln();
-    }
-    loss / (predicted.get_data().len() as f64)
-}
-fn log_loss_derivative<T: Tensor<f64>>(predicted: &T, actual: &T) -> T {
-    let epsilon = 1e-15;
-    let clipped_preds: Vec<f64> = predicted
-        .get_data()
-        .iter()
-        .map(|&p| p.max(epsilon).min(1.0 - epsilon))
-        .collect();
+// --- 3. The Neural Network Trainer ---
 
-    let data: Vec<f64> = clipped_preds
-        .iter()
-        .zip(actual.get_data().iter())
-        .map(|(&p, &a)| -(a / p) + (1.0 - a) / (1.0 - p))
-        .collect();
-
-    T::new(predicted.get_shape().clone(), data).unwrap()
-}
-fn sigmoid<T: Tensor<f64>>(x: &T) -> T {
-    let data: Vec<f64> = x
-        .get_data()
-        .iter()
-        .map(|&v| 1.0 / (1.0 + (-v).exp()))
-        .collect();
-    T::new(x.get_shape().clone(), data).unwrap()
-}
-
-fn sigmoid_prime<T: Tensor<f64>>(x: &T) -> T {
-    let s = sigmoid(x);
-    let data: Vec<f64> = s.get_data().iter().map(|&v| v * (1.0 - v)).collect();
-    T::new(x.get_shape().clone(), data).unwrap()
-}
-
-fn relu<T: Tensor<f64>>(x: &T) -> T {
-    let data: Vec<f64> = x
-        .get_data()
-        .iter()
-        .map(|&v| if v > 0.0 { v } else { 0.0 })
-        .collect();
-    T::new(x.get_shape().clone(), data).unwrap()
-}
-
-fn relu_derivative<T: Tensor<f64>>(x: &T) -> T {
-    let data: Vec<f64> = x
-        .get_data()
-        .iter()
-        .map(|&v| if v > 0.0 { 1.0 } else { 0.0 })
-        .collect();
-    T::new(x.get_shape().clone(), data).unwrap()
-}
-
-fn mse<T: Tensor<f64>>(predicted: &T, actual: &T) -> f64 {
-    let diff = predicted.sub(actual).unwrap();
-    let squared_diff = diff.mul(&diff).unwrap();
-    squared_diff.sum().unwrap().get_data()[0] / (predicted.get_data().len() as f64)
-}
-
-fn mse_derivative<T: Tensor<f64>>(predicted: &T, actual: &T) -> impl Tensor<f64> {
-    let diff = predicted.sub(actual).unwrap();
-    diff.scale(2.0 / (predicted.get_data().len() as f64))
-        .unwrap()
-}
-
-pub struct NeuralNetwork<T: Tensor<f64>> {
+pub struct NeuralNet<T: Tensor<MyNumeric>> {
     layers: Vec<Box<dyn Layer<T>>>,
-    loss: fn(&T, &T) -> f64,
-    loss_derivative: fn(&T, &T) -> T,
 }
 
-impl<T: Tensor<f64> + Clone> NeuralNetwork<T> {
-    pub fn new(loss: fn(&T, &T) -> f64, loss_derivative: fn(&T, &T) -> T) -> Self {
-        NeuralNetwork {
-            layers: Vec::new(),
-            loss,
-            loss_derivative,
-        }
+impl<T: Tensor<MyNumeric>> NeuralNet<T> {
+    pub fn new() -> Self {
+        Self { layers: Vec::new() }
     }
 
-    pub fn add_layer(&mut self, layer: Box<dyn Layer<T>>) {
+    pub fn add(&mut self, layer: Box<dyn Layer<T>>) {
         self.layers.push(layer);
     }
 
-    pub fn forward(&mut self, input: T) -> T {
-        let mut output = input;
-        for layer in self.layers.iter_mut() {
-            output = layer.forward(output);
+    pub fn predict(&mut self, input: &T) -> Result<T, String> {
+        let mut output = input.add(&T::empty())?;
+        for layer in &mut self.layers {
+            output = layer.forward(&output)?;
         }
-        output
+        Ok(output)
     }
 
-    pub fn backward(&mut self, predicted: &T, actual: &T, learning_rate: f64) {
-        let mut error = (self.loss_derivative)(predicted, actual);
-        for layer in self.layers.iter_mut().rev() {
-            error = layer.backward(&error, learning_rate);
-        }
-    }
+    pub fn fit<F>(
+        &mut self,
+        x_train: &T,
+        y_train: &T,
+        epochs: usize,
+        epoch_offset: usize,
+        base_lr: MyNumeric, // base_lr is now f64
+        mut hook: F, 
+    ) -> Result<(), String> 
+    where F: FnMut(usize, MyNumeric) // Hook receives f64 error
+    {
+        let lr_min = 1e-6;
 
-    pub fn train(&mut self, x_train: &T, y_train: &T, epochs: u32, learning_rate: f64) {
         for i in 0..epochs {
-            let predicted = self.forward(x_train.clone());
+            // LR Decay calculated using f64
+            let cos_term = (PI * (i as MyNumeric) / ((epochs + epoch_offset) as MyNumeric)).cos();
+            let decay_factor = 0.5 * (1.0 + cos_term);
+            let current_lr = lr_min + (base_lr - lr_min) * decay_factor;
 
-            self.backward(&predicted, y_train, learning_rate);
+            // Forward and Backward Passes (Device)
+            let output = self.predict(x_train)?;
+            let mut grad = output.sub(y_train)?; 
+
+            for layer in self.layers.iter_mut().rev() {
+                grad = layer.backward(&grad, current_lr)?;
+            }
+
+            // Hook (Periodic Reporting)
+            if i == 0 || (i + 1) % 100 == 0 {
+                 let error_diff = y_train.sub(&output)?;
+                 let sq_err = error_diff.multiply(&error_diff)?;
+                 let sum_err = sq_err.sum()?; 
+                 let err_val = sum_err.get_data()[0]; 
+                 hook(i, err_val);
+            }
+        }
+        
+        x_train.synchronize(); 
+        Ok(())
+    }
+
+    pub fn save_weights(&self, filepath: &str) {
+        println!("Saving weights to {}...", filepath);
+        for (i, layer) in self.layers.iter().enumerate() {
+            if let Some((w, b)) = layer.get_parameters() {
+                println!("Layer {} ({}) Weights saved. (Shape: {:?})", i, layer.name(), w.len());
+            }
         }
     }
-}
-
-fn build_neural_net<T: Tensor<f64> + 'static + Clone>(features: u32, output_size: u32) -> NeuralNetwork<T> {
-    let mut nn = NeuralNetwork::new(log_loss, log_loss_derivative);
-
-    nn.add_layer(Box::new(LinearLayer::new(features, 21)));
-    nn.add_layer(Box::new(ActivationLayer::new(relu, relu_derivative)));
-
-    nn.add_layer(Box::new(LinearLayer::new(21, 21)));
-    nn.add_layer(Box::new(ActivationLayer::new(relu, relu_derivative)));
-
-    nn.add_layer(Box::new(LinearLayer::new(21, 6)));
-    nn.add_layer(Box::new(ActivationLayer::new(relu, relu_derivative)));
-
-    nn.add_layer(Box::new(LinearLayer::new(6, output_size)));
-    nn.add_layer(Box::new(ActivationLayer::new(sigmoid, sigmoid_prime)));
-
-    nn
-}
-
-pub fn run_neural_network<T: Tensor<f64> + 'static + Clone>() {
-    // Placeholder for loading data
-    let Data {
-        neural_network: xy, ..
-    } = crate::read_file::deserialize_data("data.json").unwrap();
-
-    let x_train = T::new(vec![xy.m, xy.n], xy.x.clone()).unwrap();
-    let y_train = T::new(vec![xy.m, 1], xy.y.clone()).unwrap();
-
-    // let (x_train, x_mean, x_std) = normalize_features_mean_std(&x_train);
-
-    // let (y_train, y_mean, y_std) = normalize_features_mean_std(&y_train);
-
-    let epochs = 5000;
-    let learning_rate = 0.01;
-
-    let input_size = x_train.get_shape()[1];
-    let output_size = y_train.get_shape()[1];
-
-    let mut nn = build_neural_net(input_size, output_size);
-
-    nn.train(&x_train, &y_train, epochs, learning_rate);
-
-    // Initialize test data (the linear_regression function will handle normalization and bias)
-    let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone()).unwrap();
-    let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone()).unwrap();
-
-    // let x_test = normalize_features(&x_test, &x_mean, &x_std);
-
-    // Make predictions using the trained weights
-    let predictions = nn.forward(x_test);
-
-    // Denormalize predictions
-    // let predictions = denormalize_features(&predictions, &y_mean, &y_std);
-
-    // Calculate Mean Squared Error
-    let mut total_squared_error = 0.0;
-    let total = xy.m_test as usize;
-
-    for i in 0..total {
-        let pred = predictions.get_data()[i];
-        let actual = y_test.get_data()[i];
-        println!(
-            "Predicted: {:.4}, Actual: {:.4}, {}",
-            pred,
-            actual,
-            if (pred - actual).abs() < 0.5 {
-                "✓"
-            } else {
-                "✗"
-            }
-        );
-        let error = pred - actual;
-        total_squared_error += error * error;
-    }
-
-    let mse = total_squared_error / (total as f64);
-    println!("\nResults:");
-    println!("Total test samples: {}", total);
-    println!("Mean Squared Error: {:.4}", mse);
-    println!("Root MSE: {:.4}", mse.sqrt() as f64);
 }
