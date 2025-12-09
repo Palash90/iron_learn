@@ -2,26 +2,26 @@ use rand::rng;
 use rand::Rng;
 use std::vec;
 
-use crate::tensor::CpuTensor;
+use crate::tensor::Tensor;
 use crate::Data;
 
-pub trait Layer {
-    fn forward(&mut self, input: CpuTensor<f64>) -> CpuTensor<f64>;
-    fn backward(&mut self, error: &CpuTensor<f64>, learning_rate: f64) -> CpuTensor<f64>;
+pub trait Layer<T: Tensor<f64>> {
+    fn forward(&mut self, input: T) -> T;
+    fn backward(&mut self, error: &T, learning_rate: f64) -> T;
     fn get_type(&self) -> &str;
 }
 
-struct LinearLayer {
-    weights: CpuTensor<f64>,
-    bias: CpuTensor<f64>,
-    input: Option<CpuTensor<f64>>,
+struct LinearLayer<T: Tensor<f64>> {
+    weights: T,
+    bias: T,
+    input: T,
 }
 
-impl LinearLayer {
+impl<T: Tensor<f64>> LinearLayer<T> {
     fn new(features: u32, output_size: u32) -> Self {
         let fan_in = features as f64;
         let fan_out = output_size as f64;
-        let limit = (6.0 / (fan_in + fan_out)).sqrt(); // Xavier uniform
+        let limit = (6.0 / (fan_in + fan_out)).sqrt();
         let mut rng = rng();
         let mut w = Vec::with_capacity((features * output_size) as usize);
         for _ in 0..(features * output_size) {
@@ -29,8 +29,8 @@ impl LinearLayer {
             w.push(val);
         }
 
-        let weights = CpuTensor::new(vec![features, output_size], w).unwrap();
-        let bias = CpuTensor::new(vec![1, output_size], vec![0.0; output_size as usize]).unwrap();
+        let weights = T::new(vec![features, output_size], w).unwrap();
+        let bias = T::new(vec![1, output_size], vec![0.0; output_size as usize]).unwrap();
         LinearLayer {
             weights,
             bias,
@@ -39,35 +39,31 @@ impl LinearLayer {
     }
 }
 
-impl Layer for LinearLayer {
+impl<T: Tensor<f64>> Layer<T> for LinearLayer<T> {
     fn get_type(&self) -> &str {
         "LinearLayer"
     }
-    fn forward(&mut self, input: CpuTensor<f64>) -> CpuTensor<f64> {
+    fn forward(&mut self, input: T) -> T {
         self.input = Some(input);
         let weighted_input = (self.input.clone()).unwrap().mul(&self.weights).unwrap();
-        // Get the batch size from the weighted_input's shape (the first dimension)
+
         let batch_size = weighted_input.get_shape()[0];
         let output_size = weighted_input.get_shape()[1];
 
-        // Prepare the data for the broadcasted bias
         let mut broadcasted_bias_data = Vec::with_capacity((batch_size * output_size) as usize);
 
-        // Repeat the bias data for every sample in the batch
         for _ in 0..batch_size {
-            let mut bias_data = self.bias.get_data().clone(); // Bias is [1, output_size]
+            let mut bias_data = self.bias.get_data().clone();
             broadcasted_bias_data.append(&mut bias_data);
         }
 
-        // Create the new broadcasted bias Tensor [BatchSize, OutputSize]
         let broadcasted_bias =
-            CpuTensor::new(vec![batch_size, output_size], broadcasted_bias_data).unwrap();
+            T::new(vec![batch_size, output_size], broadcasted_bias_data).unwrap();
 
-        // 2. Add the broadcasted bias to the weighted input: (X * W) + B_broadcasted
         weighted_input.add(&broadcasted_bias).unwrap()
     }
 
-    fn backward(&mut self, error: &CpuTensor<f64>, learning_rate: f64) -> CpuTensor<f64> {
+    fn backward(&mut self, error: &T, learning_rate: f64) -> T {
         // error shape: [batch_size, output_size]
         // self.weights shape: [input_size, output_size]
         // self.input shape: [batch_size, input_size]
@@ -91,18 +87,15 @@ impl Layer for LinearLayer {
     }
 }
 
-struct ActivationLayer {
-    activation: fn(&CpuTensor<f64>) -> CpuTensor<f64>,
-    activation_derivative: fn(&CpuTensor<f64>) -> CpuTensor<f64>,
-    input: Option<CpuTensor<f64>>,
-    output: Option<CpuTensor<f64>>,
+struct ActivationLayer<T: Tensor<f64>> {
+    activation: fn(&T) -> T,
+    activation_derivative: fn(&T) -> T,
+    input: Option<T>,
+    output: Option<T>,
 }
 
-impl ActivationLayer {
-    fn new(
-        activation: fn(&CpuTensor<f64>) -> CpuTensor<f64>,
-        activation_derivative: fn(&CpuTensor<f64>) -> CpuTensor<f64>,
-    ) -> Self {
+impl<T: Tensor<f64>> ActivationLayer<T> {
+    fn new(activation: fn(&T) -> T, activation_derivative: fn(&T) -> T) -> Self {
         ActivationLayer {
             activation,
             activation_derivative,
@@ -112,11 +105,11 @@ impl ActivationLayer {
     }
 }
 
-impl Layer for ActivationLayer {
+impl<T: Tensor<f64>> Layer<T> for ActivationLayer<T> {
     fn get_type(&self) -> &str {
         "ActivationLayer"
     }
-    fn forward(&mut self, input: CpuTensor<f64>) -> CpuTensor<f64> {
+    fn forward(&mut self, input: T) -> T {
         self.input = Some(input);
         let output = (self.activation)(&self.input.clone().unwrap());
         self.output = Some(output.clone());
@@ -124,14 +117,14 @@ impl Layer for ActivationLayer {
         output
     }
 
-    fn backward(&mut self, error: &CpuTensor<f64>, learning_rate: f64) -> CpuTensor<f64> {
+    fn backward(&mut self, error: &T, learning_rate: f64) -> T {
         let input_derivative = (self.activation_derivative)(&self.input.clone().unwrap());
 
         input_derivative.multiply(&error).unwrap()
     }
 }
 
-fn log_loss(predicted: &CpuTensor<f64>, actual: &CpuTensor<f64>) -> f64 {
+fn log_loss<T: Tensor<f64>>(predicted: &T, actual: &T) -> f64 {
     let epsilon = 1e-15;
     let clipped_preds: Vec<f64> = predicted
         .get_data()
@@ -144,7 +137,7 @@ fn log_loss(predicted: &CpuTensor<f64>, actual: &CpuTensor<f64>) -> f64 {
     }
     loss / (predicted.get_data().len() as f64)
 }
-fn log_loss_derivative(predicted: &CpuTensor<f64>, actual: &CpuTensor<f64>) -> CpuTensor<f64> {
+fn log_loss_derivative<T: Tensor<f64>>(predicted: &T, actual: &T) -> T {
     let epsilon = 1e-15;
     let clipped_preds: Vec<f64> = predicted
         .get_data()
@@ -158,62 +151,62 @@ fn log_loss_derivative(predicted: &CpuTensor<f64>, actual: &CpuTensor<f64>) -> C
         .map(|(&p, &a)| -(a / p) + (1.0 - a) / (1.0 - p))
         .collect();
 
-    CpuTensor::new(predicted.get_shape().clone(), data).unwrap()
+    T::new(predicted.get_shape().clone(), data).unwrap()
 }
-fn sigmoid(x: &CpuTensor<f64>) -> CpuTensor<f64> {
+fn sigmoid<T: Tensor<f64>>(x: &T) -> T {
     let data: Vec<f64> = x
         .get_data()
         .iter()
         .map(|&v| 1.0 / (1.0 + (-v).exp()))
         .collect();
-    CpuTensor::new(x.get_shape().clone(), data).unwrap()
+    T::new(x.get_shape().clone(), data).unwrap()
 }
 
-fn sigmoid_prime(x: &CpuTensor<f64>) -> CpuTensor<f64> {
+fn sigmoid_prime<T: Tensor<f64>>(x: &T) -> T {
     let s = sigmoid(x);
     let data: Vec<f64> = s.get_data().iter().map(|&v| v * (1.0 - v)).collect();
-    CpuTensor::new(x.get_shape().clone(), data).unwrap()
+    T::new(x.get_shape().clone(), data).unwrap()
 }
 
-fn relu(x: &CpuTensor<f64>) -> CpuTensor<f64> {
+fn relu<T: Tensor<f64>>(x: &T) -> T {
     let data: Vec<f64> = x
         .get_data()
         .iter()
         .map(|&v| if v > 0.0 { v } else { 0.0 })
         .collect();
-    CpuTensor::new(x.get_shape().clone(), data).unwrap()
+    T::new(x.get_shape().clone(), data).unwrap()
 }
 
-fn relu_derivative(x: &CpuTensor<f64>) -> CpuTensor<f64> {
+fn relu_derivative<T: Tensor<f64>>(x: &T) -> T {
     let data: Vec<f64> = x
         .get_data()
         .iter()
         .map(|&v| if v > 0.0 { 1.0 } else { 0.0 })
         .collect();
-    CpuTensor::new(x.get_shape().clone(), data).unwrap()
+    T::new(x.get_shape().clone(), data).unwrap()
 }
 
-fn mse(predicted: &CpuTensor<f64>, actual: &CpuTensor<f64>) -> f64 {
+fn mse<T: Tensor<f64>>(predicted: &T, actual: &T) -> f64 {
     let diff = predicted.sub(actual).unwrap();
     let squared_diff = diff.mul(&diff).unwrap();
     squared_diff.sum().get_data()[0] / (predicted.get_data().len() as f64)
 }
 
-fn mse_derivative(predicted: &CpuTensor<f64>, actual: &CpuTensor<f64>) -> CpuTensor<f64> {
+fn mse_derivative<T: Tensor<f64>>(predicted: &T, actual: &T) -> T {
     let diff = predicted.sub(actual).unwrap();
     diff.scale(2.0 / (predicted.get_data().len() as f64))
 }
 
-pub struct NeuralNetwork {
-    layers: Vec<Box<dyn Layer>>,
-    loss: fn(&CpuTensor<f64>, &CpuTensor<f64>) -> f64,
-    loss_derivative: fn(&CpuTensor<f64>, &CpuTensor<f64>) -> CpuTensor<f64>,
+pub struct NeuralNetwork<T: Tensor<f64>> {
+    layers: Vec<Box<dyn Layer<T>>>,
+    loss: fn(&T, &T) -> f64,
+    loss_derivative: fn(&T, &T) -> T,
 }
 
-impl NeuralNetwork {
+impl<T: Tensor<f64>> NeuralNetwork<T> {
     pub fn new(
-        loss: fn(&CpuTensor<f64>, &CpuTensor<f64>) -> f64,
-        loss_derivative: fn(&CpuTensor<f64>, &CpuTensor<f64>) -> CpuTensor<f64>,
+        loss: fn(&T, &T) -> f64,
+        loss_derivative: fn(&T, &T) -> T,
     ) -> Self {
         NeuralNetwork {
             layers: Vec::new(),
@@ -222,11 +215,11 @@ impl NeuralNetwork {
         }
     }
 
-    pub fn add_layer(&mut self, layer: Box<dyn Layer>) {
+    pub fn add_layer(&mut self, layer: Box<dyn Layer<T>>) {
         self.layers.push(layer);
     }
 
-    pub fn forward(&mut self, input: CpuTensor<f64>) -> CpuTensor<f64> {
+    pub fn forward(&mut self, input: T) -> T {
         let mut output = input;
         for layer in self.layers.iter_mut() {
             output = layer.forward(output);
@@ -234,7 +227,12 @@ impl NeuralNetwork {
         output
     }
 
-    pub fn backward(&mut self, predicted: &CpuTensor<f64>, actual: &CpuTensor<f64>, learning_rate: f64) {
+    pub fn backward(
+        &mut self,
+        predicted: &T,
+        actual: &T,
+        learning_rate: f64,
+    ) {
         let mut error = (self.loss_derivative)(predicted, actual);
         for layer in self.layers.iter_mut().rev() {
             error = layer.backward(&error, learning_rate);
@@ -243,8 +241,8 @@ impl NeuralNetwork {
 
     pub fn train(
         &mut self,
-        x_train: &CpuTensor<f64>,
-        y_train: &CpuTensor<f64>,
+        x_train: &T,
+        y_train: &T,
         epochs: u32,
         learning_rate: f64,
     ) {
@@ -256,7 +254,7 @@ impl NeuralNetwork {
     }
 }
 
-fn build_neural_net(features: u32, output_size: u32) -> NeuralNetwork {
+fn build_neural_net<T: Tensor<f64> + 'static>(features: u32, output_size: u32) -> NeuralNetwork<T> {
     let mut nn = NeuralNetwork::new(log_loss, log_loss_derivative);
 
     nn.add_layer(Box::new(LinearLayer::new(features, 21)));
@@ -280,8 +278,8 @@ pub fn run_neural_network() {
         neural_network: xy, ..
     } = crate::read_file::deserialize_data("data.json").unwrap();
 
-    let x_train = CpuTensor::new(vec![xy.m, xy.n], xy.x.clone()).unwrap();
-    let y_train = CpuTensor::new(vec![xy.m, 1], xy.y.clone()).unwrap();
+    let x_train = T::new(vec![xy.m, xy.n], xy.x.clone()).unwrap();
+    let y_train = T::new(vec![xy.m, 1], xy.y.clone()).unwrap();
 
     // let (x_train, x_mean, x_std) = normalize_features_mean_std(&x_train);
 
@@ -298,8 +296,8 @@ pub fn run_neural_network() {
     nn.train(&x_train, &y_train, epochs, learning_rate);
 
     // Initialize test data (the linear_regression function will handle normalization and bias)
-    let x_test = CpuTensor::new(vec![xy.m_test, xy.n], xy.x_test.clone()).unwrap();
-    let y_test = CpuTensor::new(vec![xy.m_test, 1], xy.y_test.clone()).unwrap();
+    let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone()).unwrap();
+    let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone()).unwrap();
 
     // let x_test = normalize_features(&x_test, &x_mean, &x_std);
 

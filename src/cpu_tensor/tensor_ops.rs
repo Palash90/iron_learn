@@ -49,4 +49,44 @@ where
     }
 
     fn synchronize(&self) {}
+    
+    fn add(&self, rhs: &Self) -> Result<Self, String> {
+        self.add(rhs)
+    }
+
+    fn sum(&self) -> Result<Self, String> {
+        self.sum()
+    }
+
+    fn log(&self) -> Result<Self, String> {
+        self.log()
+    }
+
+    fn ln(&self) -> Result<Self, String> {
+        self.ln()
+    }
+
+    fn sin(&self) -> Result<Self, String> {
+        self.sin()
+    }
+
+    fn cos(&self) -> Result<Self, String> {
+        self.cos()
+    }
+
+    fn tan(&self) -> Result<Self, String> {
+        self.tan()
+    }
+
+    fn tanh(&self) -> Result<Self, String> {
+        self.tanh()
+    }
+
+    fn exp(&self) -> Result<Self, String> {
+        self.exp()
+    }
+
+    fn multiply(&self, rhs: &Self) -> Result<Self, String> {
+        self.multiply(rhs)
+    }
 }
