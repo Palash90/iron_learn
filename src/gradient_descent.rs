@@ -1,6 +1,3 @@
-use crate::normalizer::denormalize_features;
-use crate::normalizer::normalize_features;
-use crate::normalizer::normalize_features_mean_std;
 use crate::tensor_commons::TensorOps;
 
 pub fn add_bias_term<T: TensorOps<f64>>(x: &T) -> Result<T, String> {
@@ -52,9 +49,7 @@ pub fn linear_regression<T: TensorOps<f64>>(
     l: f64,
     e: u32,
 ) -> Result<T, String> {
-    let (x_normalized, _, _) = normalize_features_mean_std(x);
-
-    let x_with_bias = add_bias_term(&x_normalized)?;
+    let x_with_bias = add_bias_term(x)?;
     for _ in 0..(e - 1) {
         gradient_descent(&x_with_bias, y, w, l, false);
     }
@@ -69,9 +64,7 @@ pub fn logistic_regression<T: TensorOps<f64>>(
     l: f64,
     e: u32,
 ) -> Result<T, String> {
-    let (x_normalized, _, _) = normalize_features_mean_std(x);
-
-    let x_with_bias = add_bias_term(&x_normalized)?;
+    let x_with_bias = add_bias_term(x)?;
 
     for _ in 0..(e - 1) {
         gradient_descent(&x_with_bias, y, w, l, true);
@@ -80,13 +73,13 @@ pub fn logistic_regression<T: TensorOps<f64>>(
     Ok(gradient_descent(&x_with_bias, y, w, l, true).unwrap())
 }
 
-pub fn predict_linear<T: TensorOps<f64>>(x_normalized: &T, w: &T) -> Result<T, String> {
-    let x_with_bias = add_bias_term(x_normalized)?;
+pub fn predict_linear<T: TensorOps<f64>>(x: &T, w: &T) -> Result<T, String> {
+    let x_with_bias = add_bias_term(x)?;
     x_with_bias.mul(w)
 }
 
-pub fn predict_logistic<T: TensorOps<f64>>(x_normalized: &T, w: &T) -> Result<T, String> {
-    let x_with_bias = add_bias_term(x_normalized)?;
+pub fn predict_logistic<T: TensorOps<f64>>(x: &T, w: &T) -> Result<T, String> {
+    let x_with_bias = add_bias_term(x)?;
 
     let z = x_with_bias.mul(w)?;
 
