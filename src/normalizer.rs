@@ -1,10 +1,10 @@
-use crate::tensor::Tensor;
+use crate::tensor_commons::TensorOps;
 
-pub fn denormalize_features(
-    normalized_data: &Tensor<f64>,
+pub fn denormalize_features<T: TensorOps<f64>>(
+    normalized_data: &T,
     mean: &Vec<f64>,
     std: &Vec<f64>,
-) -> Tensor<f64> {
+) -> T {
     let shape = normalized_data.get_shape();
     let m = shape[0] as usize;
     let n = shape[1] as usize;
@@ -20,10 +20,10 @@ pub fn denormalize_features(
         }
     }
 
-    Tensor::new(shape.clone(), denormalized_data).unwrap()
+    T::new(shape.clone(), denormalized_data).unwrap()
 }
 
-pub fn normalize_features(data: &Tensor<f64>, mean: &Vec<f64>, std: &Vec<f64>) -> Tensor<f64> {
+pub fn normalize_features<T: TensorOps<f64>>(data: &T, mean: &Vec<f64>, std: &Vec<f64>) -> T {
     let shape = data.get_shape();
     let m = shape[0] as usize;
     let n = shape[1] as usize;
@@ -46,10 +46,10 @@ pub fn normalize_features(data: &Tensor<f64>, mean: &Vec<f64>, std: &Vec<f64>) -
         }
     }
 
-    Tensor::new(shape.clone(), normalized_data).unwrap()
+    T::new(shape.clone(), normalized_data).unwrap()
 }
 
-pub fn normalize_features_mean_std(data: &Tensor<f64>) -> (Tensor<f64>, Vec<f64>, Vec<f64>) {
+pub fn normalize_features_mean_std<T: TensorOps<f64>>(data: &T) -> (T, Vec<f64>, Vec<f64>) {
     let shape = data.get_shape();
     let m = shape[0] as usize;
     let n = shape[1] as usize;
