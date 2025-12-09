@@ -108,16 +108,6 @@ fn main() {
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
     greet(ctx);
 
-    // run_neural_network();
-
-    let t = GpuTensor::new(vec![1, 2], vec![1, 2]).unwrap();
-    let t2 = GpuTensor::new(vec![1, 2], vec![1, 2]).unwrap();
-
-    let t3 = t + t2;
-    let t3 = t3.unwrap();
-
-    t3.print_matrix();
-
     // Execute appropriate training pipeline
     if ctx.gpu_enabled {
         match run_linear_cuda() {
