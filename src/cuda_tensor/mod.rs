@@ -8,6 +8,7 @@ use cust::prelude::Function;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use cust::{device, memory::CopyDestination, prelude::DeviceBuffer};
+use cust::prelude::Module;
 
 mod tensor_ops;
 
@@ -326,7 +327,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _data(&self) -> Vec<T> {
-        println!("Data call");
         let total_elements = match self.shape.len() {
             2 => (self.shape[0] * self.shape[1]) as usize,
             _ => self.shape[0] as usize,
@@ -525,7 +525,28 @@ fn test_new() {
     match cust::quick_init() {
         Ok(context) => {
             println!("✓ GPU initialization successful");
-            init_context("Iron Learn", 5, String::new(), 0.0, 0, true, Some(context));
+            let ptx = include_str!("../../kernels/gpu_kernels.ptx");
+            let module = Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
+
+            let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
+                Ok(s) => s,
+                Err(e) => {
+                    eprintln!("Error creating stream: {}", e);
+                    return;
+                }
+            };
+
+            init_context(
+                "Iron Learn",
+                5,
+                String::new(),
+                0.0,
+                0,
+                true,
+                Some(context),
+                Some(module),
+                Some(stream),
+            );
         }
         Err(e) => {
             return;

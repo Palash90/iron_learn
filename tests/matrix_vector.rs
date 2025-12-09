@@ -55,16 +55,6 @@ pub fn mul_i32() {
 
     let _context = cust::quick_init().unwrap();
 
-    init_context(
-        "Test",
-        1,
-        "data.json".to_owned(),
-        0.01,
-        10000,
-        true,
-        Some(_context),
-    );
-
     let m1 = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
     let m2 = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
     let result = Tensor::new(vec![2, 2], vec![19, 22, 43, 50]).unwrap();
@@ -198,16 +188,6 @@ pub fn mul_random_d() {
 #[test]
 pub fn mul_float() {
     let _context = cust::quick_init().unwrap();
-    init_context(
-        "Test",
-        1,
-        "data.json".to_owned(),
-        0.01,
-        10000,
-        true,
-        Some(_context),
-    );
-
     let m1 = Tensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
     let m2 = Tensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0]).unwrap();
     let result = Tensor::new(vec![2, 2], vec![19.0, 22.0, 43.0, 50.0]).unwrap();

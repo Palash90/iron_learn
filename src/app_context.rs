@@ -33,7 +33,7 @@ use cust::{module::Module, stream::Stream};
 /// use iron_learn::{init_context, GLOBAL_CONTEXT};
 ///
 /// // Initialize at startup with full configuration
-/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false, None);
+/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false, None, None, None);
 ///
 /// // Access anywhere in the application
 /// let ctx = GLOBAL_CONTEXT.get().unwrap();
@@ -90,6 +90,8 @@ pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
 ///     0.01,
 ///     10000,
 ///     false,
+///     None,
+///     None,
 ///     None
 /// );
 /// ```

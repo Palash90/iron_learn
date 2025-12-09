@@ -1,21 +1,48 @@
 use iron_learn::{init_context, GpuTensor};
+use cust::prelude::Module;
+use cust::stream::Stream;
+use cust::stream::StreamFlags;
+
 fn init() {
     match cust::quick_init() {
         Ok(context) => {
             eprintln!("✓ GPU initialization successful");
+            let ptx = include_str!("../kernels/gpu_kernels.ptx");
+            let module = Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
+
+            let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
+                Ok(s) => s,
+                Err(e) => {
+                    eprintln!("Error creating stream: {}", e);
+                    return;
+                }
+            };
+
+            init_context(
+                "Iron Learn",
+                5,
+                String::new(),
+                0.0,
+                0,
+                true,
+                Some(context),
+                Some(module),
+                Some(stream),
+            );
+        }
+        Err(e) => {
+            eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
             init_context(
                 "Iron Learn",
                 5,
                 "".to_string(),
                 0.01,
                 1,
-                true,
-                Some(context),
+                false,
+                None,
+                None,
+                None,
             );
-        }
-        Err(e) => {
-            eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
-            init_context("Iron Learn", 5, "".to_string(), 0.01, 1, false, None);
         }
     }
 }
