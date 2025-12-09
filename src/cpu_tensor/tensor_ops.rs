@@ -55,7 +55,7 @@ where
     }
 
     fn sum(&self) -> Result<Self, String> {
-        self.sum()
+        Ok(self.sum())
     }
 
     fn log(&self) -> Result<Self, String> {

@@ -81,7 +81,10 @@ impl<T: Tensor<f64>> Layer<T> for LinearLayer<T> {
             .weights
             .sub(&weights_error.scale(learning_rate))
             .unwrap();
-        self.bias = self.bias.sub(&biases_error.scale(learning_rate)).unwrap();
+        self.bias = self
+            .bias
+            .sub(&(biases_error.unwrap().scale(learning_rate).unwrap()))
+            .unwrap();
 
         input_error
     }
@@ -189,12 +192,13 @@ fn relu_derivative<T: Tensor<f64>>(x: &T) -> T {
 fn mse<T: Tensor<f64>>(predicted: &T, actual: &T) -> f64 {
     let diff = predicted.sub(actual).unwrap();
     let squared_diff = diff.mul(&diff).unwrap();
-    squared_diff.sum().get_data()[0] / (predicted.get_data().len() as f64)
+    squared_diff.sum().unwrap().get_data()[0] / (predicted.get_data().len() as f64)
 }
 
-fn mse_derivative<T: Tensor<f64>>(predicted: &T, actual: &T) -> T {
+fn mse_derivative<T: Tensor<f64>>(predicted: &T, actual: &T) -> impl Tensor<f64> {
     let diff = predicted.sub(actual).unwrap();
     diff.scale(2.0 / (predicted.get_data().len() as f64))
+        .unwrap()
 }
 
 pub struct NeuralNetwork<T: Tensor<f64>> {
@@ -204,10 +208,7 @@ pub struct NeuralNetwork<T: Tensor<f64>> {
 }
 
 impl<T: Tensor<f64>> NeuralNetwork<T> {
-    pub fn new(
-        loss: fn(&T, &T) -> f64,
-        loss_derivative: fn(&T, &T) -> T,
-    ) -> Self {
+    pub fn new(loss: fn(&T, &T) -> f64, loss_derivative: fn(&T, &T) -> T) -> Self {
         NeuralNetwork {
             layers: Vec::new(),
             loss,
@@ -227,25 +228,14 @@ impl<T: Tensor<f64>> NeuralNetwork<T> {
         output
     }
 
-    pub fn backward(
-        &mut self,
-        predicted: &T,
-        actual: &T,
-        learning_rate: f64,
-    ) {
+    pub fn backward(&mut self, predicted: &T, actual: &T, learning_rate: f64) {
         let mut error = (self.loss_derivative)(predicted, actual);
         for layer in self.layers.iter_mut().rev() {
             error = layer.backward(&error, learning_rate);
         }
     }
 
-    pub fn train(
-        &mut self,
-        x_train: &T,
-        y_train: &T,
-        epochs: u32,
-        learning_rate: f64,
-    ) {
+    pub fn train(&mut self, x_train: &T, y_train: &T, epochs: u32, learning_rate: f64) {
         for i in 0..epochs {
             let predicted = self.forward(x_train.clone());
 
@@ -272,7 +262,7 @@ fn build_neural_net<T: Tensor<f64> + 'static>(features: u32, output_size: u32) -
     nn
 }
 
-pub fn run_neural_network() {
+pub fn run_neural_network<T: Tensor<f64> + 'static>() {
     // Placeholder for loading data
     let Data {
         neural_network: xy, ..
