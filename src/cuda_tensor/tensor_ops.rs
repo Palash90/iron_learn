@@ -3,6 +3,7 @@ use crate::cuda_tensor::Zeroable;
 use crate::tensor_commons::TensorOps;
 use crate::GpuTensor;
 use crate::Numeric;
+use crate::GLOBAL_CONTEXT;
 
 impl<T: Numeric + Zeroable> TensorOps<T> for GpuTensor<T> {
     fn get_shape(&self) -> &Vec<u32> {
@@ -30,11 +31,19 @@ impl<T: Numeric + Zeroable> TensorOps<T> for GpuTensor<T> {
     }
 
     fn get_data(&self) -> Vec<T> {
-        println!("Get Data Called on GPU");
         self._data()
     }
 
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         Self::_new(shape, data)
+    }
+
+    fn synchronize(&self) {
+        &(GLOBAL_CONTEXT
+            .get()
+            .expect("No Context Intialized")
+            .stream.as_ref()
+            .expect("Stream could not be found"))
+        .synchronize();
     }
 }

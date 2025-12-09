@@ -41,11 +41,12 @@ where
     }
 
     fn get_data(&self) -> Vec<T> {
-        println!("Get Data Called on CPU");
         self.get_data()
     }
 
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         Self::new(shape, data)
     }
+
+    fn synchronize(&self) {}
 }

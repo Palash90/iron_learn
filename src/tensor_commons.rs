@@ -12,4 +12,6 @@ pub trait TensorOps<T: Numeric>: Sized {
 
     fn get_data(&self) -> Vec<T>;
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String>;
+
+    fn synchronize(&self);
 }

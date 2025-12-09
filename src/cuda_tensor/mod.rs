@@ -1,15 +1,17 @@
-use crate::init_context;
 use crate::numeric::{Numeric, SignedNumeric};
+use crate::{init_context, GLOBAL_CONTEXT};
 use std::ops::{Add, Mul, Neg, Sub};
 
 use cust::launch;
 use cust::memory::bytemuck::Zeroable;
-use cust::module::Module;
+use cust::prelude::Function;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use cust::{device, memory::CopyDestination, prelude::DeviceBuffer};
 
 mod tensor_ops;
+
+use std::time::Instant;
 
 #[derive(Clone, Copy)]
 enum OpType {
@@ -26,7 +28,6 @@ enum OpType {
 
 #[derive(Debug)]
 pub struct GpuTensor<T: Numeric> {
-    module: Module,
     shape: Vec<u32>,
     device_buffer: DeviceBuffer<T>,
 }
@@ -175,18 +176,34 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
+    fn _get_function(fn_name: &str) -> Function {
+        let context = GLOBAL_CONTEXT.get().expect("No Context Set");
+
+        let module = context.module.as_ref().expect("Module not found");
+
+        module
+            .get_function(fn_name)
+            .expect(&format!("Function- {} could not be found", fn_name))
+    }
+
+    fn _get_stream() -> &'static Stream {
+        GLOBAL_CONTEXT
+            .get()
+            .expect("No Context Set")
+            .stream
+            .as_ref()
+            .expect(&format!("Stream not found"))
+    }
+
     fn _eq(&self, other: &Self) -> bool {
-        // 1. Shape Check
         if self.shape != other.shape {
             return false;
         }
 
-        // 2. Calculate total elements robustly (FIXED)
-        // Use the total product of the shape elements, which is correct for 1D or 2D.
         let element_count = self.shape.iter().product::<u32>();
 
         if element_count == 0 {
-            return true; // Two empty tensors are equal
+            return true;
         }
 
         let total_size = element_count as u64;
@@ -194,17 +211,8 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let grid_1d = (element_count + threads_per_block - 1) / threads_per_block;
 
-        // 3. Get the kernel function
-        let compare = match self.module.get_function("compareMemory") {
-            Ok(m) => m,
-            Err(e) => {
-                eprintln!("Error getting kernel 'compareMemory': {}", e);
-                return false;
-            }
-        };
+        let compare = Self::_get_function("compareMemory");
 
-        // 4. Prepare host and device result buffers
-        // result_host starts at 1 (equal). Kernel sets to 0 (not equal) on mismatch.
         let mut result_host = [1i32];
         let mut result_device = match DeviceBuffer::from_slice(&result_host) {
             Ok(device_buf) => device_buf,
@@ -214,16 +222,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             }
         };
 
-        // 5. Create stream
-        let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
-            Ok(s) => s,
-            Err(e) => {
-                eprintln!("Error creating stream: {}", e);
-                return false;
-            }
-        };
-
-        // 6. Launch the kernel
+        let stream = Self::_get_stream();
         unsafe {
             launch!(compare<<<(grid_1d, 1, 1), threads_per_block, 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
@@ -233,17 +232,10 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         }
 
-        // 7. Synchronize stream
-        if let Err(e) = stream.synchronize() {
-            eprintln!("Error synchronizing stream: {}", e);
-            return false;
-        }
-
-        // 8. Copy result back from GPU to CPU (CRITICAL FIX)
         match result_device.copy_to(&mut result_host) {
             Ok(_) => {
                 println!("Copied from device to host {:?}", result_host);
-                // If the value copied back is 1, they are equal.
+
                 result_host[0] == 1
             }
             Err(e) => {
@@ -253,10 +245,8 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         }
     }
     fn element_op(&self, op_type: OpType, scale: T) -> Result<Self, String> {
-        // Set up common block size
         let block_dim = 16;
 
-        // Calculate grid size using ceiling division
         let grid_x = (self.shape[1] + block_dim - 1) / block_dim;
         let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
 
@@ -266,14 +256,12 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         };
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
+
         let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
 
-        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+        let stream = Self::_get_stream();
 
-        let operation = match self.module.get_function("element_op") {
-            Ok(m) => m,
-            Err(e) => return Err(e.to_string()),
-        };
+        let operation = Self::_get_function("element_op");
 
         unsafe {
             launch!(operation<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
@@ -284,7 +272,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
                 scale
             ));
         };
-        stream.synchronize();
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
@@ -307,10 +294,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             }
         }
 
-        let transpose = match self.module.get_function("transpose_naive") {
-            Ok(m) => m,
-            Err(e) => return Err(e.to_string()),
-        };
+        let transpose = Self::_get_function("transpose_naive");
 
         let total_elements = self.shape[0] * self.shape[1];
         let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
@@ -325,7 +309,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let grid_x = (n as u32 + BLOCK_DIM_X - 1) / BLOCK_DIM_X;
         let grid_y = (m as u32 + BLOCK_DIM_Y - 1) / BLOCK_DIM_Y;
 
-        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+        let stream = Self::_get_stream();
 
         unsafe {
             launch!(transpose<<<(grid_x, grid_y, 1), (BLOCK_DIM_X, BLOCK_DIM_Y, 1), 0, stream>>>(
@@ -337,8 +321,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
             );
         }
-
-        stream.synchronize();
 
         Ok(Self::_with_device_buffer(new_shape, result))
     }
@@ -365,10 +347,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
         }
 
-        let add = match self.module.get_function("vector_add") {
-            Ok(m) => m,
-            Err(e) => return Err(e.to_string()),
-        };
+        let add = Self::_get_function("vector_add");
 
         let mut total_elements;
         if self.shape.len() == 2 {
@@ -385,7 +364,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let grid_1d = (total_size_u32 + threads_per_block - 1) / threads_per_block;
         let sub_int = if sub { 1i32 } else { 0i32 };
 
-        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+        let stream = Self::_get_stream();
         unsafe {
             launch!(add<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
                 self.device_buffer.as_device_ptr(),
@@ -395,8 +374,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
                 sub_int
             ));
         }
-
-        stream.synchronize();
 
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
@@ -427,8 +404,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
-        println!("New called");
-
         if let Some(value) = Self::check_shape(&shape) {
             return value;
         }
@@ -440,12 +415,8 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return Err(err);
         }
 
-        let ptx = include_str!("../../kernels/gpu_kernels.ptx");
-        let module = Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
-
         match DeviceBuffer::from_slice(&data) {
             Ok(device_buffer) => Ok(Self {
-                module: module,
                 shape: shape.clone(),
                 device_buffer,
             }),
@@ -455,10 +426,8 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
     fn _with_device_buffer(shape: Vec<u32>, device_buffer: DeviceBuffer<T>) -> Self {
         let ptx = include_str!("../../kernels/gpu_kernels.ptx");
-        let module = Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
 
         Self {
-            module: module,
             shape: shape.clone(),
             device_buffer,
         }
@@ -490,12 +459,9 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
 
-        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+        let stream = Self::_get_stream();
 
-        let hadamard = match self.module.get_function("hadamardProd") {
-            Ok(m) => m,
-            Err(e) => return Err(e.to_string()),
-        };
+        let hadamard = Self::_get_function("hadamardProd");
 
         unsafe {
             launch!(hadamard<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
@@ -506,7 +472,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         }
 
-        stream.synchronize();
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
@@ -522,12 +487,9 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
 
-        let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+        let stream = Self::_get_stream();
 
-        let mat_mul = match self.module.get_function("matrixMul") {
-            Ok(m) => m,
-            Err(e) => return Err(e.to_string()),
-        };
+        let mat_mul = Self::_get_function("matrixMul");
 
         unsafe {
             launch!(mat_mul<<<(grid_x, grid_y, 1), (block_dim, block_dim, 1), 0, stream>>>(
@@ -540,7 +502,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         }
 
-        stream.synchronize();
         let result_shape = vec![self.shape[0], rhs.shape[1]];
         Ok(Self::_with_device_buffer(result_shape, result))
     }

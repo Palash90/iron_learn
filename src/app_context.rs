@@ -13,6 +13,8 @@
 
 use std::sync::OnceLock;
 
+use cust::{module::Module, stream::Stream};
+
 /// Global application context with training configuration and GPU capabilities
 ///
 /// # Fields
@@ -49,6 +51,8 @@ pub struct AppContext {
     pub epochs: u32,
     pub gpu_enabled: bool,
     pub context: Option<cust::context::Context>,
+    pub module: Option<Module>,
+    pub stream: Option<Stream>,
 }
 
 /// Global singleton instance of application context
@@ -97,6 +101,8 @@ pub fn init_context(
     epochs: u32,
     gpu_enabled: bool,
     context: Option<cust::context::Context>,
+    module: Option<Module>,
+    stream: Option<Stream>,
 ) {
     let ctx = AppContext {
         app_name,
@@ -106,6 +112,8 @@ pub fn init_context(
         epochs,
         gpu_enabled,
         context,
+        module,
+        stream,
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

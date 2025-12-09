@@ -17,11 +17,14 @@
 //! - `epochs`: Number of training iterations (default: 10000)
 //! - `data_file`: Path to JSON data file (default: data.json)
 
+use cust::prelude::Module;
 use iron_learn::{
     init_context, run_linear, run_linear_cuda, run_logistic, run_logistics_cuda,
     run_neural_network, GpuTensor, Tensor, GLOBAL_CONTEXT,
 };
 use std::{env, vec};
+use cust::stream::Stream;
+use cust::stream::StreamFlags;
 
 /// Parse command-line arguments and configure the application
 ///
@@ -56,6 +59,19 @@ fn init() {
         match cust::quick_init() {
             Ok(context) => {
                 eprintln!("✓ GPU initialization successful");
+
+                let ptx = include_str!("../kernels/gpu_kernels.ptx");
+                let module =
+                    Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
+
+                let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        eprintln!("Error creating stream: {}", e);
+                        return;
+                    }
+                };
+
                 init_context(
                     "Iron Learn",
                     5,
@@ -64,6 +80,8 @@ fn init() {
                     epochs,
                     true,
                     Some(context),
+                    Some(module),
+                    Some(stream),
                 );
             }
             Err(e) => {
@@ -76,6 +94,8 @@ fn init() {
                     epochs,
                     false,
                     None,
+                    None,
+                    None,
                 );
             }
         }
@@ -87,6 +107,8 @@ fn init() {
             learning_rate,
             epochs,
             false,
+            None,
+            None,
             None,
         );
     }
