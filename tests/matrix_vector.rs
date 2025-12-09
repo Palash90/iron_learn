@@ -1,71 +1,71 @@
-use iron_learn::{Complex, Tensor};
+use iron_learn::{Complex, CpuTensor};
 
 #[cfg(test)]
 #[test]
 pub fn add_i8() {
-    let m1 = Tensor::<i8>::new(vec![1], vec![1i8]).unwrap();
-    let m2 = Tensor::new(vec![1], vec![3i8]).unwrap();
-    let result = Tensor::new(vec![1], vec![4i8]).unwrap();
+    let m1 = CpuTensor::<i8>::new(vec![1], vec![1i8]).unwrap();
+    let m2 = CpuTensor::new(vec![1], vec![3i8]).unwrap();
+    let result = CpuTensor::new(vec![1], vec![4i8]).unwrap();
 
     assert_eq!(result, (m1 + m2).unwrap());
 
-    let m1 = Tensor::<i8>::new(vec![1, 2], vec![1i8, 2i8]).unwrap();
-    let m2 = Tensor::new(vec![1, 2], vec![3i8, 4i8]).unwrap();
-    let result = Tensor::new(vec![1, 2], vec![4i8, 6i8]).unwrap();
+    let m1 = CpuTensor::<i8>::new(vec![1, 2], vec![1i8, 2i8]).unwrap();
+    let m2 = CpuTensor::new(vec![1, 2], vec![3i8, 4i8]).unwrap();
+    let result = CpuTensor::new(vec![1, 2], vec![4i8, 6i8]).unwrap();
 
     assert_eq!(result, (m1 + m2).unwrap());
 }
 
 #[test]
 pub fn add_i16() {
-    let m1 = Tensor::new(vec![1], vec![1i16]).unwrap();
-    let m2 = Tensor::new(vec![1], vec![1i16]).unwrap();
-    let result = Tensor::new(vec![1], vec![2i16]).unwrap();
+    let m1 = CpuTensor::new(vec![1], vec![1i16]).unwrap();
+    let m2 = CpuTensor::new(vec![1], vec![1i16]).unwrap();
+    let result = CpuTensor::new(vec![1], vec![2i16]).unwrap();
 
     assert_eq!(result, (m1 + m2).unwrap());
 
-    let m1 = Tensor::new(vec![1, 2], vec![1i16, 2i16]).unwrap();
-    let m2 = Tensor::new(vec![1, 2], vec![3i16, 4i16]).unwrap();
-    let result = Tensor::new(vec![1, 2], vec![4i16, 6i16]).unwrap();
+    let m1 = CpuTensor::new(vec![1, 2], vec![1i16, 2i16]).unwrap();
+    let m2 = CpuTensor::new(vec![1, 2], vec![3i16, 4i16]).unwrap();
+    let result = CpuTensor::new(vec![1, 2], vec![4i16, 6i16]).unwrap();
 
     assert_eq!(result, (m1 + m2).unwrap());
 }
 
 #[test]
 pub fn add_i32() {
-    let m1 = Tensor::new(vec![1], vec![1]).unwrap();
-    let m2 = Tensor::new(vec![1], vec![3]).unwrap();
-    let result = Tensor::new(vec![1], vec![4]).unwrap();
+    let m1 = CpuTensor::new(vec![1], vec![1]).unwrap();
+    let m2 = CpuTensor::new(vec![1], vec![3]).unwrap();
+    let result = CpuTensor::new(vec![1], vec![4]).unwrap();
 
     assert_eq!(result, (m1 + m2).unwrap());
 
-    let m1 = Tensor::new(vec![1, 2], vec![1, 2]).unwrap();
-    let m2 = Tensor::new(vec![1, 2], vec![3, 4]).unwrap();
-    let result = Tensor::new(vec![1, 2], vec![4, 6]).unwrap();
+    let m1 = CpuTensor::new(vec![1, 2], vec![1, 2]).unwrap();
+    let m2 = CpuTensor::new(vec![1, 2], vec![3, 4]).unwrap();
+    let result = CpuTensor::new(vec![1, 2], vec![4, 6]).unwrap();
 
     assert_eq!(result, (m1 + m2).unwrap());
 }
 
 #[test]
 pub fn mul_i32() {
-    let m1 = Tensor::new(vec![1, 1], vec![1]).unwrap();
-    let m2 = Tensor::new(vec![1, 1], vec![3]).unwrap();
+    let m1 = CpuTensor::new(vec![1, 1], vec![1]).unwrap();
+    let m2 = CpuTensor::new(vec![1, 1], vec![3]).unwrap();
 
     assert_eq!(3, (m1 * m2).unwrap().get_data()[0]);
 
     let _context = cust::quick_init().unwrap();
 
-    let m1 = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
-    let m2 = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
-    let result = Tensor::new(vec![2, 2], vec![19, 22, 43, 50]).unwrap();
+    let m1 = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+    let m2 = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    let result = CpuTensor::new(vec![2, 2], vec![19, 22, 43, 50]).unwrap();
 
     assert_eq!(result, (m1 * m2).unwrap());
 }
 
 #[test]
 pub fn mul_2_cols() {
-    let m1 = Tensor::new(vec![1, 2], vec![1, 2]).unwrap();
-    let m2 = Tensor::new(vec![1, 2], vec![3, 4]).unwrap().t().unwrap();
+    let m1 = CpuTensor::new(vec![1, 2], vec![1, 2]).unwrap();
+    let m2 = CpuTensor::new(vec![1, 2], vec![3, 4]).unwrap().t().unwrap();
 
     assert_eq!(11, (m1 * m2).unwrap().get_data()[0]);
 }
@@ -73,9 +73,9 @@ pub fn mul_2_cols() {
 #[test]
 #[should_panic(expected = "ShapeMismatch")]
 pub fn add_with_shape_mismatch() {
-    let m1 = Tensor::new(vec![1, 3], vec![1, 2, 5]).unwrap();
-    let m2 = Tensor::new(vec![1, 2], vec![3, 4]).unwrap();
-    let result = Tensor::new(vec![1, 2], vec![4, 6]).unwrap();
+    let m1 = CpuTensor::new(vec![1, 3], vec![1, 2, 5]).unwrap();
+    let m2 = CpuTensor::new(vec![1, 2], vec![3, 4]).unwrap();
+    let result = CpuTensor::new(vec![1, 2], vec![4, 6]).unwrap();
 
     assert_eq!(result, (m1 + m2).unwrap());
 }
@@ -83,25 +83,25 @@ pub fn add_with_shape_mismatch() {
 #[test]
 #[should_panic(expected = "ShapeMismatch")]
 pub fn mul_i32_panics() {
-    let m1 = Tensor::new(vec![2, 1], vec![1, 2]).unwrap();
-    let m2 = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
-    let result = Tensor::new(vec![2, 2], vec![19, 22, 43, 50]).unwrap();
+    let m1 = CpuTensor::new(vec![2, 1], vec![1, 2]).unwrap();
+    let m2 = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    let result = CpuTensor::new(vec![2, 2], vec![19, 22, 43, 50]).unwrap();
 
     assert_eq!(result, (m1 * m2).unwrap());
 }
 
 #[test]
 pub fn mul_i32_reverse() {
-    let m1 = Tensor::new(vec![1, 2], vec![1, 2]).unwrap();
-    let m2 = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
-    let result = Tensor::new(vec![1, 2], vec![19, 22]).unwrap();
+    let m1 = CpuTensor::new(vec![1, 2], vec![1, 2]).unwrap();
+    let m2 = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    let result = CpuTensor::new(vec![1, 2], vec![19, 22]).unwrap();
 
     assert_eq!(result, (m1 * m2).unwrap());
 }
 
 #[test]
 pub fn mul_random() {
-    let m1 = Tensor::new(
+    let m1 = CpuTensor::new(
         vec![6, 6],
         vec![
             693, 246, 267, 431, 327, 507, 990, 244, 93, 470, 604, 597, 543, 201, 429, 453, 975,
@@ -110,7 +110,7 @@ pub fn mul_random() {
         ],
     )
     .unwrap();
-    let m2 = Tensor::new(
+    let m2 = CpuTensor::new(
         vec![6, 6],
         vec![
             738, 55, 22, 872, 611, 303, 365, 543, 283, 374, 951, 798, 150, 866, 398, 272, 583, 470,
@@ -118,7 +118,7 @@ pub fn mul_random() {
         ],
     )
     .unwrap();
-    let result = Tensor::new(
+    let result = CpuTensor::new(
         vec![6, 6],
         vec![
             1004890, 1149009, 673288, 1116056, 1615821, 1303342, 1426717, 1339880, 812467, 1501216,
@@ -134,21 +134,21 @@ pub fn mul_random() {
 
 #[test]
 pub fn mul_random_diff() {
-    let m1 = Tensor::new(
+    let m1 = CpuTensor::new(
         vec![6, 2],
         vec![
             9864, 607, 1349, 7440, 593, 8303, 2657, 2637, 6391, 3961, 8372, 7166,
         ],
     )
     .unwrap();
-    let m2 = Tensor::new(
+    let m2 = CpuTensor::new(
         vec![2, 6],
         vec![
             6058, 1323, 1540, 5300, 1780, 2944, 9042, 4634, 2527, 8117, 1412, 1906,
         ],
     )
     .unwrap();
-    let result = Tensor::new(
+    let result = CpuTensor::new(
         vec![6, 6],
         vec![
             65244606, 15862910, 16724449, 57206219, 18415004, 30196558, 75444722, 36261687,
@@ -165,15 +165,15 @@ pub fn mul_random_diff() {
 
 #[test]
 pub fn mul_random_d() {
-    let m1 = Tensor::new(
+    let m1 = CpuTensor::new(
         vec![6, 2],
         vec![
             9864, 607, 1349, 7440, 593, 8303, 2657, 2637, 6391, 3961, 8372, 7166,
         ],
     )
     .unwrap();
-    let m2 = Tensor::new(vec![2, 3], vec![8, 30, 31, 11, 22, 11]).unwrap();
-    let result = Tensor::new(
+    let m2 = CpuTensor::new(vec![2, 3], vec![8, 30, 31, 11, 22, 11]).unwrap();
+    let result = CpuTensor::new(
         vec![6, 3],
         vec![
             85589, 309274, 312461, 92632, 204150, 123659, 96077, 200456, 109716, 50263, 137724,
@@ -188,9 +188,9 @@ pub fn mul_random_d() {
 #[test]
 pub fn mul_float() {
     let _context = cust::quick_init().unwrap();
-    let m1 = Tensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
-    let m2 = Tensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0]).unwrap();
-    let result = Tensor::new(vec![2, 2], vec![19.0, 22.0, 43.0, 50.0]).unwrap();
+    let m1 = CpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
+    let m2 = CpuTensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0]).unwrap();
+    let result = CpuTensor::new(vec![2, 2], vec![19.0, 22.0, 43.0, 50.0]).unwrap();
 
     assert_eq!(result, (m1 * m2).unwrap());
 }
@@ -202,8 +202,8 @@ fn test_complex_tensor_mul() {
     let c = Complex::new(5.0, 6.0);
     let d = Complex::new(7.0, 8.0);
 
-    let m1 = Tensor::new(vec![2, 2], vec![a, b, c, d]).unwrap();
-    let m2 = Tensor::new(vec![2, 2], vec![a, c, b, d]).unwrap();
+    let m1 = CpuTensor::new(vec![2, 2], vec![a, b, c, d]).unwrap();
+    let m2 = CpuTensor::new(vec![2, 2], vec![a, c, b, d]).unwrap();
 
     let result = (m1 * m2).unwrap();
 
@@ -212,7 +212,7 @@ fn test_complex_tensor_mul() {
     let r3 = Complex::new(-18.0, 68.0);
     let r4 = Complex::new(-26.0, 172.0);
 
-    let expected = Tensor::new(vec![2, 2], vec![r1, r2, r3, r4]).unwrap();
+    let expected = CpuTensor::new(vec![2, 2], vec![r1, r2, r3, r4]).unwrap();
     assert_eq!(expected, result);
 }
 
@@ -223,8 +223,8 @@ fn test_complex_tensor_add() {
     let c = crate::Complex::new(5.0, 6.0);
     let d = crate::Complex::new(7.0, 8.0);
 
-    let m1 = Tensor::new(vec![2, 2], vec![a, b, c, d]).unwrap();
-    let m2 = Tensor::new(vec![2, 2], vec![a, c, b, d]).unwrap();
+    let m1 = CpuTensor::new(vec![2, 2], vec![a, b, c, d]).unwrap();
+    let m2 = CpuTensor::new(vec![2, 2], vec![a, c, b, d]).unwrap();
 
     let result = (m1 + m2).unwrap();
 
@@ -233,6 +233,6 @@ fn test_complex_tensor_add() {
     let r3 = crate::Complex::new(8.0, 10.0);
     let r4 = crate::Complex::new(14.0, 16.0);
 
-    let expected = Tensor::new(vec![2, 2], vec![r1, r2, r3, r4]).unwrap();
+    let expected = CpuTensor::new(vec![2, 2], vec![r1, r2, r3, r4]).unwrap();
     assert_eq!(expected, result);
 }

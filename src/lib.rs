@@ -25,4 +25,4 @@ pub use crate::numeric::Numeric;
 pub use crate::regression::Data;
 pub use crate::regression::XY;
 pub use crate::regression::{run_linear, run_logistic};
-pub use crate::tensor::Tensor;
+pub use crate::tensor::CpuTensor;

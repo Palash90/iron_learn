@@ -1,14 +1,14 @@
 use crate::numeric::Numeric;
-use crate::tensor::Tensor;
+use crate::tensor::CpuTensor;
 use std::fmt;
 
-impl<T: Numeric + fmt::Display> fmt::Display for Tensor<T> {
+impl<T: Numeric + fmt::Display> fmt::Display for CpuTensor<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.display_tensor(0, &self.shape, &self.data, self.shape.len(), f)
     }
 }
 
-impl<T: Numeric + fmt::Display> Tensor<T> {
+impl<T: Numeric + fmt::Display> CpuTensor<T> {
     // Recursive function to display the tensor
     fn display_tensor(
         &self,

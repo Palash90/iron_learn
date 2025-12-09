@@ -22,7 +22,7 @@ use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use iron_learn::run_linear_cuda;
 use iron_learn::run_logistics_cuda;
-use iron_learn::{init_context, run_linear, run_logistic, GpuTensor, Tensor, GLOBAL_CONTEXT};
+use iron_learn::{init_context, run_linear, run_logistic, GpuTensor, CpuTensor, GLOBAL_CONTEXT};
 use std::env;
 use std::time::Instant;
 
@@ -158,8 +158,8 @@ fn main() {
         println!("\n✓ All training tasks completed");
     } else {
         println!("Running CPU-based training...\n");
-        let _ = run_linear::<Tensor<f64>>();
-        let _ = run_logistic::<Tensor<f64>>();
+        let _ = run_linear::<CpuTensor<f64>>();
+        let _ = run_logistic::<CpuTensor<f64>>();
         println!("\n✓ All training tasks completed");
     }
 }

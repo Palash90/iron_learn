@@ -1,5 +1,5 @@
 use crate::read_file::deserialize_data;
-use crate::{Data, Tensor, GLOBAL_CONTEXT};
+use crate::{Data, CpuTensor, GLOBAL_CONTEXT};
 use cust::error::CudaResult;
 use cust::memory::DeviceBuffer;
 use cust::module::Module;
@@ -313,7 +313,7 @@ pub fn run_logistics_cuda() -> cust::error::CudaResult<()> {
     );
 
     // Evaluate on test set using learned model and training preprocessing
-    let y_test = Tensor::new(vec![logistic.m_test, 1], logistic.y_test.clone()).unwrap();
+    let y_test = CpuTensor::new(vec![logistic.m_test, 1], logistic.y_test.clone()).unwrap();
     let preds = predict_logistic_gpu(
         &module,
         &stream,
@@ -474,7 +474,7 @@ pub fn run_linear_cuda() -> cust::error::CudaResult<()> {
     );
 
     // Evaluate on test set using learned model and training preprocessing
-    let y_test = Tensor::new(vec![linear.m_test, 1], linear.y_test.clone()).unwrap();
+    let y_test = CpuTensor::new(vec![linear.m_test, 1], linear.y_test.clone()).unwrap();
     let preds = predict_linear_gpu(
         &module,
         &stream,

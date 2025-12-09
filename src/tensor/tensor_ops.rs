@@ -1,10 +1,10 @@
 use crate::numeric::Numeric;
-use crate::tensor::Tensor;
+use crate::tensor::CpuTensor;
 use crate::tensor_commons::TensorOps;
 
-impl<T: Numeric + 'static> TensorOps<T> for Tensor<T>
+impl<T: Numeric + 'static> TensorOps<T> for CpuTensor<T>
 where
-    Tensor<T>: From<Tensor<f64>>,
+    CpuTensor<T>: From<CpuTensor<f64>>,
 {
     fn get_shape(&self) -> &Vec<u32> {
         &self.shape
@@ -31,13 +31,13 @@ where
             return Err("Sigmoid is only implemented for Tensor<f64>".to_string());
         }
 
-        let as_f64_tensor = Tensor::new(
+        let as_f64_tensor = CpuTensor::new(
             self.shape.clone(),
             self.data.iter().map(|&x| x.f64()).collect(),
         )
         .unwrap();
 
-        Ok(Tensor::sigmoid(&as_f64_tensor).into())
+        Ok(CpuTensor::sigmoid(&as_f64_tensor).into())
     }
 
     fn get_data(&self) -> Vec<T> {

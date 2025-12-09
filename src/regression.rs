@@ -3,7 +3,7 @@ use crate::normalizer::denormalize_features;
 use crate::normalize_features;
 use crate::tensor_commons::TensorOps;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
-use crate::{Tensor, GLOBAL_CONTEXT};
+use crate::{CpuTensor, GLOBAL_CONTEXT};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
 

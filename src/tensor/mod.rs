@@ -64,11 +64,11 @@ use std::ops::{Add, Mul, Neg, Sub};
 /// ```
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct Tensor<T: Numeric> {
+pub struct CpuTensor<T: Numeric> {
     shape: Vec<u32>,
     data: Vec<T>,
 }
-impl<T> Tensor<T>
+impl<T> CpuTensor<T>
 where
     T: Numeric,
 {
@@ -97,12 +97,12 @@ enum OpType {
 }
 
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
-impl<T: Numeric> Tensor<T> {
+impl<T: Numeric> CpuTensor<T> {
     fn _sigmoid(t: f64) -> f64 {
         f64::exp(t) / (1.0 + f64::exp(t))
     }
 
-    fn element_op(operand: &Self, op_type: OpType) -> Tensor<f64> {
+    fn element_op(operand: &Self, op_type: OpType) -> CpuTensor<f64> {
         let result = match op_type {
             OpType::EXP => operand.data.iter().map(|t| f64::exp(t.f64())).collect(),
             OpType::COS => operand.data.iter().map(|t| f64::cos(t.f64())).collect(),
@@ -118,7 +118,7 @@ impl<T: Numeric> Tensor<T> {
             OpType::LN => operand.data.iter().map(|t| f64::ln(t.f64())).collect(),
         };
 
-        Tensor::new(operand.shape.clone(), result).unwrap()
+        CpuTensor::new(operand.shape.clone(), result).unwrap()
     }
 
     fn _t(&self) -> Result<Self, String> {
@@ -172,7 +172,7 @@ impl<T: Numeric> Tensor<T> {
         })
     }
 
-    fn check_shape(shape: &[u32]) -> Option<Result<Tensor<T>, String>> {
+    fn check_shape(shape: &[u32]) -> Option<Result<CpuTensor<T>, String>> {
         if shape.is_empty() {
             return Some(Err(
                 "ShapeError: Tensor must have at least one dimension.".to_string()
@@ -248,7 +248,7 @@ impl<T: Numeric> Tensor<T> {
             }
         }
 
-        Ok(Tensor {
+        Ok(CpuTensor {
             shape: vec![rows as u32, cols as u32],
             data,
         })
@@ -281,7 +281,7 @@ impl<T: Numeric> Tensor<T> {
 }
 
 // The public API of Tensor type
-impl<T: Numeric> Tensor<T> {
+impl<T: Numeric> CpuTensor<T> {
     /// Return a new instance of a `Tensor` with each value raised to `e`.
     ///
     /// It requires one parameter:
@@ -298,35 +298,35 @@ impl<T: Numeric> Tensor<T> {
     /// let tensor = Tensor::exp(&Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap());
     /// ```
     ///
-    pub fn exp(operand: &Self) -> Tensor<f64> {
+    pub fn exp(operand: &Self) -> CpuTensor<f64> {
         Self::element_op(operand, OpType::EXP)
     }
 
-    pub fn sin(operand: &Self) -> Tensor<f64> {
+    pub fn sin(operand: &Self) -> CpuTensor<f64> {
         Self::element_op(operand, OpType::SIN)
     }
 
-    pub fn cos(operand: &Self) -> Tensor<f64> {
+    pub fn cos(operand: &Self) -> CpuTensor<f64> {
         Self::element_op(operand, OpType::COS)
     }
 
-    pub fn tan(operand: &Self) -> Tensor<f64> {
+    pub fn tan(operand: &Self) -> CpuTensor<f64> {
         Self::element_op(operand, OpType::TAN)
     }
 
-    pub fn tanh(operand: &Self) -> Tensor<f64> {
+    pub fn tanh(operand: &Self) -> CpuTensor<f64> {
         Self::element_op(operand, OpType::TANH)
     }
 
-    pub fn log(operand: &Self) -> Tensor<f64> {
+    pub fn log(operand: &Self) -> CpuTensor<f64> {
         Self::element_op(operand, OpType::LOG)
     }
 
-    pub fn ln(operand: &Self) -> Tensor<f64> {
+    pub fn ln(operand: &Self) -> CpuTensor<f64> {
         Self::element_op(operand, OpType::LN)
     }
 
-    pub fn sigmoid(operand: &Self) -> Tensor<f64> {
+    pub fn sigmoid(operand: &Self) -> CpuTensor<f64> {
         Self::element_op(operand, OpType::SIGMOID)
     }
 
@@ -427,11 +427,11 @@ impl<T: Numeric> Tensor<T> {
     /// ```
     ///
     /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
-    pub fn add(&self, rhs: &Self) -> Result<Tensor<T>, String> {
+    pub fn add(&self, rhs: &Self) -> Result<CpuTensor<T>, String> {
         self._add(rhs, false)
     }
     /// Computes the sum of all elements in the `Tensor` row-wise so that we get one column.
-    pub fn sum(&self) -> Tensor<T> {
+    pub fn sum(&self) -> CpuTensor<T> {
         let mut sum_vector = vec![T::zero(); self.shape[1] as usize];
         let rows = self.shape[0] as usize;
         let cols = self.shape[1] as usize;
@@ -440,7 +440,7 @@ impl<T: Numeric> Tensor<T> {
                 sum_vector[c] = sum_vector[c] + self.data[r * cols + c];
             }
         }
-        Tensor::new(vec![1, self.shape[1]], sum_vector).unwrap()
+        CpuTensor::new(vec![1, self.shape[1]], sum_vector).unwrap()
     }
 
     /// Implements the subtraction of two `Tensor` instances. The `-` operator also does the same but the operator moves the value, making the instance unusable later.
@@ -468,7 +468,7 @@ impl<T: Numeric> Tensor<T> {
     /// ```
     ///
     /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
-    pub fn sub(&self, rhs: &Self) -> Result<Tensor<T>, String> {
+    pub fn sub(&self, rhs: &Self) -> Result<CpuTensor<T>, String> {
         self._add(rhs, true)
     }
 
@@ -499,7 +499,7 @@ impl<T: Numeric> Tensor<T> {
     /// ```
     ///
     /// Note: This method is designed to support all numeric types defined in the `numeric` module, ensuring compatibility with a wide range of data types.
-    pub fn mul(&self, rhs: &Self) -> Result<Tensor<T>, String> {
+    pub fn mul(&self, rhs: &Self) -> Result<CpuTensor<T>, String> {
         self._mul(rhs)
     }
 
@@ -586,7 +586,7 @@ impl<T: Numeric> Tensor<T> {
     }
 }
 
-impl<T: Numeric> Add for Tensor<T> {
+impl<T: Numeric> Add for CpuTensor<T> {
     type Output = Result<Self, String>;
 
     /// Implements the addition of two `Tensor` instances.
@@ -621,7 +621,7 @@ impl<T: Numeric> Add for Tensor<T> {
     }
 }
 
-impl<T: Numeric> Sub for Tensor<T> {
+impl<T: Numeric> Sub for CpuTensor<T> {
     type Output = Result<Self, String>;
 
     /// Implements the subtraction of two `Tensor` instances.
@@ -656,7 +656,7 @@ impl<T: Numeric> Sub for Tensor<T> {
     }
 }
 
-impl<T: Numeric> Mul for Tensor<T> {
+impl<T: Numeric> Mul for CpuTensor<T> {
     type Output = Result<Self, String>;
 
     /// Implements tensor multiplication using the `*` operator.
@@ -691,18 +691,18 @@ impl<T: Numeric> Mul for Tensor<T> {
     }
 }
 
-impl<T: SignedNumeric> Neg for Tensor<T> {
+impl<T: SignedNumeric> Neg for CpuTensor<T> {
     type Output = Self;
     fn neg(self) -> Self {
         let result: Vec<T> = self.data.iter().map(|t| -*t).collect();
-        Tensor::new(self.shape, result).unwrap()
+        CpuTensor::new(self.shape, result).unwrap()
     }
 }
 
 #[cfg(test)]
 #[test]
 fn test_new() {
-    let t = Tensor::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
+    let t = CpuTensor::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
 
     assert_eq!(t.shape, vec![1u32, 2u32]);
     assert_eq!(t.data, vec![1i8, 2i8]);
