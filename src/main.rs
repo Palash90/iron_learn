@@ -20,6 +20,8 @@
 use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
+use iron_learn::run_linear_cuda;
+use iron_learn::run_logistics_cuda;
 use iron_learn::{init_context, run_linear, run_logistic, GpuTensor, Tensor, GLOBAL_CONTEXT};
 use std::env;
 use std::time::Instant;
@@ -141,6 +143,17 @@ fn main() {
         let _ = run_logistic::<GpuTensor<f64>>();
         let elapsed = now.elapsed();
         println!("Logistic Regression completed in {:.4?}", elapsed);
+
+
+        let now = Instant::now();
+        let _ = run_linear_cuda();
+        let elapsed = now.elapsed();
+        println!("Old linear Regression completed in {:.4?}", elapsed);
+
+        let now = Instant::now();
+        let _ = run_logistics_cuda();
+        let elapsed = now.elapsed();
+        println!("Old logistic Regression completed in {:.4?}", elapsed);
 
         println!("\n✓ All training tasks completed");
     } else {
