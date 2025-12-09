@@ -9,6 +9,8 @@ use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use cust::{device, memory::CopyDestination, prelude::DeviceBuffer};
 
+mod tensor_ops;
+
 #[derive(Clone, Copy)]
 enum OpType {
     EXP = 0,

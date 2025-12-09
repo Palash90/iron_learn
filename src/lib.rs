@@ -51,6 +51,7 @@ mod numeric;
 mod read_file;
 mod regression;
 mod tensor;
+mod tensor_commons;
 
 pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::complex::Complex;

@@ -29,6 +29,8 @@
 //! GPU acceleration is available through the `gpu_regression` module for large-scale workloads.
 
 mod display;
+mod tensor_ops;
+
 use crate::numeric::{Numeric, SignedNumeric};
 use std::ops::{Add, Mul, Neg, Sub};
 

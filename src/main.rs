@@ -19,7 +19,7 @@
 
 use iron_learn::{
     init_context, run_linear, run_linear_cuda, run_logistic, run_logistics_cuda,
-    run_neural_network, GpuTensor, GLOBAL_CONTEXT,
+    run_neural_network, GpuTensor, GLOBAL_CONTEXT, Tensor
 };
 use std::{env, vec};
 
@@ -120,8 +120,8 @@ fn main() {
         }
     } else {
         println!("Running CPU-based training...\n");
-        run_linear();
-        run_logistic();
+        run_linear::<Tensor<f64>>();
+        run_logistic::<Tensor<f64>>();
         println!("\n✓ All training tasks completed");
     }
 }
