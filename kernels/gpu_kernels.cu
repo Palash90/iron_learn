@@ -160,7 +160,7 @@ extern "C" __global__ void compareMemory(const double *a, const double *b, size_
     }
 }
 
-extern "C" __global__ void transpose_naive(const float *A, float *B, int M, int N)
+extern "C" __global__ void transpose_naive(const double *A, double *B, int M, int N)
 {
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     int row = blockIdx.y * blockDim.y + threadIdx.y;

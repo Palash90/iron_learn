@@ -831,8 +831,8 @@ $L__BB9_3:
 )
 {
 	.reg .pred 	%p<4>;
-	.reg .f32 	%f<2>;
 	.reg .b32 	%r<13>;
+	.reg .f64 	%fd<2>;
 	.reg .b64 	%rd<9>;
 
 
@@ -855,14 +855,14 @@ $L__BB9_3:
 
 	cvta.to.global.u64 	%rd3, %rd1;
 	mad.lo.s32 	%r11, %r2, %r4, %r1;
-	mul.wide.s32 	%rd4, %r11, 4;
+	mul.wide.s32 	%rd4, %r11, 8;
 	add.s64 	%rd5, %rd3, %rd4;
-	ld.global.f32 	%f1, [%rd5];
+	ld.global.f64 	%fd1, [%rd5];
 	mad.lo.s32 	%r12, %r1, %r3, %r2;
 	cvta.to.global.u64 	%rd6, %rd2;
-	mul.wide.s32 	%rd7, %r12, 4;
+	mul.wide.s32 	%rd7, %r12, 8;
 	add.s64 	%rd8, %rd6, %rd7;
-	st.global.f32 	[%rd8], %f1;
+	st.global.f64 	[%rd8], %fd1;
 
 $L__BB10_2:
 	ret;

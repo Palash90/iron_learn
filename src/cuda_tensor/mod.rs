@@ -37,7 +37,7 @@ where
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
     pub fn _exp(&self) -> Result<Self, String> {
-                // Set up common block size
+        // Set up common block size
         let block_dim = 16;
 
         // Calculate grid size using ceiling division
@@ -46,9 +46,10 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let total_elements = match self.shape.len() {
             2 => self.shape[0] * self.shape[1],
-            _ => self.shape[0]
+            _ => self.shape[0],
         };
-
+        let threads_per_block = 1024; // Use a typical 1D block size
+        let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
         let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
 
         let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
@@ -59,7 +60,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         };
 
         unsafe {
-            launch!(exp<<<(grid_x, grid_y, 1), (block_dim, block_dim, 1), 0, stream>>>(
+            launch!(exp<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
                 total_elements as i32
@@ -71,8 +72,20 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _t(&self) -> Result<Self, String> {
-        if self.shape.len() != 2 {
-            return Err("Only 2D tensors can be transposed.".to_string());
+        if self.shape.len() > 2 {
+            return Err("Only upto 2D tensors can be transposed.".to_string());
+        }
+
+        if self.shape.len() == 1 {
+            unsafe {
+                let new_device_buffer =
+                    DeviceBuffer::from_raw_parts(self.device_buffer.as_device_ptr(), self.shape[0] as usize);
+
+                return Ok(Self::_with_device_buffer(
+                    self.shape.clone(),
+                    new_device_buffer,
+                ));
+            }
         }
 
         let transpose = match self.module.get_function("transpose_naive") {
@@ -150,6 +163,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let threads_per_block = 1024;
 
         let grid_1d = (total_size_u32 + threads_per_block - 1) / threads_per_block;
+        let sub_int = if sub { 1i32 } else { 0i32 };
 
         let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
         unsafe {
@@ -158,7 +172,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
                 rhs.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
                 total_size_u32 as i32,
-                0
+                sub_int
             ));
         }
 
@@ -246,8 +260,11 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let total_elements = match self.shape.len() {
             2 => self.shape[0] * self.shape[1],
-            _ => self.shape[0]
+            _ => self.shape[0],
         };
+
+        let threads_per_block = 1024; // Use a typical 1D block size
+        let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
 
         let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
 
@@ -259,7 +276,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         };
 
         unsafe {
-            launch!(hadamard<<<(grid_x, grid_y, 1), (block_dim, block_dim, 1), 0, stream>>>(
+            launch!(hadamard<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 rhs.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
@@ -269,7 +286,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         stream.synchronize();
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
-    
     }
 
     fn _gpu_mul(&self, rhs: &Self) -> Result<Self, String> {
@@ -351,7 +367,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let cols = self.shape[1] as usize;
 
         let data = self.get_data();
-        
+
         for r in 0..rows {
             for c in 0..cols {
                 sum_vector[c] = sum_vector[c] + data[r * cols + c];

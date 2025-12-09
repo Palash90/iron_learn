@@ -92,14 +92,11 @@ impl<T: Numeric> Tensor<T> {
 
     fn _t(&self) -> Result<Self, String> {
         if self.shape.len() > 2 {
-            return Err("Only 2D tensors can be transposed.".to_string());
+            return Err("Only upto 2D tensors can be transposed.".to_string());
         }
 
         if self.shape.len() == 1 {
-            return Ok(Self {
-                shape: self.shape.clone(),
-                data: self.data.clone(),
-            });
+            return Ok(self.clone())
         }
 
         let new_shape = vec![self.shape[1], self.shape[0]];
