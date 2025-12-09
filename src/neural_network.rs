@@ -127,7 +127,7 @@ impl Layer for ActivationLayer {
     fn backward(&mut self, error: &Tensor<f64>, learning_rate: f64) -> Tensor<f64> {
         let input_derivative = (self.activation_derivative)(&self.input.clone().unwrap());
 
-        input_derivative.hadamard(&error).unwrap()
+        input_derivative.multiply(&error).unwrap()
     }
 }
 

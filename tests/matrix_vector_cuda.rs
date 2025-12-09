@@ -85,7 +85,7 @@ pub fn hadamard_float() {
 
     let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
     let m2 = GpuTensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0]).unwrap();
-    let m3 = m1.hadamard(&m2).unwrap();
+    let m3 = m1.multiply(&m2).unwrap();
     let result = GpuTensor::new(vec![2, 2], vec![5.0, 12.0, 21.0, 32.0]).unwrap();
 
     m3.print_matrix();
