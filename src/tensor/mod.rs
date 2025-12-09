@@ -51,10 +51,10 @@ use std::ops::{Add, Mul, Neg, Sub};
 /// # Examples
 ///
 /// ```rust
-/// # use iron_learn::Tensor;
+/// # use iron_learn::CpuTensor;
 /// // Create a 2x2 matrix
-/// let a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
-/// let b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+/// let a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+/// let b = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
 ///
 /// // Borrowing method (non-consuming)
 /// let c = a.add(&b).unwrap();
@@ -293,9 +293,9 @@ impl<T: Numeric> CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor = Tensor::exp(&Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap());
+    /// let tensor = CpuTensor::exp(&CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap());
     /// ```
     ///
     pub fn exp(operand: &Self) -> CpuTensor<f64> {
@@ -343,9 +343,9 @@ impl<T: Numeric> CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]); // Initializes a 2x2 tensor
+    /// let tensor = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]); // Initializes a 2x2 tensor
     /// ```
     ///
     ///
@@ -369,9 +369,9 @@ impl<T: Numeric> CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor = Tensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
+    /// let tensor = CpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
     /// let data = tensor.get_data(); // Retrieves the data as Vec<f64>
     ///
     /// assert_eq!(vec![1.0, 2.0, 3.0, 4.0], data);
@@ -390,9 +390,9 @@ impl<T: Numeric> CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor = Tensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
+    /// let tensor = CpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
     /// let shape = tensor.get_shape(); // Retrieves the data as Vec<f64>
     ///
     /// assert_eq!(vec![2, 2], shape);
@@ -418,10 +418,10 @@ impl<T: Numeric> CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor_a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
-    /// let tensor_b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    /// let tensor_a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+    /// let tensor_b = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
     /// let tensor_sum = tensor_a.add(&tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
     /// // tensor_sum now contains the element-wise sum of tensor_a and tensor_b
     /// ```
@@ -459,10 +459,10 @@ impl<T: Numeric> CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor_a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
-    /// let tensor_b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    /// let tensor_a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+    /// let tensor_b = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
     /// let tensor_diff = tensor_a.sub(&tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
     /// // tensor_diff now contains the element-wise difference of tensor_a and tensor_b
     /// ```
@@ -490,10 +490,10 @@ impl<T: Numeric> CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor_a = Tensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
-    /// let tensor_b = Tensor::new(vec![3, 2], vec![7, 8, 9, 10, 11, 12]).unwrap();
+    /// let tensor_a = CpuTensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
+    /// let tensor_b = CpuTensor::new(vec![3, 2], vec![7, 8, 9, 10, 11, 12]).unwrap();
     /// let tensor_product = tensor_a.mul(&tensor_b).expect("ShapeMismatch: The dimensions of two matrices are not matching.");
     /// // tensor_product now contains the product of tensor_a and tensor_b
     /// ```
@@ -521,10 +521,10 @@ impl<T: Numeric> CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor_a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
-    /// let tensor_b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    /// let tensor_a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+    /// let tensor_b = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
     /// let tensor_product = tensor_a.multiply(&tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
     /// // tensor_product now contains the element-wise product of tensor_a and tensor_b
     /// ```
@@ -547,11 +547,11 @@ impl<T: Numeric> CpuTensor<T> {
     /// # Examples
     ///
     /// ```
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor = Tensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
+    /// let tensor = CpuTensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
     /// let transposed = tensor.t().unwrap();
-    /// assert_eq!(Tensor::new(vec![3, 2], vec![1, 4, 2, 5, 3, 6]).unwrap(), transposed);
+    /// assert_eq!(CpuTensor::new(vec![3, 2], vec![1, 4, 2, 5, 3, 6]).unwrap(), transposed);
     /// ```
     ///
     /// # Errors
@@ -575,9 +575,9 @@ impl<T: Numeric> CpuTensor<T> {
     ///
     /// # Examples
     /// ```
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor = Tensor::new(vec![1, 3], vec![1, 2, 3]).unwrap();
+    /// let tensor = CpuTensor::new(vec![1, 3], vec![1, 2, 3]).unwrap();
     /// let scaled_tensor = tensor.scale(2);
     /// assert_eq!(scaled_tensor.get_data(), vec![2, 4, 6]);
     /// ```
@@ -607,10 +607,10 @@ impl<T: Numeric> Add for CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor_a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
-    /// let tensor_b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    /// let tensor_a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+    /// let tensor_b = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
     /// let tensor_sum = (tensor_a + tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
     /// // tensor_sum now contains the element-wise sum of tensor_a and tensor_b
     /// ```
@@ -642,10 +642,10 @@ impl<T: Numeric> Sub for CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor_a = Tensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
-    /// let tensor_b = Tensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
+    /// let tensor_a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
+    /// let tensor_b = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
     /// let tensor_sum = (tensor_a - tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
     /// // tensor_sum now contains the element-wise sum of tensor_a and tensor_b
     /// ```
@@ -677,10 +677,10 @@ impl<T: Numeric> Mul for CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
-    /// use iron_learn::Tensor;
+    /// use iron_learn::CpuTensor;
     ///
-    /// let tensor_a = Tensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
-    /// let tensor_b = Tensor::new(vec![3, 2], vec![7, 8, 9, 10, 11, 12]).unwrap();
+    /// let tensor_a = CpuTensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
+    /// let tensor_b = CpuTensor::new(vec![3, 2], vec![7, 8, 9, 10, 11, 12]).unwrap();
     /// let tensor_product = (tensor_a * tensor_b).expect("ShapeMismatch: The dimensions of two matrices are not matching.");
     /// // tensor_product now contains the product of tensor_a and tensor_b
     /// ```
