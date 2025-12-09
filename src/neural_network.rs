@@ -39,13 +39,13 @@ impl<T: Tensor<f64>> LinearLayer<T> {
     }
 }
 
-impl<T: Tensor<f64>> Layer<T> for LinearLayer<T> {
+impl<T: Tensor<f64> + Clone> Layer<T> for LinearLayer<T> {
     fn get_type(&self) -> &str {
         "LinearLayer"
     }
     fn forward(&mut self, input: T) -> T {
         self.input = input;
-        let weighted_input = (self.input.clone()).unwrap().mul(&self.weights).unwrap();
+        let weighted_input = self.input.mul(&self.weights).unwrap();
 
         let batch_size = weighted_input.get_shape()[0];
         let output_size = weighted_input.get_shape()[1];
@@ -72,14 +72,14 @@ impl<T: Tensor<f64>> Layer<T> for LinearLayer<T> {
         let input_error = error.mul(&self.weights.t().unwrap()).unwrap();
 
         // Gradient w.r.t. weights: input^T × error → [input_size, batch_size] × [batch_size, output_size]
-        let weights_error = self.input.clone().unwrap().t().unwrap().mul(error).unwrap();
+        let weights_error = self.input.clone().t().unwrap().mul(error).unwrap();
 
         // Gradient w.r.t. bias: sum error across batch dimension
         let biases_error = error.sum();
 
         self.weights = self
             .weights
-            .sub(&weights_error.scale(learning_rate))
+            .sub(&(weights_error.scale(learning_rate)).unwrap())
             .unwrap();
         self.bias = self
             .bias
@@ -108,7 +108,7 @@ impl<T: Tensor<f64>> ActivationLayer<T> {
     }
 }
 
-impl<T: Tensor<f64>> Layer<T> for ActivationLayer<T> {
+impl<T: Tensor<f64> + Clone > Layer<T> for ActivationLayer<T> {
     fn get_type(&self) -> &str {
         "ActivationLayer"
     }
@@ -207,7 +207,7 @@ pub struct NeuralNetwork<T: Tensor<f64>> {
     loss_derivative: fn(&T, &T) -> T,
 }
 
-impl<T: Tensor<f64>> NeuralNetwork<T> {
+impl<T: Tensor<f64> + Clone> NeuralNetwork<T> {
     pub fn new(loss: fn(&T, &T) -> f64, loss_derivative: fn(&T, &T) -> T) -> Self {
         NeuralNetwork {
             layers: Vec::new(),
@@ -244,7 +244,7 @@ impl<T: Tensor<f64>> NeuralNetwork<T> {
     }
 }
 
-fn build_neural_net<T: Tensor<f64> + 'static>(features: u32, output_size: u32) -> NeuralNetwork<T> {
+fn build_neural_net<T: Tensor<f64> + 'static + Clone>(features: u32, output_size: u32) -> NeuralNetwork<T> {
     let mut nn = NeuralNetwork::new(log_loss, log_loss_derivative);
 
     nn.add_layer(Box::new(LinearLayer::new(features, 21)));
@@ -262,7 +262,7 @@ fn build_neural_net<T: Tensor<f64> + 'static>(features: u32, output_size: u32) -
     nn
 }
 
-pub fn run_neural_network<T: Tensor<f64> + 'static>() {
+pub fn run_neural_network<T: Tensor<f64> + 'static + Clone>() {
     // Placeholder for loading data
     let Data {
         neural_network: xy, ..
