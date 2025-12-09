@@ -104,8 +104,7 @@ $L__BB1_2:
 .visible .entry element_exp(
 	.param .u64 element_exp_param_0,
 	.param .u64 element_exp_param_1,
-	.param .f64 element_exp_param_2,
-	.param .u32 element_exp_param_3
+	.param .u32 element_exp_param_2
 )
 {
 	.reg .pred 	%p<5>;
@@ -117,7 +116,7 @@ $L__BB1_2:
 
 	ld.param.u64 	%rd2, [element_exp_param_0];
 	ld.param.u64 	%rd3, [element_exp_param_1];
-	ld.param.u32 	%r5, [element_exp_param_3];
+	ld.param.u32 	%r5, [element_exp_param_2];
 	mov.u32 	%r6, %ctaid.x;
 	mov.u32 	%r7, %ntid.x;
 	mov.u32 	%r8, %tid.x;

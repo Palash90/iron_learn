@@ -93,6 +93,8 @@ pub fn hadamard_float() {
 
     assert_eq!(result, m3);
 }
+
+#[test]
 pub fn exp_float() {
     init();
 

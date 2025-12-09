@@ -26,7 +26,7 @@ extern "C" __global__ void scaleVector(double *v, double scale, int n)
     }
 }
 
-extern "C" __global__ void element_exp(const double *s, double *r, double scale, int n)
+extern "C" __global__ void element_exp(const double *s, double *r, int n)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n)
