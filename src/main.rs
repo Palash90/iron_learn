@@ -19,10 +19,9 @@
 
 use cust::prelude::Module;
 use iron_learn::{
-    init_context, run_linear, run_linear_cuda, run_logistic, run_logistics_cuda,
-    run_neural_network, GpuTensor, Tensor, GLOBAL_CONTEXT,
+    init_context, run_linear, run_logistic, GpuTensor, Tensor, GLOBAL_CONTEXT,
 };
-use std::{env, vec};
+use std::env;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
 

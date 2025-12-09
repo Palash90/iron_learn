@@ -1,4 +1,4 @@
-use iron_learn::{init_context, Complex, Tensor};
+use iron_learn::{Complex, Tensor};
 
 #[cfg(test)]
 #[test]
