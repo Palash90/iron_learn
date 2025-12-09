@@ -9,13 +9,14 @@ pub fn denormalize_features<T: TensorOps<f64>>(
     let m = shape[0] as usize;
     let n = shape[1] as usize;
     let mut denormalized_data = vec![0.0; m * n];
+    let data = normalized_data.get_data();
 
     for j in 0..n {
         let mean = mean[j];
         let std_dev = std[j];
 
         for i in 0..m {
-            let value = normalized_data.get_data()[i * n + j];
+            let value = data[i * n + j];
             denormalized_data[i * n + j] = value * std_dev + mean;
         }
     }
@@ -32,12 +33,14 @@ pub fn normalize_features<T: TensorOps<f64>>(data: &T, mean: &Vec<f64>, std: &Ve
     let mut data_mean = vec![0.0; n];
     let mut data_std_dev = vec![0.0; n];
 
+    let data = data.get_data();
+
     for j in 0..n {
         let mean = mean[j];
         let std_dev = std[j];
 
         for i in 0..m {
-            let value = data.get_data()[i * n + j];
+            let value = data[i * n + j];
             normalized_data[i * n + j] = if std_dev != 0.0 {
                 (value - mean) / std_dev
             } else {
@@ -61,16 +64,17 @@ pub fn normalize_features_mean_std<T: TensorOps<f64>>(data: &T) -> (T, Vec<f64>,
     for j in 0..n {
         let mut mean = 0.0;
         let mut variance = 0.0;
+        let data = data.get_data();
 
         // Calculate mean
         for i in 0..m {
-            mean += data.get_data()[i * n + j];
+            mean += data[i * n + j];
         }
         mean /= m as f64;
 
         // Calculate variance
         for i in 0..m {
-            let diff = data.get_data()[i * n + j] - mean;
+            let diff = data[i * n + j] - mean;
             variance += diff * diff;
         }
         variance /= m as f64;

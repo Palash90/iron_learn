@@ -112,7 +112,7 @@ fn main() {
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
         run_linear::<GpuTensor<f64>>();
-       //  run_logistic::<GpuTensor<f64>>();
+        run_logistic::<GpuTensor<f64>>();
         println!("\n✓ All training tasks completed");
     } else {
         println!("Running CPU-based training...\n");

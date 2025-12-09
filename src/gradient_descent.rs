@@ -20,7 +20,6 @@ pub fn add_bias_term<T: TensorOps<f64>>(x: &T) -> Result<T, String> {
     T::new(vec![shape[0], shape[1] + 1], data)
 }
 
-
 pub fn gradient_descent<T: TensorOps<f64>>(
     x: &T,
     y: &T,
@@ -46,18 +45,39 @@ pub fn gradient_descent<T: TensorOps<f64>>(
     w.sub(&d)
 }
 
-pub fn linear_regression<T: TensorOps<f64>>(x: &T, y: &T, w: &T, l: f64, e: u32) -> Result<T, String> {
+pub fn linear_regression<T: TensorOps<f64>>(
+    x: &T,
+    y: &T,
+    w: &T,
+    l: f64,
+    e: u32,
+) -> Result<T, String> {
     let (x_normalized, _, _) = normalize_features_mean_std(x);
 
     let x_with_bias = add_bias_term(&x_normalized)?;
-    gradient_descent(&x_with_bias, y, w, l, false)
+    for _ in 0..(e - 1) {
+        gradient_descent(&x_with_bias, y, w, l, false);
+    }
+
+    Ok(gradient_descent(&x_with_bias, y, w, l, false).unwrap())
 }
 
-pub fn logistic_regression<T: TensorOps<f64>>(x: &T, y: &T, w: &T, l: f64, e: u32) -> Result<T, String> {
+pub fn logistic_regression<T: TensorOps<f64>>(
+    x: &T,
+    y: &T,
+    w: &T,
+    l: f64,
+    e: u32,
+) -> Result<T, String> {
     let (x_normalized, _, _) = normalize_features_mean_std(x);
 
     let x_with_bias = add_bias_term(&x_normalized)?;
-    gradient_descent(&x_with_bias, y, w, l, true)
+
+    for _ in 0..(e - 1) {
+        gradient_descent(&x_with_bias, y, w, l, true);
+    }
+
+    Ok(gradient_descent(&x_with_bias, y, w, l, true).unwrap())
 }
 
 pub fn predict_linear<T: TensorOps<f64>>(x_normalized: &T, w: &T) -> Result<T, String> {

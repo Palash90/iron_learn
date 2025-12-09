@@ -109,7 +109,11 @@ impl<T: Numeric> Tensor<T> {
             OpType::SIN => operand.data.iter().map(|t| f64::sin(t.f64())).collect(),
             OpType::TAN => operand.data.iter().map(|t| f64::tan(t.f64())).collect(),
             OpType::TANH => operand.data.iter().map(|t| f64::tanh(t.f64())).collect(),
-            OpType::SIGMOID => operand.data.iter().map(|t| Self::_sigmoid(t.f64())).collect(),
+            OpType::SIGMOID => operand
+                .data
+                .iter()
+                .map(|t| Self::_sigmoid(t.f64()))
+                .collect(),
             OpType::LOG => operand.data.iter().map(|t| f64::log10(t.f64())).collect(),
             OpType::LN => operand.data.iter().map(|t| f64::ln(t.f64())).collect(),
         };

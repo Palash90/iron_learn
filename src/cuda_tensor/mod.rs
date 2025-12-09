@@ -21,7 +21,7 @@ enum OpType {
     TANH = 5,
     SIGMOID = 6,
     LOG = 7,
-    LN = 8
+    LN = 8,
 }
 
 #[derive(Debug)]
@@ -175,7 +175,7 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
-    fn _eq(&self, other: &Self) -> bool{
+    fn _eq(&self, other: &Self) -> bool {
         // 1. Shape Check
         if self.shape != other.shape {
             return false;
@@ -554,7 +554,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         self._gpu_mul(rhs)
     }
 }
-
 
 #[cfg(test)]
 #[test]

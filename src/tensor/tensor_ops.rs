@@ -2,7 +2,10 @@ use crate::numeric::Numeric;
 use crate::tensor::Tensor;
 use crate::tensor_commons::TensorOps;
 
-impl<T: Numeric + 'static> TensorOps<T> for Tensor<T> where Tensor<T>: From<Tensor<f64>> {
+impl<T: Numeric + 'static> TensorOps<T> for Tensor<T>
+where
+    Tensor<T>: From<Tensor<f64>>,
+{
     fn get_shape(&self) -> &Vec<u32> {
         &self.shape
     }
@@ -36,12 +39,12 @@ impl<T: Numeric + 'static> TensorOps<T> for Tensor<T> where Tensor<T>: From<Tens
 
         Ok(Tensor::sigmoid(&as_f64_tensor).into())
     }
-    
+
     fn get_data(&self) -> Vec<T> {
         println!("Get Data Called on CPU");
         self.get_data()
     }
-    
+
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         Self::new(shape, data)
     }

@@ -1,8 +1,9 @@
- use crate::tensor_commons::TensorOps;
+
+use crate::cuda_tensor::OpType;
+use crate::cuda_tensor::Zeroable;
+use crate::tensor_commons::TensorOps;
 use crate::GpuTensor;
 use crate::Numeric;
-use crate::cuda_tensor::Zeroable;
-use crate::cuda_tensor::OpType;
 
 // This implementation block requires the necessary bounds for GpuTensor methods.
 // We'll use the common bound T: Numeric + Zeroable.
