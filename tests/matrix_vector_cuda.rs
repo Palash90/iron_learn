@@ -114,7 +114,6 @@ pub fn neg_float() {
     assert_eq!(result, m2);
 }
 
-
 #[test]
 pub fn scale_float() {
     init();
@@ -138,30 +137,90 @@ pub fn scale_float() {
     assert_eq!(result, m2);
 }
 
+fn sigmoid(x: f64) -> f64 {
+    f64::exp(x) / (1.0 + f64::exp(x))
+}
+
 #[test]
 pub fn sin_float() {
     init();
 
     let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
-   
+
     let m2 = m1.sin().unwrap();
-    let result = GpuTensor::new(vec![2, 2], vec![f64::sin(1.0), f64::sin(2.0), f64::sin(-3.0), f64::sin(4.0)]).unwrap();
-
-    m2.print_matrix();
-    result.print_matrix();
-
+    let result = GpuTensor::new(
+        vec![2, 2],
+        vec![f64::sin(1.0), f64::sin(2.0), f64::sin(-3.0), f64::sin(4.0)],
+    )
+    .unwrap();
     assert_eq!(result, m2);
 
     let m2 = m1.cos().unwrap();
-    let result = GpuTensor::new(vec![2, 2], vec![f64::cos(1.0), f64::cos(2.0), f64::cos(-3.0), f64::cos(4.0)]).unwrap();
-
-    m2.print_matrix();
-    result.print_matrix();
-
+    let result = GpuTensor::new(
+        vec![2, 2],
+        vec![f64::cos(1.0), f64::cos(2.0), f64::cos(-3.0), f64::cos(4.0)],
+    )
+    .unwrap();
     assert_eq!(result, m2);
-    
-}
 
+    let m2 = m1.tan().unwrap();
+    let result = GpuTensor::new(
+        vec![2, 2],
+        vec![f64::tan(1.0), f64::tan(2.0), f64::tan(-3.0), f64::tan(4.0)],
+    )
+    .unwrap();
+    assert_eq!(result, m2);
+
+    let m2 = m1.tanh().unwrap();
+    let result = GpuTensor::new(
+        vec![2, 2],
+        vec![
+            f64::tanh(1.0),
+            f64::tanh(2.0),
+            f64::tanh(-3.0),
+            f64::tanh(4.0),
+        ],
+    )
+    .unwrap();
+    assert_eq!(result, m2);
+
+    let m2 = m1.log().unwrap();
+    let result = GpuTensor::new(
+        vec![2, 2],
+        vec![
+            f64::log10(1.0),
+            f64::log10(2.0),
+            f64::log10(-3.0),
+            f64::log10(4.0),
+        ],
+    )
+    .unwrap();
+    assert_eq!(result, m2);
+
+    let m2 = m1.ln().unwrap();
+    let result = GpuTensor::new(
+        vec![2, 2],
+        vec![f64::ln(1.0), f64::ln(2.0), f64::ln(-3.0), f64::ln(4.0)],
+    )
+    .unwrap();
+    assert_eq!(result, m2);
+
+    let m2 = m1.exp().unwrap();
+    let result = GpuTensor::new(
+        vec![2, 2],
+        vec![f64::exp(1.0), f64::exp(2.0), f64::exp(-3.0), f64::exp(4.0)],
+    )
+    .unwrap();
+    assert_eq!(result, m2);
+
+    let m2 = m1.sigmoid().unwrap();
+    let result = GpuTensor::new(
+        vec![2, 2],
+        vec![sigmoid(1.0), sigmoid(2.0), sigmoid(-3.0), sigmoid(4.0)],
+    )
+    .unwrap();
+    assert_eq!(result, m2);
+}
 
 #[test]
 pub fn transpose() {

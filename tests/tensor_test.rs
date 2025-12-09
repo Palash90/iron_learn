@@ -83,6 +83,10 @@ pub fn transpose() {
     assert_eq!(result, m.t().unwrap());
 }
 
+fn sigmoid(x: f64) -> f64 {
+    f64::exp(x) / (1.0 + f64::exp(x))
+}
+
 #[test]
 pub fn fn_test() {
     let m1 = Tensor::new(vec![1, 2], vec![1, 2]).unwrap();
@@ -101,4 +105,13 @@ pub fn fn_test() {
 
     let result = Tensor::new(vec![1, 2], vec![f64::tanh(1.0), f64::tanh(2.0)]).unwrap();
     assert_eq!(result, Tensor::tanh(&m1));
+
+    let result = Tensor::new(vec![1, 2], vec![f64::log10(1.0), f64::log10(2.0)]).unwrap();
+    assert_eq!(result, Tensor::log(&m1));
+
+    let result = Tensor::new(vec![1, 2], vec![f64::ln(1.0), f64::ln(2.0)]).unwrap();
+    assert_eq!(result, Tensor::ln(&m1));
+
+    let result = Tensor::new(vec![1, 2], vec![sigmoid(1.0), sigmoid(2.0)]).unwrap();
+    assert_eq!(result, Tensor::sigmoid(&m1));
 }

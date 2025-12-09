@@ -89,10 +89,17 @@ enum OpType {
     COS = 3,
     TAN = 4,
     TANH = 5,
+    SIGMOID = 6,
+    LOG = 7,
+    LN = 8,
 }
 
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
 impl<T: Numeric> Tensor<T> {
+    fn _sigmoid(t: f64) -> f64 {
+        f64::exp(t) / (1.0 + f64::exp(t))
+    }
+
     fn element_op(operand: &Self, op_type: OpType) -> Tensor<f64> {
         let result = match op_type {
             OpType::EXP => operand.data.iter().map(|t| f64::exp(t.f64())).collect(),
@@ -100,6 +107,9 @@ impl<T: Numeric> Tensor<T> {
             OpType::SIN => operand.data.iter().map(|t| f64::sin(t.f64())).collect(),
             OpType::TAN => operand.data.iter().map(|t| f64::tan(t.f64())).collect(),
             OpType::TANH => operand.data.iter().map(|t| f64::tanh(t.f64())).collect(),
+            OpType::SIGMOID => operand.data.iter().map(|t| Self::_sigmoid(t.f64())).collect(),
+            OpType::LOG => operand.data.iter().map(|t| f64::log10(t.f64())).collect(),
+            OpType::LN => operand.data.iter().map(|t| f64::ln(t.f64())).collect(),
         };
 
         Tensor::new(operand.shape.clone(), result).unwrap()
@@ -300,6 +310,18 @@ impl<T: Numeric> Tensor<T> {
 
     pub fn tanh(operand: &Self) -> Tensor<f64> {
         Self::element_op(operand, OpType::TANH)
+    }
+
+    pub fn log(operand: &Self) -> Tensor<f64> {
+        Self::element_op(operand, OpType::LOG)
+    }
+
+    pub fn ln(operand: &Self) -> Tensor<f64> {
+        Self::element_op(operand, OpType::LN)
+    }
+
+    pub fn sigmoid(operand: &Self) -> Tensor<f64> {
+        Self::element_op(operand, OpType::SIGMOID)
     }
 
     /// Constructs a new instance of a `Tensor`.

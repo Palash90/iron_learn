@@ -31,34 +31,37 @@ extern "C" __global__ void element_op(const double *s, double *r, int n, int op,
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n)
     {
-        if (op == 0)
+        switch (op)
         {
+        case 0:
             r[idx] = exp(s[idx]);
-        }
-
-        if (op == 1)
-        {
+            break;
+        case 1:
             r[idx] = s[idx] * scale;
-        }
-
-        if (op == 2)
-        {
+            break;
+        case 2:
             r[idx] = sin(s[idx]);
-        }
-
-         if (op == 3)
-        {
+            break;
+        case 3:
             r[idx] = cos(s[idx]);
-        }
-
-         if (op == 4)
-        {
+            break;
+        case 4:
             r[idx] = tan(s[idx]);
-        }
-
-         if (op == 5)
-        {
+            break;
+        case 5:
             r[idx] = tanh(s[idx]);
+            break;
+        case 6:
+            r[idx] = exp(s[idx]) / (1 + exp(s[idx]));
+            break;
+        case 7:
+            r[idx] = log10(s[idx]);
+            break;
+        case 8:
+            r[idx] = log(s[idx]);
+            break;
+        default:
+            break;
         }
     }
 }

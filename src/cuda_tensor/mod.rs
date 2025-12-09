@@ -16,7 +16,10 @@ enum OpType {
     SIN = 2,
     COS = 3,
     TAN = 4,
-    TANH = 5
+    TANH = 5,
+    SIGMOID = 6,
+    LOG = 7,
+    LN = 8
 }
 
 #[derive(Debug)]
@@ -47,6 +50,18 @@ where
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
+    pub fn sigmoid(&self) -> Result<Self, String> {
+        self.element_op(OpType::SIGMOID, T::zero())
+    }
+
+    pub fn log(&self) -> Result<Self, String> {
+        self.element_op(OpType::LOG, T::zero())
+    }
+
+    pub fn ln(&self) -> Result<Self, String> {
+        self.element_op(OpType::LN, T::zero())
+    }
+
     pub fn sin(&self) -> Result<Self, String> {
         self.element_op(OpType::SIN, T::zero())
     }
@@ -62,7 +77,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     pub fn tanh(&self) -> Result<Self, String> {
         self.element_op(OpType::TANH, T::zero())
     }
-    
 
     pub fn exp(&self) -> Result<Self, String> {
         self.element_op(OpType::EXP, T::zero())
