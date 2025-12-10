@@ -8,9 +8,9 @@ use iron_learn::{init_context, run_linear, run_logistic, CpuTensor, GpuTensor, G
 use std::env;
 use std::time::Instant;
 
+use iron_learn::ActivationType;
 use iron_learn::NeuralNet;
 use iron_learn::NeuralNetBuilder;
-use iron_learn::ActivationType;
 
 fn init() {
     let args: Vec<String> = env::args().collect();
@@ -106,7 +106,9 @@ fn greet(ctx: &iron_learn::AppContext) {
 fn build_neural_net<T: Tensor<f64> + 'static>() -> NeuralNet<T> {
     let nn = NeuralNetBuilder::<T>::new();
 
-    nn.add_linear(1, 1, "Input").add_activation(ActivationType::Sigmoid).build()
+    nn.add_linear(1, 1, "Input")
+        .add_activation(ActivationType::Sigmoid)
+        .build()
 }
 
 fn main() {
@@ -114,6 +116,16 @@ fn main() {
 
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
     greet(ctx);
+
+    let l = GLOBAL_CONTEXT
+        .get()
+        .ok_or("GLOBAL_CONTEXT not initialized")?
+        .learning_rate;
+    let e = GLOBAL_CONTEXT.get().unwrap().epochs;
+    let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
+
+    let Data { linear: xy, .. } = crate::read_file::deserialize_data(data_path)
+        .map_err(|e| format!("Data deserialization error: {}", e))?;
 
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
