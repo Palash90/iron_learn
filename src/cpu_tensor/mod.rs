@@ -152,22 +152,119 @@ impl<T: Numeric> CpuTensor<T> {
     }
 
     fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
-        let mut result = Vec::with_capacity(self.data.len());
+        let mut broadcast = false;
+        let mut add = false;
+        let mut self_broadcast = false;
+        let mut rhs_broadcast = false;
 
-        if self.shape != rhs.shape {
+        let mut row_broadcast = false;
+        let mut result_length = 0;
+        let mut result_shape = self.shape.clone();
+
+        if self.shape == rhs.shape {
+            add = true;
+            result_length = self.data.len();
+        } else if self.shape.len() == 1 {
+            if self.shape[0] == rhs.shape[0] {
+                row_broadcast = true;
+                self_broadcast = true;
+                result_length = rhs.data.len();
+                result_shape = rhs.shape.clone();
+            } else if self.shape[0] == rhs.shape[1] {
+                row_broadcast = false;
+                self_broadcast = true;
+                result_length = rhs.data.len();
+                result_shape = rhs.shape.clone();
+            } else {
+                return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
+            }
+        } else if rhs.shape.len() == 1 {
+            if self.shape[0] == rhs.shape[0] {
+                row_broadcast = true;
+                rhs_broadcast = true;
+                result_length = self.data.len();
+            } else if self.shape[1] == rhs.shape[0] {
+                row_broadcast = false;
+                rhs_broadcast = true;
+                result_length = self.data.len();
+            } else {
+                return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
+            }
+        } else {
             return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
         }
 
-        for i in 0..self.data.len() {
-            if sub {
-                result.push(self.data[i] - rhs.data[i])
-            } else {
-                result.push(self.data[i] + rhs.data[i])
+        let mut result = Vec::with_capacity(result_length);
+
+        if add {
+            for i in 0..result_length {
+                if sub {
+                    result.push(self.data[i] - rhs.data[i])
+                } else {
+                    result.push(self.data[i] + rhs.data[i])
+                }
+            }
+        } else {
+            let rows = result_shape[0];
+            let cols = result_shape[1];
+            let op: fn(T, T) -> T = if sub { |a, b| a - b } else { |a, b| a + b };
+
+            if rhs_broadcast {
+                let matrix_data = &self.data; // Self is the matrix
+                let vector_data = &rhs.data; // Rhs is the vector
+
+                if row_broadcast {
+                    let vector_len = vector_data.len();
+
+                    for r in 0..rows {
+                        let broadcast_val = vector_data[(r as usize) % vector_len];
+                        for c in 0..cols {
+                            let index = r * cols + c;
+                            result.push(op(matrix_data[index as usize], broadcast_val));
+                        }
+                    }
+                } else {
+                    let vector_len = vector_data.len();
+
+                    for r in 0..rows {
+                        for c in 0..cols {
+                            let index = r * cols + c;
+                            let broadcast_val = vector_data[(c as usize) % vector_len];
+                            result.push(op(matrix_data[index as usize], broadcast_val));
+                        }
+                    }
+                }
+            }
+
+            if self_broadcast {
+                let matrix_data = &rhs.data;
+                let vector_data = &self.data;
+
+                if row_broadcast {
+                    let vector_len = vector_data.len();
+                    for r in 0..rows {
+                        let broadcast_val = vector_data[r as usize % vector_len];
+                        for c in 0..cols {
+                            let index = r * cols + c;
+                            // Note the order: broadcast_val OP matrix_data[index] for subtraction
+                            result.push(op(broadcast_val, matrix_data[index as usize]));
+                        }
+                    }
+                } else {
+                    let vector_len = vector_data.len(); // Should be equal to 'cols'
+                    for r in 0..rows {
+                        for c in 0..cols {
+                            let index = r * cols + c;
+                            let broadcast_val = vector_data[c as usize % vector_len];
+                            // Note the order: broadcast_val OP matrix_data[index] for subtraction
+                            result.push(op(broadcast_val, matrix_data[index as usize]));
+                        }
+                    }
+                }
             }
         }
-
         Ok(Self {
-            shape: self.shape.clone(),
+            shape: result_shape,
             data: result,
         })
     }
