@@ -96,6 +96,19 @@ enum OpType {
     LN = 8,
 }
 
+struct BroadcastInfo {
+    result_shape: Vec<u32>,
+    broadcast_self: bool,
+    broadcast_rhs: bool,
+    is_row_broadcast: bool,
+}
+
+impl BroadcastInfo {
+    fn is_element_wise(&self) -> bool {
+        !self.broadcast_self && !self.broadcast_rhs
+    }
+}
+
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
 impl<T: Numeric> CpuTensor<T> {
     fn _sigmoid(t: f64) -> f64 {
@@ -151,122 +164,192 @@ impl<T: Numeric> CpuTensor<T> {
         self.shape.clone()
     }
 
+    fn determine_broadcast_info(
+        self_matrix: &Self,
+        rhs_matrix: &Self,
+    ) -> Result<BroadcastInfo, String> {
+        let self_shape = &self_matrix.shape;
+        let rhs_shape = &rhs_matrix.shape;
+
+        // 1. Element-wise (Shapes are identical)
+        if self_shape == rhs_shape {
+            return Ok(BroadcastInfo {
+                result_shape: self_shape.clone(),
+                broadcast_self: false,
+                broadcast_rhs: false,
+                is_row_broadcast: false, // Doesn't matter for element-wise
+            });
+        }
+
+        // 2. Vector-Matrix or Matrix-Vector Addition (One shape has length 1)
+        if self_shape.len() == 1 || rhs_shape.len() == 1 {
+            // For simplicity, let's only support 1D + 2D for now, as in the original code.
+            let (vec, mat) = if self_shape.len() == 1 {
+                (self_matrix, rhs_matrix)
+            } else if rhs_shape.len() == 1 {
+                (rhs_matrix, self_matrix)
+            } else {
+                // Unhandled shape combination beyond 1D/2D
+                return Err(format!(
+                "ShapeMismatch: Cannot broadcast vector of shape {:?} with matrix of shape {:?}",
+                self_shape, rhs_shape
+            ));
+            };
+
+            // Assume vec.shape is [vec_len] and mat.shape is [rows, cols]
+            let vec_len = vec.shape[0];
+            let rows = mat.shape[0];
+            let cols = mat.shape[1];
+
+            // Row Broadcast: vector length matches the number of rows
+            let is_row_broadcast = vec_len == rows;
+            // Col Broadcast: vector length matches the number of columns
+            let is_col_broadcast = vec_len == cols;
+
+            let compatible = is_row_broadcast || is_col_broadcast;
+            if !compatible {
+                return Err(format!("ShapeMismatch: The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self_shape, rhs_shape));
+            }
+
+            let broadcast_self = self_shape.len() == 1;
+            let broadcast_rhs = rhs_shape.len() == 1;
+
+            return Ok(BroadcastInfo {
+                result_shape: mat.shape.clone(),
+                broadcast_self,
+                broadcast_rhs,
+                is_row_broadcast,
+            });
+        }
+
+        // 3. Matrix-Matrix Broadcasting (Both shapes are length 2, e.g., 2x3 + 1x3)
+        if self_shape.len() == 2 && rhs_shape.len() == 2 {
+            let rows_compatible =
+                self_shape[0] == rhs_shape[0] || self_shape[0] == 1 || rhs_shape[0] == 1;
+            let cols_compatible =
+                self_shape[1] == rhs_shape[1] || self_shape[1] == 1 || rhs_shape[1] == 1;
+
+            if !rows_compatible || !cols_compatible {
+                return Err(format!("ShapeMismatch: The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self_shape, rhs_shape));
+            }
+
+            let mut result_shape = vec![0; 2];
+            result_shape[0] = self_shape[0].max(rhs_shape[0]);
+            result_shape[1] = self_shape[1].max(rhs_shape[1]);
+
+            let broadcast_self = self_shape != &result_shape;
+            let broadcast_rhs = rhs_shape != &result_shape;
+
+            return Ok(BroadcastInfo {
+                result_shape,
+                broadcast_self,
+                broadcast_rhs,
+                is_row_broadcast: false, // Not relevant for this case
+            });
+        }
+
+        // Catch-all for unsupported dimensions
+        Err(format!(
+            "ShapeMismatch: Unsupported number of dimensions for addition/subtraction- {:?} {:?}",
+            self_shape, rhs_shape
+        ))
+    }
+
     fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
-        let mut broadcast = false;
-        let mut add = false;
-        let mut self_broadcast = false;
-        let mut rhs_broadcast = false;
+        // 1. Determine broadcasting strategy and result shape
+        let info = Self::determine_broadcast_info(self, rhs)?;
 
-        let mut row_broadcast = false;
-        let mut result_length = 0;
-        let mut result_shape = self.shape.clone();
+        // Setup the operation closure
+        let op: fn(T, T) -> T = if sub { |a, b| a - b } else { |a, b| a + b };
 
-        if self.shape == rhs.shape {
-            add = true;
-            result_length = self.data.len();
-        } else if self.shape.len() == 1 {
-            if self.shape[0] == rhs.shape[0] {
-                row_broadcast = true;
-                self_broadcast = true;
-                result_length = rhs.data.len();
-                result_shape = rhs.shape.clone();
-            } else if self.shape[0] == rhs.shape[1] {
-                row_broadcast = false;
-                self_broadcast = true;
-                result_length = rhs.data.len();
-                result_shape = rhs.shape.clone();
-            } else {
-                return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
-            }
-        } else if rhs.shape.len() == 1 {
-            if self.shape[0] == rhs.shape[0] {
-                row_broadcast = true;
-                rhs_broadcast = true;
-                result_length = self.data.len();
-            } else if self.shape[1] == rhs.shape[0] {
-                row_broadcast = false;
-                rhs_broadcast = true;
-                result_length = self.data.len();
-            } else {
-                return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
+        let result_length = info.result_shape.iter().product::<u32>();
+        // Use 1 for the dimension if it's 1D, otherwise use the shape value.
+        let rows = info.result_shape.get(0).copied().unwrap_or(1);
+        let cols = info.result_shape.get(1).copied().unwrap_or(1); 
+
+        let mut result = Vec::with_capacity(result_length as usize);
+
+        // 2. Perform the calculation based on the strategy
+        if info.is_element_wise() {
+            // Simple element-wise addition/subtraction
+            for i in 0..result_length as usize {
+                // Casting to usize once here is clearer
+                result.push(op(self.data[i], rhs.data[i]));
             }
         } else {
-            return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
-        }
+            // Broadcasting required: Loop through the result indices (r, c)
+            let result_rows = rows as usize;
+            let result_cols = cols as usize;
 
-        let mut result = Vec::with_capacity(result_length);
+            for r in 0..result_rows {
+                for c in 0..result_cols {
+                    // Calculate the index for 'self'
+                    let index_self = if info.broadcast_self {
+                        // Pass the original matrix's shape for 2D broadcasting logic
+                        self.broadcast_index(r, c, self.shape[0] as usize, self.shape[1] as usize, info.is_row_broadcast)
+                    } else {
+                        r * result_cols + c
+                    };
 
-        if add {
-            for i in 0..result_length {
-                if sub {
-                    result.push(self.data[i] - rhs.data[i])
-                } else {
-                    result.push(self.data[i] + rhs.data[i])
-                }
-            }
-        } else {
-            let rows = result_shape[0];
-            let cols = result_shape[1];
-            let op: fn(T, T) -> T = if sub { |a, b| a - b } else { |a, b| a + b };
+                    // Calculate the index for 'rhs'
+                    let index_rhs = if info.broadcast_rhs {
+                        // Pass the original matrix's shape for 2D broadcasting logic
+                        rhs.broadcast_index(r, c, rhs.shape[0] as usize, rhs.shape[1] as usize, info.is_row_broadcast)
+                    } else {
+                        r * result_cols + c
+                    };
 
-            if rhs_broadcast {
-                let matrix_data = &self.data; // Self is the matrix
-                let vector_data = &rhs.data; // Rhs is the vector
-
-                if row_broadcast {
-                    let vector_len = vector_data.len();
-
-                    for r in 0..rows {
-                        let broadcast_val = vector_data[(r as usize) % vector_len];
-                        for c in 0..cols {
-                            let index = r * cols + c;
-                            result.push(op(matrix_data[index as usize], broadcast_val));
-                        }
-                    }
-                } else {
-                    let vector_len = vector_data.len();
-
-                    for r in 0..rows {
-                        for c in 0..cols {
-                            let index = r * cols + c;
-                            let broadcast_val = vector_data[(c as usize) % vector_len];
-                            result.push(op(matrix_data[index as usize], broadcast_val));
-                        }
-                    }
-                }
-            }
-
-            if self_broadcast {
-                let matrix_data = &rhs.data;
-                let vector_data = &self.data;
-
-                if row_broadcast {
-                    let vector_len = vector_data.len();
-                    for r in 0..rows {
-                        let broadcast_val = vector_data[r as usize % vector_len];
-                        for c in 0..cols {
-                            let index = r * cols + c;
-                            // Note the order: broadcast_val OP matrix_data[index] for subtraction
-                            result.push(op(broadcast_val, matrix_data[index as usize]));
-                        }
-                    }
-                } else {
-                    let vector_len = vector_data.len(); // Should be equal to 'cols'
-                    for r in 0..rows {
-                        for c in 0..cols {
-                            let index = r * cols + c;
-                            let broadcast_val = vector_data[c as usize % vector_len];
-                            // Note the order: broadcast_val OP matrix_data[index] for subtraction
-                            result.push(op(broadcast_val, matrix_data[index as usize]));
-                        }
-                    }
+                    result.push(op(self.data[index_self], rhs.data[index_rhs]));
                 }
             }
         }
+
         Ok(Self {
-            shape: result_shape,
+            shape: info.result_shape,
             data: result,
         })
+    }
+
+    // Adjusted broadcast_index method for clarity
+    fn broadcast_index(
+        &self,
+        r: usize,
+        c: usize,
+        // The original logic only used self.shape, so let's simplify the arguments
+        // and rely on self.shape being correct.
+        _src_rows: usize, // No longer needed
+        _src_cols: usize, // No longer needed
+        is_row_broadcast: bool,
+    ) -> usize {
+        match self.shape.len() {
+            // Case 1: Vector (1D) broadcasting to a 2D matrix
+            1 => {
+                let vector_len = self.data.len();
+                if is_row_broadcast {
+                    // Vector matches matrix rows: vector element is chosen by row index (r)
+                    // The vector is broadcast across columns.
+                    r % vector_len
+                } else {
+                    // Vector matches matrix columns: vector element is chosen by column index (c)
+                    // The vector is broadcast across rows.
+                    c % vector_len
+                }
+            }
+            // Case 2: Matrix (2D) broadcasting (e.g., 1x3 broadcasting to 5x3)
+            2 => {
+                let src_rows = self.shape[0] as usize;
+                let src_cols = self.shape[1] as usize;
+                
+                // Determine the row index: if source rows is 1 (broadcasted), row index is 0. Otherwise, use result row index r.
+                let src_r = if src_rows == 1 { 0 } else { r };
+                // Determine the column index: if source cols is 1 (broadcasted), column index is 0. Otherwise, use result column index c.
+                let src_c = if src_cols == 1 { 0 } else { c };
+                
+                // Calculate the flat index in the source data
+                src_r * src_cols + src_c
+            }
+            _ => panic!("Unsupported broadcast dimension in broadcast_index"),
+        }
     }
 
     fn check_shape(shape: &[u32]) -> Option<Result<CpuTensor<T>, String>> {
