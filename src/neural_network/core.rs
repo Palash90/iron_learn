@@ -201,18 +201,35 @@ impl<T: Tensor<MyNumeric>> NeuralNet<T> {
     {
         let lr_min = 1e-6;
 
+        println!("Epochs {}", epochs);
+
         for i in 0..epochs {
             println!("{}", i);
             let cos_term = (PI * (i as MyNumeric) / ((epochs + epoch_offset) as MyNumeric)).cos();
             let decay_factor = 0.5 * (1.0 + cos_term);
             let current_lr = lr_min + (base_lr - lr_min) * decay_factor;
 
-            let output = self.predict(x_train)?;
+            println!("{} {} {}", cos_term, decay_factor, current_lr);
+
+            let output = match self.predict(x_train) {
+                Ok(t) => t,
+                Err(e) => {
+                    eprintln!("{}", e.to_string());
+                    panic!();
+                }
+            };
+
+            println!("predicted");
+
             let mut grad = self.loss_fn.loss_prime(y_train, &output)?;
+
+            println!("Before Back propagates");
 
             for layer in self.layers.iter_mut().rev() {
                 grad = layer.backward(&grad, current_lr)?;
             }
+
+            println!("Back propagates");
 
             // Hook (Periodic Reporting)
             if i == 0 || (i + 1) % 1000 == 0 {

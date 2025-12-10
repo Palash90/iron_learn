@@ -165,6 +165,8 @@ pub fn run_neural_net<T: Tensor<f64> + 'static>() -> Result<(), String> {
     let Data { cat_image: xy, .. } = crate::read_file::deserialize_data(data_path)
         .map_err(|e| format!("Data deserialization error: {}", e))?;
 
+    println!("Total amount - {}", xy.m);
+
     let monitor = |epoch: usize, err: f64| {
         // This line runs on the Host (CPU) but the error value came from a D2H transfer
         if epoch % 500 == 0 || epoch == (e - 1) as usize {

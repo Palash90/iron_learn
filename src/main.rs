@@ -109,6 +109,7 @@ fn main() {
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
 
+        /*
         let now = Instant::now();
         let _ = run_linear::<GpuTensor<f64>>();
         let elapsed = now.elapsed();
@@ -127,7 +128,7 @@ fn main() {
         let now = Instant::now();
         let _ = run_logistics_cuda();
         let elapsed = now.elapsed();
-        println!("Old logistic Regression completed in {:.4?}", elapsed);
+        println!("Old logistic Regression completed in {:.4?}", elapsed); */
 
         let now = Instant::now();
         let _ = run_neural_net::<GpuTensor<f64>>();
