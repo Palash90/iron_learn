@@ -28,4 +28,6 @@ pub use crate::cpu_tensor::CpuTensor;
 pub use neural_network::NeuralNet;
 pub use neural_network::NeuralNetBuilder;
 pub use neural_network::ActivationType;
+pub use neural_network::LossFunction;
+pub use neural_network::MeanSquaredErrorLoss;
 pub use tensor::Tensor;

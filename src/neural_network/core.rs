@@ -6,6 +6,35 @@ use std::f64::consts::PI;
 type MyNumeric = f64;
 type MyTensor = dyn Tensor<MyNumeric>;
 
+pub trait LossFunction<T: Tensor<MyNumeric>> {
+    /// Calculates the loss value (used for reporting).
+    fn loss(&self, actual: &T, predicted: &T) -> Result<T, String>;
+
+    /// Calculates the derivative of the loss w.r.t the predicted output (used for backpropagation).
+    fn loss_prime(&self, actual: &T, predicted: &T) -> Result<T, String>;
+}
+
+pub struct MeanSquaredErrorLoss;
+
+impl<T: Tensor<MyNumeric> + 'static> LossFunction<T> for MeanSquaredErrorLoss {
+    // Loss: 0.5 * sum((actual - predicted)^2)
+    fn loss(&self, actual: &T, predicted: &T) -> Result<T, String> {
+        let error_diff = actual.sub(predicted)?;
+        let sq_err = error_diff.multiply(&error_diff)?; // Element-wise square
+
+        let sum_err = sq_err.sum()?; // Sum over all elements
+        sum_err.scale(0.5) // Scale by 0.5
+    }
+
+    // Loss Prime: (predicted - actual)
+    // The standard derivative is (predicted - actual) * 2 / N.
+    // We omit the constant 2/N as it's absorbed into the learning rate.
+    fn loss_prime(&self, actual: &T, predicted: &T) -> Result<T, String> {
+        // Returns (predicted - actual)
+        predicted.sub(actual)
+    }
+}
+
 /// A common interface for all layers.
 pub trait Layer<T: Tensor<MyNumeric>> {
     fn forward(&mut self, input: &T) -> Result<T, String>;
@@ -142,13 +171,10 @@ impl<T: Tensor<MyNumeric>> Layer<T> for ActivationLayer<T> {
 
 pub struct NeuralNet<T: Tensor<MyNumeric>> {
     pub layers: Vec<Box<dyn Layer<T>>>,
+    loss_fn: Box<dyn LossFunction<T>>,
 }
 
 impl<T: Tensor<MyNumeric>> NeuralNet<T> {
-    pub fn new() -> Self {
-        Self { layers: Vec::new() }
-    }
-
     pub fn add(&mut self, layer: Box<dyn Layer<T>>) {
         self.layers.push(layer);
     }
@@ -176,24 +202,27 @@ impl<T: Tensor<MyNumeric>> NeuralNet<T> {
         let lr_min = 1e-6;
 
         for i in 0..epochs {
+            println!("{}", i);
             let cos_term = (PI * (i as MyNumeric) / ((epochs + epoch_offset) as MyNumeric)).cos();
             let decay_factor = 0.5 * (1.0 + cos_term);
             let current_lr = lr_min + (base_lr - lr_min) * decay_factor;
 
             let output = self.predict(x_train)?;
-            let mut grad = output.sub(y_train)?;
+            let mut grad = self.loss_fn.loss_prime(y_train, &output)?;
 
             for layer in self.layers.iter_mut().rev() {
                 grad = layer.backward(&grad, current_lr)?;
             }
 
             // Hook (Periodic Reporting)
-            if i == 0 || (i + 1) % 100 == 0 {
+            if i == 0 || (i + 1) % 1000 == 0 {
                 let error_diff = y_train.sub(&output)?;
                 let sq_err = error_diff.multiply(&error_diff)?;
                 let sum_err = sq_err.sum()?;
                 let err_val = sum_err.get_data()[0];
                 hook(i, err_val);
+
+                x_train.synchronize();
             }
         }
 
@@ -241,9 +270,10 @@ impl<T: Tensor<MyNumeric> + 'static> NeuralNetBuilder<T> {
         self
     }
 
-    pub fn build(self) -> NeuralNet<T> {
+    pub fn build(self, loss_fn: Box<dyn LossFunction<T>>) -> NeuralNet<T> {
         NeuralNet {
             layers: self.layers,
+            loss_fn,
         }
     }
 }

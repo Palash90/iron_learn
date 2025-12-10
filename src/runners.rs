@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 use std::time::Instant;
 
 use crate::ActivationType;
+use crate::MeanSquaredErrorLoss;
 use crate::NeuralNet;
 use crate::NeuralNetBuilder;
 
@@ -161,9 +162,7 @@ pub fn run_neural_net<T: Tensor<f64> + 'static>() -> Result<(), String> {
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data {
-        cat_image: xy, ..
-    } = crate::read_file::deserialize_data(data_path)
+    let Data { cat_image: xy, .. } = crate::read_file::deserialize_data(data_path)
         .map_err(|e| format!("Data deserialization error: {}", e))?;
 
     let monitor = |epoch: usize, err: f64| {
@@ -181,44 +180,26 @@ pub fn run_neural_net<T: Tensor<f64> + 'static>() -> Result<(), String> {
 
     let mut w = T::new(vec![xy.n, 1], vec![0.0; xy.n as usize])?;
 
-
-
-
-
-    net = NeuralNet(binary_cross_entropy, binary_cross_entropy_prime)
-
-
-    net.add(LinearLayer(features, hidden_length), name = "Hidden Layer 1")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(hidden_length, hidden_length), name = "Hidden Layer 3")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(hidden_length, 2 * hidden_length), name = "Hidden Layer 3")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(2 * hidden_length, hidden_length), name = "Hidden Layer 3")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(hidden_length, int(hidden_length / 2)), name = "Hidden Layer 3")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-    
-    net.add(LinearLayer(int(hidden_length / 2), int(hidden_length / 2)), name = "Hidden Layer 4")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(int(hidden_length / 2), int(hidden_length / 2)), name = "Hidden Layer 4")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
-
-    net.add(LinearLayer(int(hidden_length / 2), outputs), name="Output")
-    net.add(ActivationLayer(sigmoid, sigmoid_prime), "Final Activation Layer")
-
+    let loss_function_instance = Box::new(MeanSquaredErrorLoss);
+    let hidden_length = 75;
 
     let nn = NeuralNetBuilder::<T>::new();
-
     let mut nn = nn
-        .add_linear(1, 1, "Input")
-        .add_activation(ActivationType::Sigmoid)
-        .build();
+        .add_linear(2, hidden_length, "Input")
+        .add_activation(ActivationType::Tanh)
+        .add_linear(hidden_length, hidden_length, "Hidden Length")
+        .add_activation(ActivationType::Tanh)
+        .add_linear(hidden_length, hidden_length, "Hidden Length")
+        .add_activation(ActivationType::Tanh)
+        .add_linear(hidden_length, (hidden_length / 2), "Hidden Length")
+        .add_activation(ActivationType::Tanh)
+        .add_linear((hidden_length / 2), (hidden_length / 2), "Hidden Length")
+        .add_activation(ActivationType::Tanh)
+        .add_linear((hidden_length / 2), (hidden_length / 2), "Hidden Length")
+        .add_activation(ActivationType::Tanh)
+        .add_linear((hidden_length / 2), 1, "Hidden Length")
+        .add_activation(ActivationType::Tanh)
+        .build(loss_function_instance);
 
     nn.fit(&x, &y, 10000, 0, 0.1, monitor);
 
