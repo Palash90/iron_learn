@@ -4,6 +4,7 @@ pub mod layers;
 pub mod activations;
 pub mod builder;
 pub mod trainer;
+pub mod examples;
 
 // Legacy function exports
 use crate::read_file::deserialize_data;

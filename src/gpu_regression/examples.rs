@@ -34,7 +34,7 @@ pub fn example_simple_network() -> CudaResult<()> {
     let x_bias = add_bias_column(&x_norm, rows, cols);
 
     // Load CUDA kernels
-    let ptx = include_str!("../kernels/gpu_kernels.ptx");
+    let ptx = include_str!("../../kernels/gpu_kernels.ptx");
     let module = Module::from_ptx(ptx, &[])?;
     let stream = Stream::new(StreamFlags::NON_BLOCKING, None)?;
 
@@ -93,7 +93,7 @@ pub fn example_3layer_network() -> CudaResult<()> {
     let x_norm = normalize_with_stats(&data.x, rows, cols, &stats);
     let x_bias = add_bias_column(&x_norm, rows, cols);
 
-    let ptx = include_str!("../kernels/gpu_kernels.ptx");
+    let ptx = include_str!("../../kernels/gpu_kernels.ptx");
     let module = Module::from_ptx(ptx, &[])?;
     let stream = Stream::new(StreamFlags::NON_BLOCKING, None)?;
 
@@ -136,7 +136,7 @@ pub fn example_custom_network() -> CudaResult<()> {
     let x_norm = normalize_with_stats(&data.x, rows, cols, &stats);
     let x_bias = add_bias_column(&x_norm, rows, cols);
 
-    let ptx = include_str!("../kernels/gpu_kernels.ptx");
+    let ptx = include_str!("../../kernels/gpu_kernels.ptx");
     let module = Module::from_ptx(ptx, &[])?;
     let stream = Stream::new(StreamFlags::NON_BLOCKING, None)?;
 
@@ -188,7 +188,7 @@ pub fn example_architecture_comparison() -> CudaResult<()> {
     let x_norm = normalize_with_stats(&data.x, rows, cols, &stats);
     let x_bias = add_bias_column(&x_norm, rows, cols);
 
-    let ptx = include_str!("../kernels/gpu_kernels.ptx");
+    let ptx = include_str!("../../kernels/gpu_kernels.ptx");
     let module = Module::from_ptx(ptx, &[])?;
 
     // Try multiple architectures with the same data

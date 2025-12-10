@@ -1,7 +1,6 @@
 mod app_context;
 mod complex;
 mod cuda_tensor;
-pub mod gpu_regression;
 mod gradient_descent;
 mod neural_network;
 mod normalizer;
@@ -10,11 +9,11 @@ mod read_file;
 mod runners;
 mod cpu_tensor;
 mod tensor;
+pub mod gpu_regression;
 
 pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::complex::Complex;
 pub use crate::cuda_tensor::GpuTensor;
-pub use crate::gpu_regression::{run_linear_cuda, run_logistics_cuda};
 pub use crate::gradient_descent::gradient_descent;
 pub use crate::gradient_descent::linear_regression;
 pub use crate::gradient_descent::logistic_regression;
@@ -31,5 +30,3 @@ pub use neural_network::ActivationType;
 pub use neural_network::LossFunction;
 pub use neural_network::MeanSquaredErrorLoss;
 pub use tensor::Tensor;
-
-pub mod gpu_regression_examples;

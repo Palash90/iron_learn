@@ -2,14 +2,11 @@ use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use iron_learn::gpu_regression;
-use iron_learn::run_linear_cuda;
-use iron_learn::run_logistics_cuda;
 use iron_learn::run_neural_net;
 use iron_learn::Tensor;
 use iron_learn::{init_context, run_linear, run_logistic, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
 use std::env;
 use std::time::Instant;
-use iron_learn::gpu_regression_examples;
 
 fn init() {
     let args: Vec<String> = env::args().collect();
@@ -122,12 +119,12 @@ fn main() {
         println!("Logistic Regression completed in {:.4?}", elapsed);
 
         let now = Instant::now();
-        let _ = run_linear_cuda();
+        let _ = gpu_regression::run_linear_cuda();
         let elapsed = now.elapsed();
         println!("Old linear Regression completed in {:.4?}", elapsed);
 
         let now = Instant::now();
-        let _ = run_logistics_cuda();
+        let _ = gpu_regression::run_logistics_cuda();
         let elapsed = now.elapsed();
         println!("Old logistic Regression completed in {:.4?}", elapsed);
 
@@ -137,7 +134,7 @@ fn main() {
         println!("Neural Net completed in {:.4?}", elapsed);
 
         let now = Instant::now();
-        gpu_regression_examples::example_3layer_network();
+        gpu_regression::examples::example_3layer_network();
         let elapsed = now.elapsed();
         println!("Neural Net completed in {:.4?}", elapsed);
 
