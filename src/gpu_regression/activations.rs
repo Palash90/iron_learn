@@ -2,6 +2,7 @@ use cust::prelude::*;
 use cust::module::Module;
 use cust::stream::Stream;
 use cust::error::CudaResult;
+use super::functions::*;
 
 /// ReLU activation function
 pub fn relu_activation(
@@ -11,7 +12,7 @@ pub fn relu_activation(
     module: &Module,
     stream: &Stream,
 ) -> CudaResult<()> {
-    use super::gpu_regression_helpers::relu_kernel;
+    use super::functions::relu_kernel;
     relu_kernel(module, stream, d_input, d_output, size)
 }
 
@@ -23,7 +24,7 @@ pub fn relu_derivative(
     module: &Module,
     stream: &Stream,
 ) -> CudaResult<()> {
-    use super::gpu_regression_helpers::relu_derivative as relu_deriv_helper;
+    use super::functions::relu_derivative as relu_deriv_helper;
     relu_deriv_helper(module, stream, d_z, d_deriv, size)
 }
 
@@ -35,7 +36,7 @@ pub fn sigmoid_activation(
     module: &Module,
     stream: &Stream,
 ) -> CudaResult<()> {
-    use super::gpu_regression_helpers::sigmoid_kernel;
+    use super::functions::sigmoid_kernel;
     sigmoid_kernel(module, stream, d_input, d_output, size)
 }
 

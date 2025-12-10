@@ -1,6 +1,6 @@
 use super::builder::{GpuNetwork, NetworkLayer};
 use super::layers::LinearLayer;
-use super::gpu_regression_helpers::*;
+use super::functions::*;
 use crate::{CpuTensor, Data};
 use cust::memory::DeviceBuffer;
 use cust::prelude::*;

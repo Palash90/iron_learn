@@ -1,5 +1,5 @@
 // GPU Neural Network Modules - Organized similarly to Python structure
-pub mod gpu_regression_helpers;
+pub mod functions;
 pub mod layers;
 pub mod activations;
 pub mod builder;
@@ -16,7 +16,7 @@ use cust::prelude::*;
 use cust::stream::{Stream, StreamFlags};
 use std::time::Instant;
 
-use gpu_regression_helpers::*;
+use functions::*;
 
 /// GPU-accelerated normalization and bias helpers for logistic regression preprocessing
 
