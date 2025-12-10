@@ -1,3 +1,11 @@
+// GPU Neural Network Modules - Organized similarly to Python structure
+pub mod gpu_regression_helpers;
+pub mod layers;
+pub mod activations;
+pub mod builder;
+pub mod trainer;
+
+// Legacy function exports
 use crate::read_file::deserialize_data;
 use crate::{Data, CpuTensor, GLOBAL_CONTEXT};
 use cust::error::CudaResult;
@@ -7,7 +15,6 @@ use cust::prelude::*;
 use cust::stream::{Stream, StreamFlags};
 use std::time::Instant;
 
-mod gpu_regression_helpers;
 use gpu_regression_helpers::*;
 
 /// GPU-accelerated normalization and bias helpers for logistic regression preprocessing
@@ -51,7 +58,7 @@ pub fn compute_norm_stats(x: &[f64], rows: usize, cols: usize) -> NormStats {
     NormStats { means, stds }
 }
 
-fn normalize_with_stats(x: &[f64], rows: usize, cols: usize, stats: &NormStats) -> Vec<f64> {
+pub fn normalize_with_stats(x: &[f64], rows: usize, cols: usize, stats: &NormStats) -> Vec<f64> {
     let mut out = vec![0.0; rows * cols];
     for r in 0..rows {
         let base = r * cols;
@@ -62,7 +69,7 @@ fn normalize_with_stats(x: &[f64], rows: usize, cols: usize, stats: &NormStats) 
     out
 }
 
-fn add_bias_column(x: &[f64], rows: usize, cols: usize) -> Vec<f64> {
+pub fn add_bias_column(x: &[f64], rows: usize, cols: usize) -> Vec<f64> {
     let mut out = vec![0.0; rows * (cols + 1)];
     for r in 0..rows {
         // Copy feature columns

@@ -31,3 +31,5 @@ pub use neural_network::ActivationType;
 pub use neural_network::LossFunction;
 pub use neural_network::MeanSquaredErrorLoss;
 pub use tensor::Tensor;
+
+pub mod gpu_regression_examples;

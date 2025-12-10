@@ -9,6 +9,7 @@ use iron_learn::Tensor;
 use iron_learn::{init_context, run_linear, run_logistic, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
 use std::env;
 use std::time::Instant;
+use iron_learn::gpu_regression_examples;
 
 fn init() {
     let args: Vec<String> = env::args().collect();
@@ -134,6 +135,13 @@ fn main() {
         gpu_regression::run_neural_network_cuda();
         let elapsed = now.elapsed();
         println!("Neural Net completed in {:.4?}", elapsed);
+
+        let now = Instant::now();
+        gpu_regression_examples::example_3layer_network();
+        let elapsed = now.elapsed();
+        println!("Neural Net completed in {:.4?}", elapsed);
+
+        
 
         println!("\n✓ All training tasks completed");
     } else {
