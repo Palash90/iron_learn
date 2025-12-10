@@ -3,14 +3,11 @@ use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use iron_learn::run_linear_cuda;
 use iron_learn::run_logistics_cuda;
+use iron_learn::run_neural_net;
 use iron_learn::Tensor;
 use iron_learn::{init_context, run_linear, run_logistic, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
 use std::env;
 use std::time::Instant;
-
-use iron_learn::ActivationType;
-use iron_learn::NeuralNet;
-use iron_learn::NeuralNetBuilder;
 
 fn init() {
     let args: Vec<String> = env::args().collect();
@@ -103,29 +100,11 @@ fn greet(ctx: &iron_learn::AppContext) {
     println!("╚════════════════════════════════╝\n");
 }
 
-fn build_neural_net<T: Tensor<f64> + 'static>() -> NeuralNet<T> {
-    let nn = NeuralNetBuilder::<T>::new();
-
-    nn.add_linear(1, 1, "Input")
-        .add_activation(ActivationType::Sigmoid)
-        .build()
-}
-
 fn main() {
     init();
 
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
     greet(ctx);
-
-    let l = GLOBAL_CONTEXT
-        .get()
-        .ok_or("GLOBAL_CONTEXT not initialized")?
-        .learning_rate;
-    let e = GLOBAL_CONTEXT.get().unwrap().epochs;
-    let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
-
-    let Data { linear: xy, .. } = crate::read_file::deserialize_data(data_path)
-        .map_err(|e| format!("Data deserialization error: {}", e))?;
 
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
@@ -150,7 +129,10 @@ fn main() {
         let elapsed = now.elapsed();
         println!("Old logistic Regression completed in {:.4?}", elapsed);
 
-        let nn = build_neural_net::<GpuTensor<f64>>();
+        let now = Instant::now();
+        let _ = run_neural_net::<GpuTensor<f64>>();
+        let elapsed = now.elapsed();
+        println!("Neural Net completed in {:.4?}", elapsed);
 
         println!("\n✓ All training tasks completed");
     } else {
@@ -158,7 +140,7 @@ fn main() {
         let _ = run_linear::<CpuTensor<f64>>();
         let _ = run_logistic::<CpuTensor<f64>>();
 
-        let nn = build_neural_net::<CpuTensor<f64>>();
+        let nn = run_neural_net::<CpuTensor<f64>>();
 
         println!("\n✓ All training tasks completed");
     }

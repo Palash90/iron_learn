@@ -23,7 +23,7 @@ pub use crate::normalizer::normalize_features;
 pub use crate::numeric::Numeric;
 pub use crate::runners::Data;
 pub use crate::runners::XY;
-pub use crate::runners::{run_linear, run_logistic};
+pub use crate::runners::{run_linear, run_logistic, run_neural_net};
 pub use crate::cpu_tensor::CpuTensor;
 pub use neural_network::NeuralNet;
 pub use neural_network::NeuralNetBuilder;

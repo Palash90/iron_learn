@@ -1,11 +1,15 @@
-use crate::normalizer::normalize_features_mean_std;
-use crate::normalizer::denormalize_features;
 use crate::normalize_features;
+use crate::normalizer::denormalize_features;
+use crate::normalizer::normalize_features_mean_std;
 use crate::tensor::Tensor;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use crate::{CpuTensor, GLOBAL_CONTEXT};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
+
+use crate::ActivationType;
+use crate::NeuralNet;
+use crate::NeuralNetBuilder;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct XY {
@@ -144,6 +148,55 @@ pub fn run_linear<T: Tensor<f64>>() -> Result<(), String> {
     println!("Total test samples: {}", total);
     println!("Mean Squared Error: {:.4}", mse);
     println!("Root MSE: {:.4}", mse.sqrt());
+
+    Ok(())
+}
+
+pub fn run_neural_net<T: Tensor<f64> + 'static>() -> Result<(), String> {
+    let l = GLOBAL_CONTEXT
+        .get()
+        .ok_or("GLOBAL_CONTEXT not initialized")?
+        .learning_rate;
+    let e = GLOBAL_CONTEXT.get().unwrap().epochs;
+    let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
+
+    let Data {
+        neural_network: xy, ..
+    } = crate::read_file::deserialize_data(data_path)
+        .map_err(|e| format!("Data deserialization error: {}", e))?;
+
+    let monitor = |epoch: usize, err: f64| {
+        // This line runs on the Host (CPU) but the error value came from a D2H transfer
+        if epoch % 500 == 0 || epoch == (e - 1) as usize {
+            println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err / 4.0); // Divide by 4 samples
+        }
+    };
+
+    let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
+    let y = T::new(vec![xy.m, 1], xy.y.clone())?;
+
+    let (x, x_mean, x_std) = normalize_features_mean_std(&x);
+    let (y, y_mean, y_std) = normalize_features_mean_std(&y);
+
+    let mut w = T::new(vec![xy.n, 1], vec![0.0; xy.n as usize])?;
+
+    let nn = NeuralNetBuilder::<T>::new();
+
+    let mut nn = nn
+        .add_linear(1, 1, "Input")
+        .add_activation(ActivationType::Sigmoid)
+        .build();
+
+    nn.fit(&x, &y, 10000, 0, 0.1, monitor);
+
+    let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
+    let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
+
+    let x_test = normalize_features(&x_test, &x_mean, &x_std);
+
+    let predictions = predict_linear(&x_test, &w)?;
+
+    let predictions = denormalize_features(&predictions, &y_mean, &y_std);
 
     Ok(())
 }
