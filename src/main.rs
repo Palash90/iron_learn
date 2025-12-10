@@ -1,6 +1,7 @@
 use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
+use iron_learn::gpu_regression;
 use iron_learn::run_linear_cuda;
 use iron_learn::run_logistics_cuda;
 use iron_learn::run_neural_net;
@@ -109,7 +110,6 @@ fn main() {
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
 
-        /*
         let now = Instant::now();
         let _ = run_linear::<GpuTensor<f64>>();
         let elapsed = now.elapsed();
@@ -128,10 +128,10 @@ fn main() {
         let now = Instant::now();
         let _ = run_logistics_cuda();
         let elapsed = now.elapsed();
-        println!("Old logistic Regression completed in {:.4?}", elapsed); */
+        println!("Old logistic Regression completed in {:.4?}", elapsed);
 
         let now = Instant::now();
-        let _ = run_neural_net::<GpuTensor<f64>>();
+        gpu_regression::run_neural_network_cuda();
         let elapsed = now.elapsed();
         println!("Neural Net completed in {:.4?}", elapsed);
 

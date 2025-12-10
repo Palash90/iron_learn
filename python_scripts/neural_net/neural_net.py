@@ -7,6 +7,8 @@ import numpy
 from layers import *
 from builder import *
 
+np.cuda.runtime.setDevice(0)
+
 def visualize_network(net):
     """
     Visualizes the architecture using layer names for labels.

@@ -1,7 +1,7 @@
 mod app_context;
 mod complex;
 mod cuda_tensor;
-mod gpu_regression;
+pub mod gpu_regression;
 mod gradient_descent;
 mod neural_network;
 mod normalizer;
