@@ -25,3 +25,7 @@ pub use crate::regression::Data;
 pub use crate::regression::XY;
 pub use crate::regression::{run_linear, run_logistic};
 pub use crate::cpu_tensor::CpuTensor;
+pub use neural_network::NeuralNet;
+pub use neural_network::NeuralNetBuilder;
+pub use neural_network::ActivationType;
+pub use tensor::Tensor;

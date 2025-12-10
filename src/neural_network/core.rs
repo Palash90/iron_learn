@@ -1,11 +1,9 @@
-use crate::Numeric; // Assumed to be defined in your environment
+use crate::Numeric;
 use std::f64::consts::PI;
-use rand::Rng; // For generating random initial weights
+use rand::Rng;
 use crate::tensor::Tensor;
 
-// --- TYPE ALIASES AND TRAIT DEFINITIONS ---
 
-// Set the generic type T to f64 for double precision.
 type MyNumeric = f64;
 type MyTensor = dyn Tensor<MyNumeric>;
 
@@ -134,7 +132,7 @@ impl<T: Tensor<MyNumeric>> Layer<T> for ActivationLayer<T> {
 // --- 3. The Neural Network Trainer ---
 
 pub struct NeuralNet<T: Tensor<MyNumeric>> {
-    layers: Vec<Box<dyn Layer<T>>>,
+    pub layers: Vec<Box<dyn Layer<T>>>,
 }
 
 impl<T: Tensor<MyNumeric>> NeuralNet<T> {
@@ -202,5 +200,35 @@ impl<T: Tensor<MyNumeric>> NeuralNet<T> {
                 println!("Layer {} ({}) Weights saved. (Shape: {:?})", i, layer.name(), w.len());
             }
         }
+    }
+}
+
+pub struct NeuralNetBuilder<T: Tensor<MyNumeric>> {
+    layers: Vec<Box<dyn Layer<T>>>,
+}
+
+impl<T: Tensor<MyNumeric> + 'static> NeuralNetBuilder<T> {
+    pub fn new() -> Self {
+        Self { layers: Vec::new() }
+    }
+
+    pub fn add_linear(mut self, input_size: u32, output_size: u32, name: &str) -> Self {
+        match LinearLayer::new(input_size, output_size, name) {
+            Ok(layer) => self.layers.push(Box::new(layer)),
+            Err(e) => {
+                eprintln!("Error adding LinearLayer: {}", e);
+            }
+        }
+        self
+    }
+
+    pub fn add_activation(mut self, act_type: ActivationType) -> Self {
+        let layer = ActivationLayer::new(act_type);
+        self.layers.push(Box::new(layer));
+        self
+    }
+    
+    pub fn build(self) -> NeuralNet<T> {
+        NeuralNet { layers: self.layers }
     }
 }

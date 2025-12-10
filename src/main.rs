@@ -3,9 +3,14 @@ use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use iron_learn::run_linear_cuda;
 use iron_learn::run_logistics_cuda;
-use iron_learn::{init_context, run_linear, run_logistic, GpuTensor, CpuTensor, GLOBAL_CONTEXT};
+use iron_learn::Tensor;
+use iron_learn::{init_context, run_linear, run_logistic, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
 use std::env;
 use std::time::Instant;
+
+use iron_learn::NeuralNet;
+use iron_learn::NeuralNetBuilder;
+use iron_learn::ActivationType;
 
 fn init() {
     let args: Vec<String> = env::args().collect();
@@ -98,6 +103,12 @@ fn greet(ctx: &iron_learn::AppContext) {
     println!("╚════════════════════════════════╝\n");
 }
 
+fn build_neural_net<T: Tensor<f64> + 'static>() -> NeuralNet<T> {
+    let nn = NeuralNetBuilder::<T>::new();
+
+    nn.add_linear(1, 1, "Input").add_activation(ActivationType::Sigmoid).build()
+}
+
 fn main() {
     init();
 
@@ -106,7 +117,7 @@ fn main() {
 
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
-        
+
         let now = Instant::now();
         let _ = run_linear::<GpuTensor<f64>>();
         let elapsed = now.elapsed();
@@ -116,7 +127,6 @@ fn main() {
         let _ = run_logistic::<GpuTensor<f64>>();
         let elapsed = now.elapsed();
         println!("Logistic Regression completed in {:.4?}", elapsed);
-
 
         let now = Instant::now();
         let _ = run_linear_cuda();
@@ -128,12 +138,16 @@ fn main() {
         let elapsed = now.elapsed();
         println!("Old logistic Regression completed in {:.4?}", elapsed);
 
+        let nn = build_neural_net::<GpuTensor<f64>>();
 
         println!("\n✓ All training tasks completed");
     } else {
         println!("Running CPU-based training...\n");
         let _ = run_linear::<CpuTensor<f64>>();
         let _ = run_logistic::<CpuTensor<f64>>();
+
+        let nn = build_neural_net::<CpuTensor<f64>>();
+
         println!("\n✓ All training tasks completed");
     }
 }
