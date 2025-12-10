@@ -42,13 +42,7 @@ pub fn gradient_descent<T: Tensor<f64>>(
     w.sub(&d)
 }
 
-pub fn linear_regression<T: Tensor<f64>>(
-    x: &T,
-    y: &T,
-    w: T,
-    l: f64,
-    e: u32,
-) -> Result<T, String> {
+pub fn linear_regression<T: Tensor<f64>>(x: &T, y: &T, w: T, l: f64, e: u32) -> Result<T, String> {
     let x_with_bias = add_bias_term(x)?;
     let mut weight = w;
     for _ in 0..(e - 1) {

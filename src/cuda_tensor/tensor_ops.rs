@@ -44,7 +44,8 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
         unsafe {
             Self {
                 shape: shape.to_vec(),
-                device_buffer: DeviceBuffer::uninitialized(0).expect("CUDA buffer did not initialize"),
+                device_buffer: DeviceBuffer::uninitialized(0)
+                    .expect("CUDA buffer did not initialize"),
             }
         }
     }

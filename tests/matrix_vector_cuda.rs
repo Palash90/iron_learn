@@ -1,7 +1,7 @@
-use iron_learn::{init_context, GpuTensor};
 use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
+use iron_learn::{init_context, GpuTensor};
 
 fn init() {
     match cust::quick_init() {

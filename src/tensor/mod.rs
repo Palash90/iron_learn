@@ -1,14 +1,12 @@
 use crate::Numeric;
 
 pub trait Tensor<T: Numeric>: Sized {
-
     /* Creation */
     // Returns an Empty Tensor
     fn empty(shape: &Vec<u32>) -> Self;
 
     // Creates a new tensor with the provided shape and data
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String>;
-
 
     /* Retrieval */
     // Returns the shape of the Tensor
@@ -40,7 +38,7 @@ pub trait Tensor<T: Numeric>: Sized {
     /* Mathematical functions */
     // Element wise sigmoid function
     fn sigmoid(&self) -> Result<Self, String>;
-    
+
     // Element wise log base 10 implementation
     fn log(&self) -> Result<Self, String>;
 
@@ -61,7 +59,7 @@ pub trait Tensor<T: Numeric>: Sized {
 
     // Element wise exponentiation
     fn exp(&self) -> Result<Self, String>;
-    
+
     // Element wise scaling
     fn scale(&self, scalar: T) -> Result<Self, String>;
 

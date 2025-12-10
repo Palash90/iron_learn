@@ -61,7 +61,7 @@ fn test_column_broadcast_rhs() {
     let matrix = CpuTensor::new(vec![2, 3], vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).unwrap();
     // 1D Vector (length 3, matches columns)
     let vector = CpuTensor::new(vec![3], vec![10.0, 20.0, 30.0]).unwrap();
-    
+
     // Expected 2x3 result
     let expected = CpuTensor::new(vec![2, 3], vec![11.0, 22.0, 33.0, 14.0, 25.0, 36.0]).unwrap();
 
@@ -73,8 +73,8 @@ fn test_row_broadcast_rhs() {
     // 3x2 Matrix (3 rows)
     let matrix = CpuTensor::new(vec![3, 2], vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).unwrap();
     // 1D Vector (length 3, matches rows)
-    let vector = CpuTensor::new(vec![3], vec![10.0, 20.0, 30.0]).unwrap(); 
-    
+    let vector = CpuTensor::new(vec![3], vec![10.0, 20.0, 30.0]).unwrap();
+
     // Expected 3x2 result: [1+10, 2+10, 3+20, 4+20, 5+30, 6+30]
     let expected = CpuTensor::new(vec![3, 2], vec![11.0, 12.0, 23.0, 24.0, 35.0, 36.0]).unwrap();
 
@@ -87,7 +87,7 @@ fn test_self_column_broadcast() {
     let vector = CpuTensor::new(vec![3], vec![10.0, 20.0, 30.0]).unwrap();
     // 2x3 Matrix - Rhs
     let matrix = CpuTensor::new(vec![2, 3], vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).unwrap();
-    
+
     // Expected 2x3 result
     let expected = CpuTensor::new(vec![2, 3], vec![11.0, 22.0, 33.0, 14.0, 25.0, 36.0]).unwrap();
 
@@ -97,15 +97,15 @@ fn test_self_column_broadcast() {
 #[test]
 fn test_shape_mismatch_error() {
     // 2x4 Matrix
-    let matrix = CpuTensor::new(vec![2, 4], vec![1.0; 8]).unwrap(); 
+    let matrix = CpuTensor::new(vec![2, 4], vec![1.0; 8]).unwrap();
     // 1D Vector (length 3)
     let vector = CpuTensor::new(vec![3], vec![1.0; 3]).unwrap();
-    
+
     let result = matrix + vector;
-    
+
     // Check that the result is an Err variant
     assert!(result.is_err());
-    
+
     // Optional: Check the exact error message
     // assert_eq!(result.unwrap_err(), "ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- [2, 4] [3]".to_string());
 }
@@ -115,8 +115,8 @@ fn test_2d_row_broadcast() {
     // 3x2 Matrix (Self)
     let m1 = CpuTensor::new(vec![3, 2], vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).unwrap();
     // 1x2 Matrix (RHS) - Broadcasts across rows
-    let m2 = CpuTensor::new(vec![1, 2], vec![10.0, 20.0]).unwrap(); 
-    
+    let m2 = CpuTensor::new(vec![1, 2], vec![10.0, 20.0]).unwrap();
+
     // Expected 3x2 result: [11, 22, 13, 24, 15, 26]
     let expected = CpuTensor::new(vec![3, 2], vec![11.0, 22.0, 13.0, 24.0, 15.0, 26.0]).unwrap();
 
@@ -128,8 +128,8 @@ fn test_2d_column_broadcast() {
     // 2x3 Matrix (Self)
     let m1 = CpuTensor::new(vec![2, 3], vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).unwrap();
     // 2x1 Matrix (RHS) - Broadcasts across columns
-    let m2 = CpuTensor::new(vec![2, 1], vec![10.0, 20.0]).unwrap(); 
-    
+    let m2 = CpuTensor::new(vec![2, 1], vec![10.0, 20.0]).unwrap();
+
     // Expected 2x3 result: [11, 12, 13, 24, 25, 26]
     let expected = CpuTensor::new(vec![2, 3], vec![11.0, 12.0, 13.0, 24.0, 25.0, 26.0]).unwrap();
 
@@ -141,8 +141,8 @@ fn test_2d_scalar_broadcast() {
     // 2x2 Matrix (Self)
     let m1 = CpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
     // 1x1 Matrix (RHS) - Broadcasts everywhere
-    let scalar = CpuTensor::new(vec![1, 1], vec![10.0]).unwrap(); 
-    
+    let scalar = CpuTensor::new(vec![1, 1], vec![10.0]).unwrap();
+
     // Expected 2x2 result: [11, 12, 13, 14]
     let expected = CpuTensor::new(vec![2, 2], vec![11.0, 12.0, 13.0, 14.0]).unwrap();
 
@@ -152,12 +152,12 @@ fn test_2d_scalar_broadcast() {
 #[test]
 fn test_2d_incompatible_shapes_error() {
     // 3x4 Matrix
-    let m1 = CpuTensor::new(vec![3, 4], vec![1.0; 12]).unwrap(); 
+    let m1 = CpuTensor::new(vec![3, 4], vec![1.0; 12]).unwrap();
     // 2x5 Matrix
     let m2 = CpuTensor::new(vec![2, 5], vec![1.0; 10]).unwrap();
-    
+
     let result = m1 + m2;
-    
+
     // Check that the result is an Err variant
     assert!(result.is_err());
 }

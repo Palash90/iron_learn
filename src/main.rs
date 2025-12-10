@@ -1,7 +1,7 @@
 use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
-use iron_learn::gpu_regression;
+use iron_learn::gpu_ml;
 use iron_learn::run_neural_net;
 use iron_learn::Tensor;
 use iron_learn::{init_context, run_linear, run_logistic, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
@@ -119,26 +119,24 @@ fn main() {
         println!("Logistic Regression completed in {:.4?}", elapsed);
 
         let now = Instant::now();
-        let _ = gpu_regression::run_linear_cuda();
+        let _ = gpu_ml::run_linear_cuda();
         let elapsed = now.elapsed();
         println!("Old linear Regression completed in {:.4?}", elapsed);
 
         let now = Instant::now();
-        let _ = gpu_regression::run_logistics_cuda();
+        let _ = gpu_ml::run_logistics_cuda();
         let elapsed = now.elapsed();
         println!("Old logistic Regression completed in {:.4?}", elapsed);
 
         let now = Instant::now();
-        gpu_regression::run_neural_network_cuda();
+        gpu_ml::run_neural_network_cuda();
         let elapsed = now.elapsed();
         println!("Neural Net completed in {:.4?}", elapsed);
 
         let now = Instant::now();
-        gpu_regression::examples::example_3layer_network();
+        gpu_ml::examples::example_3layer_network();
         let elapsed = now.elapsed();
         println!("Neural Net completed in {:.4?}", elapsed);
-
-        
 
         println!("\n✓ All training tasks completed");
     } else {

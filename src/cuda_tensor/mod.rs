@@ -5,10 +5,10 @@ use std::ops::{Add, Mul, Neg, Sub};
 use cust::launch;
 use cust::memory::bytemuck::Zeroable;
 use cust::prelude::Function;
+use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use cust::{device, memory::CopyDestination, prelude::DeviceBuffer};
-use cust::prelude::Module;
 
 mod tensor_ops;
 
@@ -518,7 +518,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         self._gpu_mul(rhs)
     }
 }
-
 
 use crate::init_context;
 #[cfg(test)]

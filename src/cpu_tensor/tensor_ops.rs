@@ -1,5 +1,5 @@
-use crate::numeric::Numeric;
 use crate::cpu_tensor::CpuTensor;
+use crate::numeric::Numeric;
 use crate::tensor::Tensor;
 
 impl<T: Numeric + 'static> Tensor<T> for CpuTensor<T>
@@ -45,19 +45,19 @@ where
     }
 
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
-        Self::new(shape, data) 
+        Self::new(shape, data)
     }
 
     fn empty(shape: &Vec<u32>) -> Self {
         let data = match shape.len() {
             2 => vec![T::zero(); (shape[0] * shape[1]) as usize],
-            _ => vec![T::zero(); shape[0] as usize]
+            _ => vec![T::zero(); shape[0] as usize],
         };
         Self::new(shape.to_vec(), data).expect("Nothing")
     }
 
     fn synchronize(&self) {}
-    
+
     fn add(&self, rhs: &Self) -> Result<Self, String> {
         self.add(rhs)
     }
