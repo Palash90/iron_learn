@@ -35,7 +35,6 @@ impl<T: Tensor<MyNumeric> + 'static> LossFunction<T> for MeanSquaredErrorLoss {
     }
 }
 
-/// A common interface for all layers.
 pub trait Layer<T: Tensor<MyNumeric>> {
     fn forward(&mut self, input: &T) -> Result<T, String>;
     fn backward(&mut self, output_error: &T, learning_rate: MyNumeric) -> Result<T, String>;
@@ -44,8 +43,6 @@ pub trait Layer<T: Tensor<MyNumeric>> {
     }
     fn name(&self) -> &str;
 }
-
-// --- 1. The Linear Layer ---
 
 pub struct LinearLayer<T: Tensor<MyNumeric>> {
     weights: T,
@@ -67,6 +64,8 @@ impl<T: Tensor<MyNumeric>> LinearLayer<T> {
         let b_data = vec![0.0; output_size as usize];
         let biases = T::new(vec![1, output_size], b_data)?;
 
+        println!("{} = W shape: {:?}, b shape: {:?}", name, weights.get_shape(), biases.get_shape());
+
         Ok(Self {
             weights,
             biases,
@@ -82,8 +81,13 @@ impl<T: Tensor<MyNumeric>> Layer<T> for LinearLayer<T> {
     }
 
     fn forward(&mut self, input: &T) -> Result<T, String> {
-        self.input_cache = Some(input.add(&T::empty())?);
+        self.input_cache = Some(input.add(&T::empty(input.get_shape()))?);
+
+        println!("Input Shape: {:?}, Cache Shape: {:?}", input.get_shape(), self.input_cache.as_ref().unwrap().get_shape());
+
         let matmul = input.mul(&self.weights)?;
+
+        println!("{} Matmul done", self.name);
         let output = matmul.add(&self.biases)?;
         Ok(output)
     }
@@ -117,6 +121,7 @@ impl<T: Tensor<MyNumeric>> Layer<T> for LinearLayer<T> {
     }
 }
 
+#[derive(Debug)]
 pub enum ActivationType {
     Sigmoid,
     Tanh,
@@ -125,20 +130,25 @@ pub enum ActivationType {
 pub struct ActivationLayer<T: Tensor<MyNumeric>> {
     act_type: ActivationType,
     output_cache: Option<T>,
+    name: String,
 }
 
 impl<T: Tensor<MyNumeric>> ActivationLayer<T> {
-    pub fn new(act_type: ActivationType) -> Self {
+    pub fn new(act_type: ActivationType, name: &str) -> Self {
+
+        println!("{} = {:?}", name, act_type);
+
         Self {
             act_type,
             output_cache: None,
+            name: name.to_string(),
         }
     }
 }
 
 impl<T: Tensor<MyNumeric>> Layer<T> for ActivationLayer<T> {
     fn name(&self) -> &str {
-        "Activation"
+        &self.name
     }
 
     fn forward(&mut self, input: &T) -> Result<T, String> {
@@ -146,7 +156,7 @@ impl<T: Tensor<MyNumeric>> Layer<T> for ActivationLayer<T> {
             ActivationType::Sigmoid => input.sigmoid()?,
             ActivationType::Tanh => input.tanh()?,
         };
-        self.output_cache = Some(output.add(&T::empty())?);
+        self.output_cache = Some(output.add(&T::empty(output.get_shape()))?);
         Ok(output)
     }
 
@@ -154,18 +164,11 @@ impl<T: Tensor<MyNumeric>> Layer<T> for ActivationLayer<T> {
         let out = self.output_cache.as_ref().unwrap();
 
         let prime = match self.act_type {
-            ActivationType::Sigmoid => {
-                let shape = out.get_shape();
-                let ones_data = vec![1.0; shape.iter().product::<u32>() as usize];
-                let ones = T::new(shape.clone(), ones_data)?;
-
-                let one_minus_s = ones.sub(out)?;
-                out.multiply(&one_minus_s)?
-            }
-            ActivationType::Tanh => T::empty(),
+            ActivationType::Sigmoid => out.sigmoid(),
+            ActivationType::Tanh => out.tanh(),
         };
 
-        prime.multiply(output_error)
+        prime?.multiply(output_error)
     }
 }
 
@@ -180,7 +183,8 @@ impl<T: Tensor<MyNumeric>> NeuralNet<T> {
     }
 
     pub fn predict(&mut self, input: &T) -> Result<T, String> {
-        let mut output = input.add(&T::empty())?;
+        let mut output = input.add(&T::empty(input.get_shape()))?;
+
         for layer in &mut self.layers {
             output = layer.forward(&output)?;
         }
@@ -281,8 +285,8 @@ impl<T: Tensor<MyNumeric> + 'static> NeuralNetBuilder<T> {
         self
     }
 
-    pub fn add_activation(mut self, act_type: ActivationType) -> Self {
-        let layer = ActivationLayer::new(act_type);
+    pub fn add_activation(mut self, act_type: ActivationType, name: &str) -> Self {
+        let layer = ActivationLayer::new(act_type, name);
         self.layers.push(Box::new(layer));
         self
     }

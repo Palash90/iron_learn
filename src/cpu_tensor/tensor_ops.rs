@@ -48,8 +48,12 @@ where
         Self::new(shape, data) 
     }
 
-    fn empty() -> Self {
-        Self::new(vec![], vec![]).expect("Nothing")
+    fn empty(shape: &Vec<u32>) -> Self {
+        let data = match shape.len() {
+            2 => vec![T::zero(); (shape[0] * shape[1]) as usize],
+            _ => vec![T::zero(); shape[0] as usize]
+        };
+        Self::new(shape.to_vec(), data).expect("Nothing")
     }
 
     fn synchronize(&self) {}

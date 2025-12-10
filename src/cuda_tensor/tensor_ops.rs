@@ -40,10 +40,10 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
         Self::_new(shape, data)
     }
 
-    fn empty() -> Self {
+    fn empty(shape: &Vec<u32>) -> Self {
         unsafe {
             Self {
-                shape: vec![],
+                shape: shape.to_vec(),
                 device_buffer: DeviceBuffer::uninitialized(0).expect("CUDA buffer did not initialize"),
             }
         }

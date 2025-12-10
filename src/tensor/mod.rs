@@ -4,7 +4,7 @@ pub trait Tensor<T: Numeric>: Sized {
 
     /* Creation */
     // Returns an Empty Tensor
-    fn empty() -> Self;
+    fn empty(shape: &Vec<u32>) -> Self;
 
     // Creates a new tensor with the provided shape and data
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String>;
