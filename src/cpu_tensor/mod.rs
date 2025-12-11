@@ -104,7 +104,7 @@ impl<T: Numeric> CpuTensor<T> {
         f64::exp(t) / (1.0 + f64::exp(t))
     }
 
-    fn element_op(operand: &Self, op_type: OpType) -> CpuTensor<f64> {
+    fn element_op(&self, op_type: OpType) -> CpuTensor<f64> {
         let result = match op_type {
             OpType::EXP => operand.data.iter().map(|t| f64::exp(t.f64())).collect(),
             OpType::COS => operand.data.iter().map(|t| f64::cos(t.f64())).collect(),
@@ -120,7 +120,7 @@ impl<T: Numeric> CpuTensor<T> {
             OpType::LN => operand.data.iter().map(|t| f64::ln(t.f64())).collect(),
         };
 
-        CpuTensor::new(operand.shape.clone(), result).unwrap()
+        CpuTensor::new(self.shape.clone(), result).unwrap()
     }
 
     fn _t(&self) -> Result<Self, String> {
@@ -394,9 +394,8 @@ impl<T: SignedNumeric> Neg for CpuTensor<T> {
     }
 }
 
-
 // This trait implementation wires the public API to the internal logic.
-impl<T: Numeric> Tensor<T> for CpuTensor<T> where CpuTensor<T>: From<CpuTensor<f64>>{
+impl<T: Numeric> Tensor<T> for CpuTensor<T> {
     /* Creation */
     /// Returns an Empty Tensor with the provided shape, filled with the zero value for T.
     fn empty(shape: &Vec<u32>) -> Self {
@@ -473,51 +472,54 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> where CpuTensor<T>: From<CpuTensor<f
     /// **Note:** Based on your function name `sum`, I am implementing a full sum reduction (summing all elements into a 1-element tensor). If you intended a column or row-wise reduction that keeps one dimension, the logic will need adjustment.
     fn sum(&self) -> Result<Self, String> {
         let sum_val = self.data.iter().fold(T::zero(), |acc, &x| acc + x);
-        
+
         // Return a tensor with a single element and shape [1]
         Self::new(vec![1], vec![sum_val])
     }
 }
 
-impl<T> TensorMath<T> for CpuTensor<T> where T: Numeric{
-    type MathOutput = CpuTensor<T>;
+impl<T> TensorMath<T> for CpuTensor<T>
+where
+    T: Numeric,
+{
+    type MathOutput = CpuTensor<f64>;
 
     fn sigmoid(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        Ok(self.element_op(OpType::SIGMOID))
     }
 
     fn log(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        Ok(self.element_op(OpType::LOG))
     }
 
     fn ln(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        Ok(self.element_op(OpType::LN))
     }
 
     fn sin(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        Ok(self.element_op(OpType::SIN))
     }
 
     fn cos(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        Ok(self.element_op(OpType::COS))
     }
 
     fn tan(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        Ok(self.element_op(OpType::TAN))
     }
 
     fn tanh(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        Ok(self.element_op(OpType::TANH))
     }
 
     fn exp(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        Ok(self.element_op(OpType::EXP))
     }
 }
 #[cfg(test)]
 #[test]
 fn test_new() {
-    let t = CpuTensor::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
+    let t = CpuTensor::<i8>::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
 
     assert_eq!(t.shape, vec![1u32, 2u32]);
     assert_eq!(t.data, vec![1i8, 2i8]);

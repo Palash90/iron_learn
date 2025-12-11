@@ -501,40 +501,40 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
 impl<T> TensorMath<T> for GpuTensor<T>
 where
-    T: Numeric,
+    T: Numeric + Zeroable,
 {
     type MathOutput = GpuTensor<T>;
 
     fn sigmoid(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        self.element_op(OpType::SIGMOID, T::zero())
     }
 
     fn log(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        self.element_op(OpType::LOG, T::zero())
     }
 
     fn ln(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        self.element_op(OpType::LN, T::zero())
     }
 
     fn sin(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        self.element_op(OpType::SIN, T::zero())
     }
 
     fn cos(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        self.element_op(OpType::COS, T::zero())
     }
 
     fn tan(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        self.element_op(OpType::TAN, T::zero())
     }
 
     fn tanh(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        self.element_op(OpType::TANH, T::zero())
     }
 
     fn exp(&self) -> Result<Self::MathOutput, String> {
-        todo!()
+        self.element_op(OpType::EXP, T::zero())
     }
 }
 
