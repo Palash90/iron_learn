@@ -148,11 +148,10 @@ def run(epochs, learning_rate, data_field='linear'):
         print(f"\nFinal Results after {epochs} epochs and learning rate {learning_rate}:")
         print(f"\nTest Accuracy: {accuracy.get():.4f}% ({correct.get()} out of {m_test})")
     else:
-        for item_id, item_name in zip(y_pred_rescaled, y_test):
-            print(f"ID: {item_id}, Item: {item_name}")
+        for pred, actual in zip(y_pred_rescaled, y_test):
+            print(f"Y: {actual}, P: {pred}")
 
         print(f"\nFinal Results after {epochs} epochs and learning rate {learning_rate}:")
-        print(f"\nTest Correct Predictions: {correct.get()} out of {m_test}")
 
 
 def load_data_from_csv(csv_path):

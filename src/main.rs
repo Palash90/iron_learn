@@ -22,7 +22,7 @@ fn init() {
     let learning_rate = args
         .get(2)
         .and_then(|s| s.parse::<f64>().ok())
-        .unwrap_or(0.01);
+        .unwrap_or(0.001);
     let epochs = args
         .get(3)
         .and_then(|s| s.parse::<u32>().ok())
@@ -109,13 +109,11 @@ fn main() {
 
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
-        run_custom_network();
+        run_neural_net::<GpuTensor<f64>>();
         println!("\n✓ All training tasks completed");
     } else {
         println!("Running CPU-based training...\n");
         run_neural_net::<CpuTensor<f64>>();
-        run_linear::<CpuTensor<f64>>();
-        run_logistic::<CpuTensor<f64>>();
         println!("\n✓ All training tasks completed");
     }
 }

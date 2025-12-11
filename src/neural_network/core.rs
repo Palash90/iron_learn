@@ -264,20 +264,18 @@ where
         Self { layers: Vec::new() }
     }
 
-    pub fn add_linear(mut self, input_size: u32, output_size: u32, name: &str) -> Self {
+    pub fn add_linear(&mut self, input_size: u32, output_size: u32, name: &str) {
         match LinearLayer::new(input_size, output_size, name) {
             Ok(layer) => self.layers.push(Box::new(layer)),
             Err(e) => {
                 eprintln!("Error adding LinearLayer: {}", e);
             }
         }
-        self
     }
 
-    pub fn add_activation(mut self, act_type: ActivationType, name: &str) -> Self {
+    pub fn add_activation(&mut self, act_type: ActivationType, name: &str) {
         let layer = ActivationLayer::new(act_type, name);
         self.layers.push(Box::new(layer));
-        self
     }
 
     pub fn build(self, loss_fn: Box<dyn LossFunction<T>>) -> NeuralNet<T> {

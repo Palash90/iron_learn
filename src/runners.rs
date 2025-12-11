@@ -215,23 +215,22 @@ where
     let input_length = 2;
 
     let nn = NeuralNetBuilder::<T>::new();
-    let mut nn = nn
-        .add_linear(input_length + 1, hidden_length, "Input")
-        .add_activation(ActivationType::Tanh, "Activatin Layer 1")
-        .add_linear(hidden_length, hidden_length, "Hidden Layer 1")
-        .add_activation(ActivationType::Tanh, "Activation Layer 2")
-        .add_linear(hidden_length, hidden_length, "Hidden Layer 2")
-        .add_activation(ActivationType::Tanh, "Activation Layer 3")
-        .add_linear(hidden_length, hidden_length / 2, "Hidden Layer 3")
-        .add_activation(ActivationType::Tanh, "Activation Layer 4")
-        .add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 4")
-        .add_activation(ActivationType::Tanh, "Activation Layer 5")
-        .add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 5")
-        .add_activation(ActivationType::Tanh, "Activation Layer 6")
-        .add_linear(hidden_length / 2, 1, "Hidden Layer 6")
-        .add_activation(ActivationType::Tanh, "Activation Layer 7")
-        .build(loss_function_instance);
+    let mut nn = nn;
+    
+    nn.add_linear(input_length + 1, hidden_length, "Input");
+    nn.add_activation(ActivationType::Tanh, "Activatin Layer 1");
+    
+    nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
+    nn.add_activation(ActivationType::Tanh, "Activation Layer 2");
 
+    nn.add_linear(hidden_length, hidden_length/2, "Hidden Layer 2");
+    nn.add_activation(ActivationType::Tanh, "Activation Layer 3");
+
+
+    nn.add_linear(hidden_length / 2, 1, "Hidden Layer 6");
+    nn.add_activation(ActivationType::Sigmoid, "Activation Layer 7");
+    
+    let mut nn = nn.build(loss_function_instance);
     nn.fit(&x, &y, 10000, 0, 0.1, monitor);
 
     let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
@@ -285,7 +284,6 @@ pub fn run_custom_network() {
 
     let mut network = GpuNetworkBuilder::new();
 
-
     network.add_linear("InputLayer", input_cols, hidden_length);
     network.add_activation("TanH 1", tanh_activation, tanh_derivative);
 
@@ -303,7 +301,7 @@ pub fn run_custom_network() {
     network.print_architecture();
 
     let config = TrainerConfig {
-        learning_rate: learning_rate/10.0, // Use lower learning rate for this config
+        learning_rate: learning_rate / 10.0, // Use lower learning rate for this config
         epochs: epochs as usize,
         checkpoint_interval: 2000,
         hidden_size: 6,
