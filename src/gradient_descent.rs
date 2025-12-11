@@ -57,8 +57,7 @@ pub fn predict_linear<T>(x: &T, w: &T) -> Result<T, String>
 where
     T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
 {
-    let x_with_bias = add_bias_term(x)?;
-    x_with_bias.mul(w)
+    x.mul(w)
 }
 
 pub fn predict_logistic<T>(x: &T, w: &T) -> Result<T, String>

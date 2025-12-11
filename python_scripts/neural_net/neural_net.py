@@ -148,7 +148,8 @@ def run(epochs, learning_rate, data_field='linear'):
         print(f"\nFinal Results after {epochs} epochs and learning rate {learning_rate}:")
         print(f"\nTest Accuracy: {accuracy.get():.4f}% ({correct.get()} out of {m_test})")
     else:
-        correct = np.sum((y_pred_rescaled[:, 0] > 0.5) == (y_test[:, 0] > 0.5))
+        for item_id, item_name in zip(y_pred_rescaled, y_test):
+            print(f"ID: {item_id}, Item: {item_name}")
 
         print(f"\nFinal Results after {epochs} epochs and learning rate {learning_rate}:")
         print(f"\nTest Correct Predictions: {correct.get()} out of {m_test}")

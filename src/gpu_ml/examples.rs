@@ -39,15 +39,16 @@ pub fn example_custom_network() -> CudaResult<()> {
 
     // Build a custom network with mixed activations:
     // Input -> ReLU -> Sigmoid -> ReLU -> Output
-    let network = GpuNetworkBuilder::new()
-        .add_linear("InputLayer", input_cols, 96)?
-        .add_activation("ReLU1", relu_activation, relu_derivative)
-        .add_linear("HiddenLayer1", 96, 48)?
-        .add_activation("Sigmoid", sigmoid_activation, sigmoid_derivative)
-        .add_linear("HiddenLayer2", 48, 24)?
-        .add_activation("ReLU2", relu_activation, relu_derivative)
-        .add_linear("OutputLayer", 24, 1)?
-        .build();
+    let mut network = GpuNetworkBuilder::new();
+    network.add_linear("InputLayer", input_cols, 96);
+    network.add_activation("ReLU1", relu_activation, relu_derivative);
+    network.add_linear("HiddenLayer1", 96, 48);
+    network.add_activation("Sigmoid", sigmoid_activation, sigmoid_derivative);
+    network.add_linear("HiddenLayer2", 48, 24);
+    network.add_activation("ReLU2", relu_activation, relu_derivative);
+    network.add_linear("OutputLayer", 24, 1);
+    
+    let network = network.build();
 
     network.print_architecture();
 

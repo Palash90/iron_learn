@@ -31,27 +31,20 @@ impl GpuNetworkBuilder {
     }
 
     /// Add a linear layer to the network
-    pub fn add_linear(
-        mut self,
-        name: &str,
-        input_size: usize,
-        output_size: usize,
-    ) -> CudaResult<Self> {
-        let layer = LinearLayer::new(name, input_size, output_size)?;
+    pub fn add_linear(&mut self, name: &str, input_size: usize, output_size: usize) {
+        let layer = LinearLayer::new(name, input_size, output_size).unwrap();
         self.layers.push(NetworkLayer::Linear(layer));
-        Ok(self)
     }
 
     /// Add an activation layer to the network
     pub fn add_activation(
-        mut self,
+        &mut self,
         name: &str,
         activation_fn: ActivationFn,
         derivative_fn: ActivationDerivFn,
-    ) -> Self {
+    ) {
         let layer = ActivationLayer::new(name, activation_fn, derivative_fn);
         self.layers.push(NetworkLayer::Activation(layer));
-        self
     }
 
     /// Get the current number of layers
@@ -149,4 +142,3 @@ impl GpuNetwork {
         Ok(())
     }
 }
-

@@ -349,6 +349,11 @@ impl<'a> GpuNetworkTrainer<'a> {
         stream.synchronize()?;
         let mut loss_host = vec![0.0f64; rows];
         d_loss.copy_to(&mut loss_host)?;
+
+        let mut d_z2_host = vec![0.0f64; rows];
+        d_z2.copy_to(&mut d_z2_host)?;
+        println!("{:?}", d_z2_host);
+        println!("{:?}", y_test);
         let mse = loss_host.iter().map(|l| l * l).sum::<f64>() / (rows as f64);
 
         Ok(mse)

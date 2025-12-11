@@ -7,6 +7,9 @@ use crate::gpu_ml::activations::tanh_activation;
 use crate::gpu_ml::activations::tanh_derivative;
 use crate::gpu_ml::add_bias_column;
 use crate::gpu_ml::builder::GpuNetworkBuilder;
+use crate::gpu_ml::compute_norm_stats;
+use crate::gpu_ml::trainer::GpuNetworkTrainer;
+use crate::gpu_ml::trainer::TrainerConfig;
 use crate::normalize_features;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
@@ -15,8 +18,6 @@ use crate::{linear_regression, logistic_regression, predict_linear, predict_logi
 use crate::{CpuTensor, GLOBAL_CONTEXT};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
-use crate::gpu_ml::trainer::GpuNetworkTrainer;
-use crate::gpu_ml::trainer::TrainerConfig;
 
 use crate::read_file::deserialize_data;
 use cust::prelude::Module;
@@ -210,7 +211,7 @@ where
     let mut w = T::new(vec![xy.n, 1], vec![0.0; xy.n as usize])?;
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
-    let hidden_length = 5;
+    let hidden_length = 6;
     let input_length = 2;
 
     let nn = NeuralNetBuilder::<T>::new();
@@ -236,11 +237,27 @@ where
     let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
     let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 
+    println!("{} {}", xy.m_test, xy.n);
+
     let x_test = normalize_features(&x_test, &x_mean, &x_std);
 
-    let predictions = predict_linear(&x_test, &w)?;
+    println!("{:?}", x_test.get_shape());
+
+    println!("{:?}", x_test.get_data());
+
+    let predictions = predict_linear(&x_test, &w).expect("Did not work");
+
+    println!("{:?}", predictions.get_data());
 
     let predictions = denormalize_features(&predictions, &y_mean, &y_std);
+
+    for i in 0..y_test.get_data().len() {
+        println!(
+            "Y: {}, P: {}",
+            y_test.get_data()[i],
+            predictions.get_data()[i]
+        );
+    }
 
     Ok(())
 }
@@ -251,7 +268,8 @@ pub fn run_custom_network() {
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
     let Data {
-        cat_image: data, ..
+        neural_network: data,
+        ..
     } = deserialize_data(data_path).unwrap();
     let rows = data.m as usize;
     let cols = data.n as usize;
@@ -263,36 +281,45 @@ pub fn run_custom_network() {
     let module = Module::from_ptx(ptx, &[]).unwrap();
     let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
 
-    let hidden_layer_length = 4;
+    let hidden_length = 4;
 
-    let network = GpuNetworkBuilder::new()
-        .add_linear("InputLayer", input_cols, hidden_layer_length)
-        .unwrap()
-        .add_activation("TanH 1", tanh_activation, tanh_derivative)
-        .add_linear("HiddenLayer1", hidden_layer_length, hidden_layer_length / 2)
-        .unwrap()
-        .add_activation("Sigmoid", tanh_activation, tanh_derivative)
-        .add_linear(
-            "HiddenLayer2",
-            hidden_layer_length / 2,
-            hidden_layer_length / 4,
-        )
-        .unwrap()
-        .add_activation("TanH 2", sigmoid_activation, sigmoid_derivative)
-        .add_linear("OutputLayer", hidden_layer_length / 4, 1).unwrap()
-        .build();
+    let mut network = GpuNetworkBuilder::new();
+
+
+    network.add_linear("InputLayer", input_cols, hidden_length);
+    network.add_activation("TanH 1", tanh_activation, tanh_derivative);
+
+    network.add_linear("HiddenLayer2", hidden_length, hidden_length);
+    network.add_activation("TanH 2", tanh_activation, tanh_derivative);
+
+    network.add_linear("HiddenLayer3", hidden_length, hidden_length / 2);
+    network.add_activation("TanH 3", tanh_activation, tanh_derivative);
+
+    network.add_linear("OutputLayer", hidden_length / 2, 1);
+    network.add_activation("Sigmoid", sigmoid_activation, sigmoid_derivative);
+
+    let network = network.build();
 
     network.print_architecture();
 
     let config = TrainerConfig {
-        learning_rate: learning_rate * 0.5, // Use lower learning rate for this config
+        learning_rate: learning_rate/10.0, // Use lower learning rate for this config
         epochs: epochs as usize,
         checkpoint_interval: 2000,
-        hidden_size: 96,
+        hidden_size: 6,
     };
 
     let mut trainer = GpuNetworkTrainer::new(network, config, &module, stream);
-    let (duration, final_loss) = trainer.fit(&x_bias, &data.y, rows, input_cols).unwrap();
+    let (duration, final_loss) = trainer
+        .fit(&x_bias, &data.y, rows as usize, input_cols as usize)
+        .unwrap();
+
+    let x_test = data.x_test;
+    let x_test = add_bias_column(&x_test, data.m_test as usize, data.n as usize);
+    let y_test = data.y_test;
+    let m_test = data.m_test;
+
+    let ev = trainer.evaluate(&x_test, &y_test, m_test as usize, data.n as usize);
 
     println!("\nTraining Results:");
     println!("  Time: {:?}", duration);

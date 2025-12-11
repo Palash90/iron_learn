@@ -50,7 +50,10 @@ pub struct LinearLayer<T: Tensor<MyNumeric>> {
     name: String,
 }
 
-impl<T> LinearLayer<T> where T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T> + 'static  {
+impl<T> LinearLayer<T>
+where
+    T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T> + 'static,
+{
     pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
         let mut rng = rand::thread_rng();
         let w_count = (input_size * output_size) as usize;
@@ -146,11 +149,18 @@ where
         let out = self.output_cache.as_ref().unwrap();
 
         let prime = match self.act_type {
-            ActivationType::Sigmoid => out.sigmoid(),
-            ActivationType::Tanh => out.tanh(),
+            ActivationType::Sigmoid => out.scale(1.0).unwrap().sub(out).unwrap().multiply(out),
+            ActivationType::Tanh => {
+                let o_squared = out.multiply(out).unwrap();
+                let ones = T::new(
+                    out.get_shape().clone(),
+                    vec![1.0; out.get_shape()[0] as usize * out.get_shape()[1] as usize],
+                ).unwrap();
+                ones.sub(&o_squared)
+            }
         };
 
-        prime?.multiply(output_error)
+        prime.unwrap().multiply(output_error)
     }
 }
 
