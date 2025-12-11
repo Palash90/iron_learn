@@ -57,33 +57,6 @@ pub fn sigmoid_derivative(
     Ok(())
 }
 
-/// Linear (identity) activation - no-op
-pub fn linear_activation(
-    d_input: DevicePointer<f64>,
-    d_output: DevicePointer<f64>,
-    size: i32,
-    _module: &Module,
-    _stream: &Stream,
-) -> CudaResult<()> {
-    // Linear activation is identity, but GPU transfer is not ideal here
-    // In practice, we'd skip this or use a copy kernel
-    // For now, we assume the input buffer is already the output
-    Ok(())
-}
-
-/// Linear derivative (always 1)
-pub fn linear_derivative(
-    _d_z: DevicePointer<f64>,
-    _d_deriv: DevicePointer<f64>,
-    _size: i32,
-    _module: &Module,
-    _stream: &Stream,
-) -> CudaResult<()> {
-    // Linear derivative is 1, so we skip computation
-    // In practice, we'd fill d_deriv with 1.0
-    Ok(())
-}
-
 /// Tanh activation function
 pub fn tanh_activation(
     d_input: DevicePointer<f64>,

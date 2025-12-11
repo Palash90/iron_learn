@@ -23,7 +23,7 @@ pub use crate::commons::normalize_features;
 pub use crate::numeric::Numeric;
 pub use crate::runners::Data;
 pub use crate::runners::XY;
-pub use crate::runners::{run_linear, run_logistic, run_neural_net};
+pub use crate::runners::{run_linear, run_logistic, run_neural_net, run_custom_network};
 pub use neural_network::ActivationType;
 pub use neural_network::LossFunction;
 pub use neural_network::MeanSquaredErrorLoss;

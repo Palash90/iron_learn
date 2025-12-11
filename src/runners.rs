@@ -1,6 +1,12 @@
 use crate::commons::add_bias_term;
 use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
+use crate::gpu_ml::activations::sigmoid_activation;
+use crate::gpu_ml::activations::sigmoid_derivative;
+use crate::gpu_ml::activations::tanh_activation;
+use crate::gpu_ml::activations::tanh_derivative;
+use crate::gpu_ml::add_bias_column;
+use crate::gpu_ml::builder::GpuNetworkBuilder;
 use crate::normalize_features;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
@@ -9,6 +15,13 @@ use crate::{linear_regression, logistic_regression, predict_linear, predict_logi
 use crate::{CpuTensor, GLOBAL_CONTEXT};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
+use crate::gpu_ml::trainer::GpuNetworkTrainer;
+use crate::gpu_ml::trainer::TrainerConfig;
+
+use crate::read_file::deserialize_data;
+use cust::prelude::Module;
+use cust::stream::Stream;
+use cust::stream::StreamFlags;
 
 use crate::ActivationType;
 use crate::MeanSquaredErrorLoss;
@@ -230,4 +243,58 @@ where
     let predictions = denormalize_features(&predictions, &y_mean, &y_std);
 
     Ok(())
+}
+
+pub fn run_custom_network() {
+    let learning_rate = GLOBAL_CONTEXT.get().unwrap().learning_rate;
+    let epochs = GLOBAL_CONTEXT.get().unwrap().epochs;
+    let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
+
+    let Data {
+        cat_image: data, ..
+    } = deserialize_data(data_path).unwrap();
+    let rows = data.m as usize;
+    let cols = data.n as usize;
+    let input_cols = cols + 1;
+
+    let x_bias = add_bias_column(&data.x, rows, cols);
+
+    let ptx = include_str!("../kernels/gpu_kernels.ptx");
+    let module = Module::from_ptx(ptx, &[]).unwrap();
+    let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
+
+    let hidden_layer_length = 4;
+
+    let network = GpuNetworkBuilder::new()
+        .add_linear("InputLayer", input_cols, hidden_layer_length)
+        .unwrap()
+        .add_activation("TanH 1", tanh_activation, tanh_derivative)
+        .add_linear("HiddenLayer1", hidden_layer_length, hidden_layer_length / 2)
+        .unwrap()
+        .add_activation("Sigmoid", tanh_activation, tanh_derivative)
+        .add_linear(
+            "HiddenLayer2",
+            hidden_layer_length / 2,
+            hidden_layer_length / 4,
+        )
+        .unwrap()
+        .add_activation("TanH 2", sigmoid_activation, sigmoid_derivative)
+        .add_linear("OutputLayer", hidden_layer_length / 4, 1).unwrap()
+        .build();
+
+    network.print_architecture();
+
+    let config = TrainerConfig {
+        learning_rate: learning_rate * 0.5, // Use lower learning rate for this config
+        epochs: epochs as usize,
+        checkpoint_interval: 2000,
+        hidden_size: 96,
+    };
+
+    let mut trainer = GpuNetworkTrainer::new(network, config, &module, stream);
+    let (duration, final_loss) = trainer.fit(&x_bias, &data.y, rows, input_cols).unwrap();
+
+    println!("\nTraining Results:");
+    println!("  Time: {:?}", duration);
+    println!("  Final Loss: {}", final_loss);
 }

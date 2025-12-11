@@ -3,6 +3,8 @@ use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use iron_learn::gpu_ml;
 use iron_learn::run_neural_net;
+use iron_learn::run_custom_network;
+use iron_learn::Data;
 use iron_learn::Tensor;
 use iron_learn::{init_context, run_linear, run_logistic, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
 use std::env;
@@ -107,37 +109,7 @@ fn main() {
 
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
-
-        let now = Instant::now();
-        let _ = run_linear::<GpuTensor<f64>>();
-        let elapsed = now.elapsed();
-        println!("Linear Regression completed in {:.4?}", elapsed);
-
-        let now = Instant::now();
-        let _ = run_logistic::<GpuTensor<f64>>();
-        let elapsed = now.elapsed();
-        println!("Logistic Regression completed in {:.4?}", elapsed);
-
-        let now = Instant::now();
-        let _ = gpu_ml::run_linear_cuda();
-        let elapsed = now.elapsed();
-        println!("Old linear Regression completed in {:.4?}", elapsed);
-
-        let now = Instant::now();
-        let _ = gpu_ml::run_logistics_cuda();
-        let elapsed = now.elapsed();
-        println!("Old logistic Regression completed in {:.4?}", elapsed);
-
-        let now = Instant::now();
-        gpu_ml::run_neural_network_cuda();
-        let elapsed = now.elapsed();
-        println!("Neural Net completed in {:.4?}", elapsed);
-
-        let now = Instant::now();
-        gpu_ml::examples::example_3layer_network();
-        let elapsed = now.elapsed();
-        println!("Neural Net completed in {:.4?}", elapsed);
-
+        run_custom_network();
         println!("\n✓ All training tasks completed");
     } else {
         println!("Running CPU-based training...\n");
