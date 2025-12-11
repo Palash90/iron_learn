@@ -1,9 +1,10 @@
-use crate::gradient_descent::add_bias_term;
+use crate::commons::add_bias_term;
+use crate::commons::denormalize_features;
+use crate::commons::normalize_features_mean_std;
 use crate::normalize_features;
-use crate::normalizer::denormalize_features;
-use crate::normalizer::normalize_features_mean_std;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
+use crate::Numeric;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use crate::{CpuTensor, GLOBAL_CONTEXT};
 use serde::{Deserialize, Serialize};
