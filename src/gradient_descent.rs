@@ -1,15 +1,20 @@
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
+use crate::Numeric;
 
-pub fn add_bias_term<T: Tensor<f64>>(x: &T) -> Result<T, String> {
+pub fn add_bias_term<T, U>(x: &T) -> Result<T, String>
+where
+    T: Tensor<U>,
+    U: Numeric,
+{
     let shape = x.get_shape();
     let m = shape[0] as usize;
     let n = shape[1] as usize;
     let x_data = x.get_data();
-    let mut data = Vec::with_capacity(m * (n + 1));
+    let mut data = Vec::<U>::with_capacity(m * (n + 1));
 
     for i in 0..m {
-        data.push(1.0);
+        data.push(U::one());
         for j in 0..n {
             data.push(x_data[i * n + j]);
         }
