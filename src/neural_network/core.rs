@@ -97,8 +97,7 @@ impl<T: Tensor<MyNumeric>> Layer<T> for LinearLayer<T> {
         let matmul = input.mul(&self.weights)?;
 
         println!("{} Matmul done", self.name);
-        let output = matmul.add(&self.biases)?;
-        Ok(output)
+        Ok(matmul)
     }
 
     fn backward(&mut self, output_error: &T, lr: MyNumeric) -> Result<T, String> {

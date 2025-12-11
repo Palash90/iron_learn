@@ -1,3 +1,4 @@
+use crate::gradient_descent::add_bias_term;
 use crate::normalize_features;
 use crate::normalizer::denormalize_features;
 use crate::normalizer::normalize_features_mean_std;
@@ -180,6 +181,8 @@ pub fn run_neural_net<T: Tensor<f64> + 'static>() -> Result<(), String> {
     let (x, x_mean, x_std) = normalize_features_mean_std(&x);
     let (y, y_mean, y_std) = normalize_features_mean_std(&y);
 
+    let x = add_bias_term(&x).unwrap();
+
     let mut w = T::new(vec![xy.n, 1], vec![0.0; xy.n as usize])?;
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
@@ -187,7 +190,7 @@ pub fn run_neural_net<T: Tensor<f64> + 'static>() -> Result<(), String> {
 
     let nn = NeuralNetBuilder::<T>::new();
     let mut nn = nn
-        .add_linear(2, hidden_length, "Input")
+        .add_linear(3, hidden_length, "Input")
         .add_activation(ActivationType::Tanh, "Activatin Layer 1")
         .add_linear(hidden_length, hidden_length, "Hidden Layer 1")
         .add_activation(ActivationType::Tanh, "Activation Layer 2")
