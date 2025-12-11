@@ -123,26 +123,26 @@ pub fn fn_test() {
     let m1 = CpuTensor::new(vec![1, 2], vec![1, 2]).unwrap();
 
     let result = CpuTensor::new(vec![1, 2], vec![f64::sin(1.0), f64::sin(2.0)]).unwrap();
-    assert_eq!(result, CpuTensor::sin(&m1));
+    assert_eq!(result, CpuTensor::sin(&m1).unwrap());
 
     let result = CpuTensor::new(vec![1, 2], vec![f64::exp(1.0), f64::exp(2.0)]).unwrap();
-    assert_eq!(result, CpuTensor::exp(&m1));
+    assert_eq!(result, CpuTensor::exp(&m1).unwrap());
 
     let result = CpuTensor::new(vec![1, 2], vec![f64::cos(1.0), f64::cos(2.0)]).unwrap();
-    assert_eq!(result, CpuTensor::cos(&m1));
+    assert_eq!(result, CpuTensor::cos(&m1).unwrap());
 
     let result = CpuTensor::new(vec![1, 2], vec![f64::tan(1.0), f64::tan(2.0)]).unwrap();
-    assert_eq!(result, CpuTensor::tan(&m1));
+    assert_eq!(result, CpuTensor::tan(&m1).unwrap());
 
     let result = CpuTensor::new(vec![1, 2], vec![f64::tanh(1.0), f64::tanh(2.0)]).unwrap();
-    assert_eq!(result, CpuTensor::tanh(&m1));
+    assert_eq!(result, CpuTensor::tanh(&m1).unwrap());
 
     let result = CpuTensor::new(vec![1, 2], vec![f64::log10(1.0), f64::log10(2.0)]).unwrap();
-    assert_eq!(result, CpuTensor::log(&m1));
+    assert_eq!(result, CpuTensor::log(&m1).unwrap());
 
     let result = CpuTensor::new(vec![1, 2], vec![f64::ln(1.0), f64::ln(2.0)]).unwrap();
-    assert_eq!(result, CpuTensor::ln(&m1));
+    assert_eq!(result, CpuTensor::ln(&m1).unwrap());
 
     let result = CpuTensor::new(vec![1, 2], vec![sigmoid(1.0), sigmoid(2.0)]).unwrap();
-    assert_eq!(result, CpuTensor::sigmoid(&m1));
+    assert_eq!(result, CpuTensor::sigmoid(&m1).unwrap());
 }

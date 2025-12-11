@@ -9,7 +9,7 @@ mod commons;
 mod numeric;
 mod read_file;
 mod runners;
-mod tensor;
+pub mod tensor;
 
 pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::complex::Complex;

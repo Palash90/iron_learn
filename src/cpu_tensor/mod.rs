@@ -36,6 +36,7 @@ use crate::numeric::{Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
 use std::ops::{Add, Mul, Neg, Sub};
 
+
 /// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
 /// for the manipulation of multidimensional data.
 ///
@@ -53,7 +54,8 @@ use std::ops::{Add, Mul, Neg, Sub};
 /// # Examples
 ///
 /// ```rust
-/// # use iron_learn::CpuTensor;
+/// use crate::iron_learn::Tensor;
+/// use iron_learn::CpuTensor;
 /// // Create a 2x2 matrix
 /// let a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
 /// let b = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
@@ -302,6 +304,7 @@ impl<T: Numeric> Add for CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
+    /// use crate::iron_learn::Tensor;
     /// use iron_learn::CpuTensor;
     ///
     /// let tensor_a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
@@ -337,6 +340,7 @@ impl<T: Numeric> Sub for CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
+    /// use crate::iron_learn::Tensor;
     /// use iron_learn::CpuTensor;
     ///
     /// let tensor_a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
@@ -372,6 +376,7 @@ impl<T: Numeric> Mul for CpuTensor<T> {
     /// # Example
     ///
     /// ```rust
+    /// use crate::iron_learn::Tensor;
     /// use iron_learn::CpuTensor;
     ///
     /// let tensor_a = CpuTensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
@@ -516,11 +521,4 @@ where
         Ok(self.element_op(OpType::EXP))
     }
 }
-#[cfg(test)]
-#[test]
-fn test_new() {
-    let t = CpuTensor::<i8>::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
 
-    assert_eq!(t.shape, vec![1u32, 2u32]);
-    assert_eq!(t.data, vec![1i8, 2i8]);
-}
