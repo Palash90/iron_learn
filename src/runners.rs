@@ -163,10 +163,10 @@ pub fn run_neural_net<T: Tensor<f64> + 'static>() -> Result<(), String> {
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data { cat_image: xy, .. } = crate::read_file::deserialize_data(data_path)
+    let Data {
+        neural_network: xy, ..
+    } = crate::read_file::deserialize_data(data_path)
         .map_err(|e| format!("Data deserialization error: {}", e))?;
-
-    println!("Total amount - {}", xy.m);
 
     let monitor = |epoch: usize, err: f64| {
         // This line runs on the Host (CPU) but the error value came from a D2H transfer
@@ -199,7 +199,7 @@ pub fn run_neural_net<T: Tensor<f64> + 'static>() -> Result<(), String> {
         .add_activation(ActivationType::Tanh, "Activation Layer 3")
         .add_linear(hidden_length, hidden_length / 2, "Hidden Layer 3")
         .add_activation(ActivationType::Tanh, "Activation Layer 4")
-        .add_linear(hidden_length, hidden_length / 2, "Hidden Layer 4")
+        .add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 4")
         .add_activation(ActivationType::Tanh, "Activation Layer 5")
         .add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 5")
         .add_activation(ActivationType::Tanh, "Activation Layer 6")

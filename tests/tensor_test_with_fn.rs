@@ -1,4 +1,5 @@
 use iron_learn::CpuTensor;
+use iron_learn::Tensor;
 
 #[test]
 #[should_panic(expected = "TemporaryShapeRestriction")]

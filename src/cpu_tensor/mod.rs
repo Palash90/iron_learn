@@ -153,7 +153,6 @@ impl<T: Numeric> CpuTensor<T> {
     }
 
     fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
-        println!("_add called");
         let mut result = Vec::with_capacity(self.data.len());
 
         if self.shape != rhs.shape {

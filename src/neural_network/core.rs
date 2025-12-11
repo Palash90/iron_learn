@@ -55,15 +55,8 @@ impl<T: Tensor<MyNumeric>> LinearLayer<T> {
         let mut rng = rand::thread_rng();
         let w_count = (input_size * output_size) as usize;
 
-        // Initialize weights using f64
         let w_data: Vec<MyNumeric> = (0..w_count).map(|_| rng.gen::<MyNumeric>() - 0.5).collect();
         let weights = T::new(vec![input_size, output_size], w_data)?;
-
-        println!(
-            "{} W shape: {:?}",
-            name,
-            weights.get_shape(),
-        );
 
         Ok(Self {
             weights,
@@ -80,16 +73,7 @@ impl<T: Tensor<MyNumeric>> Layer<T> for LinearLayer<T> {
 
     fn forward(&mut self, input: &T) -> Result<T, String> {
         self.input_cache = Some(input.add(&T::empty(input.get_shape()))?);
-
-        println!(
-            "Input Shape: {:?}, Cache Shape: {:?}",
-            input.get_shape(),
-            self.input_cache.as_ref().unwrap().get_shape()
-        );
-
         let matmul = input.mul(&self.weights)?;
-
-        println!("{} Matmul done", self.name);
         Ok(matmul)
     }
 
@@ -133,7 +117,6 @@ pub struct ActivationLayer<T: Tensor<MyNumeric>> {
 
 impl<T: Tensor<MyNumeric>> ActivationLayer<T> {
     pub fn new(act_type: ActivationType, name: &str) -> Self {
-        println!("{} = {:?}", name, act_type);
 
         Self {
             act_type,
@@ -149,14 +132,11 @@ impl<T: Tensor<MyNumeric>> Layer<T> for ActivationLayer<T> {
     }
 
     fn forward(&mut self, input: &T) -> Result<T, String> {
-        println!("Activation Layer Forward Called");
         let output = match self.act_type {
             ActivationType::Sigmoid => input.sigmoid()?,
             ActivationType::Tanh => input.tanh()?,
         };
-        println!("Activation added");
         self.output_cache = Some(output.add(&T::empty(output.get_shape()))?);
-        println!("Caching done");
         Ok(output)
     }
 
@@ -187,7 +167,6 @@ impl<T: Tensor<MyNumeric>> NeuralNet<T> {
 
         for layer in &mut self.layers {
             output = layer.forward(&output)?;
-            println!("Layer {}", layer.name());
         }
         Ok(output)
     }
@@ -206,15 +185,10 @@ impl<T: Tensor<MyNumeric>> NeuralNet<T> {
     {
         let lr_min = 1e-6;
 
-        println!("Epochs {}", epochs);
-
         for i in 0..epochs {
-            println!("{}", i);
             let cos_term = (PI * (i as MyNumeric) / ((epochs + epoch_offset) as MyNumeric)).cos();
             let decay_factor = 0.5 * (1.0 + cos_term);
             let current_lr = lr_min + (base_lr - lr_min) * decay_factor;
-
-            println!("{} {} {}", cos_term, decay_factor, current_lr);
 
             let output = match self.predict(x_train) {
                 Ok(t) => t,
@@ -224,17 +198,11 @@ impl<T: Tensor<MyNumeric>> NeuralNet<T> {
                 }
             };
 
-            println!("predicted");
-
             let mut grad = self.loss_fn.loss_prime(y_train, &output)?;
-
-            println!("Before Back propagates");
 
             for layer in self.layers.iter_mut().rev() {
                 grad = layer.backward(&grad, current_lr)?;
             }
-
-            println!("Back propagates");
 
             // Hook (Periodic Reporting)
             if i == 0 || (i + 1) % 1000 == 0 {
@@ -253,7 +221,6 @@ impl<T: Tensor<MyNumeric>> NeuralNet<T> {
     }
 
     pub fn save_weights(&self, filepath: &str) {
-        println!("Saving weights to {}...", filepath);
         for (i, layer) in self.layers.iter().enumerate() {
             if let Some(w) = layer.get_parameters() {
                 println!(

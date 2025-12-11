@@ -1,4 +1,5 @@
 use iron_learn::{Complex, CpuTensor};
+use iron_learn::Tensor;
 
 #[cfg(test)]
 #[test]

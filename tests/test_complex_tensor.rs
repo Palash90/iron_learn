@@ -1,5 +1,6 @@
 use iron_learn::Complex;
 use iron_learn::CpuTensor;
+use iron_learn::Tensor;
 
 #[test]
 fn test_complex_tensor_mul() {
