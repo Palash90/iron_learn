@@ -1,3 +1,4 @@
+use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use crate::Numeric;
 use rand::Rng;
@@ -49,7 +50,7 @@ pub struct LinearLayer<T: Tensor<MyNumeric>> {
     name: String,
 }
 
-impl<T: Tensor<MyNumeric>> LinearLayer<T> {
+impl<T> LinearLayer<T> where T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T> + 'static  {
     pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
         let mut rng = rand::thread_rng();
         let w_count = (input_size * output_size) as usize;
@@ -116,7 +117,6 @@ pub struct ActivationLayer<T: Tensor<MyNumeric>> {
 
 impl<T: Tensor<MyNumeric>> ActivationLayer<T> {
     pub fn new(act_type: ActivationType, name: &str) -> Self {
-
         Self {
             act_type,
             output_cache: None,
@@ -125,7 +125,10 @@ impl<T: Tensor<MyNumeric>> ActivationLayer<T> {
     }
 }
 
-impl<T: Tensor<MyNumeric>> Layer<T> for ActivationLayer<T> {
+impl<T> Layer<T> for ActivationLayer<T>
+where
+    T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T> + 'static,
+{
     fn name(&self) -> &str {
         &self.name
     }
@@ -156,7 +159,10 @@ pub struct NeuralNet<T: Tensor<MyNumeric>> {
     loss_fn: Box<dyn LossFunction<T>>,
 }
 
-impl<T: Tensor<MyNumeric>> NeuralNet<T> {
+impl<T> NeuralNet<T>
+where
+    T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T> + 'static,
+{
     pub fn add(&mut self, layer: Box<dyn Layer<T>>) {
         self.layers.push(layer);
     }
@@ -233,11 +239,17 @@ impl<T: Tensor<MyNumeric>> NeuralNet<T> {
     }
 }
 
-pub struct NeuralNetBuilder<T: Tensor<MyNumeric>> {
+pub struct NeuralNetBuilder<T>
+where
+    T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T>,
+{
     layers: Vec<Box<dyn Layer<T>>>,
 }
 
-impl<T: Tensor<MyNumeric> + 'static> NeuralNetBuilder<T> {
+impl<T> NeuralNetBuilder<T>
+where
+    T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T> + 'static,
+{
     pub fn new() -> Self {
         Self { layers: Vec::new() }
     }
