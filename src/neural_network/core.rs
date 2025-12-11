@@ -4,7 +4,6 @@ use rand::Rng;
 use std::f64::consts::PI;
 
 type MyNumeric = f64;
-type MyTensor = dyn Tensor<MyNumeric>;
 
 pub trait LossFunction<T: Tensor<MyNumeric>> {
     /// Calculates the loss value (used for reporting).
