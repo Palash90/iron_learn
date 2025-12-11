@@ -187,10 +187,11 @@ pub fn run_neural_net<T: Tensor<f64> + 'static>() -> Result<(), String> {
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
     let hidden_length = 75;
+    let input_length = 2;
 
     let nn = NeuralNetBuilder::<T>::new();
     let mut nn = nn
-        .add_linear(3, hidden_length, "Input")
+        .add_linear(input_length + 1, hidden_length, "Input")
         .add_activation(ActivationType::Tanh, "Activatin Layer 1")
         .add_linear(hidden_length, hidden_length, "Hidden Layer 1")
         .add_activation(ActivationType::Tanh, "Activation Layer 2")
