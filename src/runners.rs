@@ -231,12 +231,10 @@ where
     nn.add_activation(ActivationType::Sigmoid, "Activation Layer 7");
     
     let mut nn = nn.build(loss_function_instance);
-    nn.fit(&x, &y, 10000, 0, 0.001, monitor);
+    nn.fit(&x, &y, 5000, 0, 0.001, monitor);
 
     let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
     let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
-
-    println!("{} {}", xy.m_test, xy.n);
 
     let x_test = normalize_features(&x_test, &x_mean, &x_std);
 

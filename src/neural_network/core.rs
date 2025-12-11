@@ -54,7 +54,7 @@ where
     T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T> + 'static,
 {
     pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         let w_count = (input_size * output_size) as usize;
 
         let w_data: Vec<MyNumeric> = (0..w_count).map(|_| rng.gen::<MyNumeric>() - 0.5).collect();
@@ -89,9 +89,6 @@ impl<T: Tensor<MyNumeric>> Layer<T> for LinearLayer<T> {
         // Calculate Weights Gradient: input.T * error
         let input_t = input.t()?;
         let weights_grad = input_t.mul(output_error)?;
-
-        // Calculate Biases Gradient: sum(error)
-        let biases_grad = output_error.sum()?;
 
         // Update Parameters
         let w_step = weights_grad.scale(-lr)?;
@@ -148,7 +145,7 @@ where
         let out = self.output_cache.as_ref().unwrap();
 
         let prime = match self.act_type {
-            ActivationType::Sigmoid => out.scale(1.0).unwrap().sub(out).unwrap().multiply(out),
+            ActivationType::Sigmoid => out.sigmoid(),
             ActivationType::Tanh => {
                 let o_squared = out.multiply(out).unwrap();
                 let ones = T::new(
@@ -211,6 +208,7 @@ where
             }
 
             let err = self.loss_fn.loss(y_train, &output);
+            println!("Epoch {}, loss {:?}", i, err.unwrap().get_data());
 
             let mut error = self.loss_fn.loss_prime(y_train, &output)?;
             for layer in self.layers.iter_mut().rev() {
