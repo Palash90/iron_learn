@@ -2,7 +2,8 @@ use crate::numeric::{Numeric, SignedNumeric};
 use crate::GLOBAL_CONTEXT;
 use std::ops::{Add, Mul, Neg, Sub};
 
-mod tensor_ops;
+//mod tensor_ops;
+use crate::Tensor;
 
 #[derive(Clone, Copy)]
 enum OpType {
@@ -43,55 +44,55 @@ where
     }
 }
 
-impl<T: Numeric + Zeroable> GpuTensor<T> {
-    pub fn sigmoid(&self) -> Result<Self, String> {
+impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
+    fn sigmoid(&self) -> Result<Self, String> {
         self.element_op(OpType::SIGMOID, T::zero())
     }
 
-    pub fn log(&self) -> Result<Self, String> {
+    fn log(&self) -> Result<Self, String> {
         self.element_op(OpType::LOG, T::zero())
     }
 
-    pub fn ln(&self) -> Result<Self, String> {
+    fn ln(&self) -> Result<Self, String> {
         self.element_op(OpType::LN, T::zero())
     }
 
-    pub fn sin(&self) -> Result<Self, String> {
+    fn sin(&self) -> Result<Self, String> {
         self.element_op(OpType::SIN, T::zero())
     }
 
-    pub fn cos(&self) -> Result<Self, String> {
+    fn cos(&self) -> Result<Self, String> {
         self.element_op(OpType::COS, T::zero())
     }
 
-    pub fn tan(&self) -> Result<Self, String> {
+    fn tan(&self) -> Result<Self, String> {
         self.element_op(OpType::TAN, T::zero())
     }
 
-    pub fn tanh(&self) -> Result<Self, String> {
+    fn tanh(&self) -> Result<Self, String> {
         self.element_op(OpType::TANH, T::zero())
     }
 
-    pub fn exp(&self) -> Result<Self, String> {
+    fn exp(&self) -> Result<Self, String> {
         self.element_op(OpType::EXP, T::zero())
     }
 
-    pub fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
+    fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         Self::_new(shape, data)
     }
 
-    pub fn get_data(&self) -> Vec<T> {
+    fn get_data(&self) -> Vec<T> {
         self._data()
     }
 
-    pub fn get_shape(&self) -> Vec<u32> {
-        self._shape()
+    fn get_shape(&self) -> &Vec<u32> {
+        &self.shape
     }
 
-    pub fn add(&self, rhs: &Self) -> Result<Self, String> {
+    fn add(&self, rhs: &Self) -> Result<Self, String> {
         self._add(rhs, false)
     }
-    pub fn sum(&self) -> Result<Self, String> {
+    fn sum(&self) -> Result<Self, String> {
         let mut sum_vector = vec![T::zero(); self.shape[1] as usize];
 
         let rows = self.shape[0] as usize;
@@ -108,24 +109,44 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         Self::new(vec![1, self.shape[1]], sum_vector)
     }
 
-    pub fn sub(&self, rhs: &Self) -> Result<Self, String> {
+    fn sub(&self, rhs: &Self) -> Result<Self, String> {
         self._add(rhs, true)
     }
 
-    pub fn mul(&self, rhs: &Self) -> Result<Self, String> {
+    fn mul(&self, rhs: &Self) -> Result<Self, String> {
         self._mul(rhs)
     }
 
-    pub fn multiply(&self, rhs: &Self) -> Result<Self, String> {
+    fn multiply(&self, rhs: &Self) -> Result<Self, String> {
         self.hadamard(rhs)
     }
 
-    pub fn t(&self) -> Result<Self, String> {
+    fn t(&self) -> Result<Self, String> {
         self._t()
     }
 
-    pub fn scale(&self, scalar: T) -> Result<Self, String> {
+    fn scale(&self, scalar: T) -> Result<Self, String> {
         self.element_op(OpType::SCALE, scalar)
+    }
+
+    fn empty(shape: &Vec<u32>) -> Self {
+        unsafe {
+            Self {
+                shape: shape.to_vec(),
+                device_buffer: DeviceBuffer::uninitialized(0)
+                    .expect("CUDA buffer did not initialize"),
+            }
+        }
+    }
+
+    fn synchronize(&self) {
+       &(GLOBAL_CONTEXT
+            .get()
+            .expect("No Context Intialized")
+            .stream
+            .as_ref()
+            .expect("Stream could not be found"))
+        .synchronize();
     }
 }
 
