@@ -22,8 +22,7 @@ impl<T: Tensor<MyNumeric> + 'static> LossFunction<T> for MeanSquaredErrorLoss {
         let error_diff = actual.sub(predicted)?;
         let sq_err = error_diff.multiply(&error_diff)?; // Element-wise square
 
-        let sum_err = sq_err.sum()?; // Sum over all elements
-        sum_err.scale(0.5) // Scale by 0.5
+        sq_err.sum() // Sum over all elements
     }
 
     // Loss Prime: (predicted - actual)
@@ -155,7 +154,8 @@ where
                 let ones = T::new(
                     out.get_shape().clone(),
                     vec![1.0; out.get_shape()[0] as usize * out.get_shape()[1] as usize],
-                ).unwrap();
+                )
+                .unwrap();
                 ones.sub(&o_squared)
             }
         };
@@ -205,18 +205,16 @@ where
             let decay_factor = 0.5 * (1.0 + cos_term);
             let current_lr = lr_min + (base_lr - lr_min) * decay_factor;
 
-            let output = match self.predict(x_train) {
-                Ok(t) => t,
-                Err(e) => {
-                    eprintln!("{}", e.to_string());
-                    panic!();
-                }
-            };
+            let mut output = x_train.add(&T::empty(x_train.get_shape()))?;
+            for layer in &mut self.layers {
+                output = layer.forward(&output)?;
+            }
 
-            let mut grad = self.loss_fn.loss_prime(y_train, &output)?;
+            let err = self.loss_fn.loss(y_train, &output);
 
+            let mut error = self.loss_fn.loss_prime(y_train, &output)?;
             for layer in self.layers.iter_mut().rev() {
-                grad = layer.backward(&grad, current_lr)?;
+                error = layer.backward(&error, current_lr)?;
             }
 
             // Hook (Periodic Reporting)

@@ -231,7 +231,7 @@ where
     nn.add_activation(ActivationType::Sigmoid, "Activation Layer 7");
     
     let mut nn = nn.build(loss_function_instance);
-    nn.fit(&x, &y, 10000, 0, 0.1, monitor);
+    nn.fit(&x, &y, 10000, 0, 0.001, monitor);
 
     let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
     let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
@@ -240,13 +240,9 @@ where
 
     let x_test = normalize_features(&x_test, &x_mean, &x_std);
 
-    println!("{:?}", x_test.get_shape());
+    let x_test = add_bias_term(&x_test)?;
 
-    println!("{:?}", x_test.get_data());
-
-    let predictions = predict_linear(&x_test, &w).expect("Did not work");
-
-    println!("{:?}", predictions.get_data());
+    let predictions = nn.predict(&x_test)?;
 
     let predictions = denormalize_features(&predictions, &y_mean, &y_std);
 
