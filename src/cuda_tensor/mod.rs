@@ -1,4 +1,5 @@
 use crate::numeric::{Numeric, SignedNumeric};
+use crate::tensor::math::TensorMath;
 use crate::GLOBAL_CONTEXT;
 use std::ops::{Add, Mul, Neg, Sub};
 
@@ -108,7 +109,7 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     }
 
     fn synchronize(&self) {
-       &(GLOBAL_CONTEXT
+        &(GLOBAL_CONTEXT
             .get()
             .expect("No Context Intialized")
             .stream
@@ -495,6 +496,45 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         }
 
         self._gpu_mul(rhs)
+    }
+}
+
+impl<T> TensorMath<T> for GpuTensor<T>
+where
+    T: Numeric,
+{
+    type MathOutput = GpuTensor<T>;
+
+    fn sigmoid(&self) -> Result<Self::MathOutput, String> {
+        todo!()
+    }
+
+    fn log(&self) -> Result<Self::MathOutput, String> {
+        todo!()
+    }
+
+    fn ln(&self) -> Result<Self::MathOutput, String> {
+        todo!()
+    }
+
+    fn sin(&self) -> Result<Self::MathOutput, String> {
+        todo!()
+    }
+
+    fn cos(&self) -> Result<Self::MathOutput, String> {
+        todo!()
+    }
+
+    fn tan(&self) -> Result<Self::MathOutput, String> {
+        todo!()
+    }
+
+    fn tanh(&self) -> Result<Self::MathOutput, String> {
+        todo!()
+    }
+
+    fn exp(&self) -> Result<Self::MathOutput, String> {
+        todo!()
     }
 }
 
