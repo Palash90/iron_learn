@@ -38,7 +38,7 @@ impl<T: Tensor<MyNumeric> + 'static> LossFunction<T> for MeanSquaredErrorLoss {
 pub trait Layer<T: Tensor<MyNumeric>> {
     fn forward(&mut self, input: &T) -> Result<T, String>;
     fn backward(&mut self, output_error: &T, learning_rate: MyNumeric) -> Result<T, String>;
-    fn get_parameters(&self) -> Option<(Vec<MyNumeric>, Vec<MyNumeric>)> {
+    fn get_parameters(&self) -> Option<Vec<MyNumeric>> {
         None
     }
     fn name(&self) -> &str;
@@ -46,7 +46,6 @@ pub trait Layer<T: Tensor<MyNumeric>> {
 
 pub struct LinearLayer<T: Tensor<MyNumeric>> {
     weights: T,
-    biases: T,
     input_cache: Option<T>,
     name: String,
 }
@@ -60,20 +59,14 @@ impl<T: Tensor<MyNumeric>> LinearLayer<T> {
         let w_data: Vec<MyNumeric> = (0..w_count).map(|_| rng.gen::<MyNumeric>() - 0.5).collect();
         let weights = T::new(vec![input_size, output_size], w_data)?;
 
-        // Initialize biases using f64
-        let b_data = vec![0.0; output_size as usize];
-        let biases = T::new(vec![1, output_size], b_data)?;
-
         println!(
-            "{} = W shape: {:?}, b shape: {:?}",
+            "{} W shape: {:?}",
             name,
             weights.get_shape(),
-            biases.get_shape()
         );
 
         Ok(Self {
             weights,
-            biases,
             input_cache: None,
             name: name.to_string(),
         })
@@ -118,14 +111,11 @@ impl<T: Tensor<MyNumeric>> Layer<T> for LinearLayer<T> {
         let w_step = weights_grad.scale(-lr)?;
         self.weights = self.weights.add(&w_step)?;
 
-        let b_step = biases_grad.scale(-lr)?;
-        self.biases = self.biases.add(&b_step)?;
-
         Ok(input_error)
     }
 
-    fn get_parameters(&self) -> Option<(Vec<MyNumeric>, Vec<MyNumeric>)> {
-        Some((self.weights.get_data(), self.biases.get_data()))
+    fn get_parameters(&self) -> Option<(Vec<MyNumeric>)> {
+        Some(self.weights.get_data())
     }
 }
 
@@ -261,7 +251,7 @@ impl<T: Tensor<MyNumeric>> NeuralNet<T> {
     pub fn save_weights(&self, filepath: &str) {
         println!("Saving weights to {}...", filepath);
         for (i, layer) in self.layers.iter().enumerate() {
-            if let Some((w, b)) = layer.get_parameters() {
+            if let Some(w) = layer.get_parameters() {
                 println!(
                     "Layer {} ({}) Weights saved. (Shape: {:?})",
                     i,
