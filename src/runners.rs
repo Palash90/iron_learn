@@ -210,7 +210,7 @@ where
     let mut w = T::new(vec![xy.n, 1], vec![0.0; xy.n as usize])?;
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
-    let hidden_length = 75;
+    let hidden_length = 5;
     let input_length = 2;
 
     let nn = NeuralNetBuilder::<T>::new();

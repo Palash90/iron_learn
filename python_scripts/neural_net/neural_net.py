@@ -93,7 +93,7 @@ def visualize_network(net):
     plt.show(block=False)
 
 def run(epochs, learning_rate, data_field='linear'):
-    with open('../data.json', 'r') as file:
+    with open('../../data.json', 'r') as file:
         data = json.load(file)
 
     m = data[data_field]['m']
@@ -115,11 +115,14 @@ def run(epochs, learning_rate, data_field='linear'):
 
     y_test = np.array(data[data_field]['y_test'], dtype=np.float32).reshape(m_test, 1)
 
-    net = build_neural_net(n, 1)
+    net = build_neural_net(n, 1, 6, tanh, tanh_prime)
     visualize_network(net)
 
+    def hook(net, epoch):
+        pass
+
     print("Starting training...")
-    net.fit(x_train_norm, y_train_norm, epochs=epochs, learning_rate=learning_rate)
+    net.fit(x_train_norm, y_train_norm, epochs=epochs, epoch_offset= 0, learning_rate=learning_rate, hook = hook)
 
     # test
     y_pred = net.predict(x_test_norm)
@@ -221,7 +224,7 @@ def draw_predictions_scatter(co_ordinates, epoch, width, height, values):
     plt.close()
     print(f"🖼️ Saved scatter plot: {file_name} successfully!")
 
-if __name__ == "__main__":
+def image_reconstruction():
     X_train, Y_train, norm_factors = load_data_from_csv("../image_inputs/pixel_data_200.csv")
 
     IMAGE_WIDTH = norm_factors[0] + 1
@@ -273,3 +276,6 @@ if __name__ == "__main__":
 
         print(f"\n🚀 Starting training for {EPOCHS} epochs...")
         net.fit(X_train, Y_train, epochs=EPOCHS, epoch_offset=EPOCH_OFFSET, learning_rate=LEARNING_RATE, hook=epoch_hook)  
+
+if __name__ == "__main__":
+    run(10000, 0.001, 'neural_network')
