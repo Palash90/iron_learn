@@ -28,8 +28,9 @@
 //! Operations use foundational algorithms appropriate for educational and small-scale use.
 //! GPU acceleration is available through the `gpu_regression` module for large-scale workloads.
 
+use crate::tensor::Tensor;
 mod display;
-mod tensor_ops;
+// mod tensor_ops;
 
 use crate::numeric::{Numeric, SignedNumeric};
 use std::ops::{Add, Mul, Neg, Sub};
@@ -152,6 +153,7 @@ impl<T: Numeric> CpuTensor<T> {
     }
 
     fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
+        println!("_add called");
         let mut result = Vec::with_capacity(self.data.len());
 
         if self.shape != rhs.shape {
@@ -279,312 +281,6 @@ impl<T: Numeric> CpuTensor<T> {
     }
 }
 
-// The public API of Tensor type
-impl<T: Numeric> CpuTensor<T> {
-    /// Return a new instance of a `Tensor` with each value raised to `e`.
-    ///
-    /// It requires one parameter:
-    /// - `operand`: A `Tensor` object.
-    ///
-    /// # Returns
-    /// - New `Tensor` instance with all the values raised to `e` of the input `Tensor`
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use iron_learn::CpuTensor;
-    ///
-    /// let tensor = CpuTensor::exp(&CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap());
-    /// ```
-    ///
-    pub fn exp(operand: &Self) -> CpuTensor<f64> {
-        Self::element_op(operand, OpType::EXP)
-    }
-
-    pub fn sin(operand: &Self) -> CpuTensor<f64> {
-        Self::element_op(operand, OpType::SIN)
-    }
-
-    pub fn cos(operand: &Self) -> CpuTensor<f64> {
-        Self::element_op(operand, OpType::COS)
-    }
-
-    pub fn tan(operand: &Self) -> CpuTensor<f64> {
-        Self::element_op(operand, OpType::TAN)
-    }
-
-    pub fn tanh(operand: &Self) -> CpuTensor<f64> {
-        Self::element_op(operand, OpType::TANH)
-    }
-
-    pub fn log(operand: &Self) -> CpuTensor<f64> {
-        Self::element_op(operand, OpType::LOG)
-    }
-
-    pub fn ln(operand: &Self) -> CpuTensor<f64> {
-        Self::element_op(operand, OpType::LN)
-    }
-
-    pub fn sigmoid(operand: &Self) -> CpuTensor<f64> {
-        Self::element_op(operand, OpType::SIGMOID)
-    }
-
-    /// Constructs a new instance of a `Tensor`.
-    ///
-    /// This associated function initializes a `Tensor` with a specified shape and data. It requires two parameters:
-    /// - `shape`: A `Vec<u32>` that defines the dimensions of the `Tensor`. The length is treated the number of dimensions, while each item in the Vec is considered number of elements in corresponding dimension.
-    /// - `data`: A `Vec<T>` containing the elements of the `Tensor`, where `T` is a numeric type defined in the `numeric` module.
-    ///
-    /// # Returns
-    /// - When the operation is succeeded, the function returns a new `Tensor` object
-    /// - In case of any failure, the function return an owned String.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use iron_learn::CpuTensor;
-    ///
-    /// let tensor = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]); // Initializes a 2x2 tensor
-    /// ```
-    ///
-    ///
-    /// # Errors
-    /// - **ShapeError**: If the shape vector length is passed as 0
-    /// - **TemporaryShapeRestriction**: Currently, tensors are limited to a maximum of two dimensions. This restriction will be lifted as further methods are implemented.
-    /// - **DataError**: This error occurs if the total number of elements in the `data` vector does not correspond to the product of the `shape` dimensions.
-    ///
-    pub fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
-        Self::_new(shape, data)
-    }
-
-    /// Retrieves the underlying data from a `Tensor`.
-    ///
-    /// This method returns a copy of the data held within the `Tensor` as a vector of type `T`, where `T` encompasses all numeric types supported by the library.
-    /// It is a fundamental method that allows for direct access to the tensor's data for further processing or analysis.
-    ///
-    /// # Returns
-    /// A `Vec<T>` containing a copy of the tensor's data.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use iron_learn::CpuTensor;
-    ///
-    /// let tensor = CpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
-    /// let data = tensor.get_data(); // Retrieves the data as Vec<f64>
-    ///
-    /// assert_eq!(vec![1.0, 2.0, 3.0, 4.0], data);
-    /// ```
-    ///
-    /// Note: The `get_data` function is designed to work seamlessly with all numeric types defined in the `numeric` module, ensuring broad compatibility.
-    pub fn get_data(&self) -> Vec<T> {
-        self._data()
-    }
-
-    /// Retrieves the shape of the `Tensor`.
-    ///
-    /// # Returns
-    /// A `Vec<u32>` containing a copy of the tensor's shape.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use iron_learn::CpuTensor;
-    ///
-    /// let tensor = CpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
-    /// let shape = tensor.get_shape(); // Retrieves the data as Vec<f64>
-    ///
-    /// assert_eq!(vec![2, 2], shape);
-    /// ```
-    ///
-    pub fn get_shape(&self) -> Vec<u32> {
-        self._shape()
-    }
-
-    /// Implements the addition of two `Tensor` instances. The `+` operator also does the same but the operator moves the value, making the instance unusable later.
-    ///
-    /// # Type Parameters
-    /// - `T`: A type that implements the `Numeric` trait, ensuring the elements can be added together.
-    ///
-    /// # Output
-    /// The output is a `Result` type that either contains:
-    /// - `Ok(Tensor)`: A new `Tensor` representing the sum of the two tensors.
-    /// - `Err(String)`: An error message if the shapes of the two tensors do not match.
-    ///
-    /// # Errors
-    /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical, preventing element-wise addition.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use iron_learn::CpuTensor;
-    ///
-    /// let tensor_a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
-    /// let tensor_b = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
-    /// let tensor_sum = tensor_a.add(&tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
-    /// // tensor_sum now contains the element-wise sum of tensor_a and tensor_b
-    /// ```
-    ///
-    /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
-    pub fn add(&self, rhs: &Self) -> Result<CpuTensor<T>, String> {
-        self._add(rhs, false)
-    }
-    /// Computes the sum of all elements in the `Tensor` row-wise so that we get one column.
-    pub fn sum(&self) -> CpuTensor<T> {
-        let mut sum_vector = vec![T::zero(); self.shape[1] as usize];
-        let rows = self.shape[0] as usize;
-        let cols = self.shape[1] as usize;
-        for r in 0..rows {
-            for c in 0..cols {
-                sum_vector[c] = sum_vector[c] + self.data[r * cols + c];
-            }
-        }
-        CpuTensor::new(vec![1, self.shape[1]], sum_vector).unwrap()
-    }
-
-    /// Implements the subtraction of two `Tensor` instances. The `-` operator also does the same but the operator moves the value, making the instance unusable later.
-    ///
-    /// # Type Parameters
-    /// - `T`: A type that implements the `Numeric` trait, ensuring the elements can be subtracted together.
-    ///
-    /// # Output
-    /// The output is a `Result` type that either contains:
-    /// - `Ok(Tensor)`: A new `Tensor` representing the difference of the two tensors.
-    /// - `Err(String)`: An error message if the shapes of the two tensors do not match.
-    ///
-    /// # Errors
-    /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical, preventing element-wise addition.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use iron_learn::CpuTensor;
-    ///
-    /// let tensor_a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
-    /// let tensor_b = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
-    /// let tensor_diff = tensor_a.sub(&tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
-    /// // tensor_diff now contains the element-wise difference of tensor_a and tensor_b
-    /// ```
-    ///
-    /// Note: This method supports all numeric types defined in the `numeric` module, allowing for a wide range of tensor operations.
-    pub fn sub(&self, rhs: &Self) -> Result<CpuTensor<T>, String> {
-        self._add(rhs, true)
-    }
-
-    /// Implements tensor multiplication. The `*` also does the same but consumes the instance rendering it useless.
-    ///
-    /// This method enables the multiplication of two tensors, akin to matrix multiplication. It requires that the number of columns in the first tensor matches the number of rows in the second tensor, following the rules of matrix multiplication.
-    ///
-    /// # Type Parameters
-    /// - `T`: A type that implements the `Numeric` trait, which includes all numeric types supported by the library.
-    ///
-    /// # Output
-    /// The output is a `Result` type that either contains:
-    /// - `Ok(Tensor)`: A new `Tensor` representing the product of the two tensors.
-    /// - `Err(String)`: A formatted error message if the dimensions of the two tensors do not allow for multiplication.
-    ///
-    /// # Errors
-    /// - `ShapeMismatch`: Returned when the number of columns in the first tensor does not match the number of rows in the second tensor.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use iron_learn::CpuTensor;
-    ///
-    /// let tensor_a = CpuTensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
-    /// let tensor_b = CpuTensor::new(vec![3, 2], vec![7, 8, 9, 10, 11, 12]).unwrap();
-    /// let tensor_product = tensor_a.mul(&tensor_b).expect("ShapeMismatch: The dimensions of two matrices are not matching.");
-    /// // tensor_product now contains the product of tensor_a and tensor_b
-    /// ```
-    ///
-    /// Note: This method is designed to support all numeric types defined in the `numeric` module, ensuring compatibility with a wide range of data types.
-    pub fn mul(&self, rhs: &Self) -> Result<CpuTensor<T>, String> {
-        self._mul(rhs)
-    }
-
-    /// Performs the Hadamard product (element-wise multiplication) on two tensors.
-    ///
-    /// This method calculates the element-wise product of the invoking tensor with another tensor of the same shape. The operation is also known as the Hadamard product, which is a critical operation in various machine learning algorithms.
-    ///
-    /// # Parameters
-    /// - `rhs`: The right-hand side tensor to multiply with.
-    ///
-    /// # Returns
-    /// A `Result` which is either:
-    /// - `Ok(Tensor)`: A new `Tensor` representing the Hadamard product of the two tensors.
-    /// - `Err(String)`: An error message if the shapes of the two tensors do not match.
-    ///
-    /// # Errors
-    /// - `ShapeMismatch`: Returned when the shapes of the two tensors are not identical.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// use iron_learn::CpuTensor;
-    ///
-    /// let tensor_a = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
-    /// let tensor_b = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
-    /// let tensor_product = tensor_a.multiply(&tensor_b).expect("ShapeMismatch: Mismatch in shape of two Tensors.");
-    /// // tensor_product now contains the element-wise product of tensor_a and tensor_b
-    /// ```
-    ///
-    /// Note: This method supports all numeric types defined in the `numeric` module, ensuring compatibility with a wide range of data types.
-    pub fn multiply(&self, rhs: &Self) -> Result<Self, String> {
-        self.hadamard(rhs)
-    }
-
-    /// Transposes a 2D tensor.
-    ///
-    /// This method reorganizes the data of a 2D tensor such that rows become columns
-    /// and vice versa. For tensors with more than two dimensions, it returns an error.
-    /// For 1D tensors, it simply clones the tensor as the transpose is the same.
-    ///
-    /// # Returns
-    /// * `Ok(Self)` containing the transposed tensor if the tensor is 1D or 2D.
-    /// * `Err(String)` containing an error message if the tensor has more than 2 dimensions.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use iron_learn::CpuTensor;
-    ///
-    /// let tensor = CpuTensor::new(vec![2, 3], vec![1, 2, 3, 4, 5, 6]).unwrap();
-    /// let transposed = tensor.t().unwrap();
-    /// assert_eq!(CpuTensor::new(vec![3, 2], vec![1, 4, 2, 5, 3, 6]).unwrap(), transposed);
-    /// ```
-    ///
-    /// # Errors
-    /// If the tensor has more than 2 dimensions, an error is returned:
-    ///
-    pub fn t(&self) -> Result<Self, String> {
-        self._t()
-    }
-
-    /// Scales the tensor by a scalar value.
-    ///
-    /// This method takes a scalar value of type `T` and scales each element of the tensor by this value.
-    /// The result is a new tensor with the same shape as the original but with each element multiplied
-    /// by the scalar.
-    ///
-    /// # Parameters
-    /// * `scalar`: The value of type `T` to scale the tensor by.
-    ///
-    /// # Returns
-    /// A new `Tensor` instance with scaled values.
-    ///
-    /// # Examples
-    /// ```
-    /// use iron_learn::CpuTensor;
-    ///
-    /// let tensor = CpuTensor::new(vec![1, 3], vec![1, 2, 3]).unwrap();
-    /// let scaled_tensor = tensor.scale(2);
-    /// assert_eq!(scaled_tensor.get_data(), vec![2, 4, 6]);
-    /// ```
-    pub fn scale(&self, scalar: T) -> Self {
-        self._s(scalar)
-    }
-}
-
 impl<T: Numeric> Add for CpuTensor<T> {
     type Output = Result<Self, String>;
 
@@ -694,7 +390,137 @@ impl<T: SignedNumeric> Neg for CpuTensor<T> {
     type Output = Self;
     fn neg(self) -> Self {
         let result: Vec<T> = self.data.iter().map(|t| -*t).collect();
-        CpuTensor::new(self.shape, result).unwrap()
+        CpuTensor::_new(self.shape, result).unwrap()
+    }
+}
+
+
+// This trait implementation wires the public API to the internal logic.
+impl<T: Numeric> Tensor<T> for CpuTensor<T> where CpuTensor<T>: From<CpuTensor<f64>>{
+    /* Creation */
+    /// Returns an Empty Tensor with the provided shape, filled with the zero value for T.
+    fn empty(shape: &Vec<u32>) -> Self {
+        let size = Self::calculate_length(shape) as usize;
+        let data = vec![T::zero(); size];
+        Self {
+            shape: shape.clone(),
+            data,
+        }
+    }
+
+    /// Creates a new tensor with the provided shape and data.
+    /// Wires to the internal validation logic.
+    fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
+        Self::_new(shape, data)
+    }
+
+    /* Retrieval */
+    /// Returns the shape of the Tensor.
+    fn get_shape(&self) -> &Vec<u32> {
+        &self.shape
+    }
+
+    /// Returns the data (cloning it to give ownership to the caller).
+    fn get_data(&self) -> Vec<T> {
+        self._data()
+    }
+
+    /* Device API */
+    /// Synchronize with GPU. As this is a CpuTensor, this is a no-op.
+    fn synchronize(&self) {
+        // No-op for CPU implementation
+    }
+
+    /* Matrix related operations */
+    /// Adds two Tensors element-wise.
+    /// Wires to the internal addition logic.
+    fn add(&self, rhs: &Self) -> Result<Self, String> {
+        self._add(rhs, false)
+    }
+
+    /// Subtracts rhs from current tensor element-wise.
+    /// Wires to the internal subtraction logic.
+    fn sub(&self, rhs: &Self) -> Result<Self, String> {
+        self._add(rhs, true)
+    }
+
+    /// Matrix multiplication.
+    /// Wires to the internal multiplication logic.
+    fn mul(&self, rhs: &Self) -> Result<Self, String> {
+        // The implementation _mul performs matrix multiplication
+        self._mul(rhs)
+    }
+
+    /// Transpose a 2D matrix.
+    /// Wires to the internal transpose logic.
+    fn t(&self) -> Result<Self, String> {
+        self._t()
+    }
+
+    /// Hadamard product (element-wise multiplication).
+    /// Wires to the internal Hadamard product logic.
+    fn multiply(&self, rhs: &Self) -> Result<Self, String> {
+        self.hadamard(rhs)
+    }
+
+    /* Mathematical functions */
+    // Note: All element-wise mathematical functions use f64 for computation
+    // as per your existing `element_op` helper.
+    // The resulting tensor will contain f64 data.
+
+    /// Element wise sigmoid function.
+    fn sigmoid(&self) -> Result<Self, String> {
+        Ok(Self::element_op(self, OpType::SIGMOID).into()) // .into() casts CpuTensor<f64> to Self
+    }
+
+    /// Element wise log base 10 implementation.
+    fn log(&self) -> Result<Self, String> {
+        Ok(Self::element_op(self, OpType::LOG).into())
+    }
+
+    /// Element wise natural log.
+    fn ln(&self) -> Result<Self, String> {
+        Ok(Self::element_op(self, OpType::LN).into())
+    }
+
+    /// Element wise sin.
+    fn sin(&self) -> Result<Self, String> {
+        Ok(Self::element_op(self, OpType::SIN).into())
+    }
+
+    /// Element wise cos.
+    fn cos(&self) -> Result<Self, String> {
+        Ok(Self::element_op(self, OpType::COS).into())
+    }
+
+    /// Element wise tan.
+    fn tan(&self) -> Result<Self, String> {
+        Ok(Self::element_op(self, OpType::TAN).into())
+    }
+
+    /// Element wise tanh.
+    fn tanh(&self) -> Result<Self, String> {
+        Ok(Self::element_op(self, OpType::TANH).into())
+    }
+
+    /// Element wise exponentiation.
+    fn exp(&self) -> Result<Self, String> {
+        Ok(Self::element_op(self, OpType::EXP).into())
+    }
+
+    /// Element wise scaling (multiplication by a scalar).
+    fn scale(&self, scalar: T) -> Result<Self, String> {
+        Ok(self._s(scalar))
+    }
+
+    /* Reducers */
+    /// Reduces rows column wise (sums all elements).
+    /// **Note:** Based on your function name `sum`, I am implementing a full sum reduction (summing all elements into a 1-element tensor). If you intended a column or row-wise reduction that keeps one dimension, the logic will need adjustment.
+    fn sum(&self) -> Result<Self, String> {
+        let sum_val = self.data.iter().fold(T::zero(), |acc, &x| acc + x);
+        
+        // Return a tensor with a single element and shape [1]
+        Self::new(vec![1], vec![sum_val])
     }
 }
 

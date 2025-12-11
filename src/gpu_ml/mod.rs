@@ -15,6 +15,7 @@ use cust::module::Module;
 use cust::prelude::*;
 use cust::stream::{Stream, StreamFlags};
 use std::time::Instant;
+use crate::tensor::Tensor;
 
 use functions::*;
 

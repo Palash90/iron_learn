@@ -149,11 +149,14 @@ impl<T: Tensor<MyNumeric>> Layer<T> for ActivationLayer<T> {
     }
 
     fn forward(&mut self, input: &T) -> Result<T, String> {
+        println!("Activation Layer Forward Called");
         let output = match self.act_type {
             ActivationType::Sigmoid => input.sigmoid()?,
             ActivationType::Tanh => input.tanh()?,
         };
+        println!("Activation added");
         self.output_cache = Some(output.add(&T::empty(output.get_shape()))?);
+        println!("Caching done");
         Ok(output)
     }
 
@@ -184,6 +187,7 @@ impl<T: Tensor<MyNumeric>> NeuralNet<T> {
 
         for layer in &mut self.layers {
             output = layer.forward(&output)?;
+            println!("Layer {}", layer.name());
         }
         Ok(output)
     }

@@ -2,17 +2,7 @@ use crate::numeric::{Numeric, SignedNumeric};
 use crate::GLOBAL_CONTEXT;
 use std::ops::{Add, Mul, Neg, Sub};
 
-use cust::launch;
-use cust::memory::bytemuck::Zeroable;
-use cust::prelude::Function;
-use cust::prelude::Module;
-use cust::stream::Stream;
-use cust::stream::StreamFlags;
-use cust::{device, memory::CopyDestination, prelude::DeviceBuffer};
-
 mod tensor_ops;
-
-use std::time::Instant;
 
 #[derive(Clone, Copy)]
 enum OpType {
@@ -520,6 +510,14 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 }
 
 use crate::init_context;
+use cust::launch;
+use cust::memory::bytemuck::Zeroable;
+use cust::prelude::Function;
+use cust::prelude::Module;
+use cust::stream::Stream;
+use cust::stream::StreamFlags;
+use cust::{device, memory::CopyDestination, prelude::DeviceBuffer};
+
 #[cfg(test)]
 #[test]
 fn test_new() {

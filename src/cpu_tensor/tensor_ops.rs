@@ -31,6 +31,8 @@ where
             return Err("Sigmoid is only implemented for Tensor<f64>".to_string());
         }
 
+        println!("In sigmoid");
+
         let as_f64_tensor = CpuTensor::new(
             self.shape.clone(),
             self.data.iter().map(|&x| x.f64()).collect(),
@@ -87,6 +89,7 @@ where
     }
 
     fn tanh(&self) -> Result<Self, String> {
+        println!("CPU TANH");
         self.tanh()
     }
 

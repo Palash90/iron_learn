@@ -1,5 +1,4 @@
 use crate::Numeric;
-
 pub trait Tensor<T: Numeric>: Sized {
     /* Creation */
     // Returns an Empty Tensor
@@ -67,3 +66,4 @@ pub trait Tensor<T: Numeric>: Sized {
     // Reduces rows column wise
     fn sum(&self) -> Result<Self, String>;
 }
+
