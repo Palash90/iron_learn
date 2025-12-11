@@ -3,7 +3,6 @@ use cust::error::CudaResult;
 use cust::module::Module;
 use cust::prelude::*;
 use cust::stream::Stream;
-use std::sync::Arc;
 
 /// Layer wrapper that can be either linear or activation
 pub enum NetworkLayer {
@@ -151,66 +150,3 @@ impl GpuNetwork {
     }
 }
 
-// Preset network configurations
-
-/// Build a simple 2-layer network for regression
-pub fn build_simple_2layer(
-    input_size: usize,
-    hidden_size: usize,
-    output_size: usize,
-) -> CudaResult<GpuNetwork> {
-    use super::activations::{relu_activation, relu_derivative};
-
-    let network = GpuNetworkBuilder::new()
-        .add_linear("Input_to_Hidden", input_size, hidden_size)?
-        .add_activation("Hidden_ReLU", relu_activation, relu_derivative)
-        .add_linear("Hidden_to_Output", hidden_size, output_size)?
-        .build();
-
-    Ok(network)
-}
-
-/// Build a 3-layer network with more capacity
-pub fn build_3layer(
-    input_size: usize,
-    hidden1_size: usize,
-    hidden2_size: usize,
-    output_size: usize,
-) -> CudaResult<GpuNetwork> {
-    use super::activations::{relu_activation, relu_derivative};
-
-    let network = GpuNetworkBuilder::new()
-        .add_linear("Input_to_Hidden1", input_size, hidden1_size)?
-        .add_activation("Hidden1_ReLU", relu_activation, relu_derivative)
-        .add_linear("Hidden1_to_Hidden2", hidden1_size, hidden2_size)?
-        .add_activation("Hidden2_ReLU", relu_activation, relu_derivative)
-        .add_linear("Hidden2_to_Output", hidden2_size, output_size)?
-        .build();
-
-    Ok(network)
-}
-
-/// Build a deep 5-layer network (similar to Python's build_neural_net)
-pub fn build_deep_network(
-    input_size: usize,
-    hidden_size: usize,
-    output_size: usize,
-) -> CudaResult<GpuNetwork> {
-    use super::activations::{relu_activation, relu_derivative};
-
-    let network = GpuNetworkBuilder::new()
-        .add_linear("Input_to_Hidden1", input_size, hidden_size)?
-        .add_activation("Hidden1_ReLU", relu_activation, relu_derivative)
-        .add_linear("Hidden1_to_Hidden2", hidden_size, hidden_size)?
-        .add_activation("Hidden2_ReLU", relu_activation, relu_derivative)
-        .add_linear("Hidden2_to_Hidden3", hidden_size, hidden_size * 2)?
-        .add_activation("Hidden3_ReLU", relu_activation, relu_derivative)
-        .add_linear("Hidden3_to_Hidden4", hidden_size * 2, hidden_size)?
-        .add_activation("Hidden4_ReLU", relu_activation, relu_derivative)
-        .add_linear("Hidden4_to_Hidden5", hidden_size, hidden_size / 2)?
-        .add_activation("Hidden5_ReLU", relu_activation, relu_derivative)
-        .add_linear("Hidden5_to_Output", hidden_size / 2, output_size)?
-        .build();
-
-    Ok(network)
-}
