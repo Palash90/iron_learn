@@ -2,6 +2,7 @@ use crate::gradient_descent::add_bias_term;
 use crate::normalize_features;
 use crate::normalizer::denormalize_features;
 use crate::normalizer::normalize_features_mean_std;
+use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use crate::{CpuTensor, GLOBAL_CONTEXT};
@@ -32,7 +33,10 @@ pub struct Data {
     pub cat_image: XY,
 }
 
-pub fn run_logistic<T: Tensor<f64>>() -> Result<(), String> {
+pub fn run_logistic<T>() -> Result<(), String>
+where
+    T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
+{
     let l = GLOBAL_CONTEXT
         .get()
         .ok_or("GLOBAL_CONTEXT not initialized")?
@@ -88,7 +92,10 @@ pub fn run_logistic<T: Tensor<f64>>() -> Result<(), String> {
     Ok(())
 }
 
-pub fn run_linear<T: Tensor<f64>>() -> Result<(), String> {
+pub fn run_linear<T>() -> Result<(), String>
+where
+    T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
+{
     let l = GLOBAL_CONTEXT
         .get()
         .ok_or("GLOBAL_CONTEXT not initialized")?
@@ -155,7 +162,10 @@ pub fn run_linear<T: Tensor<f64>>() -> Result<(), String> {
     Ok(())
 }
 
-pub fn run_neural_net<T: Tensor<f64> + 'static>() -> Result<(), String> {
+pub fn run_neural_net<T>() -> Result<(), String>
+where
+    T: Tensor<f64> + TensorMath<f64, MathOutput = T> + 'static,
+{
     let l = GLOBAL_CONTEXT
         .get()
         .ok_or("GLOBAL_CONTEXT not initialized")?
