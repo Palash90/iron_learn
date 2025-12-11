@@ -19,33 +19,4 @@ pub trait TensorMath<T: Numeric>: Sized {
     fn tan(&self) -> Result<Self::MathOutput, String>;
     fn tanh(&self) -> Result<Self::MathOutput, String>;
     fn exp(&self) -> Result<Self::MathOutput, String>;
-    fn scale(&self, scalar: T) -> Result<Self::MathOutput, String>;
-}
-
-
-// The original Tensor trait, now with a supertrait constraint for math operations
-// We enforce that any Tensor that implements this, must be able to perform Math operations.
-pub trait Tensor<T: Numeric>: Sized + TensorMath<T> {
-    // ... (All existing methods like empty, new, add, sub, mul, etc.)
-    
-    /* Creation */
-    fn empty(shape: &Vec<u32>) -> Self;
-    fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String>;
-
-    /* Retrieval */
-    fn get_shape(&self) -> &Vec<u32>;
-    fn get_data(&self) -> Vec<T>;
-
-    /* Device API */
-    fn synchronize(&self);
-
-    /* Matrix related operations */
-    fn add(&self, rhs: &Self) -> Result<Self, String>;
-    fn sub(&self, rhs: &Self) -> Result<Self, String>;
-    fn mul(&self, rhs: &Self) -> Result<Self, String>;
-    fn t(&self) -> Result<Self, String>;
-    fn multiply(&self, rhs: &Self) -> Result<Self, String>;
-
-    /* Reducers */
-    fn sum(&self) -> Result<Self, String>;
 }
