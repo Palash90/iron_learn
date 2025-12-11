@@ -45,38 +45,6 @@ where
 }
 
 impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
-    fn sigmoid(&self) -> Result<Self, String> {
-        self.element_op(OpType::SIGMOID, T::zero())
-    }
-
-    fn log(&self) -> Result<Self, String> {
-        self.element_op(OpType::LOG, T::zero())
-    }
-
-    fn ln(&self) -> Result<Self, String> {
-        self.element_op(OpType::LN, T::zero())
-    }
-
-    fn sin(&self) -> Result<Self, String> {
-        self.element_op(OpType::SIN, T::zero())
-    }
-
-    fn cos(&self) -> Result<Self, String> {
-        self.element_op(OpType::COS, T::zero())
-    }
-
-    fn tan(&self) -> Result<Self, String> {
-        self.element_op(OpType::TAN, T::zero())
-    }
-
-    fn tanh(&self) -> Result<Self, String> {
-        self.element_op(OpType::TANH, T::zero())
-    }
-
-    fn exp(&self) -> Result<Self, String> {
-        self.element_op(OpType::EXP, T::zero())
-    }
-
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         Self::_new(shape, data)
     }

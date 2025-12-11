@@ -1,4 +1,6 @@
 use crate::Numeric;
+pub mod math;
+
 pub trait Tensor<T: Numeric>: Sized {
     /* Creation */
     // Returns an Empty Tensor
@@ -33,32 +35,7 @@ pub trait Tensor<T: Numeric>: Sized {
 
     // Hadamard product
     fn multiply(&self, rhs: &Self) -> Result<Self, String>;
-
-    /* Mathematical functions */
-    // Element wise sigmoid function
-    fn sigmoid(&self) -> Result<Self, String>;
-
-    // Element wise log base 10 implementation
-    fn log(&self) -> Result<Self, String>;
-
-    // Element wise natural log
-    fn ln(&self) -> Result<Self, String>;
-
-    // Element wise sin
-    fn sin(&self) -> Result<Self, String>;
-
-    // Element wise cos
-    fn cos(&self) -> Result<Self, String>;
-
-    // Element wise tan
-    fn tan(&self) -> Result<Self, String>;
-
-    // Element wise tanh
-    fn tanh(&self) -> Result<Self, String>;
-
-    // Element wise exponentiation
-    fn exp(&self) -> Result<Self, String>;
-
+   
     // Element wise scaling
     fn scale(&self, scalar: T) -> Result<Self, String>;
 

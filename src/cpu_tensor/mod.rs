@@ -462,51 +462,6 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> where CpuTensor<T>: From<CpuTensor<f
         self.hadamard(rhs)
     }
 
-    /* Mathematical functions */
-    // Note: All element-wise mathematical functions use f64 for computation
-    // as per your existing `element_op` helper.
-    // The resulting tensor will contain f64 data.
-
-    /// Element wise sigmoid function.
-    fn sigmoid(&self) -> Result<Self, String> {
-        Ok(Self::element_op(self, OpType::SIGMOID).into()) // .into() casts CpuTensor<f64> to Self
-    }
-
-    /// Element wise log base 10 implementation.
-    fn log(&self) -> Result<Self, String> {
-        Ok(Self::element_op(self, OpType::LOG).into())
-    }
-
-    /// Element wise natural log.
-    fn ln(&self) -> Result<Self, String> {
-        Ok(Self::element_op(self, OpType::LN).into())
-    }
-
-    /// Element wise sin.
-    fn sin(&self) -> Result<Self, String> {
-        Ok(Self::element_op(self, OpType::SIN).into())
-    }
-
-    /// Element wise cos.
-    fn cos(&self) -> Result<Self, String> {
-        Ok(Self::element_op(self, OpType::COS).into())
-    }
-
-    /// Element wise tan.
-    fn tan(&self) -> Result<Self, String> {
-        Ok(Self::element_op(self, OpType::TAN).into())
-    }
-
-    /// Element wise tanh.
-    fn tanh(&self) -> Result<Self, String> {
-        Ok(Self::element_op(self, OpType::TANH).into())
-    }
-
-    /// Element wise exponentiation.
-    fn exp(&self) -> Result<Self, String> {
-        Ok(Self::element_op(self, OpType::EXP).into())
-    }
-
     /// Element wise scaling (multiplication by a scalar).
     fn scale(&self, scalar: T) -> Result<Self, String> {
         Ok(self._s(scalar))
