@@ -36,7 +36,6 @@ use crate::numeric::{Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
 use std::ops::{Add, Mul, Neg, Sub};
 
-
 /// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
 /// for the manipulation of multidimensional data.
 ///
@@ -72,22 +71,7 @@ pub struct CpuTensor<T: Numeric> {
     shape: Vec<u32>,
     data: Vec<T>,
 }
-impl<T> CpuTensor<T>
-where
-    T: Numeric,
-{
-    pub fn print_matrix(&self) {
-        let rows = self.shape[0] as usize;
-        let cols = self.shape[1] as usize;
-
-        for r in 0..rows {
-            for c in 0..cols {
-                print!("{}\t", self.data[r * cols + c]);
-            }
-            println!();
-        }
-    }
-}
+impl<T> CpuTensor<T> where T: Numeric {}
 
 enum OpType {
     EXP = 0,
@@ -113,11 +97,7 @@ impl<T: Numeric> CpuTensor<T> {
             OpType::SIN => self.data.iter().map(|t| f64::sin(t.f64())).collect(),
             OpType::TAN => self.data.iter().map(|t| f64::tan(t.f64())).collect(),
             OpType::TANH => self.data.iter().map(|t| f64::tanh(t.f64())).collect(),
-            OpType::SIGMOID => self
-                .data
-                .iter()
-                .map(|t| Self::_sigmoid(t.f64()))
-                .collect(),
+            OpType::SIGMOID => self.data.iter().map(|t| Self::_sigmoid(t.f64())).collect(),
             OpType::LOG => self.data.iter().map(|t| f64::log10(t.f64())).collect(),
             OpType::LN => self.data.iter().map(|t| f64::ln(t.f64())).collect(),
         };
@@ -401,6 +381,18 @@ impl<T: SignedNumeric> Neg for CpuTensor<T> {
 
 // This trait implementation wires the public API to the internal logic.
 impl<T: Numeric> Tensor<T> for CpuTensor<T> {
+    fn print_matrix(&self) {
+        let rows = self.shape[0] as usize;
+        let cols = self.shape[1] as usize;
+
+        for r in 0..rows {
+            for c in 0..cols {
+                print!("{} ", self.data[r * cols + c]);
+            }
+            println!();
+        }
+    }
+
     /* Creation */
     /// Returns an Empty Tensor with the provided shape, filled with the zero value for T.
     fn empty(shape: &Vec<u32>) -> Self {
@@ -521,4 +513,3 @@ where
         Ok(self.element_op(OpType::EXP))
     }
 }
-

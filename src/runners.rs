@@ -102,7 +102,7 @@ where
     println!("\nResults:");
     println!("Total samples: {}", total);
     println!("Correct predictions: {}", correct);
-    println!("Accuracy: {:.2}%", accuracy);
+    println!("Accuracy: {:.2?}%", accuracy);
 
     Ok(())
 }
@@ -188,70 +188,68 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data {
-        neural_network: xy, ..
-    } = crate::read_file::deserialize_data(data_path)
+    let Data { cat_image: xy, .. } = crate::read_file::deserialize_data(data_path)
         .map_err(|e| format!("Data deserialization error: {}", e))?;
 
-    let monitor = |epoch: usize, err: f64| {
-        // This line runs on the Host (CPU) but the error value came from a D2H transfer
-        if epoch % 500 == 0 || epoch == (e - 1) as usize {
-            println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err / 4.0); // Divide by 4 samples
-        }
-    };
+    
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
 
-    let (x, x_mean, x_std) = normalize_features_mean_std(&x);
-    let (y, y_mean, y_std) = normalize_features_mean_std(&y);
+    //let (x, x_mean, x_std) = normalize_features_mean_std(&x);
+    //let (y, y_mean, y_std) = normalize_features_mean_std(&y);
 
-    let x = add_bias_term(&x).unwrap();
+    //let x = add_bias_term(&x).unwrap();
 
     let mut w = T::new(vec![xy.n, 1], vec![0.0; xy.n as usize])?;
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
-    let hidden_length = 6;
+    let hidden_length = 50; // Should be even
     let input_length = 2;
 
     let nn = NeuralNetBuilder::<T>::new();
     let mut nn = nn;
-    
-    nn.add_linear(input_length + 1, hidden_length, "Input");
+
+    nn.add_linear(input_length, hidden_length, "Input");
     nn.add_activation(ActivationType::Tanh, "Activatin Layer 1");
-    
+
     nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
     nn.add_activation(ActivationType::Tanh, "Activation Layer 2");
 
-    nn.add_linear(hidden_length, hidden_length/2, "Hidden Layer 2");
+    nn.add_linear(hidden_length, hidden_length / 2, "Hidden Layer 2");
     nn.add_activation(ActivationType::Tanh, "Activation Layer 3");
-
 
     nn.add_linear(hidden_length / 2, 1, "Hidden Layer 6");
     nn.add_activation(ActivationType::Sigmoid, "Activation Layer 7");
-    
+
     let mut nn = nn.build(loss_function_instance);
-    nn.fit(&x, &y, 5000, 0, 0.001, monitor);
+
+    let mut start_time = Instant::now();
+
+    let monitor = |epoch: usize, err: f64, nn: &mut NeuralNet<T>| {
+        let elapsed = start_time.elapsed();
+        println!("Monitor called on {}, time elapsed {:?}", epoch, elapsed);
+        start_time = Instant::now();
+
+        // This line runs on the Host (CPU) but the error value came from a D2H transfer
+        if epoch % 500 == 0 || epoch == (e - 1) as usize {
+            println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err / 4.0); // Divide by 4 samples
+            nn.predict(&x);
+        }
+    };
+    
+    nn.fit(&x, &y, e as usize, 0, 0.001, monitor);
 
     let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
     let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 
-    let x_test = normalize_features(&x_test, &x_mean, &x_std);
+    //let x_test = normalize_features(&x_test, &x_mean, &x_std);
 
-    let x_test = add_bias_term(&x_test)?;
+    //let x_test = add_bias_term(&x_test)?;
 
-    let predictions = nn.predict(&x_test)?;
+    let predictions = nn.predict(&x).unwrap();
 
-    let predictions = denormalize_features(&predictions, &y_mean, &y_std);
-
-    for i in 0..y_test.get_data().len() {
-        println!(
-            "Y: {}, P: {}",
-            y_test.get_data()[i],
-            predictions.get_data()[i]
-        );
-    }
-
+    // let predictions = denormalize_features(&predictions, &y_mean, &y_std);
     Ok(())
 }
 
@@ -274,7 +272,7 @@ pub fn run_custom_network() {
     let module = Module::from_ptx(ptx, &[]).unwrap();
     let stream = Stream::new(StreamFlags::NON_BLOCKING, None).unwrap();
 
-    let hidden_length = 4;
+    let hidden_length = 4; // Good to choose some Even Number.
 
     let mut network = GpuNetworkBuilder::new();
 

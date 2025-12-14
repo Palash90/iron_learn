@@ -247,7 +247,7 @@ def image_reconstruction():
     epoch_start_time =  time.time()
 
     def epoch_hook(net, epoch):
-        global epoch_start_time, LAST_EPOCH
+        nonlocal epoch_start_time, LAST_EPOCH
 
         if epoch % CHECKPOINT == 0:
             pass # net.save_weights(f'output/checkpoint/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
@@ -266,8 +266,8 @@ def image_reconstruction():
     if X_train is not None:
         INPUT_FEATURES = X_train.shape[1] 
         OUTPUT_NODES = Y_train.shape[1]
-        # net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 50, tanh, tanh_prime)
-        net = build_siren_net(INPUT_FEATURES, OUTPUT_NODES, 50)
+        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 50, tanh, tanh_prime)
+        # net = build_siren_net(INPUT_FEATURES, OUTPUT_NODES, 50)
         
         if net.load_weights(RESUME_FILE):
              print(f"Resuming training from {RESUME_FILE}")
@@ -278,4 +278,5 @@ def image_reconstruction():
         net.fit(X_train, Y_train, epochs=EPOCHS, epoch_offset=EPOCH_OFFSET, learning_rate=LEARNING_RATE, hook=epoch_hook)  
 
 if __name__ == "__main__":
-    run(10000, 0.001, 'neural_network')
+    image_reconstruction()
+    # run(10000, 0.001, 'neural_network')

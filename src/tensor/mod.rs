@@ -2,6 +2,8 @@ use crate::Numeric;
 pub mod math;
 
 pub trait Tensor<T: Numeric>: Sized {
+    fn print_matrix(&self) -> ();
+    
     /* Creation */
     // Returns an Empty Tensor
     fn empty(shape: &Vec<u32>) -> Self;

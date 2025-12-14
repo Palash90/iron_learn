@@ -102,7 +102,7 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
         unsafe {
             Self {
                 shape: shape.to_vec(),
-                device_buffer: DeviceBuffer::uninitialized(0)
+                device_buffer: DeviceBuffer::uninitialized(shape.to_vec()[0] as usize * shape.to_vec()[1] as usize)
                     .expect("CUDA buffer did not initialize"),
             }
         }
@@ -117,12 +117,17 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
             .expect("Stream could not be found"))
         .synchronize();
     }
+    
+    fn print_matrix(&self) -> () {
+        todo!()
+    }
 }
 
 impl<T: Numeric + Zeroable> Add for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn add(self, rhs: Self) -> Result<Self, String> {
+        println!("In Add");
         self._add(&rhs, false)
     }
 }
@@ -181,16 +186,15 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return false;
         }
 
-        let element_count = self.shape.iter().product::<u32>();
+        let total_size: u32 = self.shape.iter().product::<u32>();
 
-        if element_count == 0 {
+        if total_size == 0 {
             return true;
         }
 
-        let total_size = element_count as u64;
         let threads_per_block = 1024;
 
-        let grid_1d = (element_count + threads_per_block - 1) / threads_per_block;
+        let grid_1d = (total_size + threads_per_block - 1) / threads_per_block;
 
         let compare = Self::_get_function("compareMemory");
 
@@ -231,10 +235,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let grid_x = (self.shape[1] + block_dim - 1) / block_dim;
         let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
 
-        let total_elements = match self.shape.len() {
-            2 => self.shape[0] * self.shape[1],
-            _ => self.shape[0],
-        };
+        let total_elements:u32 = self.shape.iter().product();
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
 

@@ -178,7 +178,7 @@ where
         let mut output = input.add(&T::empty(input.get_shape()))?;
 
         for layer in &mut self.layers {
-            output = layer.forward(&output)?;
+            output = layer.forward(&output).unwrap();
         }
         Ok(output)
     }
@@ -193,7 +193,7 @@ where
         mut hook: F,
     ) -> Result<(), String>
     where
-        F: FnMut(usize, MyNumeric),
+        F: FnMut(usize, MyNumeric, &mut Self),
     {
         let lr_min = 1e-6;
 
@@ -208,7 +208,6 @@ where
             }
 
             let err = self.loss_fn.loss(y_train, &output);
-            println!("Epoch {}, loss {:?}", i, err.unwrap().get_data());
 
             let mut error = self.loss_fn.loss_prime(y_train, &output)?;
             for layer in self.layers.iter_mut().rev() {
@@ -216,12 +215,12 @@ where
             }
 
             // Hook (Periodic Reporting)
-            if i == 0 || (i + 1) % 1000 == 0 {
+            if i == 0 || i % 1000 == 0 {
                 let error_diff = y_train.sub(&output)?;
                 let sq_err = error_diff.multiply(&error_diff)?;
                 let sum_err = sq_err.sum()?;
                 let err_val = sum_err.get_data()[0];
-                hook(i, err_val);
+                hook(i, err_val, self);
 
                 x_train.synchronize();
             }

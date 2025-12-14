@@ -109,11 +109,11 @@ fn main() {
 
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
-        run_neural_net::<GpuTensor<f64>>();
+        let _ = run_neural_net::<GpuTensor<f64>>();
         println!("\n✓ All training tasks completed");
     } else {
         println!("Running CPU-based training...\n");
-        run_neural_net::<CpuTensor<f64>>();
+        let _ = run_neural_net::<CpuTensor<f64>>();
         println!("\n✓ All training tasks completed");
     }
 }
