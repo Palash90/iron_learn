@@ -8,6 +8,7 @@ pub mod trainer;
 
 // Legacy function exports
 use crate::read_file::deserialize_data;
+use crate::tensor::Tensor;
 use crate::{CpuTensor, Data, GLOBAL_CONTEXT};
 use cust::error::CudaResult;
 use cust::memory::DeviceBuffer;
@@ -15,7 +16,6 @@ use cust::module::Module;
 use cust::prelude::*;
 use cust::stream::{Stream, StreamFlags};
 use std::time::Instant;
-use crate::tensor::Tensor;
 
 use functions::*;
 

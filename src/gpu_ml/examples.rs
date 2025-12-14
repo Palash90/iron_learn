@@ -47,7 +47,7 @@ pub fn example_custom_network() -> CudaResult<()> {
     network.add_linear("HiddenLayer2", 48, 24);
     network.add_activation("ReLU2", relu_activation, relu_derivative);
     network.add_linear("OutputLayer", 24, 1);
-    
+
     let network = network.build();
 
     network.print_architecture();

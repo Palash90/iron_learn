@@ -102,8 +102,10 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
         unsafe {
             Self {
                 shape: shape.to_vec(),
-                device_buffer: DeviceBuffer::uninitialized(shape.to_vec()[0] as usize * shape.to_vec()[1] as usize)
-                    .expect("CUDA buffer did not initialize"),
+                device_buffer: DeviceBuffer::uninitialized(
+                    shape.to_vec()[0] as usize * shape.to_vec()[1] as usize,
+                )
+                .expect("CUDA buffer did not initialize"),
             }
         }
     }
@@ -117,7 +119,7 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
             .expect("Stream could not be found"))
         .synchronize();
     }
-    
+
     fn print_matrix(&self) -> () {
         todo!()
     }
@@ -235,7 +237,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let grid_x = (self.shape[1] + block_dim - 1) / block_dim;
         let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
 
-        let total_elements:u32 = self.shape.iter().product();
+        let total_elements: u32 = self.shape.iter().product();
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
 
@@ -540,6 +542,7 @@ where
 }
 
 use crate::init_context;
+use cust::device::Device;
 use cust::launch;
 use cust::memory::bytemuck::Zeroable;
 use cust::prelude::Function;

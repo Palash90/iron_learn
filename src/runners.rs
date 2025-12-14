@@ -191,8 +191,6 @@ where
     let Data { cat_image: xy, .. } = crate::read_file::deserialize_data(data_path)
         .map_err(|e| format!("Data deserialization error: {}", e))?;
 
-    
-
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
 
@@ -237,7 +235,7 @@ where
             nn.predict(&x);
         }
     };
-    
+
     nn.fit(&x, &y, e as usize, 0, 0.001, monitor);
 
     let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;

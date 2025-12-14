@@ -3,7 +3,7 @@ pub mod math;
 
 pub trait Tensor<T: Numeric>: Sized {
     fn print_matrix(&self) -> ();
-    
+
     /* Creation */
     // Returns an Empty Tensor
     fn empty(shape: &Vec<u32>) -> Self;
@@ -37,7 +37,7 @@ pub trait Tensor<T: Numeric>: Sized {
 
     // Hadamard product
     fn multiply(&self, rhs: &Self) -> Result<Self, String>;
-   
+
     // Element wise scaling
     fn scale(&self, scalar: T) -> Result<Self, String>;
 
@@ -45,4 +45,3 @@ pub trait Tensor<T: Numeric>: Sized {
     // Reduces rows column wise
     fn sum(&self) -> Result<Self, String>;
 }
-

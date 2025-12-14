@@ -1,6 +1,6 @@
-use iron_learn::{Complex, CpuTensor};
-use iron_learn::Tensor;
 use iron_learn::tensor::math::TensorMath;
+use iron_learn::Tensor;
+use iron_learn::{Complex, CpuTensor};
 
 #[cfg(test)]
 #[test]
