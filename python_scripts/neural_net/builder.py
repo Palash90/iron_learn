@@ -5,14 +5,14 @@ def build_neural_net(features, outputs, hidden_length, activation_fn, activation
     net = NeuralNet(mse, mse_prime)
 
 
-    net.add(LinearLayer(features, hidden_length), name = "Hidden Layer 1")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
+    net.add(LinearLayer(features, hidden_length), name = "Input")
+    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer 1")
 
-    net.add(LinearLayer(hidden_length, hidden_length), name = "Hidden Layer 3")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
+    net.add(LinearLayer(hidden_length, hidden_length), name = "Hidden Layer 1")
+    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer 2")
 
-    net.add(LinearLayer(hidden_length,int(hidden_length/2)), name = "Hidden Layer 3")
-    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
+    net.add(LinearLayer(hidden_length,int(hidden_length/2)), name = "Hidden Layer 2")
+    net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer 3")
 
    # net.add(LinearLayer(2 * hidden_length, hidden_length), name = "Hidden Layer 3")
    # net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
@@ -26,8 +26,8 @@ def build_neural_net(features, outputs, hidden_length, activation_fn, activation
     #net.add(LinearLayer(int(hidden_length / 2), int(hidden_length / 2)), name = "Hidden Layer 4")
     #net.add(ActivationLayer(activation_fn, activation_prime), "Activation Layer")
 
-    net.add(LinearLayer(int(hidden_length / 2), outputs), name="Output")
-    net.add(ActivationLayer(sigmoid, sigmoid_prime), "Final Activation Layer")
+    net.add(LinearLayer(int(hidden_length / 2), outputs), name="Hidden Layer 3")
+    net.add(ActivationLayer(sigmoid, sigmoid_prime), "Activation Layer 4")
 
     return net
 
