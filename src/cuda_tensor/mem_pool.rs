@@ -61,7 +61,7 @@ impl CudaMemoryPool {
 
     pub fn allocate(&self, size_in_bytes: usize) -> Result<CUdeviceptr, Box<dyn Error>> {
         let mut device_ptr: CUdeviceptr = 0;
-        let byte_size  = size_in_bytes;
+        let byte_size = size_in_bytes;
 
         self.with_handle(|pool_handle| {
             let result = unsafe {

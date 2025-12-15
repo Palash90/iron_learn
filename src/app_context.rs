@@ -55,7 +55,7 @@ pub struct AppContext {
     pub context: Option<cust::context::Context>,
     pub module: Option<Module>,
     pub stream: Option<Stream>,
-    pub pool: Option<CudaMemoryPool>
+    pub pool: Option<CudaMemoryPool>,
 }
 
 /// Global singleton instance of application context
@@ -107,11 +107,11 @@ pub fn init_context(
     gpu_enabled: bool,
     context: Option<cust::context::Context>,
     module: Option<Module>,
-    stream: Option<Stream>
+    stream: Option<Stream>,
 ) {
-    let pool =match context {
+    let pool = match context {
         Some(_) => Some(CudaMemoryPool::get_mem_pool()),
-        None => None
+        None => None,
     };
 
     let ctx = AppContext {
@@ -124,7 +124,7 @@ pub fn init_context(
         context,
         module,
         stream,
-        pool
+        pool,
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

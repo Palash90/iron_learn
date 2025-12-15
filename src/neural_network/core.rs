@@ -140,15 +140,24 @@ where
         let out = self.output_cache.as_ref().unwrap();
 
         let prime = match self.act_type {
-            ActivationType::Sigmoid => out.sigmoid(),
+            ActivationType::Sigmoid => {
+                println!("Sigmoid started");
+                let sigmoid = out.sigmoid();
+                println!("Sigmoid ended");
+                sigmoid
+            }
             ActivationType::Tanh => {
+                println!("tanh started");
                 let o_squared = out.multiply(out).unwrap();
+                println!("o_squared calculated");
                 let ones = T::new(
                     out.get_shape().clone(),
                     vec![1.0; out.get_shape()[0] as usize * out.get_shape()[1] as usize],
                 )
                 .unwrap();
-                ones.sub(&o_squared)
+                let tanh = ones.sub(&o_squared);
+                println!("tanh ended");
+                tanh
             }
         };
 
@@ -199,9 +208,9 @@ where
 
             let mut output = x_train.add(&T::empty(x_train.get_shape()))?;
             for layer in &mut self.layers {
-                println!("{} started", layer.name());
+                println!("{} forward started", layer.name());
                 output = layer.forward(&output)?;
-                 println!("{} ended", layer.name());
+                println!("{} forward ended", layer.name());
             }
 
             println!("Loss Started");
@@ -210,9 +219,9 @@ where
 
             let mut error = self.loss_fn.loss_prime(y_train, &output)?;
             for layer in self.layers.iter_mut().rev() {
-                println!("{} started", layer.name());
+                println!("{} backward started", layer.name());
                 error = layer.backward(&error, current_lr)?;
-                println!("{} started", layer.name());
+                println!("{} backward ended", layer.name());
             }
 
             // Hook (Periodic Reporting)

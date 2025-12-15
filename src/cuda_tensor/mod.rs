@@ -1,9 +1,11 @@
-use crate::cuda_tensor::custom_device_buffer::{get_device_buffer, get_device_buffer_from_slice};
+use crate::cuda_tensor::custom_device_buffer::{
+    get_device_buffer, get_device_buffer_from_slice, CustomDeviceBuffer,
+};
 use crate::numeric::{Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
 use crate::GLOBAL_CONTEXT;
-use std::ops::{Add, Mul, Neg, Sub};
 use core::ffi::c_void;
+use std::ops::{Add, Mul, Neg, Sub};
 
 //mod tensor_ops;
 use crate::Tensor;
@@ -27,7 +29,7 @@ enum OpType {
 #[derive(Debug)]
 pub struct GpuTensor<T: Numeric> {
     shape: Vec<u32>,
-    device_buffer: DeviceBuffer<T>,
+    device_buffer: CustomDeviceBuffer<T>,
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T>
@@ -169,9 +171,13 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let module = context.module.as_ref().expect("Module not found");
 
-        module
-            .get_function(fn_name)
-            .expect(&format!("Function- {} could not be found", fn_name))
+        match module.get_function(fn_name) {
+            Ok(f) => return f,
+            Err(e) => {
+                eprintln!("{}", e);
+                panic!("Failed")
+            }
+        }
     }
 
     fn _get_stream() -> &'static Stream {
@@ -241,7 +247,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
 
-        let result = get_device_buffer(self.shape.iter().product::<u32>() as usize);
+        let result = get_device_buffer(total_elements as usize);
 
         let stream = Self::_get_stream();
 
@@ -266,10 +272,12 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         if self.shape.len() == 1 {
             unsafe {
-                let new_device_buffer = DeviceBuffer::from_raw_parts(
-                    self.device_buffer.as_device_ptr(),
-                    self.shape[0] as usize,
-                );
+                let new_device_buffer = CustomDeviceBuffer {
+                    device_buffer: DeviceBuffer::from_raw_parts(
+                        self.device_buffer.as_device_ptr(),
+                        self.shape[0] as usize,
+                    ),
+                };
 
                 return Ok(Self::_with_device_buffer(
                     self.shape.clone(),
@@ -332,22 +340,23 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
         }
 
+        println!("Before getting add with sub {}", sub);
         let add = Self::_get_function("vector_add");
+        println!("After getting add");
 
-        let mut total_elements;
-        if self.shape.len() == 2 {
-            total_elements = (self.shape[0] * self.shape[1]) as usize;
-        } else {
-            total_elements = self.shape[0] as usize
-        }
+        let mut total_elements = self.shape.iter().product::<u32>() as usize;
 
-        let result = get_device_buffer(self.shape.iter().product::<u32>() as usize);
+        let result = get_device_buffer(total_elements);
+
+        println!("Device Buffer created in add");
 
         let total_size_u32 = total_elements as u32;
         let threads_per_block = 1024;
 
         let grid_1d = (total_size_u32 + threads_per_block - 1) / threads_per_block;
         let sub_int = if sub { 1i32 } else { 0i32 };
+
+        println!("Before call");
 
         let stream = Self::_get_stream();
         unsafe {
@@ -406,7 +415,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         ))
     }
 
-    fn _with_device_buffer(shape: Vec<u32>, device_buffer: DeviceBuffer<T>) -> Self {
+    fn _with_device_buffer(shape: Vec<u32>, device_buffer: CustomDeviceBuffer<T>) -> Self {
         let ptx = include_str!("../../kernels/gpu_kernels.ptx");
 
         Self {
@@ -436,7 +445,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block as u32;
 
-        let result = get_device_buffer(self.shape.iter().product::<u32>() as usize);
+        let result = get_device_buffer(total_elements as usize);
 
         let stream = Self::_get_stream();
 
