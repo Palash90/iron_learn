@@ -1,8 +1,9 @@
-use crate::cuda_tensor::custom_device_buffer::get_device_buffer;
+use crate::cuda_tensor::custom_device_buffer::{get_device_buffer, get_device_buffer_from_slice};
 use crate::numeric::{Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
 use crate::GLOBAL_CONTEXT;
 use std::ops::{Add, Mul, Neg, Sub};
+use core::ffi::c_void;
 
 //mod tensor_ops;
 use crate::Tensor;
@@ -308,14 +309,17 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _data(&self) -> Vec<T> {
-        let total_elements = match self.shape.len() {
-            2 => (self.shape[0] * self.shape[1]) as usize,
-            _ => self.shape[0] as usize,
-        };
+        let total_elements = self.shape.iter().product::<u32>() as usize;
 
         let mut data = vec![T::zero(); (total_elements) as usize];
 
-        self.device_buffer.copy_to(&mut data);
+        unsafe {
+            cust::sys::cuMemcpyDtoH_v2(
+                data.as_mut_ptr() as *mut c_void,
+                self.device_buffer.as_device_ptr().as_raw(),
+                total_elements * size_of::<T>(),
+            )
+        };
         data
     }
 
@@ -396,13 +400,10 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return Err(err);
         }
 
-        match DeviceBuffer::from_slice(&data) {
-            Ok(device_buffer) => Ok(Self {
-                shape: shape.clone(),
-                device_buffer,
-            }),
-            Err(_) => Err("CUDA Error".to_string()),
-        }
+        Ok(Self::_with_device_buffer(
+            shape.to_vec(),
+            get_device_buffer_from_slice(&data),
+        ))
     }
 
     fn _with_device_buffer(shape: Vec<u32>, device_buffer: DeviceBuffer<T>) -> Self {

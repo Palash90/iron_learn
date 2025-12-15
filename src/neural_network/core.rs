@@ -17,19 +17,14 @@ pub trait LossFunction<T: Tensor<MyNumeric>> {
 pub struct MeanSquaredErrorLoss;
 
 impl<T: Tensor<MyNumeric> + 'static> LossFunction<T> for MeanSquaredErrorLoss {
-    // Loss: 0.5 * sum((actual - predicted)^2)
     fn loss(&self, actual: &T, predicted: &T) -> Result<T, String> {
-        let error_diff = actual.sub(predicted)?;
-        let sq_err = error_diff.multiply(&error_diff)?; // Element-wise square
+        let error_diff = actual.sub(predicted).unwrap();
+        let sq_err = error_diff.multiply(&error_diff).unwrap();
 
-        sq_err.sum() // Sum over all elements
+        sq_err.sum()
     }
 
-    // Loss Prime: (predicted - actual)
-    // The standard derivative is (predicted - actual) * 2 / N.
-    // We omit the constant 2/N as it's absorbed into the learning rate.
     fn loss_prime(&self, actual: &T, predicted: &T) -> Result<T, String> {
-        // Returns (predicted - actual)
         predicted.sub(actual)
     }
 }
@@ -204,14 +199,20 @@ where
 
             let mut output = x_train.add(&T::empty(x_train.get_shape()))?;
             for layer in &mut self.layers {
+                println!("{} started", layer.name());
                 output = layer.forward(&output)?;
+                 println!("{} ended", layer.name());
             }
 
+            println!("Loss Started");
             let err = self.loss_fn.loss(y_train, &output);
+            println!("Loss ended");
 
             let mut error = self.loss_fn.loss_prime(y_train, &output)?;
             for layer in self.layers.iter_mut().rev() {
+                println!("{} started", layer.name());
                 error = layer.backward(&error, current_lr)?;
+                println!("{} started", layer.name());
             }
 
             // Hook (Periodic Reporting)
