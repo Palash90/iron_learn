@@ -43,6 +43,7 @@ pub fn get_device_buffer<T: Numeric>(size: usize) -> CustomDeviceBuffer<T> {
     }
 
     let pool_allocated_pointer = pool.allocate(size).unwrap();
+    unsafe { cust::sys::cuStreamSynchronize(std::ptr::null_mut()) };
     let device_pointer = DevicePointer::from_raw(pool_allocated_pointer);
 
     let device_buffer = unsafe { DeviceBuffer::from_raw_parts(device_pointer, size) };

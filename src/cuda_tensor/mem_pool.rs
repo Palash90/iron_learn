@@ -39,6 +39,25 @@ impl CudaMemoryPool {
 
         unsafe { cuMemPoolCreate(&mut pool, &pool_props) };
 
+        let reserve_size: usize = 2048 * 1024 * 1024;
+        let mut reserve_ptr: CUdeviceptr = 0;
+        unsafe {
+            // This is often a synchronous call initially, but it gets the memory from the driver
+            // and makes it available to the pool.
+            cuMemAllocFromPoolAsync(
+                &mut reserve_ptr,
+                reserve_size,
+                pool,
+                std::ptr::null_mut(), // Null stream is okay for one-time setup
+            );
+            // You MUST synchronize the null stream here to ensure memory is available
+            cuStreamSynchronize(std::ptr::null_mut());
+
+            // Now free it back to the pool immediately for reuse
+            cuMemFreeAsync(reserve_ptr, std::ptr::null_mut());
+            cuStreamSynchronize(std::ptr::null_mut());
+        }
+
         println!("Memory pool created for device {}", device.name().unwrap());
 
         CudaMemoryPool {
@@ -64,6 +83,8 @@ impl CudaMemoryPool {
         let byte_size = size_in_bytes;
 
         self.with_handle(|pool_handle| {
+            let now = Instant::now();
+
             let result = unsafe {
                 cuMemAllocFromPoolAsync(
                     &mut device_ptr,
@@ -76,6 +97,7 @@ impl CudaMemoryPool {
             if result != CUresult::CUDA_SUCCESS {
                 return Err(format!("CUDA Allocation Failed. Error: {:?}", result).into());
             }
+            println!("Memory allocation took {:.2?}", now.elapsed());
 
             Ok(device_ptr)
         })
@@ -83,6 +105,8 @@ impl CudaMemoryPool {
 
     pub fn free(&self, device_ptr: CUdeviceptr) -> Result<(), Box<dyn Error>> {
         let result = unsafe { cuMemFreeAsync(device_ptr, std::ptr::null_mut()) };
+
+        unsafe { cust::sys::cuStreamSynchronize(std::ptr::null_mut()) };
 
         if result != CUresult::CUDA_SUCCESS {
             return Err(format!("CUDA Free Failed. Error: {:?}", result).into());
