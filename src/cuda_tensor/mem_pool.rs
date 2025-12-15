@@ -105,8 +105,6 @@ impl CudaMemoryPool {
     pub fn free(&self, device_ptr: CUdeviceptr) -> Result<(), Box<dyn Error>> {
         let result = unsafe { cuMemFreeAsync(device_ptr, std::ptr::null_mut()) };
 
-        unsafe { cust::sys::cuStreamSynchronize(std::ptr::null_mut()) };
-
         if result != CUresult::CUDA_SUCCESS {
             return Err(format!("CUDA Free Failed. Error: {:?}", result).into());
         }
