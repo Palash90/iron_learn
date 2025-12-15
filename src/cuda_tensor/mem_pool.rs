@@ -46,7 +46,7 @@ impl CudaMemoryPool {
         }
     }
 
-    pub fn with_handle<R, F>(&self, f: F) -> R
+    fn with_handle<R, F>(&self, f: F) -> R
     where
         F: FnOnce(CUmemPoolHandle) -> R,
     {

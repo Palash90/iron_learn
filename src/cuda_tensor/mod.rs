@@ -1,3 +1,4 @@
+use crate::cuda_tensor::custom_device_buffer::get_device_buffer;
 use crate::numeric::{Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
 use crate::GLOBAL_CONTEXT;
@@ -5,8 +6,8 @@ use std::ops::{Add, Mul, Neg, Sub};
 
 //mod tensor_ops;
 use crate::Tensor;
+mod custom_device_buffer;
 mod mem_pool;
-
 pub use mem_pool::CudaMemoryPool;
 
 #[derive(Clone, Copy)]
@@ -102,14 +103,9 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     }
 
     fn empty(shape: &Vec<u32>) -> Self {
-        unsafe {
-            Self {
-                shape: shape.to_vec(),
-                device_buffer: DeviceBuffer::uninitialized(
-                    shape.to_vec()[0] as usize * shape.to_vec()[1] as usize,
-                )
-                .expect("CUDA buffer did not initialize"),
-            }
+        Self {
+            shape: shape.to_vec(),
+            device_buffer: get_device_buffer(shape.iter().product::<u32>() as usize),
         }
     }
 
@@ -244,7 +240,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
 
-        let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
+        let result = get_device_buffer(self.shape.iter().product::<u32>() as usize);
 
         let stream = Self::_get_stream();
 
@@ -283,8 +279,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let transpose = Self::_get_function("transpose_naive");
 
-        let total_elements = self.shape[0] * self.shape[1];
-        let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
+        let result = get_device_buffer(self.shape.iter().product::<u32>() as usize);
         let new_shape = vec![self.shape[1], self.shape[0]];
 
         const BLOCK_DIM_X: u32 = 16;
@@ -342,7 +337,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             total_elements = self.shape[0] as usize
         }
 
-        let result = DeviceBuffer::<T>::zeroed(total_elements).unwrap();
+        let result = get_device_buffer(self.shape.iter().product::<u32>() as usize);
 
         let total_size_u32 = total_elements as u32;
         let threads_per_block = 1024;
@@ -435,15 +430,12 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let grid_x = (rhs.shape[1] + block_dim - 1) / block_dim;
         let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
 
-        let total_elements = match self.shape.len() {
-            2 => self.shape[0] * self.shape[1],
-            _ => self.shape[0],
-        };
+        let total_elements = self.shape.iter().product::<u32>();
 
         let threads_per_block = 1024; // Use a typical 1D block size
-        let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
+        let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block as u32;
 
-        let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
+        let result = get_device_buffer(self.shape.iter().product::<u32>() as usize);
 
         let stream = Self::_get_stream();
 
@@ -469,9 +461,9 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let grid_x = (rhs.shape[1] + block_dim - 1) / block_dim;
         let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
 
-        let total_elements = self.shape[0] * rhs.shape[1];
+        let total_elements = self.shape.iter().product::<u32>() as usize;
 
-        let result = DeviceBuffer::<T>::zeroed(total_elements as usize).unwrap();
+        let result = get_device_buffer(total_elements);
 
         let stream = Self::_get_stream();
 
