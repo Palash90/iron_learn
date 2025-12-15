@@ -131,7 +131,6 @@ impl<T: Numeric + Zeroable> Add for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn add(self, rhs: Self) -> Result<Self, String> {
-        println!("In Add");
         self._add(&rhs, false)
     }
 }
@@ -227,8 +226,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         match result_device.copy_to(&mut result_host) {
             Ok(_) => {
-                println!("Copied from device to host {:?}", result_host);
-
                 result_host[0] == 1
             }
             Err(e) => {
@@ -340,23 +337,17 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
         }
 
-        println!("Before getting add with sub {}", sub);
         let add = Self::_get_function("vector_add");
-        println!("After getting add");
 
         let mut total_elements = self.shape.iter().product::<u32>() as usize;
 
         let result = get_device_buffer(total_elements);
-
-        println!("Device Buffer created in add");
 
         let total_size_u32 = total_elements as u32;
         let threads_per_block = 1024;
 
         let grid_1d = (total_size_u32 + threads_per_block - 1) / threads_per_block;
         let sub_int = if sub { 1i32 } else { 0i32 };
-
-        println!("Before call");
 
         let stream = Self::_get_stream();
         unsafe {

@@ -128,6 +128,6 @@ pub fn init_context(
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),
-        Err(_) => println!("AppContext has already been initialized!"),
+        Err(_) => eprintln!("AppContext has already been initialized!"),
     }
 }

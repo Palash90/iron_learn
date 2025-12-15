@@ -13,9 +13,20 @@ pub struct CustomDeviceBuffer<T: Numeric> {
     pub device_buffer: DeviceBuffer<T>,
 }
 
-impl<T:Numeric> CustomDeviceBuffer<T> {
+impl<T: Numeric> CustomDeviceBuffer<T> {
     pub fn as_device_ptr(&self) -> DevicePointer<T> {
         self.device_buffer.as_device_ptr()
+    }
+}
+
+impl<T: Numeric> Drop for CustomDeviceBuffer<T> {
+    fn drop(&mut self) {
+        let pool = match &GLOBAL_CONTEXT.get().expect("No Context Set").pool {
+            Some(p) => p,
+            None => panic!("Cuda not initialized or Gpu Pool is not set up"),
+        };
+
+        pool.free(self.as_device_ptr().as_raw());
     }
 }
 
@@ -32,7 +43,6 @@ pub fn get_device_buffer<T: Numeric>(size: usize) -> CustomDeviceBuffer<T> {
     }
 
     let pool_allocated_pointer = pool.allocate(size).unwrap();
-    println!("Pointer allocated {}", pool_allocated_pointer);
     let device_pointer = DevicePointer::from_raw(pool_allocated_pointer);
 
     let device_buffer = unsafe { DeviceBuffer::from_raw_parts(device_pointer, size) };
