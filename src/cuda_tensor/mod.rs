@@ -206,13 +206,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let compare = Self::_get_function("compareMemory");
 
         let mut result_host = [1i32];
-        let mut result_device = match DeviceBuffer::from_slice(&result_host) {
-            Ok(device_buf) => device_buf,
-            Err(e) => {
-                eprintln!("Error creating device buffer for result: {:?}", e);
-                return false;
-            }
-        };
+        let mut result_device =get_device_buffer_from_slice(&result_host);
 
         let stream = Self::_get_stream();
         unsafe {
@@ -224,7 +218,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         }
 
-        match result_device.copy_to(&mut result_host) {
+        match result_device.device_buffer.copy_to(&mut result_host) {
             Ok(_) => {
                 result_host[0] == 1
             }
@@ -462,7 +456,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let grid_x = (rhs.shape[1] + block_dim - 1) / block_dim;
         let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
 
-        let total_elements = self.shape.iter().product::<u32>() as usize;
+        let total_elements = (self.shape[0] * rhs.shape[1]) as usize;
 
         let result = get_device_buffer(total_elements);
 

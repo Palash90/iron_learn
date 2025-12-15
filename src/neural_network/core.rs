@@ -23,11 +23,14 @@ impl<T: Tensor<MyNumeric> + 'static> LossFunction<T> for MeanSquaredErrorLoss {
 
         let length = sq_err.get_shape()[1];
 
-        sq_err.sum().unwrap().scale((1/length) as f64)
+        sq_err.sum().unwrap().scale((1 / length) as f64)
     }
 
     fn loss_prime(&self, actual: &T, predicted: &T) -> Result<T, String> {
-        predicted.sub(actual).unwrap().scale((2/actual.get_shape()[0]) as f64)
+        predicted
+            .sub(actual)
+            .unwrap()
+            .scale((2 / actual.get_shape()[0]) as f64)
     }
 }
 

@@ -97,7 +97,6 @@ impl CudaMemoryPool {
             if result != CUresult::CUDA_SUCCESS {
                 return Err(format!("CUDA Allocation Failed. Error: {:?}", result).into());
             }
-            println!("Memory allocation took {:.2?}", now.elapsed());
 
             Ok(device_ptr)
         })
