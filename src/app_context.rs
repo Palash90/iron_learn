@@ -55,7 +55,7 @@ pub struct AppContext {
     pub context: Option<cust::context::Context>,
     pub module: Option<Module>,
     pub stream: Option<Stream>,
-    pub pool: CudaMemoryPool
+    pub pool: Option<CudaMemoryPool>
 }
 
 /// Global singleton instance of application context
@@ -109,9 +109,10 @@ pub fn init_context(
     module: Option<Module>,
     stream: Option<Stream>
 ) {
-    
-    let pool = CudaMemoryPool::get_mem_pool();
-    
+    let pool =match context {
+        Some(_) => Some(CudaMemoryPool::get_mem_pool()),
+        None => None
+    };
 
     let ctx = AppContext {
         app_name,

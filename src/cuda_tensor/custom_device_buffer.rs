@@ -8,7 +8,10 @@ use crate::Numeric;
 use super::mem_pool::CudaMemoryPool;
 
 pub fn get_device_buffer<T: Numeric>(size: usize) -> DeviceBuffer<T> {
-    let pool = &GLOBAL_CONTEXT.get().expect("No Context Set").pool;
+    let pool = match &GLOBAL_CONTEXT.get().expect("No Context Set").pool {
+        Some(p) => p,
+        None => panic!("Cuda not initialized or Gpu Pool is not set up")
+    };
 
     let size = size.checked_mul(size_of::<T>()).unwrap();
 

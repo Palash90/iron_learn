@@ -209,7 +209,7 @@ where
     let mut nn = nn;
 
     nn.add_linear(input_length, hidden_length, "Input");
-    nn.add_activation(ActivationType::Tanh, "Activatin Layer 1");
+    nn.add_activation(ActivationType::Tanh, "Activation Layer 1");
 
     nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
     nn.add_activation(ActivationType::Tanh, "Activation Layer 2");
@@ -217,8 +217,8 @@ where
     nn.add_linear(hidden_length, hidden_length / 2, "Hidden Layer 2");
     nn.add_activation(ActivationType::Tanh, "Activation Layer 3");
 
-    nn.add_linear(hidden_length / 2, 1, "Hidden Layer 6");
-    nn.add_activation(ActivationType::Sigmoid, "Activation Layer 7");
+    nn.add_linear(hidden_length / 2, 1, "Hidden Layer 3");
+    nn.add_activation(ActivationType::Sigmoid, "Activation Layer 4");
 
     let mut nn = nn.build(loss_function_instance);
 
