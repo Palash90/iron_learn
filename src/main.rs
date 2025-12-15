@@ -35,7 +35,7 @@ fn init() {
     if gpu_enabled {
         match cust::quick_init() {
             Ok(context) => {
-                eprintln!("✓ GPU initialization successful");
+                println!("✓ GPU initialization successful");
 
                 let ptx = include_str!("../kernels/gpu_kernels.ptx");
                 let module =

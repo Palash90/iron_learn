@@ -5,6 +5,9 @@ use std::ops::{Add, Mul, Neg, Sub};
 
 //mod tensor_ops;
 use crate::Tensor;
+mod cuda_mem_pool;
+
+pub use cuda_mem_pool::GpuMemoryPool;
 
 #[derive(Clone, Copy)]
 enum OpType {
