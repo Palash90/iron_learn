@@ -16,12 +16,12 @@ unsafe impl Sync for UnsafeCudaMemPoolHandle {}
 struct UnsafeCudaMemPoolHandle(CUmemPoolHandle);
 
 #[derive(Debug)]
-pub struct GpuMemoryPool {
+pub struct CudaMemoryPool {
     pool: Arc<Mutex<UnsafeCudaMemPoolHandle>>,
 }
 
-impl GpuMemoryPool {
-    pub fn get_mem_pool() -> GpuMemoryPool {
+impl CudaMemoryPool {
+    pub fn get_mem_pool() -> CudaMemoryPool {
         let device = Device::get_device(0).unwrap();
 
         // Create a memory pool for the device
@@ -41,7 +41,7 @@ impl GpuMemoryPool {
 
         println!("Memory pool created for device {}", device.name().unwrap());
 
-        GpuMemoryPool {
+        CudaMemoryPool {
             pool: Arc::new(Mutex::new(UnsafeCudaMemPoolHandle(pool))),
         }
     }
@@ -92,7 +92,7 @@ impl GpuMemoryPool {
     }
 }
 
-impl Drop for GpuMemoryPool {
+impl Drop for CudaMemoryPool {
     fn drop(&mut self) {
         match Arc::try_unwrap(Arc::clone(&self.pool)) {
             Ok(mutex) => {

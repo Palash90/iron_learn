@@ -15,7 +15,7 @@ use std::sync::OnceLock;
 
 use cust::{module::Module, stream::Stream};
 
-use crate::cuda_tensor::GpuMemoryPool;
+use crate::cuda_tensor::CudaMemoryPool;
 
 /// Global application context with training configuration and GPU capabilities
 ///
@@ -55,7 +55,7 @@ pub struct AppContext {
     pub context: Option<cust::context::Context>,
     pub module: Option<Module>,
     pub stream: Option<Stream>,
-    pub pool: GpuMemoryPool
+    pub pool: CudaMemoryPool
 }
 
 /// Global singleton instance of application context
@@ -110,7 +110,7 @@ pub fn init_context(
     stream: Option<Stream>
 ) {
     
-    let pool = GpuMemoryPool::get_mem_pool();
+    let pool = CudaMemoryPool::get_mem_pool();
     
 
     let ctx = AppContext {
