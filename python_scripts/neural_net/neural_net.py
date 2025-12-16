@@ -230,7 +230,7 @@ def image_reconstruction():
     IMAGE_WIDTH = norm_factors[0] + 1
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 1000
-    EPOCHS = 200001
+    EPOCHS = 5002
     LEARNING_RATE = 0.00005
     EPOCH_OFFSET = 0 
     RESUME_FILE = ''
