@@ -125,6 +125,14 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     fn print_matrix(&self) -> () {
         todo!()
     }
+    
+    fn zeroes(shape: &Vec<u32>) -> Self {
+        Self::_new_with_value(shape.to_vec(), T::zero()).unwrap()
+    }
+    
+    fn ones(shape: &Vec<u32>) -> Self {
+        Self::_new_with_value(shape.to_vec(), T::one()).unwrap()
+    }
 }
 
 impl<T: Numeric + Zeroable> Add for GpuTensor<T> {
@@ -397,6 +405,41 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         Ok(Self::_with_device_buffer(
             shape.to_vec(),
             get_device_buffer_from_slice(&data),
+        ))
+    }
+
+    fn _new_with_value(shape: Vec<u32>, value: T) -> Result<Self, String> {
+        if let Some(value) = Self::check_shape(&shape) {
+            return value;
+        }
+
+        let size = Self::calculate_length(&shape) as usize;
+
+        let device_buffer = get_device_buffer::<T>(size);
+
+        let block_dim = 16;
+
+        let grid_x = (shape[1] + block_dim - 1) / block_dim;
+        let grid_y = (shape[0] + block_dim - 1) / block_dim;
+
+        let threads_per_block = 1024; // Use a typical 1D block size
+        let grid_1d = (size as u32 + threads_per_block - 1) / threads_per_block;
+
+        let stream = Self::_get_stream();
+
+        let operation = Self::_get_function("fill_value");
+
+        unsafe {
+            launch!(operation<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
+                device_buffer.as_device_ptr(),
+                size as i32,
+                value
+            ));
+        };
+
+        Ok(Self::_with_device_buffer(
+            shape.to_vec(),
+            device_buffer,
         ))
     }
 

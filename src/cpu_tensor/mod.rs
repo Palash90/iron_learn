@@ -473,6 +473,16 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
         // Return a tensor with a single element and shape [1]
         Self::new(vec![1], vec![sum_val])
     }
+
+    fn zeroes(shape: &Vec<u32>) -> Self {
+        let data = vec![T::zero(); shape.iter().product::<u32>() as usize];
+        Self::_new(shape.clone(), data).unwrap()
+    }
+
+    fn ones(shape: &Vec<u32>) -> Self {
+        let data = vec![T::one(); shape.iter().product::<u32>() as usize];
+        Self::_new(shape.clone(), data).unwrap()
+    }
 }
 
 impl<T> TensorMath<T> for CpuTensor<T>

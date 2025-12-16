@@ -1,6 +1,16 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+
+extern "C" __global__ void fill_value(double *out, int n, double value)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < n)
+    {
+            out[idx] = value;
+    }
+}
+
 extern "C" __global__ void vector_add(const double *a, const double *b, double *out, int n, int sub)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;

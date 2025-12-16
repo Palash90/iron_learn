@@ -151,11 +151,9 @@ where
             }
             ActivationType::Tanh => {
                 let o_squared = out.multiply(out).unwrap();
-                let ones = T::new(
-                    out.get_shape().clone(),
-                    vec![1.0; out.get_shape()[0] as usize * out.get_shape()[1] as usize],
-                )
-                .unwrap();
+                let ones = T::ones(
+                    &out.get_shape().clone(),
+                );
                 let tanh = ones.sub(&o_squared);
                 tanh
             }
