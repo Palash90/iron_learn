@@ -216,8 +216,13 @@ where
                 error = layer.backward(&error, current_lr)?;
             }
 
+            let hook_interval = match epochs > 1000 {
+                true => 1000,
+                false => epochs - 1
+            };
+
             // Hook (Periodic Reporting)
-            if i == 0 || i % 1000 == 0 {
+            if i == 0 || i % hook_interval == 0 {
                 let error_diff = y_train.sub(&output)?;
                 let sq_err = error_diff.multiply(&error_diff)?;
                 let sum_err = sq_err.sum()?;
