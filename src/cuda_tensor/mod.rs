@@ -198,7 +198,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let grid_1d = (total_size + threads_per_block - 1) / threads_per_block;
 
-        let compare = Self::_get_function("compareMemory");
+        let compare = Self::_get_function("compare_memory");
 
         let mut result_host = [1i32];
         let mut result_device = get_device_buffer_from_slice(&result_host);
@@ -484,7 +484,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let stream = Self::_get_stream();
 
-        let hadamard = Self::_get_function("hadamardProd");
+        let hadamard = Self::_get_function("hadamard_prod");
 
         unsafe {
             launch!(hadamard<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
@@ -512,7 +512,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let stream = Self::_get_stream();
 
-        let mat_mul = Self::_get_function("matrixMulTiled");
+        let mat_mul = Self::_get_function("matrix_mul");
 
         unsafe {
             launch!(mat_mul<<<(grid_x, grid_y, 1), (block_dim, block_dim, 1), 0, stream>>>(

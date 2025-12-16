@@ -144,7 +144,7 @@ pub fn matrix_mul(
     n: i32,
     k: i32,
 ) -> CudaResult<()> {
-    let func = module.get_function("matrixMulTiled")?;
+    let func = module.get_function("matrix_mul")?;
     let block = (16, 16, 1);
     let grid_x = (((n as u32) + 15) / 16, ((m as u32) + 15) / 16, 1);
     unsafe {
@@ -210,7 +210,7 @@ pub fn hadamard_prod(
     out: DevicePointer<f64>,
     len: i32,
 ) -> CudaResult<()> {
-    let func = module.get_function("hadamardProd")?;
+    let func = module.get_function("hadamard_prod")?;
     let block = (256, 1, 1);
     let grid = (((len as u32) + 255) / 256, 1, 1);
     unsafe {

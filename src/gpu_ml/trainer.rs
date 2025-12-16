@@ -99,6 +99,8 @@ impl<'a> GpuNetworkTrainer<'a> {
         let d_w2_t = DeviceBuffer::<f64>::zeroed(hidden_size)?;
         let d_x_t = DeviceBuffer::<f64>::zeroed(input_cols * rows)?;
 
+        let mut now = Instant::now();
+
         for iteration in 0..epochs {
             // === Forward Pass ===
             // Z1 = X @ W1
@@ -255,7 +257,8 @@ impl<'a> GpuNetworkTrainer<'a> {
             // Checkpoint synchronization
             if iteration % checkpoint_interval == 0 {
                 stream.synchronize()?;
-                println!("Epoch {} / {} complete", iteration, epochs);
+                println!("Epoch {} / {} complete: {:.2?}", iteration, epochs, now.elapsed());
+                now = Instant::now();
             }
         }
 

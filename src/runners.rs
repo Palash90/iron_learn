@@ -257,7 +257,7 @@ pub fn run_custom_network() {
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
     let Data {
-        neural_network: data,
+        cat_image: data,
         ..
     } = deserialize_data(data_path).unwrap();
     let rows = data.m as usize;
