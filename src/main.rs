@@ -1,8 +1,6 @@
 use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
-use iron_learn::gpu_ml;
-use iron_learn::run_custom_network;
 use iron_learn::run_neural_net;
 use iron_learn::Data;
 use iron_learn::Tensor;
