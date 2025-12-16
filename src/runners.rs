@@ -217,7 +217,11 @@ where
 
     let monitor = |epoch: usize, err: f64, nn: &mut NeuralNet<T>| {
         let elapsed = start_time.elapsed();
-        println!("Monitor called on {}, time elapsed {:?}", epoch + 1, elapsed);
+        println!(
+            "Monitor called on {}, time elapsed {:?}",
+            epoch + 1,
+            elapsed
+        );
         start_time = Instant::now();
 
         // This line runs on the Host (CPU) but the error value came from a D2H transfer

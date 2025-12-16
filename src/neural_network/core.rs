@@ -36,7 +36,8 @@ impl<T: Tensor<NeuralNetDataType> + 'static> LossFunction<T> for MeanSquaredErro
 
 pub trait Layer<T: Tensor<NeuralNetDataType>> {
     fn forward(&mut self, input: &T) -> Result<T, String>;
-    fn backward(&mut self, output_error: &T, learning_rate: NeuralNetDataType) -> Result<T, String>;
+    fn backward(&mut self, output_error: &T, learning_rate: NeuralNetDataType)
+        -> Result<T, String>;
     fn get_parameters(&self) -> Option<Vec<NeuralNetDataType>> {
         None
     }
@@ -57,7 +58,9 @@ where
         let mut rng = rand::rng();
         let w_count = (input_size * output_size) as usize;
 
-        let w_data: Vec<NeuralNetDataType> = (0..w_count).map(|_| rng.gen::<NeuralNetDataType>() - 0.5).collect();
+        let w_data: Vec<NeuralNetDataType> = (0..w_count)
+            .map(|_| rng.gen::<NeuralNetDataType>() - 0.5)
+            .collect();
         let weights = T::new(vec![input_size, output_size], w_data)?;
 
         Ok(Self {
@@ -151,9 +154,7 @@ where
             }
             ActivationType::Tanh => {
                 let o_squared = out.multiply(out).unwrap();
-                let ones = T::ones(
-                    &out.get_shape().clone(),
-                );
+                let ones = T::ones(&out.get_shape().clone());
                 let tanh = ones.sub(&o_squared);
                 tanh
             }
@@ -200,7 +201,9 @@ where
         let lr_min = 1e-6;
 
         for i in 0..epochs {
-            let cos_term = (PI * (i as NeuralNetDataType) / ((epochs + epoch_offset) as NeuralNetDataType)).cos();
+            let cos_term = (PI * (i as NeuralNetDataType)
+                / ((epochs + epoch_offset) as NeuralNetDataType))
+                .cos();
             let decay_factor = 0.5 * (1.0 + cos_term);
             let current_lr = lr_min + (base_lr - lr_min) * decay_factor;
 
@@ -218,7 +221,7 @@ where
 
             let hook_interval = match epochs > 1000 {
                 true => 1000,
-                false => epochs - 1
+                false => epochs - 1,
             };
 
             // Hook (Periodic Reporting)
