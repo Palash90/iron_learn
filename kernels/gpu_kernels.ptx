@@ -2120,12 +2120,100 @@ $L__BB18_2:
 	ret;
 
 }
+	// .globl	column_reduce
+.visible .entry column_reduce(
+	.param .u64 column_reduce_param_0,
+	.param .u64 column_reduce_param_1,
+	.param .u32 column_reduce_param_2,
+	.param .u32 column_reduce_param_3
+)
+{
+	.reg .pred 	%p<7>;
+	.reg .f32 	%f<25>;
+	.reg .b32 	%r<24>;
+	.reg .b64 	%rd<22>;
+
+
+	ld.param.u64 	%rd11, [column_reduce_param_0];
+	ld.param.u64 	%rd10, [column_reduce_param_1];
+	ld.param.u32 	%r11, [column_reduce_param_2];
+	ld.param.u32 	%r12, [column_reduce_param_3];
+	cvta.to.global.u64 	%rd1, %rd11;
+	mov.u32 	%r13, %ntid.x;
+	mov.u32 	%r14, %ctaid.x;
+	mov.u32 	%r15, %tid.x;
+	mad.lo.s32 	%r1, %r14, %r13, %r15;
+	setp.ge.s32 	%p1, %r1, %r12;
+	@%p1 bra 	$L__BB19_9;
+
+	setp.lt.s32 	%p2, %r11, 1;
+	mov.f32 	%f24, 0f00000000;
+	@%p2 bra 	$L__BB19_8;
+
+	add.s32 	%r17, %r11, -1;
+	and.b32  	%r23, %r11, 3;
+	setp.lt.u32 	%p3, %r17, 3;
+	mov.f32 	%f24, 0f00000000;
+	mov.u32 	%r22, 0;
+	@%p3 bra 	$L__BB19_5;
+
+	sub.s32 	%r21, %r11, %r23;
+	mul.wide.s32 	%rd12, %r1, 4;
+	add.s64 	%rd20, %rd1, %rd12;
+	mul.wide.s32 	%rd3, %r12, 4;
+
+$L__BB19_4:
+	ld.global.f32 	%f12, [%rd20];
+	add.f32 	%f13, %f24, %f12;
+	add.s64 	%rd13, %rd20, %rd3;
+	ld.global.f32 	%f14, [%rd13];
+	add.f32 	%f15, %f13, %f14;
+	add.s64 	%rd14, %rd13, %rd3;
+	ld.global.f32 	%f16, [%rd14];
+	add.f32 	%f17, %f15, %f16;
+	add.s64 	%rd15, %rd14, %rd3;
+	add.s64 	%rd20, %rd15, %rd3;
+	ld.global.f32 	%f18, [%rd15];
+	add.f32 	%f24, %f17, %f18;
+	add.s32 	%r22, %r22, 4;
+	add.s32 	%r21, %r21, -4;
+	setp.ne.s32 	%p4, %r21, 0;
+	@%p4 bra 	$L__BB19_4;
+
+$L__BB19_5:
+	setp.eq.s32 	%p5, %r23, 0;
+	@%p5 bra 	$L__BB19_8;
+
+	mad.lo.s32 	%r19, %r22, %r12, %r1;
+	mul.wide.s32 	%rd16, %r19, 4;
+	add.s64 	%rd21, %rd1, %rd16;
+	mul.wide.s32 	%rd7, %r12, 4;
+
+$L__BB19_7:
+	.pragma "nounroll";
+	ld.global.f32 	%f19, [%rd21];
+	add.f32 	%f24, %f24, %f19;
+	add.s64 	%rd21, %rd21, %rd7;
+	add.s32 	%r23, %r23, -1;
+	setp.ne.s32 	%p6, %r23, 0;
+	@%p6 bra 	$L__BB19_7;
+
+$L__BB19_8:
+	cvta.to.global.u64 	%rd17, %rd10;
+	mul.wide.s32 	%rd18, %r1, 4;
+	add.s64 	%rd19, %rd17, %rd18;
+	st.global.f32 	[%rd19], %f24;
+
+$L__BB19_9:
+	ret;
+
+}
 .func  (.param .b64 func_retval0) __internal_trig_reduction_slowpathd(
 	.param .b64 __internal_trig_reduction_slowpathd_param_0,
 	.param .b64 __internal_trig_reduction_slowpathd_param_1
 )
 {
-	.local .align 8 .b8 	__local_depot19[40];
+	.local .align 8 .b8 	__local_depot20[40];
 	.reg .b64 	%SP;
 	.reg .b64 	%SPL;
 	.reg .pred 	%p<10>;
@@ -2134,7 +2222,7 @@ $L__BB18_2:
 	.reg .b64 	%rd<80>;
 
 
-	mov.u64 	%SPL, __local_depot19;
+	mov.u64 	%SPL, __local_depot20;
 	ld.param.f64 	%fd4, [__internal_trig_reduction_slowpathd_param_0];
 	ld.param.u64 	%rd18, [__internal_trig_reduction_slowpathd_param_1];
 	add.u64 	%rd1, %SPL, 0;
@@ -2144,7 +2232,7 @@ $L__BB18_2:
 	}
 	bfe.u32 	%r2, %r1, 20, 11;
 	setp.eq.s32 	%p1, %r2, 2047;
-	@%p1 bra 	$L__BB19_7;
+	@%p1 bra 	$L__BB20_7;
 
 	add.s32 	%r3, %r2, -1024;
 	shr.u32 	%r10, %r3, 6;
@@ -2159,7 +2247,7 @@ $L__BB18_2:
 	setp.gt.s32 	%p3, %r12, %r5;
 	mov.u64 	%rd77, 0;
 	mov.u32 	%r32, %r4;
-	@%p3 bra 	$L__BB19_4;
+	@%p3 bra 	$L__BB20_4;
 
 	add.s32 	%r16, %r4, -15;
 	mul.wide.s32 	%rd22, %r16, 8;
@@ -2172,7 +2260,7 @@ $L__BB18_2:
 	mov.u64 	%rd74, %rd1;
 	mov.u32 	%r32, %r4;
 
-$L__BB19_3:
+$L__BB20_3:
 	.pragma "nounroll";
 	ld.global.nc.u64 	%rd27, [%rd75];
 	{
@@ -2197,9 +2285,9 @@ $L__BB19_3:
 	add.s64 	%rd74, %rd74, 8;
 	add.s32 	%r32, %r32, 1;
 	setp.lt.s32 	%p4, %r32, %r5;
-	@%p4 bra 	$L__BB19_3;
+	@%p4 bra 	$L__BB20_3;
 
-$L__BB19_4:
+$L__BB20_4:
 	sub.s32 	%r17, %r32, %r4;
 	mul.wide.s32 	%rd29, %r17, 8;
 	add.s64 	%rd30, %rd1, %rd29;
@@ -2208,7 +2296,7 @@ $L__BB19_4:
 	ld.local.u64 	%rd78, [%rd1+24];
 	and.b32  	%r9, %r3, 63;
 	setp.eq.s32 	%p5, %r9, 0;
-	@%p5 bra 	$L__BB19_6;
+	@%p5 bra 	$L__BB20_6;
 
 	mov.u32 	%r18, 64;
 	sub.s32 	%r19, %r18, %r9;
@@ -2220,7 +2308,7 @@ $L__BB19_4:
 	shr.u64 	%rd35, %rd34, %r19;
 	or.b64  	%rd79, %rd35, %rd33;
 
-$L__BB19_6:
+$L__BB20_6:
 	and.b32  	%r20, %r1, -2147483648;
 	shr.u64 	%rd36, %rd78, 62;
 	cvt.u32.u64 	%r21, %rd36;
@@ -2313,7 +2401,7 @@ $L__BB19_6:
 	or.b64  	%rd73, %rd72, %rd64;
 	mov.b64 	%fd4, %rd73;
 
-$L__BB19_7:
+$L__BB20_7:
 	st.param.f64 	[func_retval0+0], %fd4;
 	ret;
 

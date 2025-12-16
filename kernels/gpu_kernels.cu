@@ -1,13 +1,12 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-
 extern "C" __global__ void fill_value(double *out, int n, double value)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n)
     {
-            out[idx] = value;
+        out[idx] = value;
     }
 }
 
@@ -345,5 +344,22 @@ extern "C" __global__ void logLossDerivativeKernel(
 
         // Calculate derivative: -(a / p) + (1.0 - a) / (1.0 - p)
         out[i] = -(a / p) + (1.0 - a) / (1.0 - p);
+    }
+}
+
+extern "C" __global__ void column_reduce(const float *inputMatrix, float *outputSums, int numRows, int numCols)
+{
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (col < numCols)
+    {
+        float sum = 0.0f;
+
+        for (int row = 0; row < numRows; ++row)
+        {
+            sum += inputMatrix[row * numCols + col];
+        }
+
+        outputSums[col] = sum;
     }
 }

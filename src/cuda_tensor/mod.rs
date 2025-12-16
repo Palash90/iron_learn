@@ -69,20 +69,7 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
         self._add(rhs, false)
     }
     fn sum(&self) -> Result<Self, String> {
-        let mut sum_vector = vec![T::zero(); self.shape[1] as usize];
-
-        let rows = self.shape[0] as usize;
-        let cols = self.shape[1] as usize;
-
-        let data = self.get_data();
-
-        for r in 0..rows {
-            for c in 0..cols {
-                sum_vector[c] = sum_vector[c] + data[r * cols + c];
-            }
-        }
-
-        Self::new(vec![1, self.shape[1]], sum_vector)
+        self._sum()
     }
 
     fn sub(&self, rhs: &Self) -> Result<Self, String> {
@@ -125,11 +112,11 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     fn print_matrix(&self) -> () {
         todo!()
     }
-    
+
     fn zeroes(shape: &Vec<u32>) -> Self {
         Self::_new_with_value(shape.to_vec(), T::zero()).unwrap()
     }
-    
+
     fn ones(shape: &Vec<u32>) -> Self {
         Self::_new_with_value(shape.to_vec(), T::one()).unwrap()
     }
@@ -214,7 +201,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let compare = Self::_get_function("compareMemory");
 
         let mut result_host = [1i32];
-        let mut result_device =get_device_buffer_from_slice(&result_host);
+        let mut result_device = get_device_buffer_from_slice(&result_host);
 
         let stream = Self::_get_stream();
         unsafe {
@@ -227,9 +214,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         }
 
         match result_device.device_buffer.copy_to(&mut result_host) {
-            Ok(_) => {
-                result_host[0] == 1
-            }
+            Ok(_) => result_host[0] == 1,
             Err(e) => {
                 eprintln!("Error copying result from device to host: {}", e);
                 false
@@ -365,6 +350,31 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
+    fn _sum(&self) -> Result<Self, String> {
+        let sum = Self::_get_function("column_reduce");
+
+        let mut total_elements = self.shape.iter().product::<u32>() as usize;
+
+        let result = get_device_buffer(total_elements);
+
+        let total_size_u32 = total_elements as u32;
+        let threads_per_block = 1024;
+
+        let grid_1d = (total_size_u32 + threads_per_block - 1) / threads_per_block;
+
+        let stream = Self::_get_stream();
+        unsafe {
+            launch!(sum<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
+                self.device_buffer.as_device_ptr(),
+                result.as_device_ptr(),
+                self.shape[0],
+                self.shape[1]
+            ));
+        }
+
+        Ok(Self::_with_device_buffer(vec![1, self.shape[1]], result))
+    }
+
     fn check_shape(shape: &[u32]) -> Option<Result<GpuTensor<T>, String>> {
         if shape.is_empty() {
             return Some(Err(
@@ -437,10 +447,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         };
 
-        Ok(Self::_with_device_buffer(
-            shape.to_vec(),
-            device_buffer,
-        ))
+        Ok(Self::_with_device_buffer(shape.to_vec(), device_buffer))
     }
 
     fn _with_device_buffer(shape: Vec<u32>, device_buffer: CustomDeviceBuffer<T>) -> Self {
