@@ -38,10 +38,6 @@ pub fn get_device_buffer<T: Numeric>(size: usize) -> CustomDeviceBuffer<T> {
 
     let size = size.checked_mul(size_of::<T>()).unwrap();
 
-    if size == 0 {
-        panic!("{}", CudaError::InvalidMemoryAllocation);
-    }
-
     let pool_allocated_pointer = pool.allocate(size).unwrap();
     let device_pointer = DevicePointer::from_raw(pool_allocated_pointer);
 

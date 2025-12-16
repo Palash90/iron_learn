@@ -51,7 +51,7 @@ fn init() {
 
 #[cfg(test)]
 #[test]
-pub fn add_f64() {
+pub fn test_add_f64() {
     init();
 
     let m1 = GpuTensor::<f64>::new(vec![1], vec![1.0]).unwrap();
@@ -73,7 +73,7 @@ pub fn add_f64() {
 
 #[cfg(test)]
 #[test]
-pub fn add_f64_2() {
+pub fn test_add_f64_2() {
     init();
 
     let m1 = GpuTensor::<f64>::new(vec![1], vec![1.0]).unwrap();
@@ -94,7 +94,7 @@ pub fn add_f64_2() {
 }
 
 #[test]
-pub fn mul_float() {
+pub fn test_mul_float() {
     init();
 
     let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
@@ -109,7 +109,7 @@ pub fn mul_float() {
 }
 
 #[test]
-pub fn hadamard_float() {
+pub fn test_hadamard_float() {
     init();
 
     let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
@@ -124,7 +124,7 @@ pub fn hadamard_float() {
 }
 
 #[test]
-pub fn neg_float() {
+pub fn test_neg_float() {
     init();
 
     let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
@@ -144,7 +144,7 @@ pub fn neg_float() {
 }
 
 #[test]
-pub fn scale_float() {
+pub fn test_scale_float() {
     init();
 
     let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
@@ -171,7 +171,7 @@ fn sigmoid(x: f64) -> f64 {
 }
 
 #[test]
-pub fn sin_float() {
+pub fn test_sin_float() {
     init();
 
     let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
@@ -252,7 +252,7 @@ pub fn sin_float() {
 }
 
 #[test]
-pub fn transpose() {
+pub fn test_transpose() {
     init();
 
     let m = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
