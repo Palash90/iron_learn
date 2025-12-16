@@ -39,7 +39,7 @@ pub fn get_device_buffer<T: Numeric>(size: usize) -> CustomDeviceBuffer<T> {
     let size = size.checked_mul(size_of::<T>()).unwrap();
 
     if size == 0 {
-        panic!("Empty element");
+        panic!("Attempted a zero size pointer or null pointer creation.");
     }
 
     let pool_allocated_pointer = pool.allocate(size).unwrap();
