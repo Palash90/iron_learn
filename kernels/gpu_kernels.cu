@@ -1,5 +1,6 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include <cublas_v2.h>
 #define TILE_SIZE 16
 /* Kernels for Modular approach*/
 extern "C" __global__ void fill_value(double *out, int n, double value)
@@ -149,6 +150,46 @@ extern "C" __global__ void matrix_mul(
     {
         C[row * N + col] = sum;
     }
+}
+
+extern "C" void matrix_mul_cublas(
+    const double *A, // Matrix A (M x K)
+    const double *B, // Matrix B (K x N)
+    double *C,       // Result Matrix C (M x N)
+    int M, int N, int K)
+{
+    // 1. Create a handle
+    cublasHandle_t handle;
+    cublasStatus_t status = cublasCreate(&handle);
+    
+    if (status != CUBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "CUBLAS initialization failed!\n");
+        return;
+    }
+
+    const double alpha = 1.0;
+    const double beta = 0.0;
+
+    /* cuBLAS is Column-Major. To compute Row-Major C = A * B:
+       We tell cuBLAS to compute: C = B * A 
+       - 'm' parameter becomes N
+       - 'n' parameter becomes M
+       - 'k' remains K
+       - Leading dimension of B is N
+       - Leading dimension of A is K
+       - Leading dimension of C is N
+    */
+    cublasDgemm(handle, 
+                CUBLAS_OP_N, CUBLAS_OP_N, 
+                N, M, K, 
+                &alpha, 
+                B, N, 
+                A, K, 
+                &beta, 
+                C, N);
+
+    // 2. Cleanup handle
+    cublasDestroy(handle);
 }
 
 extern "C" __global__ void hadamard_prod(const double *A, const double *B, double *C, int n)
