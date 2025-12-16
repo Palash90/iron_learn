@@ -4,7 +4,7 @@ use iron_learn::{Complex, CpuTensor};
 
 #[cfg(test)]
 #[test]
-pub fn add_i8() {
+pub fn test_add_i8() {
     let m1 = CpuTensor::<i8>::new(vec![1], vec![1i8]).unwrap();
     let m2 = CpuTensor::new(vec![1], vec![3i8]).unwrap();
     let result = CpuTensor::new(vec![1], vec![4i8]).unwrap();
@@ -19,7 +19,7 @@ pub fn add_i8() {
 }
 
 #[test]
-pub fn add_i16() {
+pub fn test_add_i16() {
     let m1 = CpuTensor::new(vec![1], vec![1i16]).unwrap();
     let m2 = CpuTensor::new(vec![1], vec![1i16]).unwrap();
     let result = CpuTensor::new(vec![1], vec![2i16]).unwrap();
@@ -34,7 +34,7 @@ pub fn add_i16() {
 }
 
 #[test]
-pub fn add_i32() {
+pub fn test_add_i32() {
     let m1 = CpuTensor::new(vec![1], vec![1]).unwrap();
     let m2 = CpuTensor::new(vec![1], vec![3]).unwrap();
     let result = CpuTensor::new(vec![1], vec![4]).unwrap();
@@ -49,7 +49,7 @@ pub fn add_i32() {
 }
 
 #[test]
-pub fn mul_i32() {
+pub fn test_mul_i32() {
     let m1 = CpuTensor::new(vec![1, 1], vec![1]).unwrap();
     let m2 = CpuTensor::new(vec![1, 1], vec![3]).unwrap();
 
@@ -65,7 +65,7 @@ pub fn mul_i32() {
 }
 
 #[test]
-pub fn mul_2_cols() {
+pub fn test_mul_2_cols() {
     let m1 = CpuTensor::new(vec![1, 2], vec![1, 2]).unwrap();
     let m2 = CpuTensor::new(vec![1, 2], vec![3, 4]).unwrap().t().unwrap();
 
@@ -74,7 +74,7 @@ pub fn mul_2_cols() {
 
 #[test]
 #[should_panic(expected = "ShapeMismatch")]
-pub fn add_with_shape_mismatch() {
+pub fn test_add_with_shape_mismatch() {
     let m1 = CpuTensor::new(vec![1, 3], vec![1, 2, 5]).unwrap();
     let m2 = CpuTensor::new(vec![1, 2], vec![3, 4]).unwrap();
     let result = CpuTensor::new(vec![1, 2], vec![4, 6]).unwrap();
@@ -84,7 +84,7 @@ pub fn add_with_shape_mismatch() {
 
 #[test]
 #[should_panic(expected = "ShapeMismatch")]
-pub fn mul_i32_panics() {
+pub fn test_mul_i32_panics() {
     let m1 = CpuTensor::new(vec![2, 1], vec![1, 2]).unwrap();
     let m2 = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
     let result = CpuTensor::new(vec![2, 2], vec![19, 22, 43, 50]).unwrap();
@@ -93,7 +93,7 @@ pub fn mul_i32_panics() {
 }
 
 #[test]
-pub fn mul_i32_reverse() {
+pub fn test_mul_i32_reverse() {
     let m1 = CpuTensor::new(vec![1, 2], vec![1, 2]).unwrap();
     let m2 = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
     let result = CpuTensor::new(vec![1, 2], vec![19, 22]).unwrap();
@@ -102,7 +102,7 @@ pub fn mul_i32_reverse() {
 }
 
 #[test]
-pub fn mul_random() {
+pub fn test_mul_random() {
     let m1 = CpuTensor::new(
         vec![6, 6],
         vec![
@@ -135,7 +135,7 @@ pub fn mul_random() {
 }
 
 #[test]
-pub fn mul_random_diff() {
+pub fn test_mul_random_diff() {
     let m1 = CpuTensor::new(
         vec![6, 2],
         vec![
@@ -166,7 +166,7 @@ pub fn mul_random_diff() {
 }
 
 #[test]
-pub fn mul_random_d() {
+pub fn test_mul_random_d() {
     let m1 = CpuTensor::new(
         vec![6, 2],
         vec![
@@ -188,7 +188,7 @@ pub fn mul_random_d() {
 }
 
 #[test]
-pub fn mul_float() {
+pub fn test_mul_float() {
     let _context = cust::quick_init().unwrap();
     let m1 = CpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
     let m2 = CpuTensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0]).unwrap();
