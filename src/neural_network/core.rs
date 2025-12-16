@@ -4,9 +4,9 @@ use crate::Numeric;
 use rand::Rng;
 use std::f64::consts::PI;
 
-type MyNumeric = f64;
+type NeuralNetDataType = f64;
 
-pub trait LossFunction<T: Tensor<MyNumeric>> {
+pub trait LossFunction<T: Tensor<NeuralNetDataType>> {
     /// Calculates the loss value (used for reporting).
     fn loss(&self, actual: &T, predicted: &T) -> Result<T, String>;
 
@@ -16,7 +16,7 @@ pub trait LossFunction<T: Tensor<MyNumeric>> {
 
 pub struct MeanSquaredErrorLoss;
 
-impl<T: Tensor<MyNumeric> + 'static> LossFunction<T> for MeanSquaredErrorLoss {
+impl<T: Tensor<NeuralNetDataType> + 'static> LossFunction<T> for MeanSquaredErrorLoss {
     fn loss(&self, actual: &T, predicted: &T) -> Result<T, String> {
         let error_diff = actual.sub(predicted).unwrap();
         let sq_err = error_diff.multiply(&error_diff).unwrap();
@@ -34,16 +34,16 @@ impl<T: Tensor<MyNumeric> + 'static> LossFunction<T> for MeanSquaredErrorLoss {
     }
 }
 
-pub trait Layer<T: Tensor<MyNumeric>> {
+pub trait Layer<T: Tensor<NeuralNetDataType>> {
     fn forward(&mut self, input: &T) -> Result<T, String>;
-    fn backward(&mut self, output_error: &T, learning_rate: MyNumeric) -> Result<T, String>;
-    fn get_parameters(&self) -> Option<Vec<MyNumeric>> {
+    fn backward(&mut self, output_error: &T, learning_rate: NeuralNetDataType) -> Result<T, String>;
+    fn get_parameters(&self) -> Option<Vec<NeuralNetDataType>> {
         None
     }
     fn name(&self) -> &str;
 }
 
-pub struct LinearLayer<T: Tensor<MyNumeric>> {
+pub struct LinearLayer<T: Tensor<NeuralNetDataType>> {
     weights: T,
     input_cache: Option<T>,
     name: String,
@@ -51,13 +51,13 @@ pub struct LinearLayer<T: Tensor<MyNumeric>> {
 
 impl<T> LinearLayer<T>
 where
-    T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T> + 'static,
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
         let mut rng = rand::rng();
         let w_count = (input_size * output_size) as usize;
 
-        let w_data: Vec<MyNumeric> = (0..w_count).map(|_| rng.gen::<MyNumeric>() - 0.5).collect();
+        let w_data: Vec<NeuralNetDataType> = (0..w_count).map(|_| rng.gen::<NeuralNetDataType>() - 0.5).collect();
         let weights = T::new(vec![input_size, output_size], w_data)?;
 
         Ok(Self {
@@ -68,7 +68,7 @@ where
     }
 }
 
-impl<T: Tensor<MyNumeric>> Layer<T> for LinearLayer<T> {
+impl<T: Tensor<NeuralNetDataType>> Layer<T> for LinearLayer<T> {
     fn name(&self) -> &str {
         &self.name
     }
@@ -79,7 +79,7 @@ impl<T: Tensor<MyNumeric>> Layer<T> for LinearLayer<T> {
         Ok(matmul)
     }
 
-    fn backward(&mut self, output_error: &T, lr: MyNumeric) -> Result<T, String> {
+    fn backward(&mut self, output_error: &T, lr: NeuralNetDataType) -> Result<T, String> {
         let input = self.input_cache.as_ref().ok_or("No forward pass cache!")?;
 
         // Calculate Input Error: error * weights.T
@@ -97,7 +97,7 @@ impl<T: Tensor<MyNumeric>> Layer<T> for LinearLayer<T> {
         Ok(input_error)
     }
 
-    fn get_parameters(&self) -> Option<(Vec<MyNumeric>)> {
+    fn get_parameters(&self) -> Option<(Vec<NeuralNetDataType>)> {
         Some(self.weights.get_data())
     }
 }
@@ -108,13 +108,13 @@ pub enum ActivationType {
     Tanh,
 }
 
-pub struct ActivationLayer<T: Tensor<MyNumeric>> {
+pub struct ActivationLayer<T: Tensor<NeuralNetDataType>> {
     act_type: ActivationType,
     output_cache: Option<T>,
     name: String,
 }
 
-impl<T: Tensor<MyNumeric>> ActivationLayer<T> {
+impl<T: Tensor<NeuralNetDataType>> ActivationLayer<T> {
     pub fn new(act_type: ActivationType, name: &str) -> Self {
         Self {
             act_type,
@@ -126,7 +126,7 @@ impl<T: Tensor<MyNumeric>> ActivationLayer<T> {
 
 impl<T> Layer<T> for ActivationLayer<T>
 where
-    T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T> + 'static,
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     fn name(&self) -> &str {
         &self.name
@@ -141,7 +141,7 @@ where
         Ok(output)
     }
 
-    fn backward(&mut self, output_error: &T, _lr: MyNumeric) -> Result<T, String> {
+    fn backward(&mut self, output_error: &T, _lr: NeuralNetDataType) -> Result<T, String> {
         let out = self.output_cache.as_ref().unwrap();
 
         let prime = match self.act_type {
@@ -163,14 +163,14 @@ where
     }
 }
 
-pub struct NeuralNet<T: Tensor<MyNumeric>> {
+pub struct NeuralNet<T: Tensor<NeuralNetDataType>> {
     pub layers: Vec<Box<dyn Layer<T>>>,
     loss_fn: Box<dyn LossFunction<T>>,
 }
 
 impl<T> NeuralNet<T>
 where
-    T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T> + 'static,
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     pub fn add(&mut self, layer: Box<dyn Layer<T>>) {
         self.layers.push(layer);
@@ -191,16 +191,16 @@ where
         y_train: &T,
         epochs: usize,
         epoch_offset: usize,
-        base_lr: MyNumeric,
+        base_lr: NeuralNetDataType,
         mut hook: F,
     ) -> Result<(), String>
     where
-        F: FnMut(usize, MyNumeric, &mut Self),
+        F: FnMut(usize, NeuralNetDataType, &mut Self),
     {
         let lr_min = 1e-6;
 
         for i in 0..epochs {
-            let cos_term = (PI * (i as MyNumeric) / ((epochs + epoch_offset) as MyNumeric)).cos();
+            let cos_term = (PI * (i as NeuralNetDataType) / ((epochs + epoch_offset) as NeuralNetDataType)).cos();
             let decay_factor = 0.5 * (1.0 + cos_term);
             let current_lr = lr_min + (base_lr - lr_min) * decay_factor;
 
@@ -253,14 +253,14 @@ where
 
 pub struct NeuralNetBuilder<T>
 where
-    T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T>,
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T>,
 {
     layers: Vec<Box<dyn Layer<T>>>,
 }
 
 impl<T> NeuralNetBuilder<T>
 where
-    T: Tensor<MyNumeric> + TensorMath<MyNumeric, MathOutput = T> + 'static,
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     pub fn new() -> Self {
         Self { layers: Vec::new() }
