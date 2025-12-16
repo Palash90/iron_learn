@@ -512,7 +512,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let stream = Self::_get_stream();
 
-        let mat_mul = Self::_get_function("matrixMul");
+        let mat_mul = Self::_get_function("matrixMulTiled");
 
         unsafe {
             launch!(mat_mul<<<(grid_x, grid_y, 1), (block_dim, block_dim, 1), 0, stream>>>(

@@ -144,7 +144,7 @@ pub fn matrix_mul(
     n: i32,
     k: i32,
 ) -> CudaResult<()> {
-    let func = module.get_function("matrixMul")?;
+    let func = module.get_function("matrixMulTiled")?;
     let block = (16, 16, 1);
     let grid_x = (((n as u32) + 15) / 16, ((m as u32) + 15) / 16, 1);
     unsafe {

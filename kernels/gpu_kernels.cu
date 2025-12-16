@@ -1,5 +1,6 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
+#define TILE_SIZE 16
 
 extern "C" __global__ void fill_value(double *out, int n, double value)
 {
@@ -211,43 +212,57 @@ extern "C" __global__ void transpose_naive(const double *A, double *B, int M, in
     }
 }
 
-extern "C" __global__ void matrixMul(
+extern "C" __global__ void matrixMulTiled(
     const double *A, // Matrix A (M x K)
     const double *B, // Matrix B (K x N)
     double *C,       // Result Matrix C (M x N)
-    int M,           // Height of C (rows of A)
-    int N,           // Width of C (columns of B)
-    int K            // Inner dimension
-)
+    int M, int N, int K)
 {
-    // Map thread indices to the row and column of the output matrix C.
-    // row (i) is calculated along the Y dimension (BlockIdx.y, ThreadIdx.y)
-    // col (j) is calculated along the X dimension (BlockIdx.x, ThreadIdx.x)
+    // Shared memory for tiles of A and B
+    __shared__ double ds_A[TILE_SIZE][TILE_SIZE];
+    __shared__ double ds_B[TILE_SIZE][TILE_SIZE];
 
-    int row = blockIdx.y * blockDim.y + threadIdx.y;
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    int bx = blockIdx.x;  int by = blockIdx.y;
+    int tx = threadIdx.x; int ty = threadIdx.y;
 
-    // Check bounds: Ensure the thread is within the dimensions of the result matrix C (M x N)
-    if (row < M && col < N)
+    // Identify the row and column of C that this thread is responsible for
+    int row = by * TILE_SIZE + ty;
+    int col = bx * TILE_SIZE + tx;
+
+    double sum = 0.0;
+
+    // Loop over the tiles of the input matrices
+    for (int t = 0; t < (K + TILE_SIZE - 1) / TILE_SIZE; ++t)
     {
+        // 1. Load tiles from Global Memory to Shared Memory
+        // Check boundaries for A
+        if (row < M && (t * TILE_SIZE + tx) < K)
+            ds_A[ty][tx] = A[row * K + t * TILE_SIZE + tx];
+        else
+            ds_A[ty][tx] = 0.0;
 
-        double sum = 0.0;
+        // Check boundaries for B
+        if (col < N && (t * TILE_SIZE + ty) < K)
+            ds_B[ty][tx] = B[(t * TILE_SIZE + ty) * N + col];
+        else
+            ds_B[ty][tx] = 0.0;
 
-        // Loop over the inner dimension K to compute the dot product
-        // C[row][col] = sum over k ( A[row][k] * B[k][col] )
-        for (int k = 0; k < K; ++k)
+        // Synchronize to make sure the tiles are loaded
+        __syncthreads();
+
+        // 2. Compute the dot product for this tile
+        for (int k = 0; k < TILE_SIZE; ++k)
         {
-
-            // A[row][k] is at index (row * K + k)
-            double a_val = A[row * K + k];
-
-            // B[k][col] is at index (k * N + col)
-            double b_val = B[k * N + col];
-
-            sum += a_val * b_val;
+            sum += ds_A[ty][k] * ds_B[k][tx];
         }
 
-        // Write the result to the output matrix C[row][col]
+        // Synchronize before loading the next tile
+        __syncthreads();
+    }
+
+    // 3. Write the final result to Global Memory
+    if (row < M && col < N)
+    {
         C[row * N + col] = sum;
     }
 }
