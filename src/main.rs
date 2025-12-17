@@ -1,3 +1,4 @@
+use cublas_sys::*;
 use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
@@ -7,6 +8,7 @@ use iron_learn::Tensor;
 use iron_learn::{init_context, run_linear, run_logistic, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
 use std::env;
 use std::time::Instant;
+use std::ptr;
 
 fn init() {
     let args: Vec<String> = env::args().collect();
@@ -35,6 +37,17 @@ fn init() {
             Ok(context) => {
                 println!("✓ GPU initialization successful");
 
+                let mut handle: cublasHandle_t = ptr::null_mut();
+                unsafe {
+                    let status = cublasCreate_v2(&mut handle);
+                    if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
+                        eprintln!("Failed to create cuBLAS handle");
+                        return;
+                    }
+                };
+
+                println!("✓ CUBLAS initialization successful");
+
                 let ptx = include_str!("../kernels/gpu_kernels.ptx");
                 let module =
                     Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
@@ -57,6 +70,7 @@ fn init() {
                     Some(context),
                     Some(module),
                     Some(stream),
+                    Some(handle),
                 );
             }
             Err(e) => {
@@ -71,6 +85,7 @@ fn init() {
                     None,
                     None,
                     None,
+                    None,
                 );
             }
         }
@@ -82,6 +97,7 @@ fn init() {
             learning_rate,
             epochs,
             false,
+            None,
             None,
             None,
             None,

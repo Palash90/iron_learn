@@ -5,13 +5,17 @@ use crate::numeric::{Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
 use crate::GLOBAL_CONTEXT;
 use core::ffi::c_void;
+use cublas_sys::*;
 use std::ops::{Add, Mul, Neg, Sub};
+use std::ptr;
 
 //mod tensor_ops;
 use crate::Tensor;
 mod custom_device_buffer;
 mod mem_pool;
 pub use mem_pool::CudaMemoryPool;
+mod cublas_handle;
+pub use cublas_handle::CublasHandle;
 
 #[derive(Clone, Copy)]
 enum OpType {
@@ -181,6 +185,16 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             .stream
             .as_ref()
             .expect(&format!("Stream not found"))
+    }
+
+    fn _get_cublas_handle() -> cublasHandle_t {
+        unsafe {
+            GLOBAL_CONTEXT
+                .get()
+                .expect("No Context Set")
+                .cublas_handle
+                .handle
+        }
     }
 
     fn _eq(&self, other: &Self) -> bool {
@@ -512,7 +526,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let stream = Self::_get_stream();
 
-        let mat_mul = Self::_get_function("matrix_mul_cublas");
+        let mat_mul = Self::_get_function("matrix_mul");
 
         unsafe {
             launch!(mat_mul<<<(grid_x, grid_y, 1), (block_dim, block_dim, 1), 0, stream>>>(
@@ -529,6 +543,40 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         Ok(Self::_with_device_buffer(result_shape, result))
     }
 
+    fn _gpu_mul_cublas(&self, rhs: &Self) -> Result<Self, String> {
+        let m = self.shape[0] as i32;
+        let k = self.shape[1] as i32;
+        let n = rhs.shape[1] as i32;
+
+        let total_elements = (m * n) as usize;
+        let result = get_device_buffer(total_elements);
+
+        unsafe {
+            let alpha: f64 = 1.0;
+            let beta: f64 = 0.0;
+
+            cublasDgemm_v2(
+                Self::_get_cublas_handle(),
+                cublasOperation_t::CUBLAS_OP_N,
+                cublasOperation_t::CUBLAS_OP_N,
+                n,
+                m,
+                k,
+                &alpha,
+                rhs.device_buffer.as_device_ptr().as_raw() as *const f64,
+                n,
+                self.device_buffer.as_device_ptr().as_raw() as *const f64,
+                k,
+                &beta,
+                result.as_device_ptr().as_raw() as *mut f64,
+                n,
+            );
+        }
+
+        let result_shape = vec![self.shape[0], rhs.shape[1]];
+        Ok(Self::_with_device_buffer(result_shape, result))
+    }
+
     fn _mul(&self, rhs: &Self) -> Result<Self, String> {
         if self.shape[1] != rhs.shape[0] {
             let s = format!(
@@ -538,7 +586,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return Err(s);
         }
 
-        self._gpu_mul(rhs)
+        self._gpu_mul_cublas(rhs)
     }
 }
 
@@ -607,6 +655,10 @@ fn test_new() {
                     return;
                 }
             };
+            let mut handle: cublasHandle_t = ptr::null_mut();
+            let status = unsafe {
+                cublasCreate_v2(&mut handle);
+            };
 
             init_context(
                 "Iron Learn",
@@ -618,6 +670,7 @@ fn test_new() {
                 Some(context),
                 Some(module),
                 Some(stream),
+                Some(handle),
             );
         }
         Err(e) => {

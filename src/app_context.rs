@@ -11,11 +11,13 @@
 //! The context is initialized once at application startup and remains immutable
 //! throughout the program lifetime using `OnceLock` for thread-safe access.
 
+use std::ptr;
 use std::sync::OnceLock;
 
-use cust::{module::Module, stream::Stream};
-
+use crate::cuda_tensor::CublasHandle;
 use crate::cuda_tensor::CudaMemoryPool;
+use cublas_sys::*;
+use cust::{module::Module, stream::Stream};
 
 /// Global application context with training configuration and GPU capabilities
 ///
@@ -56,6 +58,7 @@ pub struct AppContext {
     pub module: Option<Module>,
     pub stream: Option<Stream>,
     pub pool: Option<CudaMemoryPool>,
+    pub cublas_handle: CublasHandle,
 }
 
 /// Global singleton instance of application context
@@ -108,10 +111,16 @@ pub fn init_context(
     context: Option<cust::context::Context>,
     module: Option<Module>,
     stream: Option<Stream>,
+    cublas_handle: Option<cublasHandle_t>,
 ) {
     let pool = match context {
         Some(_) => Some(CudaMemoryPool::get_mem_pool()),
         None => None,
+    };
+
+    let handle = match cublas_handle {
+        Some(t) => t,
+        _ => ptr::null_mut(),
     };
 
     let ctx = AppContext {
@@ -125,6 +134,7 @@ pub fn init_context(
         module,
         stream,
         pool,
+        cublas_handle: CublasHandle { handle }
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

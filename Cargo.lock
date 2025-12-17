@@ -42,6 +42,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 
 [[package]]
+name = "cublas-sys"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c4c2ac9e8bc7488ef24db3b6b98117cf2cb865d346d21a5d5967b00364714633"
+dependencies = [
+ "libc",
+ "pkg-config",
+]
+
+[[package]]
 name = "cust"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -128,6 +138,7 @@ name = "iron_learn"
 version = "0.5.0"
 dependencies = [
  "anyhow",
+ "cublas-sys",
  "cust",
  "rand",
  "serde",
@@ -176,6 +187,12 @@ dependencies = [
  "autocfg",
  "libm",
 ]
+
+[[package]]
+name = "pkg-config"
+version = "0.3.32"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7edddbd0b52d732b21ad9a5fab5c704c14cd949e5e9a1ec5929a24fded1b904c"
 
 [[package]]
 name = "ppv-lite86"
