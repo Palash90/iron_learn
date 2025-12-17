@@ -2,11 +2,12 @@ import cupy as np;
 import time;
 import math;
 import numpy
+from common import DATA_TYPE
 
 class LinearLayer:
     def __init__(self, inputSize, outputSize):
-        self.weights = np.random.randn(inputSize, outputSize, dtype=np.float32)
-        self.biases = np.random.randn(1, outputSize, dtype=np.float32) 
+        self.weights = np.random.randn(inputSize, outputSize, dtype=DATA_TYPE)
+        self.biases = np.random.randn(1, outputSize, dtype=DATA_TYPE) 
         
     def forward(self, input):
         self.input = input
@@ -48,8 +49,8 @@ class SinusoidalLayer:
             limit = np.sqrt(6.0 / inputSize)
 
         # Initialize weights and biases
-        self.weights = np.random.uniform(-limit, limit, (inputSize, outputSize), dtype=np.float32)
-        self.biases = np.random.uniform(-limit, limit, (1, outputSize), dtype=np.float32)
+        self.weights = np.random.uniform(-limit, limit, (inputSize, outputSize), dtype=DATA_TYPE)
+        self.biases = np.random.uniform(-limit, limit, (1, outputSize), dtype=DATA_TYPE)
         
         self.w0 = w0 # Frequency parameter (common value is 30.0)
         self.is_first = is_first
@@ -106,8 +107,8 @@ class NeuralNet:
         return output
 
     def fit(self, x_train, y_train, epochs, epoch_offset, learning_rate, hook):
-        x_train = np.asarray(x_train, dtype=np.float32)
-        y_train = np.asarray(y_train, dtype=np.float32)
+        x_train = np.asarray(x_train, dtype=DATA_TYPE)
+        y_train = np.asarray(y_train, dtype=DATA_TYPE)
 
         start_time = time.time()
 
@@ -168,8 +169,8 @@ class NeuralNet:
                     b_key = f'B{i}_{info["name"]}'
                     
                     if w_key in loaded_data and b_key in loaded_data:
-                        loaded_weights = np.asarray(loaded_data[w_key])
-                        loaded_biases = np.asarray(loaded_data[b_key])
+                        loaded_weights = np.asarray(loaded_data[w_key], dtype=DATA_TYPE)
+                        loaded_biases = np.asarray(loaded_data[b_key], dtype=DATA_TYPE)
                         
                         if layer.weights.shape == loaded_weights.shape and layer.biases.shape == loaded_biases.shape:
                              layer.weights = loaded_weights

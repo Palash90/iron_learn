@@ -6,6 +6,7 @@ import pandas as pd
 import numpy
 from layers import *
 from builder import *
+from common import DATA_TYPE
 
 np.cuda.runtime.setDevice(0)
 
@@ -100,20 +101,20 @@ def run(epochs, learning_rate, data_field='linear'):
     n = data[data_field]['n']
     m_test = data[data_field]['m_test']
 
-    x_train = np.array(data[data_field]['x'], dtype=np.float32).reshape(m, n) 
+    x_train = np.array(data[data_field]['x'], dtype=DATA_TYPE).reshape(m, n) 
     x_mean = np.mean(x_train, axis=0)
     x_std = np.std(x_train, axis=0)
     x_train_norm = (x_train - x_mean) / (x_std + 1e-8)
 
-    y_train = np.array(data[data_field]['y'], dtype=np.float32).reshape(m, 1)
+    y_train = np.array(data[data_field]['y'], dtype=DATA_TYPE).reshape(m, 1)
     y_mean = np.mean(y_train)
     y_std = np.std(y_train)
     y_train_norm = (y_train - y_mean) / (y_std + 1e-8)
 
-    x_test = np.array(data[data_field]['x_test'], dtype=np.float32).reshape(m_test, n)
+    x_test = np.array(data[data_field]['x_test'], dtype=DATA_TYPE).reshape(m_test, n)
     x_test_norm = (x_test - x_mean) / (x_std + 1e-8)
 
-    y_test = np.array(data[data_field]['y_test'], dtype=np.float32).reshape(m_test, 1)
+    y_test = np.array(data[data_field]['y_test'], dtype=DATA_TYPE).reshape(m_test, 1)
 
     net = build_neural_net(n, 1, 6, tanh, tanh_prime)
     visualize_network(net)
@@ -158,9 +159,9 @@ def load_data_from_csv(csv_path):
     try:
         df = pd.read_csv(csv_path)
         
-        X = df[['x', 'y']].values.astype(np.float32)
+        X = df[['x', 'y']].values.astype(DATA_TYPE)
         
-        Y = df[['pixel_value']].values.astype(np.float32)
+        Y = df[['pixel_value']].values.astype(DATA_TYPE)
         
         max_x_index = df['x'].max()
         max_y_index = df['y'].max()
@@ -237,10 +238,11 @@ def image_reconstruction():
     TIME_CHECK = 1000
     LAST_EPOCH = 0
 
-    X_train = np.asarray(X_train)
+    X_train = np.asarray(X_train, dtype=DATA_TYPE)
+    print(X_train.dtype)
     # X_train = 2 * X_train - 1
 
-    Y_train = np.asarray(Y_train)
+    Y_train = np.asarray(Y_train, dtype=DATA_TYPE)
 
     draw_predictions_scatter(X_train, "ORIGINAL", IMAGE_WIDTH, IMAGE_HEIGHT, Y_train)
 
