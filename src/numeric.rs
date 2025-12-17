@@ -47,6 +47,9 @@ pub trait Numeric:
     /// Returns f64 equivalent of t
     fn f64(&self) -> f64;
 
+    /// Returns f32 equivalent of t
+    fn f32(&self) -> f32;
+
     /// Casts the value to Self and returns
     fn from_u32(value: u32) -> Self;
 }
@@ -65,6 +68,9 @@ impl Numeric for i8 {
     fn f64(&self) -> f64 {
         *self as f64
     }
+    fn f32(&self) -> f32 {
+        *self as f32
+    }
     fn from_u32(value: u32) -> Self {
         value as i8
     }
@@ -78,6 +84,9 @@ impl Numeric for i16 {
     }
     fn f64(&self) -> f64 {
         *self as f64
+    }
+    fn f32(&self) -> f32 {
+        *self as f32
     }
     fn from_u32(value: u32) -> Self {
         value as i16
@@ -93,6 +102,9 @@ impl Numeric for i32 {
     fn f64(&self) -> f64 {
         *self as f64
     }
+    fn f32(&self) -> f32 {
+        *self as f32
+    }
     fn from_u32(value: u32) -> Self {
         (value as u32).try_into().unwrap()
     }
@@ -106,6 +118,9 @@ impl Numeric for i64 {
     }
     fn f64(&self) -> f64 {
         *self as f64
+    }
+    fn f32(&self) -> f32 {
+        *self as f32
     }
     fn from_u32(value: u32) -> Self {
         value as i64
@@ -121,6 +136,9 @@ impl Numeric for i128 {
     fn f64(&self) -> f64 {
         *self as f64
     }
+    fn f32(&self) -> f32 {
+        *self as f32
+    }
     fn from_u32(value: u32) -> Self {
         value as i128
     }
@@ -134,6 +152,9 @@ impl Numeric for isize {
     }
     fn f64(&self) -> f64 {
         *self as f64
+    }
+    fn f32(&self) -> f32 {
+        *self as f32
     }
     fn from_u32(value: u32) -> Self {
         value as isize
@@ -150,6 +171,9 @@ impl Numeric for u8 {
     fn f64(&self) -> f64 {
         *self as f64
     }
+    fn f32(&self) -> f32 {
+        *self as f32
+    }
     fn from_u32(value: u32) -> Self {
         (value as u32).try_into().unwrap()
     }
@@ -165,6 +189,9 @@ impl Numeric for u16 {
     fn f64(&self) -> f64 {
         *self as f64
     }
+    fn f32(&self) -> f32 {
+        *self as f32
+    }
     fn from_u32(value: u32) -> Self {
         value as u16
     }
@@ -178,6 +205,9 @@ impl Numeric for u32 {
     }
     fn f64(&self) -> f64 {
         *self as f64
+    }
+    fn f32(&self) -> f32 {
+        *self as f32
     }
     fn from_u32(value: u32) -> Self {
         value as u32
@@ -193,6 +223,9 @@ impl Numeric for u64 {
     fn f64(&self) -> f64 {
         *self as f64
     }
+    fn f32(&self) -> f32 {
+        *self as f32
+    }
     fn from_u32(value: u32) -> Self {
         value as u64
     }
@@ -207,6 +240,9 @@ impl Numeric for u128 {
     fn f64(&self) -> f64 {
         *self as f64
     }
+    fn f32(&self) -> f32 {
+        *self as f32
+    }
     fn from_u32(value: u32) -> Self {
         value as u128
     }
@@ -220,6 +256,9 @@ impl Numeric for usize {
     }
     fn f64(&self) -> f64 {
         *self as f64
+    }
+    fn f32(&self) -> f32 {
+        *self as f32
     }
     fn from_u32(value: u32) -> Self {
         value as usize
@@ -236,6 +275,9 @@ impl Numeric for f32 {
     fn f64(&self) -> f64 {
         *self as f64
     }
+    fn f32(&self) -> f32 {
+        *self as f32
+    }
     fn from_u32(value: u32) -> Self {
         value as f32
     }
@@ -249,6 +291,9 @@ impl Numeric for f64 {
     }
     fn f64(&self) -> f64 {
         *self as f64
+    }
+    fn f32(&self) -> f32 {
+        *self as f32
     }
     fn from_u32(value: u32) -> Self {
         value as f64
@@ -265,6 +310,10 @@ impl Numeric for Complex {
     /// Returns a complex number representing one.
     fn one() -> Self {
         Complex::new(1.0, 0.0)
+    }
+
+    fn f32(&self) -> f32 {
+        panic!("InvalidOperation: Trying to convert a complex number to floating point number");
     }
 
     fn f64(&self) -> f64 {
