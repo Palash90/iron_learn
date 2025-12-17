@@ -16,9 +16,10 @@ use cust::stream::Stream;
 use cust::stream::StreamFlags;
 
 use crate::ActivationType;
-use crate::MeanSquaredErrorLoss;
 use crate::NeuralNet;
 use crate::NeuralNetBuilder;
+
+use crate::neural_network::MeanSquaredErrorLoss;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct XY {

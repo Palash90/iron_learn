@@ -4,35 +4,9 @@ use crate::Numeric;
 use rand::Rng;
 use std::f64::consts::PI;
 
+use crate::LossFunction;
+
 type NeuralNetDataType = f64;
-
-pub trait LossFunction<T: Tensor<NeuralNetDataType>> {
-    /// Calculates the loss value (used for reporting).
-    fn loss(&self, actual: &T, predicted: &T) -> Result<T, String>;
-
-    /// Calculates the derivative of the loss w.r.t the predicted output (used for backpropagation).
-    fn loss_prime(&self, actual: &T, predicted: &T) -> Result<T, String>;
-}
-
-pub struct MeanSquaredErrorLoss;
-
-impl<T: Tensor<NeuralNetDataType> + 'static> LossFunction<T> for MeanSquaredErrorLoss {
-    fn loss(&self, actual: &T, predicted: &T) -> Result<T, String> {
-        let error_diff = actual.sub(predicted).unwrap();
-        let sq_err = error_diff.multiply(&error_diff).unwrap();
-
-        let length = sq_err.get_shape()[1];
-
-        sq_err.sum().unwrap().scale((1 / length) as f64)
-    }
-
-    fn loss_prime(&self, actual: &T, predicted: &T) -> Result<T, String> {
-        predicted
-            .sub(actual)
-            .unwrap()
-            .scale((2 / actual.get_shape()[0]) as f64)
-    }
-}
 
 pub trait Layer<T: Tensor<NeuralNetDataType>> {
     fn forward(&mut self, input: &T) -> Result<T, String>;
