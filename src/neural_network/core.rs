@@ -1,6 +1,6 @@
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
-use crate::Numeric;
+use crate::SignedNumeric;
 use rand::Rng;
 use std::f64::consts::PI;
 
@@ -8,33 +8,39 @@ use crate::LossFunction;
 
 type NeuralNetDataType = f64;
 
-pub trait Layer<T: Tensor<NeuralNetDataType>> {
+pub trait Layer<D, T>
+where
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: SignedNumeric,
+{
     fn forward(&mut self, input: &T) -> Result<T, String>;
-    fn backward(&mut self, output_error: &T, learning_rate: NeuralNetDataType)
-        -> Result<T, String>;
-    fn get_parameters(&self) -> Option<Vec<NeuralNetDataType>> {
+    fn backward(&mut self, output_error: &T, learning_rate: D) -> Result<T, String>;
+    fn get_parameters(&self) -> Option<Vec<D>> {
         None
     }
     fn name(&self) -> &str;
 }
 
-pub struct LinearLayer<T: Tensor<NeuralNetDataType>> {
+pub struct LinearLayer<D, T>
+where
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: SignedNumeric,
+{
     weights: T,
     input_cache: Option<T>,
     name: String,
 }
 
-impl<T> LinearLayer<T>
+impl<D, T> LinearLayer<D, T>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: SignedNumeric,
 {
     pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
         let mut rng = rand::rng();
         let w_count = (input_size * output_size) as usize;
 
-        let w_data: Vec<NeuralNetDataType> = (0..w_count)
-            .map(|_| rng.random::<NeuralNetDataType>() - 0.5)
-            .collect();
+        let w_data: Vec<D> = (0..w_count).map(|_| rng.random::<D>() - 0.5).collect();
         let weights = T::new(vec![input_size, output_size], w_data)?;
 
         Ok(Self {
@@ -45,7 +51,11 @@ where
     }
 }
 
-impl<T: Tensor<NeuralNetDataType>> Layer<T> for LinearLayer<T> {
+impl<D, T> Layer<D, T> for LinearLayer<D, T>
+where
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: SignedNumeric,
+{
     fn name(&self) -> &str {
         &self.name
     }
@@ -56,7 +66,7 @@ impl<T: Tensor<NeuralNetDataType>> Layer<T> for LinearLayer<T> {
         Ok(matmul)
     }
 
-    fn backward(&mut self, output_error: &T, lr: NeuralNetDataType) -> Result<T, String> {
+    fn backward(&mut self, output_error: &T, lr: D) -> Result<T, String> {
         let input = self.input_cache.as_ref().ok_or("No forward pass cache!")?;
 
         // Calculate Input Error: error * weights.T
@@ -74,7 +84,7 @@ impl<T: Tensor<NeuralNetDataType>> Layer<T> for LinearLayer<T> {
         Ok(input_error)
     }
 
-    fn get_parameters(&self) -> Option<Vec<NeuralNetDataType>> {
+    fn get_parameters(&self) -> Option<Vec<D>> {
         Some(self.weights.get_data())
     }
 }
@@ -85,13 +95,21 @@ pub enum ActivationType {
     Tanh,
 }
 
-pub struct ActivationLayer<T: Tensor<NeuralNetDataType>> {
+pub struct ActivationLayer<D, T>
+where
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: SignedNumeric,
+{
     act_type: ActivationType,
     output_cache: Option<T>,
     name: String,
 }
 
-impl<T: Tensor<NeuralNetDataType>> ActivationLayer<T> {
+impl<D, T> ActivationLayer<D, T>
+where
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: SignedNumeric,
+{
     pub fn new(act_type: ActivationType, name: &str) -> Self {
         Self {
             act_type,
@@ -101,9 +119,10 @@ impl<T: Tensor<NeuralNetDataType>> ActivationLayer<T> {
     }
 }
 
-impl<T> Layer<T> for ActivationLayer<T>
+impl<D, T> Layer<D, T> for ActivationLayer<D, T>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    D: SignedNumeric,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
 {
     fn name(&self) -> &str {
         &self.name
@@ -118,7 +137,7 @@ where
         Ok(output)
     }
 
-    fn backward(&mut self, output_error: &T, _lr: NeuralNetDataType) -> Result<T, String> {
+    fn backward(&mut self, output_error: &T, _lr: D) -> Result<T, String> {
         let out = self.output_cache.as_ref().unwrap();
 
         let prime = match self.act_type {
@@ -138,26 +157,26 @@ where
     }
 }
 
-pub struct NeuralNet<T, D>
+pub struct NeuralNet<D, T>
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: Numeric,
+    D: SignedNumeric,
 {
-    pub layers: Vec<Box<dyn Layer<T>>>,
-    loss_fn: Box<dyn LossFunction<T, D>>,
+    pub layers: Vec<Box<dyn Layer<D, T>>>,
+    pub loss_fn: Box<dyn LossFunction<D, T>>,
 }
 
-impl<T, D> NeuralNet<T, D>
+impl<D, T> NeuralNet<D, T>
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: Numeric,
+    D: SignedNumeric,
 {
-    pub fn add(&mut self, layer: Box<dyn Layer<T>>) {
+    pub fn add(&mut self, layer: Box<dyn Layer<D, T>>) {
         self.layers.push(layer);
     }
 
     pub fn predict(&mut self, input: &T) -> Result<T, String> {
-        let mut output = input.add(&T::empty(input.get_shape()))?;
+        let mut output = input.add(&T::empty(input.get_shape())).unwrap();
 
         for layer in &mut self.layers {
             output = layer.forward(&output).unwrap();
@@ -171,18 +190,18 @@ where
         y_train: &T,
         epochs: usize,
         epoch_offset: usize,
-        base_lr: NeuralNetDataType,
+        base_lr: D,
         mut hook: F,
     ) -> Result<(), String>
     where
-        F: FnMut(usize, NeuralNetDataType, &mut Self),
+        F: FnMut(usize, D, &mut Self),
     {
         let lr_min = 1e-6;
 
         for i in 0..epochs {
-            let cos_term = (PI * (i as NeuralNetDataType)
-                / ((epochs + epoch_offset) as NeuralNetDataType))
-                .cos();
+            let cos_term = (D::from_u32(PI as u32) * (D::from_u32(i as u32))
+                / (D::from_u32((epochs + epoch_offset) as u32)))
+            .cos();
             let decay_factor = 0.5 * (1.0 + cos_term);
             let current_lr = lr_min + (base_lr - lr_min) * decay_factor;
 
@@ -229,43 +248,6 @@ where
                     w.len()
                 );
             }
-        }
-    }
-}
-
-pub struct NeuralNetBuilder<T>
-where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T>,
-{
-    layers: Vec<Box<dyn Layer<T>>>,
-}
-
-impl<T> NeuralNetBuilder<T>
-where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
-{
-    pub fn new() -> Self {
-        Self { layers: Vec::new() }
-    }
-
-    pub fn add_linear(&mut self, input_size: u32, output_size: u32, name: &str) {
-        match LinearLayer::new(input_size, output_size, name) {
-            Ok(layer) => self.layers.push(Box::new(layer)),
-            Err(e) => {
-                eprintln!("Error adding LinearLayer: {}", e);
-            }
-        }
-    }
-
-    pub fn add_activation(&mut self, act_type: ActivationType, name: &str) {
-        let layer = ActivationLayer::new(act_type, name);
-        self.layers.push(Box::new(layer));
-    }
-
-    pub fn build(self, loss_fn: Box<dyn LossFunction<T>>) -> NeuralNet<T> {
-        NeuralNet {
-            layers: self.layers,
-            loss_fn,
         }
     }
 }

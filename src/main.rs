@@ -7,8 +7,8 @@ use iron_learn::Data;
 use iron_learn::Tensor;
 use iron_learn::{init_context, run_linear, run_logistic, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
 use std::env;
-use std::time::Instant;
 use std::ptr;
+use std::time::Instant;
 
 fn init() {
     let args: Vec<String> = env::args().collect();

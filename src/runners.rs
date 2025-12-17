@@ -1,11 +1,11 @@
 // use crate::commons::add_bias_term;
- use crate::commons::denormalize_features;
+use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
 use crate::normalize_features;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
-use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use crate::GLOBAL_CONTEXT;
+use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
 
@@ -47,8 +47,8 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data { logistic: xy, .. } = deserialize_data(&data_path)
-        .map_err(|e| format!("Data deserialization error: {}", e))?;
+    let Data { logistic: xy, .. } =
+        deserialize_data(&data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
     print!("\nLogistic Regression\n");
     print!("Number of examples (m): {}\n", xy.m);
@@ -105,8 +105,8 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data { linear: xy, .. } = deserialize_data(data_path)
-        .map_err(|e| format!("Data deserialization error: {}", e))?;
+    let Data { linear: xy, .. } =
+        deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
     print!("\nLinear Regression\n");
     print!("Number of examples (m): {}\n", xy.m);
@@ -175,8 +175,8 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data { cat_image: xy, .. } = deserialize_data(data_path)
-        .map_err(|e| format!("Data deserialization error: {}", e))?;
+    let Data { cat_image: xy, .. } =
+        deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
@@ -186,13 +186,11 @@ where
 
     //let x = add_bias_term(&x).unwrap();
 
-    let mut w = T::new(vec![xy.n, 1], vec![0.0; xy.n as usize])?;
-
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
     let hidden_length = 50; // Should be even
     let input_length = 2;
 
-    let nn = NeuralNetBuilder::<T>::new();
+    let nn = NeuralNetBuilder::<f64, T>::new();
     let mut nn = nn;
 
     nn.add_linear(input_length, hidden_length, "Input");
@@ -211,7 +209,7 @@ where
 
     let mut start_time = Instant::now();
 
-    let monitor = |epoch: usize, err: f64, nn: &mut NeuralNet<T>| {
+    let monitor = |epoch: usize, err: f64, nn: &mut NeuralNet<f64, T>| {
         let elapsed = start_time.elapsed();
         println!(
             "Monitor called on {}, time elapsed {:?}",
@@ -227,16 +225,16 @@ where
         }
     };
 
-    nn.fit(&x, &y, e as usize, 0, 0.001, monitor);
+    nn.fit(&x, &y, e as usize, 0, l, monitor);
 
-    let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
-    let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
+    //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
+    //let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 
     //let x_test = normalize_features(&x_test, &x_mean, &x_std);
 
     //let x_test = add_bias_term(&x_test)?;
 
-    let predictions = nn.predict(&x).unwrap();
+    //    let predictions = nn.predict(&x).unwrap();
 
     // let predictions = denormalize_features(&predictions, &y_mean, &y_std);
     Ok(())

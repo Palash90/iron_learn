@@ -20,6 +20,7 @@ pub use crate::gradient_descent::linear_regression;
 pub use crate::gradient_descent::logistic_regression;
 pub use crate::gradient_descent::{predict_linear, predict_logistic};
 pub use crate::numeric::Numeric;
+pub use crate::numeric::SignedNumeric;
 pub use crate::runners::Data;
 pub use crate::runners::XY;
 pub use crate::runners::{run_linear, run_logistic, run_neural_net};

@@ -134,7 +134,7 @@ pub fn init_context(
         module,
         stream,
         pool,
-        cublas_handle: CublasHandle { handle }
+        cublas_handle: CublasHandle { handle },
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

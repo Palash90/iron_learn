@@ -615,8 +615,8 @@ where
 }
 
 use cust::launch;
-use cust::prelude::Function;
 use cust::memory::bytemuck::Zeroable;
+use cust::prelude::Function;
 use cust::stream::Stream;
 use cust::{memory::CopyDestination, prelude::DeviceBuffer};
 
