@@ -6,8 +6,6 @@ use std::f64::consts::PI;
 
 use crate::LossFunction;
 
-type NeuralNetDataType = f64;
-
 pub trait Layer<D, T>
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
