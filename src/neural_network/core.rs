@@ -33,7 +33,7 @@ where
         let w_count = (input_size * output_size) as usize;
 
         let w_data: Vec<NeuralNetDataType> = (0..w_count)
-            .map(|_| rng.gen::<NeuralNetDataType>() - 0.5)
+            .map(|_| rng.random::<NeuralNetDataType>() - 0.5)
             .collect();
         let weights = T::new(vec![input_size, output_size], w_data)?;
 

@@ -10,9 +10,6 @@ use serde::{Deserialize, Serialize};
 use std::time::Instant;
 
 use crate::read_file::deserialize_data;
-use cust::prelude::Module;
-use cust::stream::Stream;
-use cust::stream::StreamFlags;
 
 use crate::ActivationType;
 use crate::NeuralNet;
@@ -50,7 +47,7 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data { logistic: xy, .. } = crate::read_file::deserialize_data(&data_path)
+    let Data { logistic: xy, .. } = deserialize_data(&data_path)
         .map_err(|e| format!("Data deserialization error: {}", e))?;
 
     print!("\nLogistic Regression\n");
@@ -108,7 +105,7 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data { linear: xy, .. } = crate::read_file::deserialize_data(data_path)
+    let Data { linear: xy, .. } = deserialize_data(data_path)
         .map_err(|e| format!("Data deserialization error: {}", e))?;
 
     print!("\nLinear Regression\n");
@@ -178,7 +175,7 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data { cat_image: xy, .. } = crate::read_file::deserialize_data(data_path)
+    let Data { cat_image: xy, .. } = deserialize_data(data_path)
         .map_err(|e| format!("Data deserialization error: {}", e))?;
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
