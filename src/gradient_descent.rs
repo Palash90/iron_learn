@@ -1,6 +1,5 @@
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
-use crate::Numeric;
 
 use crate::commons::add_bias_term;
 

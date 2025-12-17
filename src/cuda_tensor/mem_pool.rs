@@ -1,10 +1,8 @@
-use cust::memory::DeviceBuffer;
 use cust::prelude::*;
 use cust::sys::*;
 use std::error::Error;
 use std::sync::Arc;
 use std::sync::Mutex;
-use std::time::Instant;
 
 pub type CUmemoryPool = CUmemPoolHandle_st;
 pub type CUmemPoolHandle = *mut CUmemoryPool;
@@ -83,8 +81,6 @@ impl CudaMemoryPool {
         let byte_size = size_in_bytes;
 
         self.with_handle(|pool_handle| {
-            let now = Instant::now();
-
             let result = unsafe {
                 cuMemAllocFromPoolAsync(
                     &mut device_ptr,

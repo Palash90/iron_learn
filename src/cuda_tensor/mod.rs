@@ -7,7 +7,6 @@ use crate::GLOBAL_CONTEXT;
 use core::ffi::c_void;
 use cublas_sys::*;
 use std::ops::{Add, Mul, Neg, Sub};
-use std::ptr;
 
 //mod tensor_ops;
 use crate::Tensor;
@@ -188,13 +187,11 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _get_cublas_handle() -> cublasHandle_t {
-        unsafe {
-            GLOBAL_CONTEXT
-                .get()
-                .expect("No Context Set")
-                .cublas_handle
-                .handle
-        }
+        GLOBAL_CONTEXT
+            .get()
+            .expect("No Context Set")
+            .cublas_handle
+            .handle
     }
 
     fn _eq(&self, other: &Self) -> bool {
@@ -215,7 +212,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let compare = Self::_get_function("compare_memory");
 
         let mut result_host = [1i32];
-        let mut result_device = get_device_buffer_from_slice(&result_host);
+        let result_device = get_device_buffer_from_slice(&result_host);
 
         let stream = Self::_get_stream();
         unsafe {
@@ -237,9 +234,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
     fn element_op(&self, op_type: OpType, scale: T) -> Result<Self, String> {
         let block_dim = 16;
-
-        let grid_x = (self.shape[1] + block_dim - 1) / block_dim;
-        let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
 
         let total_elements: u32 = self.shape.iter().product();
         let threads_per_block = 1024; // Use a typical 1D block size
@@ -340,7 +334,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let add = Self::_get_function("vector_add");
 
-        let mut total_elements = self.shape.iter().product::<u32>() as usize;
+        let total_elements = self.shape.iter().product::<u32>() as usize;
 
         let result = get_device_buffer(total_elements);
 
@@ -367,7 +361,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     fn _sum(&self) -> Result<Self, String> {
         let sum = Self::_get_function("column_reduce");
 
-        let mut total_elements = self.shape.iter().product::<u32>() as usize;
+        let total_elements = self.shape.iter().product::<u32>() as usize;
 
         let result = get_device_buffer(total_elements);
 
@@ -443,9 +437,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let block_dim = 16;
 
-        let grid_x = (shape[1] + block_dim - 1) / block_dim;
-        let grid_y = (shape[0] + block_dim - 1) / block_dim;
-
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (size as u32 + threads_per_block - 1) / threads_per_block;
 
@@ -465,8 +456,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _with_device_buffer(shape: Vec<u32>, device_buffer: CustomDeviceBuffer<T>) -> Self {
-        let ptx = include_str!("../../kernels/gpu_kernels.ptx");
-
         Self {
             shape: shape.clone(),
             device_buffer,
@@ -484,10 +473,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         // Set up common block size
         let block_dim = 16;
-
-        // Calculate grid size using ceiling division
-        let grid_x = (rhs.shape[1] + block_dim - 1) / block_dim;
-        let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
 
         let total_elements = self.shape.iter().product::<u32>();
 
@@ -629,15 +614,11 @@ where
     }
 }
 
-use crate::init_context;
-use cust::device::Device;
 use cust::launch;
-use cust::memory::bytemuck::Zeroable;
 use cust::prelude::Function;
-use cust::prelude::Module;
+use cust::memory::bytemuck::Zeroable;
 use cust::stream::Stream;
-use cust::stream::StreamFlags;
-use cust::{device, memory::CopyDestination, prelude::DeviceBuffer};
+use cust::{memory::CopyDestination, prelude::DeviceBuffer};
 
 #[cfg(test)]
 #[test]

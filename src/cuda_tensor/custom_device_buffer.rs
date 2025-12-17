@@ -1,11 +1,8 @@
 use crate::GLOBAL_CONTEXT;
-use cust::device::Device;
-use cust::error::CudaError;
-use cust::memory::{CopyDestination, DeviceBuffer, DevicePointer};
+use cust::memory::{DeviceBuffer, DevicePointer};
 
 use crate::Numeric;
 
-use super::mem_pool::CudaMemoryPool;
 use core::ffi::c_void;
 
 #[derive(Debug)]
@@ -51,7 +48,7 @@ pub fn get_device_buffer<T: Numeric>(size: usize) -> CustomDeviceBuffer<T> {
 }
 
 pub fn get_device_buffer_from_slice<T: Numeric>(data: &[T]) -> CustomDeviceBuffer<T> {
-    let mut device_buffer = get_device_buffer::<T>(data.len());
+    let device_buffer = get_device_buffer::<T>(data.len());
     unsafe {
         cust::sys::cuMemcpyHtoD_v2(
             device_buffer.as_device_ptr().as_raw(),

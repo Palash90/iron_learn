@@ -74,7 +74,7 @@ impl<T: Tensor<NeuralNetDataType>> Layer<T> for LinearLayer<T> {
         Ok(input_error)
     }
 
-    fn get_parameters(&self) -> Option<(Vec<NeuralNetDataType>)> {
+    fn get_parameters(&self) -> Option<Vec<NeuralNetDataType>> {
         Some(self.weights.get_data())
     }
 }
@@ -138,14 +138,19 @@ where
     }
 }
 
-pub struct NeuralNet<T: Tensor<NeuralNetDataType>> {
+pub struct NeuralNet<T, D>
+where
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: Numeric,
+{
     pub layers: Vec<Box<dyn Layer<T>>>,
-    loss_fn: Box<dyn LossFunction<T>>,
+    loss_fn: Box<dyn LossFunction<T, D>>,
 }
 
-impl<T> NeuralNet<T>
+impl<T, D> NeuralNet<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: Numeric,
 {
     pub fn add(&mut self, layer: Box<dyn Layer<T>>) {
         self.layers.push(layer);

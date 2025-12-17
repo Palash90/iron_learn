@@ -31,9 +31,6 @@ pub fn normalize_features<T: Tensor<f64>>(data: &T, mean: &Vec<f64>, std: &Vec<f
     let n = shape[1] as usize;
     let mut normalized_data = vec![0.0; m * n];
 
-    let mut data_mean = vec![0.0; n];
-    let mut data_std_dev = vec![0.0; n];
-
     let data = data.get_data();
 
     for j in 0..n {

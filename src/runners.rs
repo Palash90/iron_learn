@@ -1,12 +1,11 @@
-use crate::commons::add_bias_term;
-use crate::commons::denormalize_features;
+// use crate::commons::add_bias_term;
+ use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
 use crate::normalize_features;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
-use crate::Numeric;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
-use crate::{CpuTensor, GLOBAL_CONTEXT};
+use crate::GLOBAL_CONTEXT;
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
 
@@ -66,7 +65,6 @@ where
     let mut w = T::new(vec![xy.n + 1, 1], vec![0.0; (xy.n + 1) as usize])?;
 
     let now = Instant::now();
-    let iter10 = Instant::now();
 
     w = logistic_regression(&x, &y, w, l, e).unwrap();
     let elapsed = now.elapsed();
