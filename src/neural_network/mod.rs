@@ -8,3 +8,5 @@ pub use core::NeuralNet;
 pub use builder::NeuralNetBuilder;
 pub use loss_functions::LossFunction;
 pub use loss_functions::MeanSquaredErrorLoss;
+
+pub type CoreNeuralNetType = f32;

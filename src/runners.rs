@@ -14,6 +14,7 @@ use crate::read_file::deserialize_data;
 use crate::ActivationType;
 use crate::NeuralNet;
 use crate::NeuralNetBuilder;
+use crate::neural_network::CoreNeuralNetType;
 
 use crate::neural_network::MeanSquaredErrorLoss;
 
@@ -21,11 +22,11 @@ use crate::neural_network::MeanSquaredErrorLoss;
 pub struct XY {
     pub m: u32,
     pub n: u32,
-    pub x: Vec<f64>,
-    pub y: Vec<f64>,
+    pub x: Vec<CoreNeuralNetType>,
+    pub y: Vec<CoreNeuralNetType>,
     pub m_test: u32,
-    pub x_test: Vec<f64>,
-    pub y_test: Vec<f64>,
+    pub x_test: Vec<CoreNeuralNetType>,
+    pub y_test: Vec<CoreNeuralNetType>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -166,12 +167,12 @@ where
 
 pub fn run_neural_net<T>() -> Result<(), String>
 where
-    T: Tensor<f64> + TensorMath<f64, MathOutput = T> + 'static,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
     let l = GLOBAL_CONTEXT
         .get()
         .ok_or("GLOBAL_CONTEXT not initialized")?
-        .learning_rate;
+        .learning_rate as CoreNeuralNetType;
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
@@ -190,7 +191,7 @@ where
     let hidden_length = 50; // Should be even
     let input_length = 2;
 
-    let nn = NeuralNetBuilder::<f64, T>::new();
+    let nn = NeuralNetBuilder::<CoreNeuralNetType, T>::new();
     let mut nn = nn;
 
     nn.add_linear(input_length, hidden_length, "Input");
@@ -209,7 +210,7 @@ where
 
     let mut start_time = Instant::now();
 
-    let monitor = |epoch: usize, err: f64, nn: &mut NeuralNet<f64, T>| {
+    let monitor = |epoch: usize, err: f64, nn: &mut NeuralNet<CoreNeuralNetType, T>| {
         let elapsed = start_time.elapsed();
         println!(
             "Monitor called on {}, time elapsed {:?}",

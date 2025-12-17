@@ -2,9 +2,12 @@ use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use crate::SignedNumeric;
 use rand::Rng;
-use std::f64::consts::PI;
+use std::f32::consts::PI;
 
 use crate::LossFunction;
+
+use super::CoreNeuralNetType;
+use crate::numeric::Numeric;
 
 pub trait Layer<D, T>
 where
@@ -12,7 +15,7 @@ where
     D: SignedNumeric,
 {
     fn forward(&mut self, input: &T) -> Result<T, String>;
-    fn backward(&mut self, output_error: &T, learning_rate: D) -> Result<T, String>;
+    fn backward(&mut self, output_error: &T, learning_rate: CoreNeuralNetType) -> Result<T, String>;
     fn get_parameters(&self) -> Option<Vec<D>> {
         None
     }
@@ -38,7 +41,9 @@ where
         let mut rng = rand::rng();
         let w_count = (input_size * output_size) as usize;
 
-        let w_data: Vec<D> = (0..w_count).map(|_| rng.random::<D>() - 0.5).collect();
+        let w_data: Vec<CoreNeuralNetType> = (0..w_count)
+            .map(|_| rng.random::<CoreNeuralNetType>() - 0.5)
+            .collect();
         let weights = T::new(vec![input_size, output_size], w_data)?;
 
         Ok(Self {
@@ -64,7 +69,7 @@ where
         Ok(matmul)
     }
 
-    fn backward(&mut self, output_error: &T, lr: D) -> Result<T, String> {
+    fn backward(&mut self, output_error: &T, lr: CoreNeuralNetType) -> Result<T, String> {
         let input = self.input_cache.as_ref().ok_or("No forward pass cache!")?;
 
         // Calculate Input Error: error * weights.T
@@ -135,7 +140,7 @@ where
         Ok(output)
     }
 
-    fn backward(&mut self, output_error: &T, _lr: D) -> Result<T, String> {
+    fn backward(&mut self, output_error: &T, _lr: CoreNeuralNetType) -> Result<T, String> {
         let out = self.output_cache.as_ref().unwrap();
 
         let prime = match self.act_type {
@@ -188,7 +193,7 @@ where
         y_train: &T,
         epochs: usize,
         epoch_offset: usize,
-        base_lr: D,
+        base_lr: CoreNeuralNetType,
         mut hook: F,
     ) -> Result<(), String>
     where
@@ -197,11 +202,11 @@ where
         let lr_min = 1e-6;
 
         for i in 0..epochs {
-            let cos_term = (D::from_u32(PI as u32) * (D::from_u32(i as u32))
-                / (D::from_u32((epochs + epoch_offset) as u32)))
-            .cos();
+            let cos_term = ((PI * i as CoreNeuralNetType)
+                / ((epochs + epoch_offset) as CoreNeuralNetType))
+                .cos();
             let decay_factor = 0.5 * (1.0 + cos_term);
-            let current_lr = lr_min + (base_lr - lr_min) * decay_factor;
+            let current_lr = lr_min + (base_lr.f32() - lr_min) * decay_factor;
 
             let mut output = x_train.add(&T::empty(x_train.get_shape()))?;
             for layer in &mut self.layers {
