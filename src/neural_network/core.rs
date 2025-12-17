@@ -9,33 +9,31 @@ use crate::LossFunction;
 use super::CoreNeuralNetType;
 use crate::numeric::Numeric;
 
-pub trait Layer<D, T>
+pub trait Layer<T>
 where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: SignedNumeric,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
     fn forward(&mut self, input: &T) -> Result<T, String>;
-    fn backward(&mut self, output_error: &T, learning_rate: CoreNeuralNetType) -> Result<T, String>;
-    fn get_parameters(&self) -> Option<Vec<D>> {
+    fn backward(&mut self, output_error: &T, learning_rate: CoreNeuralNetType)
+        -> Result<T, String>;
+    fn get_parameters(&self) -> Option<Vec<CoreNeuralNetType>> {
         None
     }
     fn name(&self) -> &str;
 }
 
-pub struct LinearLayer<D, T>
+pub struct LinearLayer<T>
 where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: SignedNumeric,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
     weights: T,
     input_cache: Option<T>,
     name: String,
 }
 
-impl<D, T> LinearLayer<D, T>
+impl<T> LinearLayer<T>
 where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: SignedNumeric,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
     pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
         let mut rng = rand::rng();
@@ -54,10 +52,9 @@ where
     }
 }
 
-impl<D, T> Layer<D, T> for LinearLayer<D, T>
+impl<T> Layer<T> for LinearLayer<T>
 where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: SignedNumeric,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
     fn name(&self) -> &str {
         &self.name
@@ -87,7 +84,7 @@ where
         Ok(input_error)
     }
 
-    fn get_parameters(&self) -> Option<Vec<D>> {
+    fn get_parameters(&self) -> Option<Vec<CoreNeuralNetType>> {
         Some(self.weights.get_data())
     }
 }
@@ -98,20 +95,18 @@ pub enum ActivationType {
     Tanh,
 }
 
-pub struct ActivationLayer<D, T>
+pub struct ActivationLayer<T>
 where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: SignedNumeric,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
     act_type: ActivationType,
     output_cache: Option<T>,
     name: String,
 }
 
-impl<D, T> ActivationLayer<D, T>
+impl<T> ActivationLayer<T>
 where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: SignedNumeric,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
     pub fn new(act_type: ActivationType, name: &str) -> Self {
         Self {
@@ -122,10 +117,9 @@ where
     }
 }
 
-impl<D, T> Layer<D, T> for ActivationLayer<D, T>
+impl<T> Layer<T> for ActivationLayer<T>
 where
-    D: SignedNumeric,
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
     fn name(&self) -> &str {
         &self.name
@@ -160,21 +154,19 @@ where
     }
 }
 
-pub struct NeuralNet<D, T>
+pub struct NeuralNet<T>
 where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: SignedNumeric,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
-    pub layers: Vec<Box<dyn Layer<D, T>>>,
-    pub loss_fn: Box<dyn LossFunction<D, T>>,
+    pub layers: Vec<Box<dyn Layer<T>>>,
+    pub loss_fn: Box<dyn LossFunction<CoreNeuralNetType, T>>,
 }
 
-impl<D, T> NeuralNet<D, T>
+impl<T> NeuralNet<T>
 where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: SignedNumeric,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
-    pub fn add(&mut self, layer: Box<dyn Layer<D, T>>) {
+    pub fn add(&mut self, layer: Box<dyn Layer<T>>) {
         self.layers.push(layer);
     }
 
@@ -197,7 +189,7 @@ where
         mut hook: F,
     ) -> Result<(), String>
     where
-        F: FnMut(usize, D, &mut Self),
+        F: FnMut(usize, CoreNeuralNetType, &mut Self),
     {
         let lr_min = 1e-6;
 

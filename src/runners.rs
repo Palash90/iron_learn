@@ -39,12 +39,12 @@ pub struct Data {
 
 pub fn run_logistic<T>() -> Result<(), String>
 where
-    T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T>,
 {
     let l = GLOBAL_CONTEXT
         .get()
         .ok_or("GLOBAL_CONTEXT not initialized")?
-        .learning_rate;
+        .learning_rate as CoreNeuralNetType;
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
@@ -97,7 +97,7 @@ where
 
 pub fn run_linear<T>() -> Result<(), String>
 where
-    T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T>,
 {
     let l = GLOBAL_CONTEXT
         .get()
@@ -206,11 +206,11 @@ where
     nn.add_linear(hidden_length / 2, 1, "Hidden Layer 3");
     nn.add_activation(ActivationType::Sigmoid, "Activation Layer 4");
 
-    let mut nn = nn.build(loss_function_instance);
+    let mut nn = nn.build(  loss_function_instance);
 
     let mut start_time = Instant::now();
 
-    let monitor = |epoch: usize, err: f64, nn: &mut NeuralNet<CoreNeuralNetType, T>| {
+    let monitor = |epoch: usize, err: CoreNeuralNetType, nn: &mut NeuralNet<T>| {
         let elapsed = start_time.elapsed();
         println!(
             "Monitor called on {}, time elapsed {:?}",
