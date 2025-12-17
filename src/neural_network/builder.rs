@@ -1,24 +1,23 @@
 use crate::neural_network::core::ActivationLayer;
 use crate::neural_network::core::Layer;
 use crate::neural_network::core::LinearLayer;
+use crate::neural_network::CoreNeuralNetType;
 use crate::tensor::math::TensorMath;
 use crate::ActivationType;
 use crate::LossFunction;
 use crate::Tensor;
 use crate::{NeuralNet, SignedNumeric};
 
-pub struct NeuralNetBuilder<D, T>
+pub struct NeuralNetBuilder<T>
 where
-    T: Tensor<D> + TensorMath<D, MathOutput = T>,
-    D: SignedNumeric,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T>,
 {
-    layers: Vec<Box<dyn Layer<D, T>>>,
+    layers: Vec<Box<dyn Layer<T>>>,
 }
 
-impl<D, T> NeuralNetBuilder<D, T>
+impl<T> NeuralNetBuilder<T>
 where
-    D: SignedNumeric + 'static,
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
     pub fn new() -> Self {
         Self { layers: Vec::new() }
@@ -38,7 +37,7 @@ where
         self.layers.push(Box::new(layer));
     }
 
-    pub fn build(self, loss_fn: Box<dyn LossFunction<D, T>>) -> NeuralNet<D, T> {
+    pub fn build(self, loss_fn: Box<dyn LossFunction<CoreNeuralNetType, T>>) -> NeuralNet<T> {
         NeuralNet {
             layers: self.layers,
             loss_fn,

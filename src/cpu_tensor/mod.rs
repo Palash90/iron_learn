@@ -86,20 +86,20 @@ enum OpType {
 
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
 impl<T: Numeric> CpuTensor<T> {
-    fn _sigmoid(t: f64) -> f64 {
-        f64::exp(t) / (1.0 + f64::exp(t))
+    fn _sigmoid(t: f32) -> f32 {
+        f32::exp(t) / (1.0 + f32::exp(t))
     }
 
-    fn element_op(&self, op_type: OpType) -> CpuTensor<f64> {
+    fn element_op(&self, op_type: OpType) -> CpuTensor<f32> {
         let result = match op_type {
-            OpType::EXP => self.data.iter().map(|t| f64::exp(t.f64())).collect(),
-            OpType::COS => self.data.iter().map(|t| f64::cos(t.f64())).collect(),
-            OpType::SIN => self.data.iter().map(|t| f64::sin(t.f64())).collect(),
-            OpType::TAN => self.data.iter().map(|t| f64::tan(t.f64())).collect(),
-            OpType::TANH => self.data.iter().map(|t| f64::tanh(t.f64())).collect(),
-            OpType::SIGMOID => self.data.iter().map(|t| Self::_sigmoid(t.f64())).collect(),
-            OpType::LOG => self.data.iter().map(|t| f64::log10(t.f64())).collect(),
-            OpType::LN => self.data.iter().map(|t| f64::ln(t.f64())).collect(),
+            OpType::EXP => self.data.iter().map(|t| f32::exp(t.f32())).collect(),
+            OpType::COS => self.data.iter().map(|t| f32::cos(t.f32())).collect(),
+            OpType::SIN => self.data.iter().map(|t| f32::sin(t.f32())).collect(),
+            OpType::TAN => self.data.iter().map(|t| f32::tan(t.f32())).collect(),
+            OpType::TANH => self.data.iter().map(|t| f32::tanh(t.f32())).collect(),
+            OpType::SIGMOID => self.data.iter().map(|t| Self::_sigmoid(t.f32())).collect(),
+            OpType::LOG => self.data.iter().map(|t| f32::log10(t.f32())).collect(),
+            OpType::LN => self.data.iter().map(|t| f32::ln(t.f32())).collect(),
         };
 
         CpuTensor::new(self.shape.clone(), result).unwrap()
@@ -489,7 +489,7 @@ impl<T> TensorMath<T> for CpuTensor<T>
 where
     T: Numeric,
 {
-    type MathOutput = CpuTensor<f64>;
+    type MathOutput = CpuTensor<f32>;
 
     fn sigmoid(&self) -> Result<Self::MathOutput, String> {
         Ok(self.element_op(OpType::SIGMOID))

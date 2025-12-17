@@ -3,7 +3,7 @@
 
 #define TILE_SIZE 16
 /* Kernels for Modular approach*/
-extern "C" __global__ void fill_value(double *out, int n, double value)
+extern "C" __global__ void fill_value(float *out, int n, float value)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n)
@@ -12,7 +12,7 @@ extern "C" __global__ void fill_value(double *out, int n, double value)
     }
 }
 
-extern "C" __global__ void vector_add(const double *a, const double *b, double *out, int n, int sub)
+extern "C" __global__ void vector_add(const float *a, const float *b, float *out, int n, int sub)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n)
@@ -29,7 +29,7 @@ extern "C" __global__ void vector_add(const double *a, const double *b, double *
 }
 
 
-extern "C" __global__ void element_op(const double *s, double *r, int n, int op, double scale)
+extern "C" __global__ void element_op(const float *s, float *r, int n, int op, float scale)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n)
@@ -71,14 +71,14 @@ extern "C" __global__ void element_op(const double *s, double *r, int n, int op,
 
 
 
-extern "C" __global__ void compare_memory(const double *a, const double *b, size_t size, int *result)
+extern "C" __global__ void compare_memory(const float *a, const float *b, size_t size, int *result)
 {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
-    const double EPSILON = 1e-9;
+    const float EPSILON = 1e-9;
 
     if (idx < size)
     {
-        double diff = abs(a[idx] - b[idx]);
+        float diff = abs(a[idx] - b[idx]);
         if (diff > EPSILON)
         {
             atomicExch(result, 0);
@@ -86,7 +86,7 @@ extern "C" __global__ void compare_memory(const double *a, const double *b, size
     }
 }
 
-extern "C" __global__ void transpose_naive(const double *A, double *B, int M, int N)
+extern "C" __global__ void transpose_naive(const float *A, float *B, int M, int N)
 {
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -98,14 +98,14 @@ extern "C" __global__ void transpose_naive(const double *A, double *B, int M, in
 }
 
 extern "C" __global__ void matrix_mul(
-    const double *A, // Matrix A (M x K)
-    const double *B, // Matrix B (K x N)
-    double *C,       // Result Matrix C (M x N)
+    const float *A, // Matrix A (M x K)
+    const float *B, // Matrix B (K x N)
+    float *C,       // Result Matrix C (M x N)
     int M, int N, int K)
 {
     // Shared memory for tiles of A and B
-    __shared__ double ds_A[TILE_SIZE][TILE_SIZE];
-    __shared__ double ds_B[TILE_SIZE][TILE_SIZE];
+    __shared__ float ds_A[TILE_SIZE][TILE_SIZE];
+    __shared__ float ds_B[TILE_SIZE][TILE_SIZE];
 
     int bx = blockIdx.x;  int by = blockIdx.y;
     int tx = threadIdx.x; int ty = threadIdx.y;
@@ -114,7 +114,7 @@ extern "C" __global__ void matrix_mul(
     int row = by * TILE_SIZE + ty;
     int col = bx * TILE_SIZE + tx;
 
-    double sum = 0.0;
+    float sum = 0.0;
 
     // Loop over the tiles of the input matrices
     for (int t = 0; t < (K + TILE_SIZE - 1) / TILE_SIZE; ++t)
@@ -152,7 +152,7 @@ extern "C" __global__ void matrix_mul(
     }
 }
 
-extern "C" __global__ void hadamard_prod(const double *A, const double *B, double *C, int n)
+extern "C" __global__ void hadamard_prod(const float *A, const float *B, float *C, int n)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n)

@@ -3,6 +3,7 @@ use crate::tensor::Tensor;
 
 use crate::commons::add_bias_term;
 
+
 pub fn gradient_descent<T>(x: &T, y: &T, w: &T, l: f64, logistic: bool) -> Result<T, String>
 where
     T: Tensor<f64> + TensorMath<f64, MathOutput = T>,

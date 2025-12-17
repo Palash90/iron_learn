@@ -2,6 +2,7 @@
 use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
 use crate::normalize_features;
+use crate::read_file::deserialize_data_double_precision;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use crate::GLOBAL_CONTEXT;
@@ -37,19 +38,38 @@ pub struct Data {
     pub cat_image: XY,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct XYDoublePrecision {
+    pub m: u32,
+    pub n: u32,
+    pub x: Vec<f64>,
+    pub y: Vec<f64>,
+    pub m_test: u32,
+    pub x_test: Vec<f64>,
+    pub y_test: Vec<f64>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct DataDoublePrecision {
+    pub linear: XYDoublePrecision,
+    pub logistic: XYDoublePrecision,
+    pub neural_network: XYDoublePrecision,
+    pub cat_image: XYDoublePrecision,
+}
+
 pub fn run_logistic<T>() -> Result<(), String>
 where
-    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T>,
+    T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
 {
     let l = GLOBAL_CONTEXT
         .get()
         .ok_or("GLOBAL_CONTEXT not initialized")?
-        .learning_rate as CoreNeuralNetType;
+        .learning_rate;
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data { logistic: xy, .. } =
-        deserialize_data(&data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
+    let DataDoublePrecision { logistic: xy, .. } =
+        deserialize_data_double_precision(&data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
     print!("\nLogistic Regression\n");
     print!("Number of examples (m): {}\n", xy.m);
@@ -97,7 +117,7 @@ where
 
 pub fn run_linear<T>() -> Result<(), String>
 where
-    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T>,
+    T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
 {
     let l = GLOBAL_CONTEXT
         .get()
@@ -106,8 +126,8 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data { linear: xy, .. } =
-        deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
+    let DataDoublePrecision { linear: xy, .. } =
+        deserialize_data_double_precision(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
     print!("\nLinear Regression\n");
     print!("Number of examples (m): {}\n", xy.m);
@@ -191,7 +211,7 @@ where
     let hidden_length = 50; // Should be even
     let input_length = 2;
 
-    let nn = NeuralNetBuilder::<CoreNeuralNetType, T>::new();
+    let nn = NeuralNetBuilder::<T>::new();
     let mut nn = nn;
 
     nn.add_linear(input_length, hidden_length, "Input");
