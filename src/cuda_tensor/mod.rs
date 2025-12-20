@@ -3,10 +3,11 @@ use crate::cuda_tensor::custom_device_buffer::{
 };
 use crate::numeric::{Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
-use crate::{GLOBAL_CONTEXT, GPU_CONTEXT};
+use crate::GPU_CONTEXT;
 use core::ffi::c_void;
 use cublas_sys::*;
 use std::ops::{Add, Mul, Neg, Sub};
+use std::sync::Arc;
 use std::time::Instant;
 
 //mod tensor_ops;
@@ -165,24 +166,12 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
     fn _get_function(fn_name: &str) -> Function {
-        let context = GPU_CONTEXT.get().expect("No GPU Context Set");
+        let t = GPU_CONTEXT
+            .get()
+            .expect("No GPU Context Set")
+            .get_function(fn_name);
 
-        let now = Instant::now();
-        let module = context.module.as_ref().expect("Module not found");
-
-        println!("Get module took {:.2?}", now.elapsed());
-        let now = Instant::now();
-
-        match module.get_function(fn_name) {
-            Ok(f) => {
-                println!("Get function took {:.2?}", now.elapsed());
-                return f;
-            }
-            Err(e) => {
-                eprintln!("Error: {}, while getting function: {}", e, fn_name);
-                panic!("Failed")
-            }
-        }
+        Arc::try_unwrap(t).unwrap()
     }
 
     fn _get_stream() -> &'static Stream {

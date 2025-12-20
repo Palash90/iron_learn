@@ -5,8 +5,8 @@ use crate::neural_network::CoreNeuralNetType;
 use crate::tensor::math::TensorMath;
 use crate::ActivationType;
 use crate::LossFunction;
+use crate::NeuralNet;
 use crate::Tensor;
-use crate::{NeuralNet, SignedNumeric};
 
 pub struct NeuralNetBuilder<T>
 where

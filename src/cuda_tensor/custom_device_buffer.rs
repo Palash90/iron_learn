@@ -1,4 +1,4 @@
-use crate::{GLOBAL_CONTEXT, GPU_CONTEXT};
+use crate::GPU_CONTEXT;
 use cust::memory::{DeviceBuffer, DevicePointer};
 
 use crate::Numeric;

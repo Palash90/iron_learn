@@ -10,7 +10,9 @@ mod read_file;
 mod runners;
 pub mod tensor;
 
-pub use crate::app_context::{init_context, init_gpu, AppContext, GLOBAL_CONTEXT, GPU_CONTEXT, GpuContext};
+pub use crate::app_context::{
+    init_context, init_gpu, AppContext, GpuContext, GLOBAL_CONTEXT, GPU_CONTEXT,
+};
 pub use crate::commons::normalize_features;
 pub use crate::complex::Complex;
 pub use crate::cpu_tensor::CpuTensor;

@@ -12,10 +12,10 @@ use std::time::Instant;
 
 use crate::read_file::deserialize_data;
 
+use crate::neural_network::CoreNeuralNetType;
 use crate::ActivationType;
 use crate::NeuralNet;
 use crate::NeuralNetBuilder;
-use crate::neural_network::CoreNeuralNetType;
 
 use crate::neural_network::MeanSquaredErrorLoss;
 
@@ -68,8 +68,8 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let DataDoublePrecision { logistic: xy, .. } =
-        deserialize_data_double_precision(&data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
+    let DataDoublePrecision { logistic: xy, .. } = deserialize_data_double_precision(&data_path)
+        .map_err(|e| format!("Data deserialization error: {}", e))?;
 
     print!("\nLogistic Regression\n");
     print!("Number of examples (m): {}\n", xy.m);
@@ -126,8 +126,8 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let DataDoublePrecision { linear: xy, .. } =
-        deserialize_data_double_precision(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
+    let DataDoublePrecision { linear: xy, .. } = deserialize_data_double_precision(data_path)
+        .map_err(|e| format!("Data deserialization error: {}", e))?;
 
     print!("\nLinear Regression\n");
     print!("Number of examples (m): {}\n", xy.m);
@@ -226,17 +226,13 @@ where
     nn.add_linear(hidden_length / 2, 1, "Hidden Layer 3");
     nn.add_activation(ActivationType::Sigmoid, "Activation Layer 4");
 
-    let mut nn = nn.build(  loss_function_instance);
+    let mut nn = nn.build(loss_function_instance);
 
     let mut start_time = Instant::now();
 
     let monitor = |epoch: usize, err: CoreNeuralNetType, nn: &mut NeuralNet<T>| {
         let elapsed = start_time.elapsed();
-        println!(
-            "Monitor called on {}, time elapsed {:?}",
-            epoch,
-            elapsed
-        );
+        println!("Monitor called on {}, time elapsed {:?}", epoch, elapsed);
         start_time = Instant::now();
         println!("{}", epoch);
 

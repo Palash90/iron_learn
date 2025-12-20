@@ -1,6 +1,5 @@
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
-use crate::SignedNumeric;
 use rand::Rng;
 use std::f32::consts::PI;
 
@@ -235,7 +234,7 @@ where
             // Hook (Periodic Reporting)
             if i == 0 || i % hook_interval == 0 {
                 x_train.synchronize();
-                let e_1 =  err.unwrap();
+                let e_1 = err.unwrap();
                 println!("E_1 calc");
 
                 let e_2 = e_1.sum().unwrap();

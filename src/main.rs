@@ -67,25 +67,11 @@ fn init() {
             }
             Err(e) => {
                 eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
-                init_context(
-                    "Iron Learn",
-                    5,
-                    data_path,
-                    learning_rate,
-                    epochs,
-                    false,
-                );
+                init_context("Iron Learn", 5, data_path, learning_rate, epochs, false);
             }
         }
     } else {
-        init_context(
-            "Iron Learn",
-            5,
-            data_path,
-            learning_rate,
-            epochs,
-            false,
-        );
+        init_context("Iron Learn", 5, data_path, learning_rate, epochs, false);
     }
 }
 

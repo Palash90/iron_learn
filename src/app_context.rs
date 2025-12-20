@@ -11,13 +11,27 @@
 //! The context is initialized once at application startup and remains immutable
 //! throughout the program lifetime using `OnceLock` for thread-safe access.
 
+use std::collections::HashMap;
 use std::ptr;
-use std::sync::OnceLock;
+use std::sync::{Mutex, OnceLock};
 
 use crate::cuda_tensor::CublasHandle;
 use crate::cuda_tensor::CudaMemoryPool;
 use cublas_sys::*;
+use cust::prelude::Function;
 use cust::{module::Module, stream::Stream};
+use std::sync::Arc;
+use std::time::Instant;
+
+/// Global singleton instance of application context
+///
+/// Thread-safe access to the immutable application state initialized at startup.
+/// Use `GLOBAL_CONTEXT.get()` to access the context after initialization.
+pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
+
+pub static GPU_CONTEXT: OnceLock<GpuContext> = OnceLock::new();
+
+static KERNEL_CONTEXT: OnceLock<Mutex<KernelMap>> = OnceLock::new();
 
 /// Global application context with training configuration and GPU capabilities
 ///
@@ -65,13 +79,44 @@ pub struct GpuContext {
     pub cublas_handle: CublasHandle,
 }
 
-/// Global singleton instance of application context
-///
-/// Thread-safe access to the immutable application state initialized at startup.
-/// Use `GLOBAL_CONTEXT.get()` to access the context after initialization.
-pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
+pub struct KernelMap {
+    kernel_map: HashMap<String, Arc<Function<'static>>>,
+}
 
-pub static GPU_CONTEXT: OnceLock<GpuContext> = OnceLock::new();
+impl GpuContext {
+    pub fn get_function(&self, fn_name: &str) -> Arc<Function> {
+        let mut guard = KERNEL_CONTEXT
+            .get_or_init(|| {
+                Mutex::new(KernelMap {
+                    kernel_map: HashMap::new(),
+                })
+            })
+            .lock()
+            .unwrap();
+
+        if let Some(f) = guard.kernel_map.get(fn_name) {
+            return Arc::clone(f);
+        }
+
+        let now = Instant::now();
+        let module = self.module.as_ref().expect("Module not found");
+
+        match module.get_function(fn_name) {
+            Ok(f) => {
+                let f_static = unsafe { std::mem::transmute::<Function<'_>, Function<'static>>(f) };
+                let shared_fn = Arc::new(f_static);
+
+                guard
+                    .kernel_map
+                    .insert(fn_name.to_string(), Arc::clone(&shared_fn));
+                shared_fn
+            }
+            Err(e) => {
+                panic!("Error: {}, while getting function: {}", e, fn_name);
+            }
+        }
+    }
+}
 
 /// Initialize the global application context
 ///
@@ -156,5 +201,5 @@ pub fn init_gpu(
     match GPU_CONTEXT.set(ctx) {
         Ok(_) => (),
         Err(_) => eprintln!("GpuContext has already been initialized!"),
-    }
+    };
 }

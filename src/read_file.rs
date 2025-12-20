@@ -1,6 +1,6 @@
 use std::fs;
 
-use crate::{Data, runners::DataDoublePrecision};
+use crate::{runners::DataDoublePrecision, Data};
 
 pub fn deserialize_data(data_path: &str) -> Result<Data, serde_json::Error> {
     let contents =
@@ -15,7 +15,9 @@ pub fn deserialize_data(data_path: &str) -> Result<Data, serde_json::Error> {
     Ok(data.clone())
 }
 
-pub fn deserialize_data_double_precision(data_path: &str) -> Result<DataDoublePrecision, serde_json::Error> {
+pub fn deserialize_data_double_precision(
+    data_path: &str,
+) -> Result<DataDoublePrecision, serde_json::Error> {
     let contents =
         fs::read_to_string(&data_path).expect(&format!("Failed to read data from {}", data_path));
     let data: DataDoublePrecision = match serde_json::from_str(&contents) {
