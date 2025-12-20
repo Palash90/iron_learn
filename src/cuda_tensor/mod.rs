@@ -3,10 +3,11 @@ use crate::cuda_tensor::custom_device_buffer::{
 };
 use crate::numeric::{Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
-use crate::GLOBAL_CONTEXT;
+use crate::{GLOBAL_CONTEXT, GPU_CONTEXT};
 use core::ffi::c_void;
 use cublas_sys::*;
 use std::ops::{Add, Mul, Neg, Sub};
+use std::time::Instant;
 
 //mod tensor_ops;
 use crate::Tensor;
@@ -103,9 +104,9 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     }
 
     fn synchronize(&self) {
-        &(GLOBAL_CONTEXT
+        &(GPU_CONTEXT
             .get()
-            .expect("No Context Intialized")
+            .expect("No GPU Context Intialized")
             .stream
             .as_ref()
             .expect("Stream could not be found"))
@@ -164,32 +165,39 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
     fn _get_function(fn_name: &str) -> Function {
-        let context = GLOBAL_CONTEXT.get().expect("No Context Set");
+        let context = GPU_CONTEXT.get().expect("No GPU Context Set");
 
+        let now = Instant::now();
         let module = context.module.as_ref().expect("Module not found");
 
+        println!("Get module took {:.2?}", now.elapsed());
+        let now = Instant::now();
+
         match module.get_function(fn_name) {
-            Ok(f) => return f,
+            Ok(f) => {
+                println!("Get function took {:.2?}", now.elapsed());
+                return f;
+            }
             Err(e) => {
-                eprintln!("{}", e);
+                eprintln!("Error: {}, while getting function: {}", e, fn_name);
                 panic!("Failed")
             }
         }
     }
 
     fn _get_stream() -> &'static Stream {
-        GLOBAL_CONTEXT
+        GPU_CONTEXT
             .get()
-            .expect("No Context Set")
+            .expect("No GPU Context Set")
             .stream
             .as_ref()
             .expect(&format!("Stream not found"))
     }
 
     fn _get_cublas_handle() -> cublasHandle_t {
-        GLOBAL_CONTEXT
+        GPU_CONTEXT
             .get()
-            .expect("No Context Set")
+            .expect("No GPU Context Set")
             .cublas_handle
             .handle
     }
@@ -233,6 +241,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         }
     }
     fn element_op(&self, op_type: OpType, scale: T) -> Result<Self, String> {
+        let now = Instant::now();
         let block_dim = 16;
 
         let total_elements: u32 = self.shape.iter().product();
@@ -254,6 +263,8 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
                 scale
             ));
         };
+
+        println!("Kernel call took {:.2?}", now.elapsed());
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
@@ -362,8 +373,10 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let sum = Self::_get_function("column_reduce");
 
         let total_elements = self.shape.iter().product::<u32>() as usize;
+        println!("total elements");
 
         let result = get_device_buffer(total_elements);
+        println!("GetDevice Buffer");
 
         let total_size_u32 = total_elements as u32;
         let threads_per_block = 1024;

@@ -2,6 +2,7 @@ use cublas_sys::*;
 use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
+use iron_learn::init_gpu;
 use iron_learn::run_neural_net;
 use iron_learn::Data;
 use iron_learn::Tensor;
@@ -60,18 +61,9 @@ fn init() {
                     }
                 };
 
-                init_context(
-                    "Iron Learn",
-                    5,
-                    data_path,
-                    learning_rate,
-                    epochs,
-                    true,
-                    Some(context),
-                    Some(module),
-                    Some(stream),
-                    Some(handle),
-                );
+                init_context("Iron Learn", 5, data_path, learning_rate, epochs, true);
+
+                init_gpu(Some(context), Some(module), Some(stream), Some(handle));
             }
             Err(e) => {
                 eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
@@ -82,10 +74,6 @@ fn init() {
                     learning_rate,
                     epochs,
                     false,
-                    None,
-                    None,
-                    None,
-                    None,
                 );
             }
         }
@@ -97,10 +85,6 @@ fn init() {
             learning_rate,
             epochs,
             false,
-            None,
-            None,
-            None,
-            None,
         );
     }
 }

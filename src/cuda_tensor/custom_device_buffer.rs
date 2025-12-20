@@ -1,4 +1,4 @@
-use crate::GLOBAL_CONTEXT;
+use crate::{GLOBAL_CONTEXT, GPU_CONTEXT};
 use cust::memory::{DeviceBuffer, DevicePointer};
 
 use crate::Numeric;
@@ -18,7 +18,7 @@ impl<T: Numeric> CustomDeviceBuffer<T> {
 
 impl<T: Numeric> Drop for CustomDeviceBuffer<T> {
     fn drop(&mut self) {
-        let pool = match &GLOBAL_CONTEXT.get().expect("No Context Set").pool {
+        let pool = match &GPU_CONTEXT.get().expect("No GPU Context Set").pool {
             Some(p) => p,
             None => panic!("Cuda not initialized or Gpu Pool is not set up"),
         };
@@ -28,7 +28,7 @@ impl<T: Numeric> Drop for CustomDeviceBuffer<T> {
 }
 
 pub fn get_device_buffer<T: Numeric>(size: usize) -> CustomDeviceBuffer<T> {
-    let pool = match &GLOBAL_CONTEXT.get().expect("No Context Set").pool {
+    let pool = match &GPU_CONTEXT.get().expect("No GPU Context Set").pool {
         Some(p) => p,
         None => panic!("Cuda not initialized or Gpu Pool is not set up"),
     };

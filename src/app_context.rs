@@ -54,6 +54,10 @@ pub struct AppContext {
     pub learning_rate: f64,
     pub epochs: u32,
     pub gpu_enabled: bool,
+}
+
+#[derive(Debug)]
+pub struct GpuContext {
     pub context: Option<cust::context::Context>,
     pub module: Option<Module>,
     pub stream: Option<Stream>,
@@ -66,6 +70,8 @@ pub struct AppContext {
 /// Thread-safe access to the immutable application state initialized at startup.
 /// Use `GLOBAL_CONTEXT.get()` to access the context after initialization.
 pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
+
+pub static GPU_CONTEXT: OnceLock<GpuContext> = OnceLock::new();
 
 /// Initialize the global application context
 ///
@@ -108,6 +114,22 @@ pub fn init_context(
     learning_rate: f64,
     epochs: u32,
     gpu_enabled: bool,
+) {
+    let ctx = AppContext {
+        app_name,
+        version,
+        data_path,
+        learning_rate,
+        epochs,
+        gpu_enabled,
+    };
+    match GLOBAL_CONTEXT.set(ctx) {
+        Ok(_) => (),
+        Err(_) => eprintln!("AppContext has already been initialized!"),
+    }
+}
+
+pub fn init_gpu(
     context: Option<cust::context::Context>,
     module: Option<Module>,
     stream: Option<Stream>,
@@ -123,21 +145,16 @@ pub fn init_context(
         _ => ptr::null_mut(),
     };
 
-    let ctx = AppContext {
-        app_name,
-        version,
-        data_path,
-        learning_rate,
-        epochs,
-        gpu_enabled,
+    let ctx = GpuContext {
         context,
         module,
         stream,
         pool,
         cublas_handle: CublasHandle { handle },
     };
-    match GLOBAL_CONTEXT.set(ctx) {
+
+    match GPU_CONTEXT.set(ctx) {
         Ok(_) => (),
-        Err(_) => eprintln!("AppContext has already been initialized!"),
+        Err(_) => eprintln!("GpuContext has already been initialized!"),
     }
 }

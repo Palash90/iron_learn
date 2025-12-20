@@ -234,16 +234,18 @@ where
         let elapsed = start_time.elapsed();
         println!(
             "Monitor called on {}, time elapsed {:?}",
-            epoch + 1,
+            epoch,
             elapsed
         );
         start_time = Instant::now();
+        println!("{}", epoch);
 
-        // This line runs on the Host (CPU) but the error value came from a D2H transfer
-        if epoch % 500 == 0 || epoch == (e - 1) as usize {
-            println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err / 4.0); // Divide by 4 samples
+        if (epoch > 0 && epoch % 2 == 0) || epoch == (e - 1) as usize {
+            println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err);
             nn.predict(&x);
         }
+
+        println!("Hook completed at epoch {}", epoch);
     };
 
     nn.fit(&x, &y, e as usize, 0, l, monitor);

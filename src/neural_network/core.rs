@@ -194,39 +194,58 @@ where
         let lr_min = 1e-6;
 
         for i in 0..epochs {
-            let cos_term = ((PI * i as CoreNeuralNetType)
+            println!("Epoch {}", i);
+
+            let cos_term = ((PI as CoreNeuralNetType * i as CoreNeuralNetType)
                 / ((epochs + epoch_offset) as CoreNeuralNetType))
                 .cos();
+            println!("cos {}", cos_term);
+
             let decay_factor = 0.5 * (1.0 + cos_term);
             let current_lr = lr_min + (base_lr.f32() - lr_min) * decay_factor;
 
             let mut output = x_train.add(&T::empty(x_train.get_shape()))?;
+            println!("Output");
             for layer in &mut self.layers {
                 output = layer.forward(&output)?;
             }
+            println!("Layer forwarded");
 
             let err = self.loss_fn.loss(y_train, &output);
 
-            let mut error = self.loss_fn.loss_prime(y_train, &output)?;
-            for layer in self.layers.iter_mut().rev() {
-                error = layer.backward(&error, current_lr)?;
-            }
+            println!("Error calculated");
 
-            let hook_interval = match epochs > 1000 {
-                true => 1000,
+            let mut error_prime = self.loss_fn.loss_prime(y_train, &output)?;
+            println!("Error Prime Calculated");
+
+            for layer in self.layers.iter_mut().rev() {
+                println!("\t\tLayer {} backward started", layer.name());
+                error_prime = layer.backward(&error_prime, current_lr)?;
+                println!("\t\tLayer {} backward completed", layer.name());
+            }
+            println!("Backward Error Primed");
+
+            let hook_interval = match epochs > 2 {
+                true => 2,
                 false => epochs - 1,
             };
 
+            println!("Calling hook");
+
             // Hook (Periodic Reporting)
             if i == 0 || i % hook_interval == 0 {
-                let error_diff = y_train.sub(&output)?;
-                let sq_err = error_diff.multiply(&error_diff)?;
-                let sum_err = sq_err.sum()?;
-                let err_val = sum_err.get_data()[0];
-                hook(i, err_val, self);
-
                 x_train.synchronize();
+                let e_1 =  err.unwrap();
+                println!("E_1 calc");
+
+                let e_2 = e_1.sum().unwrap();
+                println!("E_2 calc");
+
+                let err_val = e_2.get_data()[0];
+                hook(i, err_val, self);
             }
+
+            println!();
         }
 
         x_train.synchronize();
