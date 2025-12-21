@@ -28,31 +28,12 @@ pub struct KernelMap {
 }
 
 impl GpuContext {
-    pub fn get_function(&self, fn_name: &str) -> Arc<Function<'_>> {
-        let mut guard = KERNEL_CONTEXT
-            .get_or_init(|| {
-                Mutex::new(KernelMap {
-                    kernel_map: HashMap::new(),
-                })
-            })
-            .lock()
-            .unwrap();
-
-        if let Some(f) = guard.kernel_map.get(fn_name) {
-            return Arc::clone(f);
-        }
-
+    pub fn get_function(&self, fn_name: &str) -> Function {
         let module = self.module.as_ref().expect("Module not found");
 
         match module.get_function(fn_name) {
             Ok(f) => {
-                let f_static = unsafe { std::mem::transmute::<Function<'_>, Function<'static>>(f) };
-                let shared_fn = Arc::new(f_static);
-
-                guard
-                    .kernel_map
-                    .insert(fn_name.to_string(), Arc::clone(&shared_fn));
-                shared_fn
+                f
             }
             Err(e) => {
                 panic!("Error: {}, while getting function: {}", e, fn_name);

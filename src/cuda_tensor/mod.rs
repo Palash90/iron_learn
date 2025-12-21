@@ -18,7 +18,7 @@ pub use mem_pool::CudaMemoryPool;
 mod cublas_handle;
 pub use cublas_handle::CublasHandle;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 enum OpType {
     EXP = 0,
     SCALE = 1,
@@ -165,18 +165,16 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
-    fn _get_function(fn_name: &str) -> Function<'_> {
+    fn _get_function(fn_name: &str) -> Function {
+        let now = Instant::now();
         let t = GPU_CONTEXT
             .get()
             .expect("No GPU Context Set")
             .get_function(fn_name);
 
-        let arc = Arc::try_unwrap(t);
+        println!("Getting {} took {:.2?}", fn_name, now.elapsed());
 
-        match arc {
-            Ok(f) => f,
-            Err(e) => panic!("Failed to unwrap Arc for function {}: {:?}", fn_name, e),
-        }
+        t
     }
 
     fn _get_stream() -> &'static Stream {
@@ -258,11 +256,12 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         };
 
-        println!("Kernel call took {:.2?}", now.elapsed());
+        println!("Element Op {:?} took {:.2?}", op_type, now.elapsed());
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
     fn _t(&self) -> Result<Self, String> {
+        let now = Instant::now();
         if self.shape.len() > 2 {
             return Err("Only upto 2D tensors can be transposed.".to_string());
         }
@@ -309,7 +308,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
             );
         }
-
+        println!("Transpose took {:.2?}", now.elapsed());
         Ok(Self::_with_device_buffer(new_shape, result))
     }
 
@@ -333,6 +332,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
+        let now = Instant::now();
         if self.shape != rhs.shape {
             return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
         }
@@ -359,11 +359,13 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
                 sub_int
             ));
         }
+        println!("Add kernel took {:.2?}", now.elapsed());
 
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
     fn _sum(&self) -> Result<Self, String> {
+        let now = Instant::now();
         let sum = Self::_get_function("column_reduce");
 
         let total_elements = self.shape.iter().product::<u32>() as usize;
@@ -387,6 +389,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         }
 
+        println!("Sum kernel took {:.2?}", now.elapsed());
         Ok(Self::_with_device_buffer(vec![1, self.shape[1]], result))
     }
 
@@ -470,6 +473,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
+        let now = Instant::now();
         if self.shape != rhs.shape {
             let s = format!(
                 "ShapeMismatch:The dimensions of two matrices are not compatible for hadamard product- {:?} {:?}",
@@ -501,6 +505,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         }
 
+        println!("Hadamard took {:.2?}", now.elapsed());
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
@@ -570,6 +575,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _mul(&self, rhs: &Self) -> Result<Self, String> {
+        let now = Instant::now();
         if self.shape[1] != rhs.shape[0] {
             let s = format!(
                 "ShapeMismatch:The dimensions of two matrices are not compatible for multiplication- {:?} {:?}",
@@ -578,6 +584,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return Err(s);
         }
 
+        println!("Matmul took {:.2?}", now.elapsed());
         self._gpu_mul_cublas(rhs)
     }
 }
