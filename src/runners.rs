@@ -257,6 +257,10 @@ where
             "Hook completed at epoch {}, time took {:.2?}",
             epoch, elapsed
         );
+
+        if epoch != 0 && epoch % 1000 == 0 {
+            nn.predict(&x).unwrap().print_matrix();
+        }
     };
 
     let _ = nn.fit(&x, &y, e as usize, 0, l, true, monitor, 1000);

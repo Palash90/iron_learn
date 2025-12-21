@@ -63,6 +63,8 @@ where
                 output = layer.forward(&output).unwrap();
             }
 
+            T::synchronize();
+
             let err = self.loss_fn.loss(y_train, &output);
 
             let mut error_prime = self.loss_fn.loss_prime(y_train, &output).unwrap();
