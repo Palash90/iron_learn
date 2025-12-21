@@ -225,6 +225,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             }
         }
     }
+
     fn element_op(&self, op_type: OpType, scale: T) -> Result<Self, String> {
         let block_dim = 16;
 

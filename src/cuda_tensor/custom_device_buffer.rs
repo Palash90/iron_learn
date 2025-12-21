@@ -33,13 +33,13 @@ pub fn get_device_buffer<T: Numeric>(size: usize) -> CustomDeviceBuffer<T> {
         None => panic!("Cuda not initialized or Gpu Pool is not set up"),
     };
 
-    let size = size.checked_mul(size_of::<T>()).unwrap();
+    let ptr_size = size.checked_mul(size_of::<T>()).unwrap();
 
-    if size == 0 {
+    if ptr_size == 0 {
         panic!("Attempted a zero size pointer or null pointer creation.");
     }
 
-    let pool_allocated_pointer = pool.allocate(size).unwrap();
+    let pool_allocated_pointer = pool.allocate(ptr_size).unwrap();
     let device_pointer = DevicePointer::from_raw(pool_allocated_pointer);
 
     let device_buffer = unsafe { DeviceBuffer::from_raw_parts(device_pointer, size) };
