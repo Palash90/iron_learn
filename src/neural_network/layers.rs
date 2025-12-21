@@ -34,14 +34,9 @@ where
     pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
         let mut rng = rand::rng();
 
-        // Match Python's np.random.randn (Mean 0, StdDev 1)
-        // Or stick to Xavier but ensure the math is identical
-        let limit = (6.0 / (input_size + output_size) as f32).sqrt();
-
         let w_data: Vec<NeuralNetDataType> = (0..(input_size * output_size))
-            .map(|_| ((rng.random::<f32>() * 2.0 - 1.0) * limit).into())
+            .map(|_| (rng.random::<NeuralNetDataType>() * 2.0 - 1.0).into())
             .collect();
-        let b_data: Vec<NeuralNetDataType> = vec![0.0.into(); output_size as usize];
 
         Ok(Self {
             weights: T::new(vec![input_size, output_size], w_data)?,
