@@ -8,6 +8,7 @@ use core::ffi::c_void;
 use cublas_sys::*;
 use cust::memory::bytemuck::Zeroable;
 use cust::memory::CopyDestination;
+use cust::sys::*;
 use std::ops::{Add, Mul, Neg, Sub};
 
 //mod tensor_ops;
@@ -193,48 +194,18 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return false;
         }
 
-        let total_size: u32 = self.shape.iter().product::<u32>();
+        let total_size = self.shape.iter().product::<u32>() as usize;
 
         if total_size == 0 {
             return true;
         }
 
-        println!("Total size {}", total_size);
-
-        let threads_per_block = 1024;
-
-        let grid_1d = (total_size + threads_per_block - 1) / threads_per_block;
-
-        let compare = Self::_get_function("compare_memory");
-
-        let mut result_host = [10i32];
-        let result_device = get_device_buffer_from_slice(&result_host);
-
-        let stream = Self::_get_stream();
-        unsafe {
-            let _ = launch!(compare<<<(grid_1d, 1, 1), threads_per_block, 0, stream>>>(
-                self.device_buffer.as_device_ptr(),
-                other.device_buffer.as_device_ptr(),
-                total_size, // Use the correct calculated size
-                result_device.as_device_ptr(),
-            ));
-        }
-
-        let mut d_r = [10i32];
-
-        match result_device.device_buffer.copy_to(&mut d_r) {
-            Ok(_) => {
-                println!("Done copyin");
-            }
-            Err(e) => {
-                eprintln!("Error copying result from device to host: {}", e);
+        for i in 0..total_size {
+            if self.get_data()[i] != other.get_data()[i] {
                 return false;
             }
         }
-
-        println!("{:?}", d_r);
-
-        return d_r[0] == 10;
+        return true;
     }
 
     fn element_op(&self, op_type: OpType, scale: T) -> Result<Self, String> {
@@ -251,7 +222,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let operation = Self::_get_function("element_op");
 
         unsafe {
-            let _ = launch!(operation<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
+            let _ = launch!(operation<<<grid_1d, threads_per_block, 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
                 total_elements as i32,
@@ -351,7 +322,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let stream = Self::_get_stream();
         unsafe {
-            let _ = launch!(add<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
+            let _ = launch!(add<<< grid_1d, threads_per_block, 0, stream >>>(
                 self.device_buffer.as_device_ptr(),
                 rhs.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),

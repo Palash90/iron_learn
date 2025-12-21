@@ -37,6 +37,7 @@ pub trait Numeric:
     + std::ops::Div<Output = Self>
     + std::fmt::Display
     + std::fmt::Debug
+    + std::cmp::PartialEq
 {
     /// Returns the zero value of the type.
     fn zero() -> Self;
