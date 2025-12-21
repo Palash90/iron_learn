@@ -3,6 +3,7 @@ mod commons;
 mod complex;
 mod cpu_tensor;
 mod cuda_tensor;
+mod gpu_context;
 mod gradient_descent;
 mod neural_network;
 mod numeric;
@@ -10,13 +11,12 @@ mod read_file;
 mod runners;
 pub mod tensor;
 
-pub use crate::app_context::{
-    init_context, init_gpu, AppContext, GpuContext, GLOBAL_CONTEXT, GPU_CONTEXT,
-};
+pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::commons::normalize_features;
 pub use crate::complex::Complex;
 pub use crate::cpu_tensor::CpuTensor;
 pub use crate::cuda_tensor::GpuTensor;
+pub use crate::gpu_context::{init_gpu, GpuContext, GPU_CONTEXT};
 pub use crate::gradient_descent::gradient_descent;
 pub use crate::gradient_descent::linear_regression;
 pub use crate::gradient_descent::logistic_regression;

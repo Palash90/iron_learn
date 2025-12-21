@@ -105,7 +105,7 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     }
 
     fn synchronize(&self) {
-        &(GPU_CONTEXT
+        let _ = &(GPU_CONTEXT
             .get()
             .expect("No GPU Context Intialized")
             .stream
@@ -165,13 +165,18 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
-    fn _get_function(fn_name: &str) -> Function {
+    fn _get_function(fn_name: &str) -> Function<'_> {
         let t = GPU_CONTEXT
             .get()
             .expect("No GPU Context Set")
             .get_function(fn_name);
 
-        Arc::try_unwrap(t).unwrap()
+        let arc = Arc::try_unwrap(t);
+
+        match arc {
+            Ok(f) => f,
+            Err(e) => panic!("Failed to unwrap Arc for function {}: {:?}", fn_name, e),
+        }
     }
 
     fn _get_stream() -> &'static Stream {
@@ -213,7 +218,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let stream = Self::_get_stream();
         unsafe {
-            launch!(compare<<<(grid_1d, 1, 1), threads_per_block, 0, stream>>>(
+            let _ = launch!(compare<<<(grid_1d, 1, 1), threads_per_block, 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 other.device_buffer.as_device_ptr(),
                 total_size, // Use the correct calculated size
@@ -244,7 +249,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let operation = Self::_get_function("element_op");
 
         unsafe {
-            launch!(operation<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
+            let _ = launch!(operation<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
                 total_elements as i32,
@@ -295,7 +300,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let stream = Self::_get_stream();
 
         unsafe {
-            launch!(transpose<<<(grid_x, grid_y, 1), (BLOCK_DIM_X, BLOCK_DIM_Y, 1), 0, stream>>>(
+            let _ = launch!(transpose<<<(grid_x, grid_y, 1), (BLOCK_DIM_X, BLOCK_DIM_Y, 1), 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
                 m,
@@ -346,7 +351,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let stream = Self::_get_stream();
         unsafe {
-            launch!(add<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
+            let _ =launch!(add<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
                 self.device_buffer.as_device_ptr(),
                 rhs.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
@@ -374,7 +379,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let stream = Self::_get_stream();
         unsafe {
-            launch!(sum<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
+           let _ = launch!(sum<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
                 self.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
                 self.shape[0],
