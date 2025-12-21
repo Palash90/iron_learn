@@ -274,7 +274,7 @@ pub fn test_element_op_float() {
         ],
     )
     .unwrap();
-println!("exp check");
+    println!("exp check");
     result.print_matrix();
     m2.print_matrix();
     assert_eq!(result, m2);

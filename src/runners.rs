@@ -225,20 +225,23 @@ where
     nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
     nn.add_activation(tanh, tanh_prime, "Activation Layer 2");
 
-    nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 2");
-
-    nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 2");
-
-    nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 2");
-
-    nn.add_linear(hidden_length, hidden_length / 2, "Hidden Layer 2");
+    nn.add_linear(hidden_length, 2 * hidden_length, "Hidden Layer 2");
     nn.add_activation(tanh, tanh_prime, "Activation Layer 3");
 
-    nn.add_linear(hidden_length / 2, 1, "Hidden Layer 3");
-    nn.add_activation(sigmoid, sigmoid_prime, "Activation Layer 4");
+    nn.add_linear(2 * hidden_length, hidden_length, "Hidden Layer 3");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 4");
+
+    nn.add_linear(hidden_length, hidden_length / 2, "Hidden Layer 4");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 5");
+
+    nn.add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 5");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 6");
+
+    nn.add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 6");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 7");
+
+    nn.add_linear(hidden_length / 2, 1, "Hidden Layer 7");
+    nn.add_activation(sigmoid, sigmoid_prime, "Output Layer");
 
     let mut nn = nn.build(loss_function_instance);
 
@@ -246,19 +249,17 @@ where
 
     let monitor = |epoch: usize, err: NeuralNetDataType, nn: &mut NeuralNet<T>| {
         let elapsed = start_time.elapsed();
-        println!("Monitor called on {}, time elapsed {:?}", epoch, elapsed);
         start_time = Instant::now();
-        println!("{}", epoch);
 
-        if (epoch > 0 && epoch % 1 == 0) || epoch == (e - 1) as usize {
-            println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err);
-            nn.predict(&x).unwrap().print_matrix();
-        }
+        println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err);
 
-        println!("Hook completed at epoch {}", epoch);
+        println!(
+            "Hook completed at epoch {}, time took {:.2?}",
+            epoch, elapsed
+        );
     };
 
-    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor);
+    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, 10);
 
     //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
 

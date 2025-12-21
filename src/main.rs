@@ -24,7 +24,7 @@ fn init() {
     let epochs = args
         .get(3)
         .and_then(|s| s.parse::<u32>().ok())
-        .unwrap_or(10000);
+        .unwrap_or(10);
     let data_path = args
         .get(4)
         .map(|s| s.to_owned())

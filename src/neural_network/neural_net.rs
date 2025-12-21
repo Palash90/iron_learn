@@ -40,6 +40,7 @@ where
         base_lr: NeuralNetDataType,
         lr_adjustment: bool,
         mut hook: F,
+        hook_interval: usize,
     ) -> Result<(), String>
     where
         F: FnMut(usize, NeuralNetDataType, &mut Self),
@@ -47,12 +48,9 @@ where
         let lr_min = 1e-6;
 
         for i in 0..epochs {
-            println!("Epoch {}", i);
-
             let cos_term = ((PI as NeuralNetDataType * i as NeuralNetDataType)
                 / ((epochs + epoch_offset) as NeuralNetDataType))
                 .cos();
-            println!("cos {}", cos_term);
 
             let decay_factor = 0.5 * (1.0 + cos_term);
             let current_lr = match lr_adjustment {
@@ -60,47 +58,32 @@ where
                 false => base_lr,
             };
 
-            println!("Current lr {}", current_lr);
-
             let mut output = x_train.add(&T::zeroes(x_train.get_shape())).unwrap();
             for layer in &mut self.layers {
                 output = layer.forward(&output).unwrap();
             }
-            println!("Layer forwarded");
 
             let err = self.loss_fn.loss(y_train, &output);
 
-            println!("Error calculated");
-
             let mut error_prime = self.loss_fn.loss_prime(y_train, &output).unwrap();
-            println!("Error Prime Calculated");
 
             for layer in self.layers.iter_mut().rev() {
-                println!("\t\tLayer {} backward started", layer.name());
                 error_prime = layer.backward(&error_prime, current_lr).unwrap();
-                println!("\t\tLayer {} backward completed", layer.name());
             }
-            println!("Backward Error Primed");
-
-            let hook_interval = match epochs > 1 {
-                true => 1,
+            let hook_interval = match epochs > hook_interval {
+                true => hook_interval,
                 false => epochs - 1,
             };
-
             // Hook (Periodic Reporting)
             if i == 0 || i % hook_interval == 0 {
                 T::synchronize();
                 let e_1 = err.unwrap();
-                println!("E_1 calc");
 
                 let e_2 = e_1.sum().unwrap();
-                println!("E_2 calc");
 
                 let err_val = e_2.get_data()[0];
                 hook(i, err_val, self);
             }
-
-            println!();
         }
 
         T::synchronize();
