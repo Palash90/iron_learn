@@ -85,7 +85,7 @@ extern "C" __global__ void compare_memory(const float *a, const float *b, size_t
         float diff = abs(a[idx] - b[idx]);
         if (diff > EPSILON)
         {
-            atomicExch(result, 0);
+            atomicExch(result, 5);
         }
     }
 }

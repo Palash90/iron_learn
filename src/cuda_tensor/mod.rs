@@ -157,6 +157,7 @@ impl<T: SignedNumeric + Zeroable> Neg for GpuTensor<T> {
 
 impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
     fn eq(&self, other: &Self) -> bool {
+        println!("Partial eq called");
         self._eq(other)
     }
 }
@@ -198,13 +199,15 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return true;
         }
 
+        println!("Total size {}", total_size);
+
         let threads_per_block = 1024;
 
         let grid_1d = (total_size + threads_per_block - 1) / threads_per_block;
 
         let compare = Self::_get_function("compare_memory");
 
-        let mut result_host = [1i32];
+        let mut result_host = [10i32];
         let result_device = get_device_buffer_from_slice(&result_host);
 
         let stream = Self::_get_stream();
@@ -217,13 +220,21 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         }
 
-        match result_device.device_buffer.copy_to(&mut result_host) {
-            Ok(_) => result_host[0] == 1,
+        let mut d_r = [10i32];
+
+        match result_device.device_buffer.copy_to(&mut d_r) {
+            Ok(_) => {
+                println!("Done copyin");
+            }
             Err(e) => {
                 eprintln!("Error copying result from device to host: {}", e);
-                false
+                return false;
             }
         }
+
+        println!("{:?}", d_r);
+
+        return d_r[0] == 10;
     }
 
     fn element_op(&self, op_type: OpType, scale: T) -> Result<Self, String> {

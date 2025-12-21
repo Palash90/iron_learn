@@ -106,7 +106,7 @@ pub fn test_mul_float() {
     println!("Result");
     m3.print_matrix();
 
-    println!("Result");
+    println!("expected");
     result.print_matrix();
 
     assert_eq!(result, m3);
@@ -178,7 +178,7 @@ fn sigmoid(x: TensorType) -> TensorType {
 }
 
 #[test]
-pub fn test_sin_float() {
+pub fn test_element_op_float() {
     init();
 
     let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
@@ -186,25 +186,47 @@ pub fn test_sin_float() {
     let m2 = m1.sin().unwrap();
     let result = GpuTensor::new(
         vec![2, 2],
-        vec![TensorType::sin(1.0), TensorType::sin(2.0), TensorType::sin(-3.0), TensorType::sin(4.0)],
+        vec![
+            TensorType::sin(1.0),
+            TensorType::sin(2.0),
+            TensorType::sin(-3.0),
+            TensorType::sin(4.0),
+        ],
     )
     .unwrap();
+
+    result.print_matrix();
+    m2.print_matrix();
     assert_eq!(result, m2);
 
     let m2 = m1.cos().unwrap();
     let result = GpuTensor::new(
         vec![2, 2],
-        vec![TensorType::cos(1.0), TensorType::cos(2.0), TensorType::cos(-3.0), TensorType::cos(4.0)],
+        vec![
+            TensorType::cos(1.0),
+            TensorType::cos(2.0),
+            TensorType::cos(-3.0),
+            TensorType::cos(4.0),
+        ],
     )
     .unwrap();
+    result.print_matrix();
+    m2.print_matrix();
     assert_eq!(result, m2);
 
     let m2 = m1.tan().unwrap();
     let result = GpuTensor::new(
         vec![2, 2],
-        vec![TensorType::tan(1.0), TensorType::tan(2.0), TensorType::tan(-3.0), TensorType::tan(4.0)],
+        vec![
+            TensorType::tan(1.0),
+            TensorType::tan(2.0),
+            TensorType::tan(-3.0),
+            TensorType::tan(4.0),
+        ],
     )
     .unwrap();
+    result.print_matrix();
+    m2.print_matrix();
     assert_eq!(result, m2);
 
     let m2 = m1.tanh().unwrap();
@@ -218,6 +240,8 @@ pub fn test_sin_float() {
         ],
     )
     .unwrap();
+    result.print_matrix();
+    m2.print_matrix();
     assert_eq!(result, m2);
 
     let m2 = m1.log().unwrap();
@@ -231,12 +255,19 @@ pub fn test_sin_float() {
         ],
     )
     .unwrap();
+    result.print_matrix();
+    m2.print_matrix();
     assert_eq!(result, m2);
 
     let m2 = m1.ln().unwrap();
     let result = GpuTensor::new(
         vec![2, 2],
-        vec![TensorType::ln(1.0), TensorType::ln(2.0), TensorType::ln(-3.0), TensorType::ln(4.0)],
+        vec![
+            TensorType::ln(1.0),
+            TensorType::ln(2.0),
+            TensorType::ln(-3.0),
+            TensorType::ln(4.0),
+        ],
     )
     .unwrap();
     assert_eq!(result, m2);
@@ -244,7 +275,12 @@ pub fn test_sin_float() {
     let m2 = m1.exp().unwrap();
     let result = GpuTensor::new(
         vec![2, 2],
-        vec![TensorType::exp(1.0), TensorType::exp(2.0), TensorType::exp(-3.0), TensorType::exp(4.0)],
+        vec![
+            TensorType::exp(1.0),
+            TensorType::exp(2.0),
+            TensorType::exp(-3.0),
+            TensorType::exp(4.0),
+        ],
     )
     .unwrap();
     assert_eq!(result, m2);

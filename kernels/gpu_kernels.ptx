@@ -842,7 +842,7 @@ $L__BB2_62:
 	@%p2 bra 	$L__BB3_3;
 
 	cvta.to.global.u64 	%rd11, %rd4;
-	atom.global.exch.b32 	%r5, [%rd11], 0;
+	atom.global.exch.b32 	%r5, [%rd11], 5;
 
 $L__BB3_3:
 	ret;
