@@ -8,6 +8,8 @@ use iron_learn::Tensor;
 use iron_learn::{init_context, GpuTensor};
 use std::ptr;
 
+type TensorType = f32;
+
 fn init() {
     match cust::quick_init() {
         Ok(context) => {
@@ -44,10 +46,10 @@ fn init() {
 
 #[cfg(test)]
 #[test]
-pub fn test_add_f64() {
+pub fn test_add() {
     init();
 
-    let m1 = GpuTensor::<f64>::new(vec![1], vec![1.0]).unwrap();
+    let m1 = GpuTensor::<TensorType>::new(vec![1], vec![1.0]).unwrap();
     let m2 = GpuTensor::new(vec![1], vec![3.0]).unwrap();
     let result = GpuTensor::new(vec![1], vec![4.0]).unwrap();
     let m3 = (m1 + m2).unwrap();
@@ -69,10 +71,10 @@ pub fn test_add_f64() {
 
 #[cfg(test)]
 #[test]
-pub fn test_add_f64_2() {
+pub fn test_add_2() {
     init();
 
-    let m1 = GpuTensor::<f64>::new(vec![1], vec![1.0]).unwrap();
+    let m1 = GpuTensor::<TensorType>::new(vec![1], vec![1.0]).unwrap();
     let m2 = GpuTensor::new(vec![1], vec![3.0]).unwrap();
     let result = GpuTensor::new(vec![1], vec![4.0]).unwrap();
     let m3 = (m1 + m2).unwrap();
@@ -171,8 +173,8 @@ pub fn test_scale_float() {
     assert_eq!(result, m2);
 }
 
-fn sigmoid(x: f64) -> f64 {
-    f64::exp(x) / (1.0 + f64::exp(x))
+fn sigmoid(x: TensorType) -> TensorType {
+    TensorType::exp(x) / (1.0 + TensorType::exp(x))
 }
 
 #[test]
@@ -184,7 +186,7 @@ pub fn test_sin_float() {
     let m2 = m1.sin().unwrap();
     let result = GpuTensor::new(
         vec![2, 2],
-        vec![f64::sin(1.0), f64::sin(2.0), f64::sin(-3.0), f64::sin(4.0)],
+        vec![TensorType::sin(1.0), TensorType::sin(2.0), TensorType::sin(-3.0), TensorType::sin(4.0)],
     )
     .unwrap();
     assert_eq!(result, m2);
@@ -192,7 +194,7 @@ pub fn test_sin_float() {
     let m2 = m1.cos().unwrap();
     let result = GpuTensor::new(
         vec![2, 2],
-        vec![f64::cos(1.0), f64::cos(2.0), f64::cos(-3.0), f64::cos(4.0)],
+        vec![TensorType::cos(1.0), TensorType::cos(2.0), TensorType::cos(-3.0), TensorType::cos(4.0)],
     )
     .unwrap();
     assert_eq!(result, m2);
@@ -200,7 +202,7 @@ pub fn test_sin_float() {
     let m2 = m1.tan().unwrap();
     let result = GpuTensor::new(
         vec![2, 2],
-        vec![f64::tan(1.0), f64::tan(2.0), f64::tan(-3.0), f64::tan(4.0)],
+        vec![TensorType::tan(1.0), TensorType::tan(2.0), TensorType::tan(-3.0), TensorType::tan(4.0)],
     )
     .unwrap();
     assert_eq!(result, m2);
@@ -209,10 +211,10 @@ pub fn test_sin_float() {
     let result = GpuTensor::new(
         vec![2, 2],
         vec![
-            f64::tanh(1.0),
-            f64::tanh(2.0),
-            f64::tanh(-3.0),
-            f64::tanh(4.0),
+            TensorType::tanh(1.0),
+            TensorType::tanh(2.0),
+            TensorType::tanh(-3.0),
+            TensorType::tanh(4.0),
         ],
     )
     .unwrap();
@@ -222,10 +224,10 @@ pub fn test_sin_float() {
     let result = GpuTensor::new(
         vec![2, 2],
         vec![
-            f64::log10(1.0),
-            f64::log10(2.0),
-            f64::log10(-3.0),
-            f64::log10(4.0),
+            TensorType::log10(1.0),
+            TensorType::log10(2.0),
+            TensorType::log10(-3.0),
+            TensorType::log10(4.0),
         ],
     )
     .unwrap();
@@ -234,7 +236,7 @@ pub fn test_sin_float() {
     let m2 = m1.ln().unwrap();
     let result = GpuTensor::new(
         vec![2, 2],
-        vec![f64::ln(1.0), f64::ln(2.0), f64::ln(-3.0), f64::ln(4.0)],
+        vec![TensorType::ln(1.0), TensorType::ln(2.0), TensorType::ln(-3.0), TensorType::ln(4.0)],
     )
     .unwrap();
     assert_eq!(result, m2);
@@ -242,7 +244,7 @@ pub fn test_sin_float() {
     let m2 = m1.exp().unwrap();
     let result = GpuTensor::new(
         vec![2, 2],
-        vec![f64::exp(1.0), f64::exp(2.0), f64::exp(-3.0), f64::exp(4.0)],
+        vec![TensorType::exp(1.0), TensorType::exp(2.0), TensorType::exp(-3.0), TensorType::exp(4.0)],
     )
     .unwrap();
     assert_eq!(result, m2);
