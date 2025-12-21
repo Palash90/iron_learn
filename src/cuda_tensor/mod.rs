@@ -101,7 +101,7 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
         self.element_op(OpType::SCALE, scalar)
     }
 
-    fn synchronize(&self) {
+    fn synchronize() {
         let _ = &(GPU_CONTEXT
             .get()
             .expect("No GPU Context Intialized")

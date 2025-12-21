@@ -23,7 +23,7 @@ pub trait Tensor<T: Numeric>: Sized {
 
     /* Device API */
     // Synchronize with GPU, if running on GPU
-    fn synchronize(&self);
+    fn synchronize();
 
     /* Matrix related operations */
     // Adds two Tensors and returns a tensor

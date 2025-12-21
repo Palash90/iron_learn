@@ -1,12 +1,12 @@
+use cublas_sys::*;
 use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use iron_learn::init_gpu;
 use iron_learn::tensor::math::TensorMath;
 use iron_learn::Tensor;
-use cublas_sys::*;
- use std::ptr;
 use iron_learn::{init_context, GpuTensor};
+use std::ptr;
 
 fn init() {
     match cust::quick_init() {
@@ -24,27 +24,20 @@ fn init() {
             };
 
             let mut handle: cublasHandle_t = ptr::null_mut();
-                unsafe {
-                    let status = cublasCreate_v2(&mut handle);
-                    if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
-                        eprintln!("Failed to create cuBLAS handle");
-                        return;
-                    }
-                };
+            unsafe {
+                let status = cublasCreate_v2(&mut handle);
+                if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
+                    eprintln!("Failed to create cuBLAS handle");
+                    return;
+                }
+            };
 
             init_context("Iron Learn", 5, String::new(), 0.0, 0, true);
             init_gpu(Some(context), Some(module), Some(stream), Some(handle));
         }
         Err(e) => {
             eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
-            init_context(
-                "Iron Learn",
-                5,
-                "".to_string(),
-                0.01,
-                1,
-                false,
-            );
+            init_context("Iron Learn", 5, "".to_string(), 0.01, 1, false);
         }
     }
 }
@@ -59,7 +52,10 @@ pub fn test_add_f64() {
     let result = GpuTensor::new(vec![1], vec![4.0]).unwrap();
     let m3 = (m1 + m2).unwrap();
 
+    println!("Result");
     m3.print_matrix();
+
+    println!("Expected");
     result.print_matrix();
 
     assert_eq!(result, m3);
@@ -81,7 +77,10 @@ pub fn test_add_f64_2() {
     let result = GpuTensor::new(vec![1], vec![4.0]).unwrap();
     let m3 = (m1 + m2).unwrap();
 
+    println!("Result");
     m3.print_matrix();
+
+    println!("expected");
     result.print_matrix();
 
     assert_eq!(result, m3);
@@ -102,7 +101,10 @@ pub fn test_mul_float() {
     let m3 = (m1 * m2).unwrap();
     let result = GpuTensor::new(vec![2, 2], vec![19.0, 22.0, 43.0, 50.0]).unwrap();
 
+    println!("Result");
     m3.print_matrix();
+
+    println!("Result");
     result.print_matrix();
 
     assert_eq!(result, m3);
@@ -117,6 +119,7 @@ pub fn test_hadamard_float() {
     let m3 = m1.multiply(&m2).unwrap();
     let result = GpuTensor::new(vec![2, 2], vec![5.0, 12.0, 21.0, 32.0]).unwrap();
 
+    println!("Result");
     m3.print_matrix();
     result.print_matrix();
 
@@ -131,6 +134,7 @@ pub fn test_neg_float() {
     let m2 = (-m1).unwrap();
     let result = GpuTensor::new(vec![2, 2], vec![-1.0, -2.0, 3.0, -4.0]).unwrap();
 
+    println!("Result");
     m2.print_matrix();
     result.print_matrix();
 
@@ -151,6 +155,7 @@ pub fn test_scale_float() {
     let m2 = m1.scale(2.0).unwrap();
     let result = GpuTensor::new(vec![2, 2], vec![2.0, 4.0, -6.0, 8.0]).unwrap();
 
+    println!("Result");
     m2.print_matrix();
     result.print_matrix();
 

@@ -419,7 +419,7 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
 
     /* Device API */
     /// Synchronize with GPU. As this is a CpuTensor, this is a no-op.
-    fn synchronize(&self) {
+    fn synchronize() {
         // No-op for CPU implementation
     }
 

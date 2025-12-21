@@ -89,7 +89,7 @@ where
 
             // Hook (Periodic Reporting)
             if i == 0 || i % hook_interval == 0 {
-                x_train.synchronize();
+                T::synchronize();
                 let e_1 = err.unwrap();
                 println!("E_1 calc");
 
@@ -103,7 +103,7 @@ where
             println!();
         }
 
-        x_train.synchronize();
+        T::synchronize();
         Ok(())
     }
 
