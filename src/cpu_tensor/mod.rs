@@ -87,7 +87,13 @@ enum OpType {
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
 impl<T: Numeric> CpuTensor<T> {
     fn _sigmoid(t: f32) -> f32 {
-        f32::exp(t) / (1.0 + f32::exp(t))
+        // Numerically stable sigmoid implementation
+        // Avoids overflow for large positive/negative values
+        if t >= 0.0 {
+            1.0 / (1.0 + (-t).exp())
+        } else {
+            t.exp() / (1.0 + t.exp())
+        }
     }
 
     fn element_op(&self, op_type: OpType) -> CpuTensor<f32> {

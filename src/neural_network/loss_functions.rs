@@ -29,9 +29,11 @@ where
     }
 
     fn loss_prime(&self, actual: &T, predicted: &T) -> Result<T, String> {
+        // MSE derivative: (predicted - actual) / batch_size
+        // Removed factor of 2 to prevent gradient explosion - adjust learning rate accordingly
+        let batch_size = actual.get_shape()[0];
         predicted
-            .sub(actual)
-            .unwrap()
-            .scale(D::from_u32(2) / D::from_u32(actual.get_shape()[0]))
+            .sub(actual)?
+            .scale(D::one() / D::from_u32(batch_size))
     }
 }

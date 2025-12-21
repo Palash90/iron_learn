@@ -38,8 +38,16 @@ where
         let mut rng = rand::rng();
         let w_count = (input_size * output_size) as usize;
 
+        // Xavier initialization: scale by sqrt(6 / (input_size + output_size))
+        // This helps prevent vanishing/exploding gradients
+        let fan_avg = ((input_size + output_size) as f32) / 2.0;
+        let limit = (6.0 / fan_avg).sqrt();
+
         let w_data: Vec<CoreNeuralNetType> = (0..w_count)
-            .map(|_| rng.random::<CoreNeuralNetType>() - 0.5)
+            .map(|_| {
+                let uniform = rng.random::<f32>();  // [0, 1)
+                ((2.0 * uniform - 1.0) * limit).into()
+            })
             .collect();
         let weights = T::new(vec![input_size, output_size], w_data)?;
 
@@ -138,18 +146,21 @@ where
 
         let prime = match self.act_type {
             ActivationType::Sigmoid => {
-                let sigmoid = out.sigmoid();
-                sigmoid
+                // Derivative: sigmoid'(x) = sigmoid(x) * (1 - sigmoid(x))
+                // out is already the sigmoid output
+                let one_minus_out = T::ones(&out.get_shape()).sub(out)?;
+                out.multiply(&one_minus_out)?
             }
             ActivationType::Tanh => {
-                let o_squared = out.multiply(out).unwrap();
-                let ones = T::ones(&out.get_shape().clone());
-                let tanh = ones.sub(&o_squared);
-                tanh
+                // Derivative: tanh'(x) = 1 - tanh(x)^2
+                // out is already the tanh output
+                let o_squared = out.multiply(out)?;
+                let ones = T::ones(&out.get_shape());
+                ones.sub(&o_squared)?
             }
         };
 
-        prime.unwrap().multiply(output_error)
+        prime.multiply(output_error)
     }
 }
 
@@ -224,12 +235,11 @@ where
             }
             println!("Backward Error Primed");
 
-            let hook_interval = match epochs > 2 {
-                true => 2,
+            let hook_interval = match epochs > 1000 {
+                true => 1000,
                 false => epochs - 1,
             };
 
-            println!("Calling hook");
 
             // Hook (Periodic Reporting)
             if i == 0 || i % hook_interval == 0 {

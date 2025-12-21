@@ -166,14 +166,10 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
     fn _get_function(fn_name: &str) -> Function {
-        let now = Instant::now();
         let t = GPU_CONTEXT
             .get()
             .expect("No GPU Context Set")
             .get_function(fn_name);
-
-        println!("Getting {} took {:.2?}", fn_name, now.elapsed());
-
         t
     }
 
@@ -233,7 +229,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         }
     }
     fn element_op(&self, op_type: OpType, scale: T) -> Result<Self, String> {
-        let now = Instant::now();
         let block_dim = 16;
 
         let total_elements: u32 = self.shape.iter().product();
@@ -256,12 +251,10 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         };
 
-        println!("Element Op {:?} took {:.2?}", op_type, now.elapsed());
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
     fn _t(&self) -> Result<Self, String> {
-        let now = Instant::now();
         if self.shape.len() > 2 {
             return Err("Only upto 2D tensors can be transposed.".to_string());
         }
@@ -308,7 +301,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
             );
         }
-        println!("Transpose took {:.2?}", now.elapsed());
         Ok(Self::_with_device_buffer(new_shape, result))
     }
 
@@ -332,7 +324,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
-        let now = Instant::now();
         if self.shape != rhs.shape {
             return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
         }
@@ -359,20 +350,16 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
                 sub_int
             ));
         }
-        println!("Add kernel took {:.2?}", now.elapsed());
 
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
     fn _sum(&self) -> Result<Self, String> {
-        let now = Instant::now();
         let sum = Self::_get_function("column_reduce");
 
         let total_elements = self.shape.iter().product::<u32>() as usize;
-        println!("total elements");
 
         let result = get_device_buffer(total_elements);
-        println!("GetDevice Buffer");
 
         let total_size_u32 = total_elements as u32;
         let threads_per_block = 1024;
@@ -389,7 +376,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         }
 
-        println!("Sum kernel took {:.2?}", now.elapsed());
         Ok(Self::_with_device_buffer(vec![1, self.shape[1]], result))
     }
 
@@ -473,7 +459,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
-        let now = Instant::now();
         if self.shape != rhs.shape {
             let s = format!(
                 "ShapeMismatch:The dimensions of two matrices are not compatible for hadamard product- {:?} {:?}",
@@ -505,7 +490,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             ));
         }
 
-        println!("Hadamard took {:.2?}", now.elapsed());
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
@@ -575,7 +559,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _mul(&self, rhs: &Self) -> Result<Self, String> {
-        let now = Instant::now();
         if self.shape[1] != rhs.shape[0] {
             let s = format!(
                 "ShapeMismatch:The dimensions of two matrices are not compatible for multiplication- {:?} {:?}",
@@ -584,7 +567,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return Err(s);
         }
 
-        println!("Matmul took {:.2?}", now.elapsed());
         self._gpu_mul_cublas(rhs)
     }
 }
@@ -674,8 +656,6 @@ fn test_new() {
     };
 
     let t = GpuTensor::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
-
-    println!("GPU tensor got created");
 
     assert_eq!(t.shape, vec![1u32, 2u32]);
     assert_eq!(t.get_data(), vec![1i8, 2i8]);
