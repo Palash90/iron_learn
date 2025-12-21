@@ -13,3 +13,6 @@ pub type ActivationFn<T> = fn(&T) -> Result<T, String>;
 
 mod activations;
 pub use activations::*;
+
+mod layers;
+pub use layers::*;

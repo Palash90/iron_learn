@@ -108,7 +108,7 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     }
 
     fn print_matrix(&self) -> () {
-       self.print_matrix()
+        self.print_matrix()
     }
 
     fn zeroes(shape: &Vec<u32>) -> Self {

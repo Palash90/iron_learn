@@ -1,6 +1,4 @@
-use crate::neural_network::core::ActivationLayer;
-use crate::neural_network::core::Layer;
-use crate::neural_network::core::LinearLayer;
+use super::layers::*;
 use crate::neural_network::ActivationFn;
 use crate::neural_network::CoreNeuralNetType;
 use crate::neural_network::LossFunction;

@@ -32,9 +32,7 @@ impl GpuContext {
         let module = self.module.as_ref().expect("Module not found");
 
         match module.get_function(fn_name) {
-            Ok(f) => {
-                f
-            }
+            Ok(f) => f,
             Err(e) => {
                 panic!("Error: {}, while getting function: {}", e, fn_name);
             }
