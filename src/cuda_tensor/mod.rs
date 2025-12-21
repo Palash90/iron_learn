@@ -543,24 +543,24 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let total_elements = (m * n) as usize;
         let result = get_device_buffer(total_elements);
 
-        unsafe {
-            let alpha: f64 = 1.0;
-            let beta: f64 = 0.0;
+        let alpha = T::one();
+        let beta = T::zero();
 
-            cublasDgemm_v2(
+        unsafe {
+            cublasSgemm_v2(
                 Self::_get_cublas_handle(),
                 cublasOperation_t::CUBLAS_OP_N,
                 cublasOperation_t::CUBLAS_OP_N,
                 n,
                 m,
                 k,
-                &alpha,
-                rhs.device_buffer.as_device_ptr().as_raw() as *const f64,
+                &alpha.f32(),
+                rhs.device_buffer.as_device_ptr().as_raw() as *const f32,
                 n,
-                self.device_buffer.as_device_ptr().as_raw() as *const f64,
+                self.device_buffer.as_device_ptr().as_raw() as *const f32,
                 k,
-                &beta,
-                result.as_device_ptr().as_raw() as *mut f64,
+                &beta.f32(),
+                result.as_device_ptr().as_raw() as *mut f32,
                 n,
             );
         }
