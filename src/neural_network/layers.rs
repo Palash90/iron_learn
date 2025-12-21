@@ -33,8 +33,10 @@ where
     pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
         let mut rng = rand::rng();
 
+        let limit = (6.0 / (input_size as f32 + output_size as f32)).sqrt();
+
         let w_data: Vec<NeuralNetDataType> = (0..(input_size * output_size))
-            .map(|_| (rng.random::<NeuralNetDataType>() * 2.0 - 1.0).into())
+            .map(|_| (rng.random::<NeuralNetDataType>() * 2.0 - 1.0) * limit)
             .collect();
 
         Ok(Self {

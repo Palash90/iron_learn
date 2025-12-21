@@ -259,7 +259,7 @@ where
         );
     };
 
-    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, 10);
+    let _ = nn.fit(&x, &y, e as usize, 0, l, true, monitor, 1000);
 
     //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
 
