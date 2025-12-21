@@ -72,7 +72,7 @@ where
         let weights_grad = input_t.mul(output_error)?;
 
         // Update Parameters
-        let w_step = weights_grad.scale(-lr)?;
+        let w_step = weights_grad.scale(lr)?;
         self.weights = self.weights.sub(&w_step)?;
 
         Ok(input_error)
