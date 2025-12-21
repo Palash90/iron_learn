@@ -1,6 +1,7 @@
 // use crate::commons::add_bias_term;
 use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
+use crate::neural_network::{sigmoid, sigmoid_prime, tanh, tanh_prime};
 use crate::normalize_features;
 use crate::read_file::deserialize_data_double_precision;
 use crate::tensor::math::TensorMath;
@@ -13,7 +14,6 @@ use std::time::Instant;
 use crate::read_file::deserialize_data;
 
 use crate::neural_network::CoreNeuralNetType;
-use crate::ActivationType;
 use crate::NeuralNet;
 use crate::NeuralNetBuilder;
 
@@ -215,16 +215,16 @@ where
     let mut nn = nn;
 
     nn.add_linear(input_length, hidden_length, "Input");
-    nn.add_activation(ActivationType::Tanh, "Activation Layer 1");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 1");
 
     nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
-    nn.add_activation(ActivationType::Tanh, "Activation Layer 2");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 2");
 
     nn.add_linear(hidden_length, hidden_length / 2, "Hidden Layer 2");
-    nn.add_activation(ActivationType::Tanh, "Activation Layer 3");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 3");
 
     nn.add_linear(hidden_length / 2, 1, "Hidden Layer 3");
-    nn.add_activation(ActivationType::Sigmoid, "Activation Layer 4");
+    nn.add_activation(sigmoid, sigmoid_prime, "Activation Layer 4");
 
     let mut nn = nn.build(loss_function_instance);
 

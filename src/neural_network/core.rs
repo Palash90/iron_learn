@@ -3,10 +3,11 @@ use crate::tensor::Tensor;
 use rand::Rng;
 use std::f32::consts::PI;
 
-use crate::LossFunction;
 
+use crate::neural_network::ActivationFn;
 use super::CoreNeuralNetType;
 use crate::numeric::Numeric;
+use crate::neural_network::LossFunction;
 
 pub trait Layer<T>
 where
@@ -93,17 +94,14 @@ where
     }
 }
 
-#[derive(Debug)]
-pub enum ActivationType {
-    Sigmoid,
-    Tanh,
-}
+
 
 pub struct ActivationLayer<T>
 where
     T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
-    act_type: ActivationType,
+    activation: ActivationFn<T>,
+    activation_prime: ActivationFn<T>,
     output_cache: Option<T>,
     name: String,
 }
@@ -112,9 +110,15 @@ impl<T> ActivationLayer<T>
 where
     T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
 {
-    pub fn new(act_type: ActivationType, name: &str) -> Self {
+    /// Now takes two function pointers as input
+    pub fn new(
+        activation: ActivationFn<T>,
+        activation_prime: ActivationFn<T>,
+        name: &str,
+    ) -> Self {
         Self {
-            act_type,
+            activation,
+            activation_prime,
             output_cache: None,
             name: name.to_string(),
         }
@@ -130,36 +134,28 @@ where
     }
 
     fn forward(&mut self, input: &T) -> Result<T, String> {
-        let output = match self.act_type {
-            ActivationType::Sigmoid => input.sigmoid()?,
-            ActivationType::Tanh => input.tanh()?,
-        };
+        // Call the passed-in activation function
+        let output = (self.activation)(input)?;
+        
+        // Caching the output for the backward pass
         self.output_cache = Some(output.add(&T::zeroes(output.get_shape()))?);
         Ok(output)
     }
 
     fn backward(&mut self, output_error: &T, _lr: CoreNeuralNetType) -> Result<T, String> {
-        let out = self.output_cache.as_ref().unwrap();
+        let out = self.output_cache.as_ref()
+            .ok_or_else(|| "No output cache found for backward pass".to_string())?;
 
-        let prime = match self.act_type {
-            ActivationType::Sigmoid => {
-                // Derivative: sigmoid'(x) = sigmoid(x) * (1 - sigmoid(x))
-                // out is already the sigmoid output
-                let one_minus_out = T::ones(&out.get_shape()).sub(out)?;
-                out.multiply(&one_minus_out)?
-            }
-            ActivationType::Tanh => {
-                // Derivative: tanh'(x) = 1 - tanh(x)^2
-                // out is already the tanh output
-                let o_squared = out.multiply(out)?;
-                let ones = T::ones(&out.get_shape());
-                ones.sub(&o_squared)?
-            }
-        };
+        // Call the passed-in activation prime function
+        // Note: Many derivatives (like sigmoid/tanh) use the output 'y' rather than input 'x'
+        let prime = (self.activation_prime)(out)?;
 
         prime.multiply(output_error)
     }
 }
+
+
+
 
 pub struct NeuralNet<T>
 where

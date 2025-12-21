@@ -1,10 +1,10 @@
 use crate::neural_network::core::ActivationLayer;
 use crate::neural_network::core::Layer;
 use crate::neural_network::core::LinearLayer;
+use crate::neural_network::ActivationFn;
 use crate::neural_network::CoreNeuralNetType;
+use crate::neural_network::LossFunction;
 use crate::tensor::math::TensorMath;
-use crate::ActivationType;
-use crate::LossFunction;
 use crate::NeuralNet;
 use crate::Tensor;
 
@@ -32,8 +32,8 @@ where
         }
     }
 
-    pub fn add_activation(&mut self, act_type: ActivationType, name: &str) {
-        let layer = ActivationLayer::new(act_type, name);
+    pub fn add_activation(&mut self, act: ActivationFn<T>, act_prime: ActivationFn<T>, name: &str) {
+        let layer = ActivationLayer::new(act, act_prime, name);
         self.layers.push(Box::new(layer));
     }
 

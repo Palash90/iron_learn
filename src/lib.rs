@@ -26,8 +26,6 @@ pub use crate::numeric::SignedNumeric;
 pub use crate::runners::Data;
 pub use crate::runners::XY;
 pub use crate::runners::{run_linear, run_logistic, run_neural_net};
-pub use neural_network::ActivationType;
-pub use neural_network::LossFunction;
 pub use neural_network::MeanSquaredErrorLoss;
 pub use neural_network::NeuralNet;
 pub use neural_network::NeuralNetBuilder;
