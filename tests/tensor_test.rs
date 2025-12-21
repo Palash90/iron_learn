@@ -2,6 +2,8 @@ use iron_learn::tensor::math::TensorMath;
 use iron_learn::CpuTensor;
 use iron_learn::Tensor;
 
+type TensorType = f32;
+
 #[test]
 #[should_panic(expected = "TemporaryShapeRestriction")]
 fn test_new_panic_on_shape_error() {
@@ -114,33 +116,46 @@ pub fn transpose() {
     assert_eq!(result, m.t().unwrap());
 }
 
-fn sigmoid(x: f64) -> f64 {
-    f64::exp(x) / (1.0 + f64::exp(x))
+fn sigmoid(x: TensorType) -> TensorType {
+    TensorType::exp(x) / (1.0 + TensorType::exp(x))
 }
 
 #[test]
 pub fn fn_test() {
     let m1 = CpuTensor::new(vec![1, 2], vec![1, 2]).unwrap();
 
-    let result = CpuTensor::new(vec![1, 2], vec![f64::sin(1.0), f64::sin(2.0)]).unwrap();
+    let result =
+        CpuTensor::new(vec![1, 2], vec![TensorType::sin(1.0), TensorType::sin(2.0)]).unwrap();
     assert_eq!(result, CpuTensor::sin(&m1).unwrap());
 
-    let result = CpuTensor::new(vec![1, 2], vec![f64::exp(1.0), f64::exp(2.0)]).unwrap();
+    let result =
+        CpuTensor::new(vec![1, 2], vec![TensorType::exp(1.0), TensorType::exp(2.0)]).unwrap();
     assert_eq!(result, CpuTensor::exp(&m1).unwrap());
 
-    let result = CpuTensor::new(vec![1, 2], vec![f64::cos(1.0), f64::cos(2.0)]).unwrap();
+    let result =
+        CpuTensor::new(vec![1, 2], vec![TensorType::cos(1.0), TensorType::cos(2.0)]).unwrap();
     assert_eq!(result, CpuTensor::cos(&m1).unwrap());
 
-    let result = CpuTensor::new(vec![1, 2], vec![f64::tan(1.0), f64::tan(2.0)]).unwrap();
+    let result =
+        CpuTensor::new(vec![1, 2], vec![TensorType::tan(1.0), TensorType::tan(2.0)]).unwrap();
     assert_eq!(result, CpuTensor::tan(&m1).unwrap());
 
-    let result = CpuTensor::new(vec![1, 2], vec![f64::tanh(1.0), f64::tanh(2.0)]).unwrap();
+    let result = CpuTensor::new(
+        vec![1, 2],
+        vec![TensorType::tanh(1.0), TensorType::tanh(2.0)],
+    )
+    .unwrap();
     assert_eq!(result, CpuTensor::tanh(&m1).unwrap());
 
-    let result = CpuTensor::new(vec![1, 2], vec![f64::log10(1.0), f64::log10(2.0)]).unwrap();
+    let result = CpuTensor::new(
+        vec![1, 2],
+        vec![TensorType::log10(1.0), TensorType::log10(2.0)],
+    )
+    .unwrap();
     assert_eq!(result, CpuTensor::log(&m1).unwrap());
 
-    let result = CpuTensor::new(vec![1, 2], vec![f64::ln(1.0), f64::ln(2.0)]).unwrap();
+    let result =
+        CpuTensor::new(vec![1, 2], vec![TensorType::ln(1.0), TensorType::ln(2.0)]).unwrap();
     assert_eq!(result, CpuTensor::ln(&m1).unwrap());
 
     let result = CpuTensor::new(vec![1, 2], vec![sigmoid(1.0), sigmoid(2.0)]).unwrap();

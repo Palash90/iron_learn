@@ -4,15 +4,10 @@ use cublas_sys::cublasHandle_t;
 use cust::prelude::Function;
 use cust::prelude::Module;
 use cust::stream::Stream;
-use std::collections::HashMap;
 use std::ptr;
-use std::sync::Arc;
-use std::sync::Mutex;
 use std::sync::OnceLock;
 
 pub static GPU_CONTEXT: OnceLock<GpuContext> = OnceLock::new();
-
-static KERNEL_CONTEXT: OnceLock<Mutex<KernelMap>> = OnceLock::new();
 
 #[derive(Debug)]
 pub struct GpuContext {
@@ -21,10 +16,6 @@ pub struct GpuContext {
     pub stream: Option<Stream>,
     pub pool: Option<CudaMemoryPool>,
     pub cublas_handle: CublasHandle,
-}
-
-pub struct KernelMap {
-    kernel_map: HashMap<String, Arc<Function<'static>>>,
 }
 
 impl GpuContext {

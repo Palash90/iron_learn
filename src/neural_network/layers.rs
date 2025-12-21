@@ -1,6 +1,5 @@
 use super::NeuralNetDataType;
 use crate::neural_network::ActivationFn;
-use crate::neural_network::LossFunction;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use rand::Rng;

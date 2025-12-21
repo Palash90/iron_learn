@@ -6,9 +6,9 @@ use crate::tensor::math::TensorMath;
 use crate::GPU_CONTEXT;
 use core::ffi::c_void;
 use cublas_sys::*;
+use cust::memory::bytemuck::Zeroable;
+use cust::memory::CopyDestination;
 use std::ops::{Add, Mul, Neg, Sub};
-use std::sync::Arc;
-use std::time::Instant;
 
 //mod tensor_ops;
 use crate::Tensor;
@@ -17,6 +17,10 @@ mod mem_pool;
 pub use mem_pool::CudaMemoryPool;
 mod cublas_handle;
 pub use cublas_handle::CublasHandle;
+use cust::launch;
+use cust::prelude::DeviceBuffer;
+use cust::prelude::Function;
+use cust::stream::Stream;
 
 #[derive(Clone, Copy, Debug)]
 enum OpType {
@@ -601,55 +605,4 @@ where
     fn exp(&self) -> Result<Self::MathOutput, String> {
         self.element_op(OpType::EXP, T::zero())
     }
-}
-
-use cust::launch;
-use cust::memory::bytemuck::Zeroable;
-use cust::prelude::Function;
-use cust::stream::Stream;
-use cust::{memory::CopyDestination, prelude::DeviceBuffer};
-
-#[cfg(test)]
-#[test]
-fn test_new() {
-    match cust::quick_init() {
-        Ok(context) => {
-            println!("✓ GPU initialization successful");
-            let ptx = include_str!("../../kernels/gpu_kernels.ptx");
-            let module = Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
-
-            let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
-                Ok(s) => s,
-                Err(e) => {
-                    eprintln!("Error creating stream: {}", e);
-                    return;
-                }
-            };
-            let mut handle: cublasHandle_t = ptr::null_mut();
-            let status = unsafe {
-                cublasCreate_v2(&mut handle);
-            };
-
-            init_context(
-                "Iron Learn",
-                5,
-                String::new(),
-                0.0,
-                0,
-                true,
-                Some(context),
-                Some(module),
-                Some(stream),
-                Some(handle),
-            );
-        }
-        Err(e) => {
-            return;
-        }
-    };
-
-    let t = GpuTensor::new(vec![1u32, 2u32], vec![1i8, 2i8]).unwrap();
-
-    assert_eq!(t.shape, vec![1u32, 2u32]);
-    assert_eq!(t.get_data(), vec![1i8, 2i8]);
 }

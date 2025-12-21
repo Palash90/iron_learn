@@ -1,4 +1,3 @@
-use crate::neural_network::ActivationFn;
 use crate::neural_network::NeuralNetDataType;
 use crate::tensor::math::TensorMath;
 use crate::Tensor;

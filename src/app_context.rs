@@ -37,7 +37,7 @@ pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
 /// use iron_learn::{init_context, GLOBAL_CONTEXT};
 ///
 /// // Initialize at startup with full configuration
-/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false, None, None, None);
+/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false);
 ///
 /// // Access anywhere in the application
 /// let ctx = GLOBAL_CONTEXT.get().unwrap();
@@ -85,9 +85,6 @@ pub struct AppContext {
 ///     0.01,
 ///     10000,
 ///     false,
-///     None,
-///     None,
-///     None
 /// );
 /// ```
 pub fn init_context(

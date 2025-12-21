@@ -1,8 +1,11 @@
 use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
+use iron_learn::init_gpu;
 use iron_learn::tensor::math::TensorMath;
 use iron_learn::Tensor;
+use cublas_sys::*;
+ use std::ptr;
 use iron_learn::{init_context, GpuTensor};
 
 fn init() {
@@ -20,17 +23,17 @@ fn init() {
                 }
             };
 
-            init_context(
-                "Iron Learn",
-                5,
-                String::new(),
-                0.0,
-                0,
-                true,
-                Some(context),
-                Some(module),
-                Some(stream),
-            );
+            let mut handle: cublasHandle_t = ptr::null_mut();
+                unsafe {
+                    let status = cublasCreate_v2(&mut handle);
+                    if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
+                        eprintln!("Failed to create cuBLAS handle");
+                        return;
+                    }
+                };
+
+            init_context("Iron Learn", 5, String::new(), 0.0, 0, true);
+            init_gpu(Some(context), Some(module), Some(stream), Some(handle));
         }
         Err(e) => {
             eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
@@ -41,9 +44,6 @@ fn init() {
                 0.01,
                 1,
                 false,
-                None,
-                None,
-                None,
             );
         }
     }
