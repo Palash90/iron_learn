@@ -23,7 +23,7 @@ impl<T: Numeric> Drop for CustomDeviceBuffer<T> {
             None => panic!("Cuda not initialized or Gpu Pool is not set up"),
         };
 
-        pool.free(self.as_device_ptr().as_raw());
+        let _ = pool.free(self.as_device_ptr().as_raw());
     }
 }
 

@@ -351,7 +351,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let stream = Self::_get_stream();
         unsafe {
-            let _ =launch!(add<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
+            let _ = launch!(add<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
                 self.device_buffer.as_device_ptr(),
                 rhs.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
@@ -379,7 +379,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let stream = Self::_get_stream();
         unsafe {
-           let _ = launch!(sum<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
+            let _ = launch!(sum<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
                 self.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
                 self.shape[0],
@@ -452,7 +452,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let operation = Self::_get_function("fill_value");
 
         unsafe {
-            launch!(operation<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
+            let _ = launch!(operation<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
                 device_buffer.as_device_ptr(),
                 size as i32,
                 value
@@ -493,7 +493,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let hadamard = Self::_get_function("hadamard_prod");
 
         unsafe {
-            launch!(hadamard<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
+            let _ = launch!(hadamard<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 rhs.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
@@ -521,7 +521,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let mat_mul = Self::_get_function("matrix_mul");
 
         unsafe {
-            launch!(mat_mul<<<(grid_x, grid_y, 1), (block_dim, block_dim, 1), 0, stream>>>(
+            let _ = launch!(mat_mul<<<(grid_x, grid_y, 1), (block_dim, block_dim, 1), 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 rhs.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),

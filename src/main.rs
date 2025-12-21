@@ -4,12 +4,9 @@ use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use iron_learn::init_gpu;
 use iron_learn::run_neural_net;
-use iron_learn::Data;
-use iron_learn::Tensor;
-use iron_learn::{init_context, run_linear, run_logistic, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
+use iron_learn::{init_context, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
 use std::env;
 use std::ptr;
-use std::time::Instant;
 
 fn init() {
     let args: Vec<String> = env::args().collect();

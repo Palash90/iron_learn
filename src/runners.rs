@@ -238,13 +238,13 @@ where
 
         if (epoch > 0 && epoch % 2 == 0) || epoch == (e - 1) as usize {
             println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err);
-            nn.predict(&x);
+            let _ = nn.predict(&x);
         }
 
         println!("Hook completed at epoch {}", epoch);
     };
 
-    nn.fit(&x, &y, e as usize, 0, l, monitor);
+    let _ = nn.fit(&x, &y, e as usize, 0, l, monitor);
 
     //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
     //let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;

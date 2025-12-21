@@ -262,5 +262,7 @@ where
                 );
             }
         }
+
+        println!("To be saved in {}", filepath)
     }
 }
