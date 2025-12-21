@@ -129,7 +129,7 @@ class NeuralNet:
                 output = layer.forward(output)
 
             err = self.loss(y_train, output)
-            print(f"Epoch {i + epoch_offset +1}/{epochs + epoch_offset} - Error: {err:.6f} - LR: {current_lr:.6f}", end='')
+            # print(f"Epoch {i + epoch_offset +1}/{epochs + epoch_offset} - Error: {err:.6f} - LR: {current_lr:.6f}", end='')
 
             error = self.loss_prime(y_train, output)
             for layer in reversed(self.layers):

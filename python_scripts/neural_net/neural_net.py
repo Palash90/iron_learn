@@ -231,7 +231,7 @@ def image_reconstruction():
     IMAGE_WIDTH = norm_factors[0] + 1
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 1000
-    EPOCHS = 5
+    EPOCHS = 1500000
     LEARNING_RATE = 0.00005
     EPOCH_OFFSET = 0 
     RESUME_FILE = ''
@@ -261,7 +261,7 @@ def image_reconstruction():
         
         if epoch % TIME_CHECK == 0:
             epoch_end_time = time.time()
-            print(f"Elapsed time {epoch_end_time - epoch_start_time: .2f} seconds for {TIME_CHECK} iterations {LAST_EPOCH} - {epoch}")
+            print(f"\rElapsed time {epoch_end_time - epoch_start_time: .2f} seconds for {TIME_CHECK} iterations {LAST_EPOCH} - {epoch}")
             epoch_start_time = time.time()
             LAST_EPOCH = epoch
 

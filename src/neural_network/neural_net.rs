@@ -38,6 +38,7 @@ where
         epochs: usize,
         epoch_offset: usize,
         base_lr: NeuralNetDataType,
+        lr_adjustment: bool,
         mut hook: F,
     ) -> Result<(), String>
     where
@@ -54,7 +55,10 @@ where
             println!("cos {}", cos_term);
 
             let decay_factor = 0.5 * (1.0 + cos_term);
-            let current_lr = lr_min + (base_lr.f32() - lr_min) * decay_factor;
+            let current_lr = match lr_adjustment {
+                true => lr_min + (base_lr.f32() - lr_min) * decay_factor,
+                false => base_lr,
+            };
 
             println!("Current lr {}", current_lr);
 

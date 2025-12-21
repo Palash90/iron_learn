@@ -19,6 +19,8 @@ use crate::NeuralNetBuilder;
 
 use crate::neural_network::MeanSquaredErrorLoss;
 
+use crate::commons::add_bias_term;
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct XY {
     pub m: u32,
@@ -206,17 +208,28 @@ where
     //let (x, x_mean, x_std) = normalize_features_mean_std(&x);
     //let (y, y_mean, y_std) = normalize_features_mean_std(&y);
 
-    //let x = add_bias_term(&x).unwrap();
+    let x = add_bias_term(&x).unwrap();
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
-    let hidden_length = 4; // Should be even
+    let hidden_length = 50; // Should be even
     let input_length = 2;
+
+    let input_length = input_length + 1; // To compensate for bias
 
     let nn = NeuralNetBuilder::<T>::new();
     let mut nn = nn;
 
     nn.add_linear(input_length, hidden_length, "Input");
     nn.add_activation(tanh, tanh_prime, "Activation Layer 1");
+
+    nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 2");
+
+    nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 2");
+
+    nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 2");
 
     nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
     nn.add_activation(tanh, tanh_prime, "Activation Layer 2");
@@ -239,13 +252,13 @@ where
 
         if (epoch > 0 && epoch % 1 == 0) || epoch == (e - 1) as usize {
             println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err);
-            nn.predict(&x).unwrap().print_matrix();
+            //nn.predict(&x).unwrap().print_matrix();
         }
 
         println!("Hook completed at epoch {}", epoch);
     };
 
-    let _ = nn.fit(&x, &y, e as usize, 0, l, monitor);
+    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor);
 
     //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
 
