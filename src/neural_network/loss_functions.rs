@@ -20,20 +20,18 @@ where
     D: Numeric,
 {
     fn loss(&self, actual: &T, predicted: &T) -> Result<T, String> {
-        let error_diff = actual.sub(predicted).unwrap();
+        let error_diff = predicted.sub(actual).unwrap();
         let sq_err = error_diff.multiply(&error_diff).unwrap();
 
-        let length = sq_err.get_shape()[1];
+        let length = sq_err.get_shape().iter().product();
 
         sq_err.sum().unwrap().scale(D::one() / D::from_u32(length))
     }
 
     fn loss_prime(&self, actual: &T, predicted: &T) -> Result<T, String> {
-        // MSE derivative: (predicted - actual) / batch_size
-        // Removed factor of 2 to prevent gradient explosion - adjust learning rate accordingly
-        let batch_size = actual.get_shape()[0];
-        predicted
-            .sub(actual)?
-            .scale(D::one() / D::from_u32(batch_size))
+        let n = actual.get_shape().iter().product();
+        let factor = D::from_u32(2) / D::from_u32(n);
+
+        predicted.sub(actual)?.scale(factor)
     }
 }

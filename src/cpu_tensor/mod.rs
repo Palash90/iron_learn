@@ -400,16 +400,6 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
     }
 
     /* Creation */
-    /// Returns an Empty Tensor with the provided shape, filled with the zero value for T.
-    fn empty(shape: &Vec<u32>) -> Self {
-        let size = Self::calculate_length(shape) as usize;
-        let data = vec![T::zero(); size];
-        Self {
-            shape: shape.clone(),
-            data,
-        }
-    }
-
     /// Creates a new tensor with the provided shape and data.
     /// Wires to the internal validation logic.
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {

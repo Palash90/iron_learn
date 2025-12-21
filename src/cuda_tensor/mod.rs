@@ -50,7 +50,7 @@ where
 
         for r in 0..rows {
             for c in 0..cols {
-                print!("{}\t", self.get_data()[r * cols + c]);
+                print!("{:.2?}\t", self.get_data()[r * cols + c]);
             }
             println!();
         }
@@ -97,13 +97,6 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
         self.element_op(OpType::SCALE, scalar)
     }
 
-    fn empty(shape: &Vec<u32>) -> Self {
-        Self {
-            shape: shape.to_vec(),
-            device_buffer: get_device_buffer(shape.iter().product::<u32>() as usize),
-        }
-    }
-
     fn synchronize(&self) {
         let _ = &(GPU_CONTEXT
             .get()
@@ -115,7 +108,7 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     }
 
     fn print_matrix(&self) -> () {
-        todo!()
+       self.print_matrix()
     }
 
     fn zeroes(shape: &Vec<u32>) -> Self {

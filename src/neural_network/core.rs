@@ -36,23 +36,18 @@ where
 {
     pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
         let mut rng = rand::rng();
-        let w_count = (input_size * output_size) as usize;
-
-        // Xavier initialization: scale by sqrt(6 / (input_size + output_size))
-        // This helps prevent vanishing/exploding gradients
-        let fan_avg = ((input_size + output_size) as f32) / 2.0;
-        let limit = (6.0 / fan_avg).sqrt();
-
-        let w_data: Vec<CoreNeuralNetType> = (0..w_count)
-            .map(|_| {
-                let uniform = rng.random::<f32>();  // [0, 1)
-                ((2.0 * uniform - 1.0) * limit).into()
-            })
+        
+        // Match Python's np.random.randn (Mean 0, StdDev 1)
+        // Or stick to Xavier but ensure the math is identical
+        let limit = (6.0 / (input_size + output_size) as f32).sqrt();
+        
+        let w_data: Vec<CoreNeuralNetType> = (0..(input_size * output_size))
+            .map(|_| ((rng.random::<f32>() * 2.0 - 1.0) * limit).into())
             .collect();
-        let weights = T::new(vec![input_size, output_size], w_data)?;
+        let b_data: Vec<CoreNeuralNetType> = vec![0.0.into(); output_size as usize];
 
         Ok(Self {
-            weights,
+            weights: T::new(vec![input_size, output_size], w_data)?,
             input_cache: None,
             name: name.to_string(),
         })
@@ -68,7 +63,7 @@ where
     }
 
     fn forward(&mut self, input: &T) -> Result<T, String> {
-        self.input_cache = Some(input.add(&T::empty(input.get_shape()))?);
+        self.input_cache = Some(input.add(&T::zeroes(input.get_shape()))?);
         let matmul = input.mul(&self.weights)?;
         Ok(matmul)
     }
@@ -84,9 +79,11 @@ where
         let input_t = input.t()?;
         let weights_grad = input_t.mul(output_error)?;
 
+        weights_grad.print_matrix();
+
         // Update Parameters
         let w_step = weights_grad.scale(-lr)?;
-        self.weights = self.weights.add(&w_step)?;
+        self.weights = self.weights.sub(&w_step)?;
 
         Ok(input_error)
     }
@@ -137,7 +134,7 @@ where
             ActivationType::Sigmoid => input.sigmoid()?,
             ActivationType::Tanh => input.tanh()?,
         };
-        self.output_cache = Some(output.add(&T::empty(output.get_shape()))?);
+        self.output_cache = Some(output.add(&T::zeroes(output.get_shape()))?);
         Ok(output)
     }
 
@@ -181,7 +178,7 @@ where
     }
 
     pub fn predict(&mut self, input: &T) -> Result<T, String> {
-        let mut output = input.add(&T::empty(input.get_shape())).unwrap();
+        let mut output = input.add(&T::zeroes(input.get_shape())).unwrap();
 
         for layer in &mut self.layers {
             output = layer.forward(&output).unwrap();
@@ -214,7 +211,9 @@ where
             let decay_factor = 0.5 * (1.0 + cos_term);
             let current_lr = lr_min + (base_lr.f32() - lr_min) * decay_factor;
 
-            let mut output = x_train.add(&T::empty(x_train.get_shape()))?;
+            println!("Current lr {}", current_lr);
+
+            let mut output = x_train.add(&T::zeroes(x_train.get_shape()))?;
             println!("Output");
             for layer in &mut self.layers {
                 output = layer.forward(&output)?;
@@ -235,8 +234,8 @@ where
             }
             println!("Backward Error Primed");
 
-            let hook_interval = match epochs > 1000 {
-                true => 1000,
+            let hook_interval = match epochs > 1 {
+                true => 1,
                 false => epochs - 1,
             };
 

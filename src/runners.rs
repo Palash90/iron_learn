@@ -236,7 +236,7 @@ where
         start_time = Instant::now();
         println!("{}", epoch);
 
-        if (epoch > 0 && epoch % 2 == 0) || epoch == (e - 1) as usize {
+        if (epoch > 0 && epoch % 1 == 0) || epoch == (e - 1) as usize {
             println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err);
             let _ = nn.predict(&x);
         }

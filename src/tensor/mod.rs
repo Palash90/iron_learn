@@ -5,9 +5,6 @@ pub trait Tensor<T: Numeric>: Sized {
     fn print_matrix(&self) -> ();
 
     /* Creation */
-    // Returns an Empty Tensor
-    fn empty(shape: &Vec<u32>) -> Self;
-
     // Returns a Tensor with all zero values
     fn zeroes(shape: &Vec<u32>) -> Self;
 
