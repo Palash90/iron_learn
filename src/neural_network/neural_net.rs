@@ -1,5 +1,5 @@
 use super::layers::*;
-use super::CoreNeuralNetType;
+use super::NeuralNetDataType;
 use crate::neural_network::LossFunction;
 use crate::numeric::Numeric;
 use crate::tensor::math::TensorMath;
@@ -8,15 +8,15 @@ use std::f32::consts::PI;
 
 pub struct NeuralNet<T>
 where
-    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     pub layers: Vec<Box<dyn Layer<T>>>,
-    pub loss_fn: Box<dyn LossFunction<CoreNeuralNetType, T>>,
+    pub loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
 }
 
 impl<T> NeuralNet<T>
 where
-    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     pub fn add(&mut self, layer: Box<dyn Layer<T>>) {
         self.layers.push(layer);
@@ -37,19 +37,19 @@ where
         y_train: &T,
         epochs: usize,
         epoch_offset: usize,
-        base_lr: CoreNeuralNetType,
+        base_lr: NeuralNetDataType,
         mut hook: F,
     ) -> Result<(), String>
     where
-        F: FnMut(usize, CoreNeuralNetType, &mut Self),
+        F: FnMut(usize, NeuralNetDataType, &mut Self),
     {
         let lr_min = 1e-6;
 
         for i in 0..epochs {
             println!("Epoch {}", i);
 
-            let cos_term = ((PI as CoreNeuralNetType * i as CoreNeuralNetType)
-                / ((epochs + epoch_offset) as CoreNeuralNetType))
+            let cos_term = ((PI as NeuralNetDataType * i as NeuralNetDataType)
+                / ((epochs + epoch_offset) as NeuralNetDataType))
                 .cos();
             println!("cos {}", cos_term);
 

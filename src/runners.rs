@@ -13,7 +13,7 @@ use std::time::Instant;
 
 use crate::read_file::deserialize_data;
 
-use crate::neural_network::CoreNeuralNetType;
+use crate::neural_network::NeuralNetDataType;
 use crate::NeuralNet;
 use crate::NeuralNetBuilder;
 
@@ -23,11 +23,11 @@ use crate::neural_network::MeanSquaredErrorLoss;
 pub struct XY {
     pub m: u32,
     pub n: u32,
-    pub x: Vec<CoreNeuralNetType>,
-    pub y: Vec<CoreNeuralNetType>,
+    pub x: Vec<NeuralNetDataType>,
+    pub y: Vec<NeuralNetDataType>,
     pub m_test: u32,
-    pub x_test: Vec<CoreNeuralNetType>,
-    pub y_test: Vec<CoreNeuralNetType>,
+    pub x_test: Vec<NeuralNetDataType>,
+    pub y_test: Vec<NeuralNetDataType>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -187,12 +187,12 @@ where
 
 pub fn run_neural_net<T>() -> Result<(), String>
 where
-    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     let l = GLOBAL_CONTEXT
         .get()
         .ok_or("GLOBAL_CONTEXT not initialized")?
-        .learning_rate as CoreNeuralNetType;
+        .learning_rate as NeuralNetDataType;
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
@@ -230,7 +230,7 @@ where
 
     let mut start_time = Instant::now();
 
-    let monitor = |epoch: usize, err: CoreNeuralNetType, nn: &mut NeuralNet<T>| {
+    let monitor = |epoch: usize, err: NeuralNetDataType, nn: &mut NeuralNet<T>| {
         let elapsed = start_time.elapsed();
         println!("Monitor called on {}, time elapsed {:?}", epoch, elapsed);
         start_time = Instant::now();

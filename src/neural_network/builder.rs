@@ -1,6 +1,6 @@
 use super::layers::*;
 use crate::neural_network::ActivationFn;
-use crate::neural_network::CoreNeuralNetType;
+use crate::neural_network::NeuralNetDataType;
 use crate::neural_network::LossFunction;
 use crate::tensor::math::TensorMath;
 use crate::NeuralNet;
@@ -8,14 +8,14 @@ use crate::Tensor;
 
 pub struct NeuralNetBuilder<T>
 where
-    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T>,
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T>,
 {
     layers: Vec<Box<dyn Layer<T>>>,
 }
 
 impl<T> NeuralNetBuilder<T>
 where
-    T: Tensor<CoreNeuralNetType> + TensorMath<CoreNeuralNetType, MathOutput = T> + 'static,
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     pub fn new() -> Self {
         Self { layers: Vec::new() }
@@ -35,7 +35,7 @@ where
         self.layers.push(Box::new(layer));
     }
 
-    pub fn build(self, loss_fn: Box<dyn LossFunction<CoreNeuralNetType, T>>) -> NeuralNet<T> {
+    pub fn build(self, loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>) -> NeuralNet<T> {
         NeuralNet {
             layers: self.layers,
             loss_fn,

@@ -1,18 +1,18 @@
 use crate::neural_network::ActivationFn;
-use crate::neural_network::CoreNeuralNetType;
+use crate::neural_network::NeuralNetDataType;
 use crate::tensor::math::TensorMath;
 use crate::Tensor;
 
 pub fn sigmoid<T>(input: &T) -> Result<T, String>
 where
-    T: TensorMath<CoreNeuralNetType, MathOutput = T>,
+    T: TensorMath<NeuralNetDataType, MathOutput = T>,
 {
     input.sigmoid()
 }
 
 pub fn sigmoid_prime<T>(output: &T) -> Result<T, String>
 where
-    T: TensorMath<CoreNeuralNetType, MathOutput = T> + Tensor<CoreNeuralNetType>,
+    T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
 {
     let one_minus_out = T::ones(&output.get_shape()).sub(output)?;
     output.multiply(&one_minus_out)
@@ -20,14 +20,14 @@ where
 
 pub fn tanh<T>(input: &T) -> Result<T, String>
 where
-    T: TensorMath<CoreNeuralNetType, MathOutput = T>,
+    T: TensorMath<NeuralNetDataType, MathOutput = T>,
 {
     input.tanh()
 }
 
 pub fn tanh_prime<T>(output: &T) -> Result<T, String>
 where
-    T: TensorMath<CoreNeuralNetType, MathOutput = T> + Tensor<CoreNeuralNetType>,
+    T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
 {
     let out_squared = output.multiply(output)?;
 

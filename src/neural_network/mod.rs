@@ -17,7 +17,7 @@ pub use loss_functions::{LossFunction, MeanSquaredErrorLoss};
 // Type Definitions
 // ============================================================================
 
-pub type CoreNeuralNetType = f32;
+pub type NeuralNetDataType = f32;
 pub type ActivationFn<T> = fn(&T) -> Result<T, String>;
 
 // ============================================================================
