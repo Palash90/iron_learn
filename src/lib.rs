@@ -1,3 +1,7 @@
+// ============================================================================
+// Internal Module Declarations
+// ============================================================================
+
 mod app_context;
 mod commons;
 mod complex;
@@ -5,28 +9,55 @@ mod cpu_tensor;
 mod cuda_tensor;
 mod gpu_context;
 mod gradient_descent;
-mod neural_network;
 mod numeric;
 mod read_file;
 mod runners;
-pub mod tensor;
 
-pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
-pub use crate::commons::normalize_features;
+pub mod tensor;
+pub mod neural_network;
+
+// ============================================================================
+// Type Re-exports
+// ============================================================================
+
 pub use crate::complex::Complex;
+pub use crate::numeric::{Numeric, SignedNumeric};
+pub use crate::tensor::Tensor;
+
+// ============================================================================
+// Tensor Backend Re-exports
+// ============================================================================
+
 pub use crate::cpu_tensor::CpuTensor;
 pub use crate::cuda_tensor::GpuTensor;
+
+// ============================================================================
+// Context & GPU Re-exports
+// ============================================================================
+
+pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::gpu_context::{init_gpu, GpuContext, GPU_CONTEXT};
-pub use crate::gradient_descent::gradient_descent;
-pub use crate::gradient_descent::linear_regression;
-pub use crate::gradient_descent::logistic_regression;
-pub use crate::gradient_descent::{predict_linear, predict_logistic};
-pub use crate::numeric::Numeric;
-pub use crate::numeric::SignedNumeric;
-pub use crate::runners::Data;
-pub use crate::runners::XY;
-pub use crate::runners::{run_linear, run_logistic, run_neural_net};
-pub use neural_network::MeanSquaredErrorLoss;
-pub use neural_network::NeuralNet;
-pub use neural_network::NeuralNetBuilder;
-pub use tensor::Tensor;
+
+// ============================================================================
+// Neural Network Re-exports
+// ============================================================================
+
+pub use crate::neural_network::{
+    ActivationFn, Layer, LinearLayer, ActivationLayer, NeuralNet, NeuralNetBuilder,
+    LossFunction, MeanSquaredErrorLoss,
+};
+
+// ============================================================================
+// Data Processing Re-exports
+// ============================================================================
+
+pub use crate::commons::normalize_features;
+pub use crate::runners::{Data, XY, run_linear, run_logistic, run_neural_net};
+
+// ============================================================================
+// Gradient Descent Re-exports
+// ============================================================================
+
+pub use crate::gradient_descent::{
+    gradient_descent, linear_regression, logistic_regression, predict_linear, predict_logistic,
+};

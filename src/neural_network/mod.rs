@@ -1,18 +1,41 @@
+// ============================================================================
+// Public Module Declarations
+// ============================================================================
+
 pub mod builder;
-mod core;
 pub mod loss_functions;
 
-pub use core::NeuralNet;
+// ============================================================================
+// Core Types
+// ============================================================================
 
+pub use core::NeuralNet;
 pub use builder::NeuralNetBuilder;
-pub use loss_functions::LossFunction;
-pub use loss_functions::MeanSquaredErrorLoss;
+pub use loss_functions::{LossFunction, MeanSquaredErrorLoss};
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
 
 pub type CoreNeuralNetType = f32;
 pub type ActivationFn<T> = fn(&T) -> Result<T, String>;
 
+// ============================================================================
+// Activation Functions
+// ============================================================================
+
 mod activations;
 pub use activations::*;
 
+// ============================================================================
+// Layer Types and Traits
+// ============================================================================
+
 mod layers;
-pub use layers::*;
+pub use layers::{Layer, LinearLayer, ActivationLayer};
+
+// ============================================================================
+// Core Neural Network
+// ============================================================================
+
+mod core;
