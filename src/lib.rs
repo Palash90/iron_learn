@@ -13,8 +13,8 @@ mod numeric;
 mod read_file;
 mod runners;
 
-pub mod tensor;
 pub mod neural_network;
+pub mod tensor;
 
 // ============================================================================
 // Type Re-exports
@@ -43,8 +43,8 @@ pub use crate::gpu_context::{init_gpu, GpuContext, GPU_CONTEXT};
 // ============================================================================
 
 pub use crate::neural_network::{
-    ActivationFn, Layer, LinearLayer, ActivationLayer, NeuralNet, NeuralNetBuilder,
-    LossFunction, MeanSquaredErrorLoss,
+    ActivationFn, ActivationLayer, Layer, LinearLayer, LossFunction, MeanSquaredErrorLoss,
+    NeuralNet, NeuralNetBuilder,
 };
 
 // ============================================================================
@@ -52,7 +52,7 @@ pub use crate::neural_network::{
 // ============================================================================
 
 pub use crate::commons::normalize_features;
-pub use crate::runners::{Data, XY, run_linear, run_logistic, run_neural_net};
+pub use crate::runners::{run_linear, run_logistic, run_neural_net, Data, XY};
 
 // ============================================================================
 // Gradient Descent Re-exports

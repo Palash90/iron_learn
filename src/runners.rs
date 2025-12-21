@@ -196,8 +196,9 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let Data { cat_image: xy, .. } =
-        deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
+    let Data {
+        neural_network: xy, ..
+    } = deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
@@ -208,7 +209,7 @@ where
     //let x = add_bias_term(&x).unwrap();
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
-    let hidden_length = 50; // Should be even
+    let hidden_length = 4; // Should be even
     let input_length = 2;
 
     let nn = NeuralNetBuilder::<T>::new();
@@ -238,7 +239,7 @@ where
 
         if (epoch > 0 && epoch % 1 == 0) || epoch == (e - 1) as usize {
             println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err);
-            let _ = nn.predict(&x);
+            nn.predict(&x).unwrap().print_matrix();
         }
 
         println!("Hook completed at epoch {}", epoch);
@@ -247,14 +248,17 @@ where
     let _ = nn.fit(&x, &y, e as usize, 0, l, monitor);
 
     //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
+
     //let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 
     //let x_test = normalize_features(&x_test, &x_mean, &x_std);
 
     //let x_test = add_bias_term(&x_test)?;
 
-    //    let predictions = nn.predict(&x).unwrap();
+    //let predictions = nn.predict(&x).unwrap();
 
-    // let predictions = denormalize_features(&predictions, &y_mean, &y_std);
+    //predictions.print_matrix();
+
+    //let predictions = denormalize_features(&predictions, &y_mean, &y_std);
     Ok(())
 }

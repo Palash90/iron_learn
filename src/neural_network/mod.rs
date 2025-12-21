@@ -9,9 +9,9 @@ pub mod loss_functions;
 // Core Types
 // ============================================================================
 
-pub use neural_net::NeuralNet;
 pub use builder::NeuralNetBuilder;
 pub use loss_functions::{LossFunction, MeanSquaredErrorLoss};
+pub use neural_net::NeuralNet;
 
 // ============================================================================
 // Type Definitions
@@ -32,7 +32,7 @@ pub use activations::*;
 // ============================================================================
 
 mod layers;
-pub use layers::{Layer, LinearLayer, ActivationLayer};
+pub use layers::{ActivationLayer, Layer, LinearLayer};
 
 // ============================================================================
 // Core Neural Network

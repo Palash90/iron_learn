@@ -58,10 +58,9 @@ where
 
             println!("Current lr {}", current_lr);
 
-            let mut output = x_train.add(&T::zeroes(x_train.get_shape()))?;
-            println!("Output");
+            let mut output = x_train.add(&T::zeroes(x_train.get_shape())).unwrap();
             for layer in &mut self.layers {
-                output = layer.forward(&output)?;
+                output = layer.forward(&output).unwrap();
             }
             println!("Layer forwarded");
 
@@ -69,12 +68,12 @@ where
 
             println!("Error calculated");
 
-            let mut error_prime = self.loss_fn.loss_prime(y_train, &output)?;
+            let mut error_prime = self.loss_fn.loss_prime(y_train, &output).unwrap();
             println!("Error Prime Calculated");
 
             for layer in self.layers.iter_mut().rev() {
                 println!("\t\tLayer {} backward started", layer.name());
-                error_prime = layer.backward(&error_prime, current_lr)?;
+                error_prime = layer.backward(&error_prime, current_lr).unwrap();
                 println!("\t\tLayer {} backward completed", layer.name());
             }
             println!("Backward Error Primed");

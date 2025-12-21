@@ -71,8 +71,6 @@ where
         let input_t = input.t()?;
         let weights_grad = input_t.mul(output_error)?;
 
-        weights_grad.print_matrix();
-
         // Update Parameters
         let w_step = weights_grad.scale(-lr)?;
         self.weights = self.weights.sub(&w_step)?;
