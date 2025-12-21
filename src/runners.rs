@@ -252,7 +252,7 @@ where
 
         if (epoch > 0 && epoch % 1 == 0) || epoch == (e - 1) as usize {
             println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err);
-            //nn.predict(&x).unwrap().print_matrix();
+            nn.predict(&x).unwrap().print_matrix();
         }
 
         println!("Hook completed at epoch {}", epoch);

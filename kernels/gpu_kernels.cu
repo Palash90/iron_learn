@@ -28,7 +28,6 @@ extern "C" __global__ void vector_add(const float *a, const float *b, float *out
     }
 }
 
-
 extern "C" __global__ void element_op(const float *s, float *r, int n, int op, float scale)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -55,7 +54,14 @@ extern "C" __global__ void element_op(const float *s, float *r, int n, int op, f
             r[idx] = tanh(s[idx]);
             break;
         case 6:
-            r[idx] = exp(s[idx]) / (1 + exp(s[idx]));
+            if (s[idx] >= 0.0f)
+            {
+                r[idx] = 1.0f / (1.0f + exp(-s[idx]));
+            }
+            else
+            {
+                r[idx] = exp(s[idx]) / (1.0f + exp(s[idx]));
+            }
             break;
         case 7:
             r[idx] = log10(s[idx]);
@@ -68,8 +74,6 @@ extern "C" __global__ void element_op(const float *s, float *r, int n, int op, f
         }
     }
 }
-
-
 
 extern "C" __global__ void compare_memory(const float *a, const float *b, size_t size, int *result)
 {
@@ -107,8 +111,10 @@ extern "C" __global__ void matrix_mul(
     __shared__ float ds_A[TILE_SIZE][TILE_SIZE];
     __shared__ float ds_B[TILE_SIZE][TILE_SIZE];
 
-    int bx = blockIdx.x;  int by = blockIdx.y;
-    int tx = threadIdx.x; int ty = threadIdx.y;
+    int bx = blockIdx.x;
+    int by = blockIdx.y;
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
 
     // Identify the row and column of C that this thread is responsible for
     int row = by * TILE_SIZE + ty;
