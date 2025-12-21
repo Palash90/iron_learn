@@ -173,6 +173,7 @@ pub fn test_element_op_float() {
     )
     .unwrap();
 
+    println!("Sin check");
     result.print_matrix();
     m2.print_matrix();
     assert_eq!(result, m2);
@@ -188,6 +189,8 @@ pub fn test_element_op_float() {
         ],
     )
     .unwrap();
+
+    println!("Cos check");
     result.print_matrix();
     m2.print_matrix();
     assert_eq!(result, m2);
@@ -203,6 +206,8 @@ pub fn test_element_op_float() {
         ],
     )
     .unwrap();
+
+    println!("Tan check");
     result.print_matrix();
     m2.print_matrix();
     assert_eq!(result, m2);
@@ -218,6 +223,8 @@ pub fn test_element_op_float() {
         ],
     )
     .unwrap();
+
+    println!("Tanh check");
     result.print_matrix();
     m2.print_matrix();
     assert_eq!(result, m2);
@@ -233,6 +240,8 @@ pub fn test_element_op_float() {
         ],
     )
     .unwrap();
+
+    println!("Log10 check");
     result.print_matrix();
     m2.print_matrix();
     assert_eq!(result, m2);
@@ -248,6 +257,10 @@ pub fn test_element_op_float() {
         ],
     )
     .unwrap();
+
+    println!("ln check");
+    result.print_matrix();
+    m2.print_matrix();
     assert_eq!(result, m2);
 
     let m2 = m1.exp().unwrap();
@@ -261,6 +274,9 @@ pub fn test_element_op_float() {
         ],
     )
     .unwrap();
+println!("exp check");
+    result.print_matrix();
+    m2.print_matrix();
     assert_eq!(result, m2);
 
     let m2 = m1.sigmoid().unwrap();
@@ -269,6 +285,10 @@ pub fn test_element_op_float() {
         vec![sigmoid(1.0), sigmoid(2.0), sigmoid(-3.0), sigmoid(4.0)],
     )
     .unwrap();
+
+    println!("Sigmoid check");
+    result.print_matrix();
+    m2.print_matrix();
     assert_eq!(result, m2);
 }
 
@@ -288,17 +308,23 @@ pub fn test_transpose() {
     println!("Expected");
     result.print_matrix();
 
-     assert_eq!(result, m.t().unwrap());
+    assert_eq!(result, m.t().unwrap());
 
     let m = GpuTensor::<TensorType>::new(vec![2, 3], vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).unwrap();
     let result = GpuTensor::new(vec![3, 2], vec![1.0, 4.0, 2.0, 5.0, 3.0, 6.0]).unwrap();
+    let m_t = m.t().unwrap();
 
-     assert_eq!(result, m.t().unwrap());
+    println!("Transposed");
+    result.print_matrix();
+    m_t.print_matrix();
+
+    assert_eq!(result, m_t);
 
     let m = GpuTensor::<TensorType>::new(vec![6], vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).unwrap();
     let result = GpuTensor::new(vec![6], vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).unwrap();
+    let m_t = m.t().unwrap();
 
-      assert_eq!(result, m.t().unwrap());
+    assert_eq!(result, m_t);
 
     let m = GpuTensor::<TensorType>::new(
         vec![3, 3],
@@ -311,10 +337,10 @@ pub fn test_transpose() {
     )
     .unwrap();
 
-        assert_eq!(result, m.t().unwrap());
+    assert_eq!(result, m.t().unwrap());
 
     let m = GpuTensor::<TensorType>::new(vec![3, 1], vec![1.0, 2.0, 3.0]).unwrap();
     let result = GpuTensor::new(vec![1, 3], vec![1.0, 2.0, 3.0]).unwrap();
 
-      assert_eq!(result, m.t().unwrap());
+    assert_eq!(result, m.t().unwrap());
 }

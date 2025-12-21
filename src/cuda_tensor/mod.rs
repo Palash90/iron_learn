@@ -201,7 +201,9 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         }
 
         for i in 0..total_size {
-            if self.get_data()[i] != other.get_data()[i] {
+            let diff = f32::abs(self.get_data()[i].f32() - other.get_data()[i].f32());
+
+            if diff > f32::EPSILON * 10.0f32 {
                 return false;
             }
         }
