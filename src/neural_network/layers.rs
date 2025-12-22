@@ -4,6 +4,12 @@ use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use rand::Rng;
 
+use rand::rngs::StdRng;
+use rand::SeedableRng;
+
+use rand::prelude::*;
+use rand_distr::{Distribution, StandardNormal};
+
 pub trait Layer<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
@@ -31,12 +37,16 @@ where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
-        let mut rng = rand::rng(); // StdRng::seed_from_u64(42);
+        let mut rng = StdRng::seed_from_u64(42); // rand::rng();
 
         let limit = (6.0 / (input_size as f32 + output_size as f32)).sqrt();
 
         let w_data: Vec<NeuralNetDataType> = (0..(input_size * output_size))
-            .map(|_| (rng.random::<NeuralNetDataType>() * 2.0 - 1.0) * limit)
+            //.map(|_| (rng.random::<NeuralNetDataType>() * 2.0 - 1.0) * limit) // For Xavier
+            .map(|_| {
+                let val: f32 = StandardNormal.sample(&mut rng);
+                val as NeuralNetDataType
+            })
             .collect();
 
         Ok(Self {
