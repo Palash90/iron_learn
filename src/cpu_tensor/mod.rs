@@ -120,16 +120,19 @@ impl<T: Numeric> CpuTensor<T> {
             return Ok(self.clone());
         }
 
-        let new_shape = vec![self.shape[1], self.shape[0]];
+        let rows = self.shape[0] as usize;
+        let cols = self.shape[1] as usize;
         let mut new_data = vec![T::zero(); self.data.len()];
-        let (rows, cols) = (self.shape[0] as usize, self.shape[1] as usize);
-        for i in 0..rows {
-            for j in 0..cols {
-                new_data[j * rows + i] = self.data[i * cols + j];
+
+        for (r, row_slice) in self.data.chunks_exact(cols).enumerate() {
+            for (c, &val) in row_slice.iter().enumerate() {
+                // New index: column becomes row, row becomes column
+                new_data[c * rows + r] = val;
             }
         }
+
         Ok(Self {
-            shape: new_shape,
+            shape: vec![cols as u32, rows as u32],
             data: new_data,
         })
     }
@@ -236,7 +239,6 @@ impl<T: Numeric> CpuTensor<T> {
 
         for i in 0..rows {
             // SIMD specific change
-            let row_offset = i * common_dim;
             let out_row_offset = i * cols;
 
             for k in 0..common_dim {
