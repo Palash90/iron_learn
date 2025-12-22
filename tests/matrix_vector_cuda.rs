@@ -34,19 +34,29 @@ fn init() {
                 }
             };
 
-            init_context("Iron Learn", 5, String::new(), 0.0, 0, true);
+            init_context("Iron Learn", 5, String::new(), 0.0, 0, true, false, 2, "w".to_string());
             init_gpu(Some(context), Some(module), Some(stream), Some(handle));
         }
         Err(e) => {
             eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
-            init_context("Iron Learn", 5, "".to_string(), 0.01, 1, false);
+            init_context(
+                "Iron Learn",
+                5,
+                "".to_string(),
+                0.01,
+                1,
+                false,
+                false,
+                2,
+                "w".to_string(),
+            );
         }
     }
 }
 
 #[cfg(test)]
 #[test]
-pub fn test_add() {
+pub fn test_cuda_add() {
     init();
 
     let m1 = GpuTensor::<TensorType>::new(vec![1], vec![1.0]).unwrap();
@@ -79,7 +89,7 @@ pub fn test_add() {
 }
 
 #[test]
-pub fn test_mul_float() {
+pub fn test_cuda_mul_float() {
     init();
 
     let m1 = GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
@@ -97,7 +107,7 @@ pub fn test_mul_float() {
 }
 
 #[test]
-pub fn test_hadamard_float() {
+pub fn test_cuda_hadamard_float() {
     init();
 
     let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
@@ -111,7 +121,7 @@ pub fn test_hadamard_float() {
 }
 
 #[test]
-pub fn test_neg_float() {
+pub fn test_cuda_neg_float() {
     init();
 
     let m1 = GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
@@ -128,7 +138,7 @@ pub fn test_neg_float() {
 }
 
 #[test]
-pub fn test_scale_float() {
+pub fn test_cuda_scale_float() {
     init();
 
     let m1 = GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
@@ -156,7 +166,7 @@ fn sigmoid(x: TensorType) -> TensorType {
 }
 
 #[test]
-pub fn test_element_op_float() {
+pub fn test_cuda_element_op_float() {
     init();
 
     let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
@@ -293,7 +303,7 @@ pub fn test_element_op_float() {
 }
 
 #[test]
-pub fn test_transpose() {
+pub fn test_cuda_transpose() {
     init();
 
     let m = GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();

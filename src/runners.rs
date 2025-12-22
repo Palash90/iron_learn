@@ -20,6 +20,9 @@ use crate::NeuralNetBuilder;
 use crate::neural_network::MeanSquaredErrorLoss;
 use image::{ImageBuffer, Luma};
 
+use std::thread;
+use std::time::Duration;
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct XY {
     pub m: u32,
@@ -263,19 +266,22 @@ where
 
         last_epoch = epoch;
 
-        if epoch % 5000 == 0 {
+        if epoch % 50 == 0 {
             let y_pred = nn.predict(&x).unwrap();
 
             draw_image(epoch as i32, &x, &y_pred, 200, 200);
-            nn.save_weights(
-                &(weights_path.to_owned() + "/cp_" + &epoch.to_string() + ".json"),
-            );
+            nn.save_weights(&(weights_path.to_owned() + "/cp_" + &epoch.to_string() + ".json"));
+
+            // Rest for a few seconds before starting again
+            println!("Taking a nap");
+            thread::sleep(Duration::from_secs(10));
+            println!("Awake again");
         }
     };
 
     draw_image(-1, &x, &y, 200, 200);
 
-    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, 1000);
+    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, 50);
 
     //let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 

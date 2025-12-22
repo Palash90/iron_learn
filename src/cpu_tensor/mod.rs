@@ -142,17 +142,22 @@ impl<T: Numeric> CpuTensor<T> {
     }
 
     fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
-        let mut result = Vec::with_capacity(self.data.len());
-
         if self.shape != rhs.shape {
             return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
         }
 
-        for i in 0..self.data.len() {
-            if sub {
-                result.push(self.data[i] - rhs.data[i])
-            } else {
-                result.push(self.data[i] + rhs.data[i])
+        let a = &self.data;
+        let b = &rhs.data;
+        let mut result = vec![T::zero(); a.len()];
+
+        if a.len() == b.len() && a.len() == result.len() {
+            // Helping compiler for SIMD
+            for i in 0..self.data.len() {
+                if sub {
+                    result[i] = a[i] - b[i];
+                } else {
+                    result[i] = a[i] + b[i];
+                }
             }
         }
         Ok(Self {
@@ -222,17 +227,26 @@ impl<T: Numeric> CpuTensor<T> {
     }
 
     fn _cpu_mul(&self, rhs: &Self) -> Result<Self, String> {
-        let rows = self.shape[0] as usize;
+        let (rows, common_dim) = (self.shape[0] as usize, self.shape[1] as usize);
+
         let cols = rhs.shape[1] as usize;
-        let common_dim = self.shape[1] as usize;
 
         let mut data = vec![T::zero(); rows * cols];
 
         for i in 0..rows {
-            for j in 0..cols {
-                for k in 0..common_dim {
-                    let val = self.data[i * common_dim + k] * rhs.data[k * cols + j];
-                    data[i * cols + j] = data[i * cols + j] + val;
+            // SIMD specific change
+            let row_offset = i * common_dim;
+            let out_row_offset = i * cols;
+
+            for k in 0..common_dim {
+                let aik = self.data[i * common_dim + k]; // Constant for the inner loop
+                let rhs_row_offset = k * cols;
+                let rhs_slice = &rhs.data[rhs_row_offset..rhs_row_offset + cols];
+                let out_slice = &mut data[out_row_offset..out_row_offset + cols];
+
+                for j in 0..cols {
+                    //SIMD Specific change. Help compiler understand
+                    out_slice[j] = out_slice[j] + aik * rhs_slice[j];
                 }
             }
         }

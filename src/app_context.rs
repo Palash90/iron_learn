@@ -37,7 +37,7 @@ pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
 /// use iron_learn::{init_context, GLOBAL_CONTEXT};
 ///
 /// // Initialize at startup with full configuration
-/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false);
+/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false, false, 4, "w".to_string());
 ///
 /// // Access anywhere in the application
 /// let ctx = GLOBAL_CONTEXT.get().unwrap();
@@ -56,7 +56,7 @@ pub struct AppContext {
     pub gpu_enabled: bool,
     pub lr_adjust: bool,
     pub hidden_layer_length: u32,
-    pub weights_path: String
+    pub weights_path: String,
 }
 
 /// Initialize the global application context
@@ -88,6 +88,9 @@ pub struct AppContext {
 ///     0.01,
 ///     10000,
 ///     false,
+///     false,
+///     4,
+///     "weights".to_string()
 /// );
 /// ```
 pub fn init_context(
@@ -99,7 +102,7 @@ pub fn init_context(
     gpu_enabled: bool,
     lr_adjust: bool,
     hidden_layer_length: u32,
-    weights_path: String
+    weights_path: String,
 ) {
     let ctx = AppContext {
         app_name,
@@ -110,7 +113,7 @@ pub fn init_context(
         gpu_enabled,
         lr_adjust,
         hidden_layer_length,
-        weights_path
+        weights_path,
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

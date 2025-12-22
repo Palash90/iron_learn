@@ -11,6 +11,7 @@ use serde::Serialize;
 use serde::Deserialize;
 use std::fs::File;
 use std::io::Write;
+use std::io;
 
 #[derive(Serialize, Deserialize)]
 struct LayerData {
@@ -67,6 +68,9 @@ where
         let lr_min = 1e-6;
 
         for i in 0..epochs {
+            print!("\rProcessing epoch: {}", i);
+            io::stdout().flush().unwrap();
+
             let cos_term = ((PI as NeuralNetDataType * i as NeuralNetDataType)
                 / ((epochs + epoch_offset) as NeuralNetDataType))
                 .cos();
