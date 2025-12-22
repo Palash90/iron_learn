@@ -207,8 +207,6 @@ impl<T: Numeric> CpuTensor<T> {
     }
 
     fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
-        let mut result = Vec::with_capacity(self.data.len());
-
         if self.shape != rhs.shape {
             return Err(format!(
                 "ShapeMismatch: Mismatch in shape of two Tensors {:?} {:?}",
@@ -216,9 +214,12 @@ impl<T: Numeric> CpuTensor<T> {
             ));
         }
 
-        for i in 0..self.data.len() {
-            result.push(self.data[i] * rhs.data[i])
-        }
+        let result: Vec<T> = self
+            .data
+            .iter()
+            .zip(rhs.data.iter())
+            .map(|(a, b)| a.mul(*b))
+            .collect();
 
         Ok(Self {
             shape: self.shape.clone(),
