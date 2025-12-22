@@ -72,6 +72,8 @@ where
             for layer in self.layers.iter_mut().rev() {
                 error_prime = layer.backward(&error_prime, current_lr).unwrap();
             }
+            T::synchronize();
+            
             let hook_interval = match epochs > hook_interval {
                 true => hook_interval,
                 false => epochs - 1,
