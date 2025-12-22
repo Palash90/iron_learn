@@ -54,6 +54,8 @@ pub struct AppContext {
     pub learning_rate: f64,
     pub epochs: u32,
     pub gpu_enabled: bool,
+    pub lr_adjust: bool,
+    pub hidden_layer_length: u32
 }
 
 /// Initialize the global application context
@@ -94,6 +96,8 @@ pub fn init_context(
     learning_rate: f64,
     epochs: u32,
     gpu_enabled: bool,
+    lr_adjust:bool,
+    hidden_layer_length: u32
 ) {
     let ctx = AppContext {
         app_name,
@@ -102,6 +106,8 @@ pub fn init_context(
         learning_rate,
         epochs,
         gpu_enabled,
+        lr_adjust,
+        hidden_layer_length
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

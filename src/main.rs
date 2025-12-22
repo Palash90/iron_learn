@@ -1,3 +1,4 @@
+use clap::Parser;
 use cublas_sys::*;
 use cust::prelude::Module;
 use cust::stream::Stream;
@@ -5,31 +6,34 @@ use cust::stream::StreamFlags;
 use iron_learn::init_gpu;
 use iron_learn::run_neural_net;
 use iron_learn::{init_context, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
-use std::env;
 use std::ptr;
 
+#[derive(Parser)]
+#[command(name = "Iron Learn")]
+#[command(name = "A Rust Machine Learning Library")]
+struct Args {
+    #[arg(long, short, default_value = "false")]
+    cpu: bool,
+
+    #[arg(long, short, default_value = "0.001")]
+    lr: f64,
+
+    #[arg(long, short, default_value = "10000")]
+    epochs: u32,
+
+    #[arg(long, short, default_value = "data.json")]
+    file: String,
+
+    #[arg(long, short, default_value = "false")]
+    adjust_lr: bool,
+
+    #[arg(long, short='n', default_value = "4")]
+    hidden_layers: u32,
+}
+
 fn init() {
-    let args: Vec<String> = env::args().collect();
-
-    let gpu_enabled: bool = if args.len() > 1 {
-        args[1] != "cpu"
-    } else {
-        true
-    };
-
-    let learning_rate = args
-        .get(2)
-        .and_then(|s| s.parse::<f64>().ok())
-        .unwrap_or(0.001);
-    let epochs = args
-        .get(3)
-        .and_then(|s| s.parse::<u32>().ok())
-        .unwrap_or(10);
-    let data_path = args
-        .get(4)
-        .map(|s| s.to_owned())
-        .unwrap_or_else(|| "data.json".to_owned());
-
+    let args = Args::parse();
+    let gpu_enabled = !args.cpu;
     if gpu_enabled {
         match cust::quick_init() {
             Ok(context) => {
@@ -58,28 +62,57 @@ fn init() {
                     }
                 };
 
-                init_context("Iron Learn", 5, data_path, learning_rate, epochs, true);
+                init_context(
+                    "Iron Learn",
+                    5,
+                    args.file,
+                    args.lr,
+                    args.epochs,
+                    true,
+                    args.adjust_lr,
+                    args.hidden_layers
+                );
 
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
             }
             Err(e) => {
                 eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
-                init_context("Iron Learn", 5, data_path, learning_rate, epochs, false);
+                init_context(
+                    "Iron Learn",
+                    5,
+                    args.file,
+                    args.lr,
+                    args.epochs,
+                    false,
+                    args.adjust_lr,
+                    args.hidden_layers
+                );
             }
         }
     } else {
-        init_context("Iron Learn", 5, data_path, learning_rate, epochs, false);
+        init_context(
+            "Iron Learn",
+            5,
+            args.file,
+            args.lr,
+            args.epochs,
+            false,
+            args.adjust_lr,
+            args.hidden_layers
+        );
     }
 }
 
 fn greet(ctx: &iron_learn::AppContext) {
-    println!("\n╔════════════════════════════════╗");
+    println!("\n╔═══════════════════════════════════════╗");
     println!("║ {} v{}", ctx.app_name, ctx.version);
     println!("║ Mode: {}", if ctx.gpu_enabled { "GPU" } else { "CPU" });
     println!("║ Learning Rate: {}", ctx.learning_rate);
+    println!("║ Learning Rate Adjustment: {}", ctx.lr_adjust);
     println!("║ Epochs: {}", ctx.epochs);
+    println!("║ Hidden Layers: {}", ctx.hidden_layer_length);
     println!("║ Data Path: {}", ctx.data_path);
-    println!("╚════════════════════════════════╝\n");
+    println!("╚═══════════════════════════════════════╝\n");
 }
 
 fn main() {
