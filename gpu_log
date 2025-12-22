@@ -1,0 +1,285 @@
+✓ GPU initialization successful
+✓ CUBLAS initialization successful
+Memory pool created for device NVIDIA GeForce RTX 3050 Laptop GPU
+
+╔════════════════════════════════╗
+║ Iron Learn v5
+║ Mode: GPU
+║ Learning Rate: 0.0001
+║ Epochs: 200
+║ Data Path: data.json
+╚════════════════════════════════╝
+
+Running GPU-based training...
+
+	Epoch 0: Loss (MSE) = 0.25648421
+Hook completed at epoch 0, time took 2.70ms
+	Epoch 5: Loss (MSE) = 0.25648919
+Hook completed at epoch 5, time took 9.99ms
+	Epoch 10: Loss (MSE) = 0.25651142
+Hook completed at epoch 10, time took 9.70ms
+	Epoch 15: Loss (MSE) = 0.25660986
+Hook completed at epoch 15, time took 9.86ms
+	Epoch 20: Loss (MSE) = 0.25662726
+Hook completed at epoch 20, time took 74.60ms
+	Epoch 25: Loss (MSE) = 0.25664991
+Hook completed at epoch 25, time took 9.72ms
+	Epoch 30: Loss (MSE) = 0.25666225
+Hook completed at epoch 30, time took 9.65ms
+	Epoch 35: Loss (MSE) = 0.25676286
+Hook completed at epoch 35, time took 9.47ms
+	Epoch 40: Loss (MSE) = 0.25688913
+Hook completed at epoch 40, time took 42.61ms
+	Epoch 45: Loss (MSE) = 0.25692010
+Hook completed at epoch 45, time took 10.24ms
+	Epoch 50: Loss (MSE) = 0.25701347
+Hook completed at epoch 50, time took 10.29ms
+	Epoch 55: Loss (MSE) = 0.25701699
+Hook completed at epoch 55, time took 9.45ms
+	Epoch 60: Loss (MSE) = 0.25701714
+Hook completed at epoch 60, time took 43.49ms
+	Epoch 65: Loss (MSE) = 0.25699726
+Hook completed at epoch 65, time took 10.15ms
+	Epoch 70: Loss (MSE) = 0.25698125
+Hook completed at epoch 70, time took 9.69ms
+	Epoch 75: Loss (MSE) = 0.25704151
+Hook completed at epoch 75, time took 11.10ms
+	Epoch 80: Loss (MSE) = 0.25711158
+Hook completed at epoch 80, time took 9.41ms
+	Epoch 85: Loss (MSE) = 0.25709105
+Hook completed at epoch 85, time took 9.52ms
+	Epoch 90: Loss (MSE) = 0.25717506
+Hook completed at epoch 90, time took 9.82ms
+	Epoch 95: Loss (MSE) = 0.25727290
+Hook completed at epoch 95, time took 9.95ms
+	Epoch 100: Loss (MSE) = 0.25733718
+Hook completed at epoch 100, time took 10.15ms
+	Epoch 105: Loss (MSE) = 0.25737491
+Hook completed at epoch 105, time took 10.41ms
+	Epoch 110: Loss (MSE) = 0.25738251
+Hook completed at epoch 110, time took 10.61ms
+	Epoch 115: Loss (MSE) = 0.25736219
+Hook completed at epoch 115, time took 10.02ms
+	Epoch 120: Loss (MSE) = 0.25741971
+Hook completed at epoch 120, time took 10.65ms
+	Epoch 125: Loss (MSE) = 0.25738716
+Hook completed at epoch 125, time took 10.08ms
+	Epoch 130: Loss (MSE) = 0.25739515
+Hook completed at epoch 130, time took 9.85ms
+	Epoch 135: Loss (MSE) = 0.25741217
+Hook completed at epoch 135, time took 9.78ms
+	Epoch 140: Loss (MSE) = 0.25741991
+Hook completed at epoch 140, time took 9.73ms
+	Epoch 145: Loss (MSE) = 0.25742772
+Hook completed at epoch 145, time took 9.71ms
+	Epoch 150: Loss (MSE) = 0.25743008
+Hook completed at epoch 150, time took 9.67ms
+	Epoch 155: Loss (MSE) = 0.25744531
+Hook completed at epoch 155, time took 9.57ms
+	Epoch 160: Loss (MSE) = 0.25744656
+Hook completed at epoch 160, time took 10.40ms
+	Epoch 165: Loss (MSE) = 0.25745949
+Hook completed at epoch 165, time took 9.59ms
+	Epoch 170: Loss (MSE) = 0.25746545
+Hook completed at epoch 170, time took 9.95ms
+	Epoch 175: Loss (MSE) = 0.25746846
+Hook completed at epoch 175, time took 9.54ms
+	Epoch 180: Loss (MSE) = 0.25747284
+Hook completed at epoch 180, time took 9.88ms
+	Epoch 185: Loss (MSE) = 0.25747454
+Hook completed at epoch 185, time took 9.71ms
+	Epoch 190: Loss (MSE) = 0.25747538
+Hook completed at epoch 190, time took 9.86ms
+	Epoch 195: Loss (MSE) = 0.25747642
+Hook completed at epoch 195, time took 8.81ms
+
+✓ All training tasks completed
+
+╔════════════════════════════════╗
+║ Iron Learn v5
+║ Mode: CPU
+║ Learning Rate: 0.0001
+║ Epochs: 200
+║ Data Path: data.json
+╚════════════════════════════════╝
+
+Running CPU-based training...
+
+	Epoch 0: Loss (MSE) = 0.25648421
+Hook completed at epoch 0, time took 775.20µs
+	Epoch 5: Loss (MSE) = 0.25645310
+Hook completed at epoch 5, time took 2.65ms
+	Epoch 10: Loss (MSE) = 0.25642228
+Hook completed at epoch 10, time took 2.68ms
+	Epoch 15: Loss (MSE) = 0.25639170
+Hook completed at epoch 15, time took 2.89ms
+	Epoch 20: Loss (MSE) = 0.25636154
+Hook completed at epoch 20, time took 3.41ms
+	Epoch 25: Loss (MSE) = 0.25633174
+Hook completed at epoch 25, time took 3.06ms
+	Epoch 30: Loss (MSE) = 0.25630260
+Hook completed at epoch 30, time took 2.34ms
+	Epoch 35: Loss (MSE) = 0.25627401
+Hook completed at epoch 35, time took 2.62ms
+	Epoch 40: Loss (MSE) = 0.25624615
+Hook completed at epoch 40, time took 2.65ms
+	Epoch 45: Loss (MSE) = 0.25621909
+Hook completed at epoch 45, time took 2.59ms
+	Epoch 50: Loss (MSE) = 0.25619280
+Hook completed at epoch 50, time took 2.72ms
+	Epoch 55: Loss (MSE) = 0.25616750
+Hook completed at epoch 55, time took 2.85ms
+	Epoch 60: Loss (MSE) = 0.25614309
+Hook completed at epoch 60, time took 2.87ms
+	Epoch 65: Loss (MSE) = 0.25611973
+Hook completed at epoch 65, time took 2.99ms
+	Epoch 70: Loss (MSE) = 0.25609738
+Hook completed at epoch 70, time took 2.73ms
+	Epoch 75: Loss (MSE) = 0.25607610
+Hook completed at epoch 75, time took 2.98ms
+	Epoch 80: Loss (MSE) = 0.25605595
+Hook completed at epoch 80, time took 3.45ms
+	Epoch 85: Loss (MSE) = 0.25603694
+Hook completed at epoch 85, time took 3.95ms
+	Epoch 90: Loss (MSE) = 0.25601909
+Hook completed at epoch 90, time took 2.99ms
+	Epoch 95: Loss (MSE) = 0.25600243
+Hook completed at epoch 95, time took 2.83ms
+	Epoch 100: Loss (MSE) = 0.25598687
+Hook completed at epoch 100, time took 3.28ms
+	Epoch 105: Loss (MSE) = 0.25597250
+Hook completed at epoch 105, time took 2.71ms
+	Epoch 110: Loss (MSE) = 0.25595936
+Hook completed at epoch 110, time took 2.80ms
+	Epoch 115: Loss (MSE) = 0.25594729
+Hook completed at epoch 115, time took 2.81ms
+	Epoch 120: Loss (MSE) = 0.25593635
+Hook completed at epoch 120, time took 3.22ms
+	Epoch 125: Loss (MSE) = 0.25592652
+Hook completed at epoch 125, time took 3.38ms
+	Epoch 130: Loss (MSE) = 0.25591779
+Hook completed at epoch 130, time took 2.90ms
+	Epoch 135: Loss (MSE) = 0.25591004
+Hook completed at epoch 135, time took 2.79ms
+	Epoch 140: Loss (MSE) = 0.25590327
+Hook completed at epoch 140, time took 2.72ms
+	Epoch 145: Loss (MSE) = 0.25589737
+Hook completed at epoch 145, time took 2.83ms
+	Epoch 150: Loss (MSE) = 0.25589237
+Hook completed at epoch 150, time took 2.73ms
+	Epoch 155: Loss (MSE) = 0.25588822
+Hook completed at epoch 155, time took 2.81ms
+	Epoch 160: Loss (MSE) = 0.25588480
+Hook completed at epoch 160, time took 2.77ms
+	Epoch 165: Loss (MSE) = 0.25588202
+Hook completed at epoch 165, time took 2.95ms
+	Epoch 170: Loss (MSE) = 0.25587985
+Hook completed at epoch 170, time took 2.81ms
+	Epoch 175: Loss (MSE) = 0.25587821
+Hook completed at epoch 175, time took 2.94ms
+	Epoch 180: Loss (MSE) = 0.25587702
+Hook completed at epoch 180, time took 2.76ms
+	Epoch 185: Loss (MSE) = 0.25587624
+Hook completed at epoch 185, time took 2.78ms
+	Epoch 190: Loss (MSE) = 0.25587574
+Hook completed at epoch 190, time took 2.82ms
+	Epoch 195: Loss (MSE) = 0.25587538
+Hook completed at epoch 195, time took 2.76ms
+
+✓ All training tasks completed
+✓ GPU initialization successful
+✓ CUBLAS initialization successful
+Memory pool created for device NVIDIA GeForce RTX 3050 Laptop GPU
+
+╔════════════════════════════════╗
+║ Iron Learn v5
+║ Mode: GPU
+║ Learning Rate: 0.0001
+║ Epochs: 200
+║ Data Path: data.json
+╚════════════════════════════════╝
+
+Running GPU-based training...
+
+	Epoch 0: Loss (MSE) = 0.25648421
+Hook completed at epoch 0, time took 2.60ms
+	Epoch 5: Loss (MSE) = 0.25648919
+Hook completed at epoch 5, time took 9.87ms
+	Epoch 10: Loss (MSE) = 0.25639039
+Hook completed at epoch 10, time took 9.58ms
+	Epoch 15: Loss (MSE) = 0.25641981
+Hook completed at epoch 15, time took 9.96ms
+	Epoch 20: Loss (MSE) = 0.25639728
+Hook completed at epoch 20, time took 10.38ms
+	Epoch 25: Loss (MSE) = 0.25636509
+Hook completed at epoch 25, time took 9.99ms
+	Epoch 30: Loss (MSE) = 0.25637522
+Hook completed at epoch 30, time took 9.25ms
+	Epoch 35: Loss (MSE) = 0.25637227
+Hook completed at epoch 35, time took 9.33ms
+	Epoch 40: Loss (MSE) = 0.25633535
+Hook completed at epoch 40, time took 9.31ms
+	Epoch 45: Loss (MSE) = 0.25635993
+Hook completed at epoch 45, time took 9.37ms
+	Epoch 50: Loss (MSE) = 0.25645053
+Hook completed at epoch 50, time took 9.61ms
+	Epoch 55: Loss (MSE) = 0.25646269
+Hook completed at epoch 55, time took 9.72ms
+	Epoch 60: Loss (MSE) = 0.25643441
+Hook completed at epoch 60, time took 9.46ms
+	Epoch 65: Loss (MSE) = 0.25652137
+Hook completed at epoch 65, time took 10.19ms
+	Epoch 70: Loss (MSE) = 0.25653988
+Hook completed at epoch 70, time took 9.50ms
+	Epoch 75: Loss (MSE) = 0.25660196
+Hook completed at epoch 75, time took 10.00ms
+	Epoch 80: Loss (MSE) = 0.25655919
+Hook completed at epoch 80, time took 45.54ms
+	Epoch 85: Loss (MSE) = 0.25659692
+Hook completed at epoch 85, time took 10.16ms
+	Epoch 90: Loss (MSE) = 0.25660875
+Hook completed at epoch 90, time took 9.63ms
+	Epoch 95: Loss (MSE) = 0.25660700
+Hook completed at epoch 95, time took 9.80ms
+	Epoch 100: Loss (MSE) = 0.25659078
+Hook completed at epoch 100, time took 9.59ms
+	Epoch 105: Loss (MSE) = 0.25659740
+Hook completed at epoch 105, time took 10.97ms
+	Epoch 110: Loss (MSE) = 0.25660598
+Hook completed at epoch 110, time took 10.13ms
+	Epoch 115: Loss (MSE) = 0.25661314
+Hook completed at epoch 115, time took 9.53ms
+	Epoch 120: Loss (MSE) = 0.25662464
+Hook completed at epoch 120, time took 9.80ms
+	Epoch 125: Loss (MSE) = 0.25664788
+Hook completed at epoch 125, time took 9.91ms
+	Epoch 130: Loss (MSE) = 0.25665671
+Hook completed at epoch 130, time took 9.52ms
+	Epoch 135: Loss (MSE) = 0.25665808
+Hook completed at epoch 135, time took 9.90ms
+	Epoch 140: Loss (MSE) = 0.25665623
+Hook completed at epoch 140, time took 10.03ms
+	Epoch 145: Loss (MSE) = 0.25666723
+Hook completed at epoch 145, time took 9.57ms
+	Epoch 150: Loss (MSE) = 0.25668418
+Hook completed at epoch 150, time took 10.35ms
+	Epoch 155: Loss (MSE) = 0.25667971
+Hook completed at epoch 155, time took 9.57ms
+	Epoch 160: Loss (MSE) = 0.25667366
+Hook completed at epoch 160, time took 9.94ms
+	Epoch 165: Loss (MSE) = 0.25668502
+Hook completed at epoch 165, time took 9.78ms
+	Epoch 170: Loss (MSE) = 0.25669256
+Hook completed at epoch 170, time took 9.61ms
+	Epoch 175: Loss (MSE) = 0.25669777
+Hook completed at epoch 175, time took 9.91ms
+	Epoch 180: Loss (MSE) = 0.25670049
+Hook completed at epoch 180, time took 9.48ms
+	Epoch 185: Loss (MSE) = 0.25670058
+Hook completed at epoch 185, time took 43.09ms
+	Epoch 190: Loss (MSE) = 0.25670078
+Hook completed at epoch 190, time took 13.78ms
+	Epoch 195: Loss (MSE) = 0.25670162
+Hook completed at epoch 195, time took 9.72ms
+
+✓ All training tasks completed

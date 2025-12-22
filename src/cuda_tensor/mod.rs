@@ -7,8 +7,6 @@ use crate::GPU_CONTEXT;
 use core::ffi::c_void;
 use cublas_sys::*;
 use cust::memory::bytemuck::Zeroable;
-use cust::memory::CopyDestination;
-use cust::sys::*;
 use std::ops::{Add, Mul, Neg, Sub};
 
 //mod tensor_ops;
@@ -164,7 +162,7 @@ impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
 }
 
 impl<T: Numeric + Zeroable> GpuTensor<T> {
-    fn _get_function(fn_name: &str) -> Function {
+    fn _get_function(fn_name: &str) -> Function<'_> {
         let t = GPU_CONTEXT
             .get()
             .expect("No GPU Context Set")
@@ -211,8 +209,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn element_op(&self, op_type: OpType, scale: T) -> Result<Self, String> {
-        let block_dim = 16;
-
         let total_elements: u32 = self.shape.iter().product();
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
@@ -337,28 +333,11 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
     }
 
     fn _sum(&self) -> Result<Self, String> {
-        let sum = Self::_get_function("column_reduce");
+        let data = self.get_data();
+        let total: T = data.iter().fold(T::zero(), |acc, &x| acc + x);
 
-        let total_elements = self.shape.iter().product::<u32>() as usize;
 
-        let result = get_device_buffer(total_elements);
-
-        let total_size_u32 = total_elements as u32;
-        let threads_per_block = 1024;
-
-        let grid_1d = (total_size_u32 + threads_per_block - 1) / threads_per_block;
-
-        let stream = Self::_get_stream();
-        unsafe {
-            let _ = launch!(sum<<< (grid_1d, 1, 1), 1024, 0, stream >>>(
-                self.device_buffer.as_device_ptr(),
-                result.as_device_ptr(),
-                self.shape[0],
-                self.shape[1]
-            ));
-        }
-
-        Ok(Self::_with_device_buffer(vec![1, self.shape[1]], result))
+        Self::_new(vec![1], vec![total])
     }
 
     fn check_shape(shape: &[u32]) -> Option<Result<GpuTensor<T>, String>> {
@@ -384,6 +363,25 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             size *= i;
         }
         size
+    }
+
+    fn _get_initialized_buffer(&self, size: usize) -> CustomDeviceBuffer<T> {
+        let buffer = get_device_buffer(size);
+
+        let threads_per_block = 1024;
+        let grid_1d = (size as u32 + threads_per_block -1)/threads_per_block;
+        let stream = Self::_get_stream();
+        let operation = Self::_get_function("fill_value");
+
+        unsafe {
+            let _ = launch!(operation<<<grid_1d, threads_per_block, 0, stream>>>(
+                buffer.as_device_ptr(),
+                size as i32,
+                T::zero()
+            ));
+        }
+
+        buffer
     }
 
     fn _new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {

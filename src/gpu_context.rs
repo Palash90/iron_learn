@@ -19,7 +19,7 @@ pub struct GpuContext {
 }
 
 impl GpuContext {
-    pub fn get_function(&self, fn_name: &str) -> Function {
+    pub fn get_function(&self, fn_name: &str) -> Function<'_> {
         let module = self.module.as_ref().expect("Module not found");
 
         match module.get_function(fn_name) {
