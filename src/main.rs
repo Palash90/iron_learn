@@ -29,6 +29,9 @@ struct Args {
 
     #[arg(long, short = 'n', default_value = "4")]
     hidden_layers: u32,
+
+    #[arg(long, short, default_value = "weights")]
+    weights_path: String,
 }
 
 fn init() {
@@ -71,6 +74,7 @@ fn init() {
                     true,
                     args.adjust_lr,
                     args.hidden_layers,
+                    args.weights_path
                 );
 
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
@@ -86,6 +90,7 @@ fn init() {
                     false,
                     args.adjust_lr,
                     args.hidden_layers,
+                    args.weights_path
                 );
             }
         }
@@ -99,6 +104,7 @@ fn init() {
             false,
             args.adjust_lr,
             args.hidden_layers,
+            args.weights_path
         );
     }
 }

@@ -56,6 +56,7 @@ pub struct AppContext {
     pub gpu_enabled: bool,
     pub lr_adjust: bool,
     pub hidden_layer_length: u32,
+    pub weights_path: String
 }
 
 /// Initialize the global application context
@@ -98,6 +99,7 @@ pub fn init_context(
     gpu_enabled: bool,
     lr_adjust: bool,
     hidden_layer_length: u32,
+    weights_path: String
 ) {
     let ctx = AppContext {
         app_name,
@@ -108,6 +110,7 @@ pub fn init_context(
         gpu_enabled,
         lr_adjust,
         hidden_layer_length,
+        weights_path
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

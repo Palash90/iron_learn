@@ -232,7 +232,7 @@ def image_reconstruction():
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 1000
     EPOCHS = 10_000_00_0
-    LEARNING_RATE = 0.005
+    LEARNING_RATE = 0.05
     EPOCH_OFFSET = 0 
     RESUME_FILE = ''
     TIME_CHECK = 1000
@@ -268,7 +268,7 @@ def image_reconstruction():
     if X_train is not None:
         INPUT_FEATURES = X_train.shape[1] 
         OUTPUT_NODES = Y_train.shape[1]
-        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 128, tanh, tanh_prime)
+        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 8, tanh, tanh_prime)
         # net = build_siren_net(INPUT_FEATURES, OUTPUT_NODES, 50)
         
         if net.load_weights(RESUME_FILE):

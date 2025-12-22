@@ -197,6 +197,7 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
     let hidden_length = GLOBAL_CONTEXT.get().unwrap().hidden_layer_length;
+    let weights_path = &GLOBAL_CONTEXT.get().unwrap().weights_path;
 
     let Data { cat_image: xy, .. } =
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
@@ -214,8 +215,7 @@ where
 
     // let input_length = input_length + 1; // To compensate for bias
 
-    let nn = NeuralNetBuilder::<T>::new();
-    let mut nn = nn;
+    let mut nn = NeuralNetBuilder::<T>::new();
 
     nn.add_linear(input_length, hidden_length, "Input");
     nn.add_activation(tanh, tanh_prime, "Activation Layer 1");
@@ -226,19 +226,25 @@ where
     nn.add_linear(hidden_length, 2 * hidden_length, "Hidden Layer 2");
     nn.add_activation(tanh, tanh_prime, "Activation Layer 3");
 
-    nn.add_linear(2 * hidden_length, hidden_length, "Hidden Layer 3");
+    nn.add_linear(2 * hidden_length, 4 * hidden_length, "Hidden Layer 3");
     nn.add_activation(tanh, tanh_prime, "Activation Layer 4");
 
-    nn.add_linear(hidden_length, hidden_length / 2, "Hidden Layer 4");
+    nn.add_linear(4 * hidden_length, 2 * hidden_length, "Hidden Layer 4");
     nn.add_activation(tanh, tanh_prime, "Activation Layer 5");
 
-    nn.add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 5");
+    nn.add_linear(2 * hidden_length, hidden_length, "Hidden Layer 5");
     nn.add_activation(tanh, tanh_prime, "Activation Layer 6");
 
-    nn.add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 6");
+    nn.add_linear(hidden_length, hidden_length / 2, "Hidden Layer 6");
     nn.add_activation(tanh, tanh_prime, "Activation Layer 7");
 
-    nn.add_linear(hidden_length / 2, 1, "Hidden Layer 7");
+    nn.add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 7");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 8");
+
+    nn.add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 8");
+    nn.add_activation(tanh, tanh_prime, "Activation Layer 9");
+
+    nn.add_linear(hidden_length / 2, 1, "Hidden Layer 9");
     nn.add_activation(sigmoid, sigmoid_prime, "Output Layer");
 
     let mut nn = nn.build(loss_function_instance);
@@ -261,6 +267,9 @@ where
             let y_pred = nn.predict(&x).unwrap();
 
             draw_image(epoch as i32, &x, &y_pred, 200, 200);
+            nn.save_weights(
+                &(weights_path.to_owned() + "/cp_" + &epoch.to_string() + ".json"),
+            );
         }
     };
 

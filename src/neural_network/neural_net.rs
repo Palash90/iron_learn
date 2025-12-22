@@ -6,6 +6,25 @@ use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use std::f32::consts::PI;
 
+use serde::Serialize;
+
+use serde::Deserialize;
+use std::fs::File;
+use std::io::Write;
+
+#[derive(Serialize, Deserialize)]
+struct LayerData {
+    name: String,
+    index: usize,
+    weights: Vec<NeuralNetDataType>,
+    shape: Vec<u32>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct ModelData {
+    layers: Vec<LayerData>,
+}
+
 pub struct NeuralNet<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
@@ -81,11 +100,8 @@ where
             // Hook (Periodic Reporting)
             if i == 0 || i % hook_interval == 0 {
                 T::synchronize();
-                let e_1 = err.unwrap();
+                let err_val = err.unwrap().sum().unwrap().get_data()[0];
 
-                let e_2 = e_1.sum().unwrap();
-
-                let err_val = e_2.get_data()[0];
                 hook(i, err_val, current_lr, self);
             }
         }
@@ -95,10 +111,21 @@ where
     }
 
     pub fn save_weights(&self, filepath: &str) {
+        let mut model_storage = ModelData { layers: Vec::new() };
+
         for (i, layer) in self.layers.iter().enumerate() {
             if let Some(w) = layer.get_parameters() {
+                let layer_info = LayerData {
+                    name: layer.name().to_string(),
+                    index: i,
+                    weights: w.get_data().to_vec(),
+                    shape: w.get_shape().to_vec(),
+                };
+
+                model_storage.layers.push(layer_info);
+
                 println!(
-                    "Layer {} ({}) Weights saved. (Shape: {:?})",
+                    "Layer {} ({}) Weights prepared for saving. (Shape: {:?})",
                     i,
                     layer.name(),
                     w.get_shape()
@@ -106,6 +133,12 @@ where
             }
         }
 
-        println!("To be saved in {}", filepath)
+        let json_data = serde_json::to_string_pretty(&model_storage)
+            .expect("Failed to serialize model weights");
+
+        let mut file = File::create(filepath).unwrap();
+        let _ = file.write_all(json_data.as_bytes());
+
+        println!("Model successfully saved to {}", filepath);
     }
 }

@@ -2,7 +2,7 @@ from layers import *
 from functions import *
 
 def build_neural_net(features, outputs, hidden_length, activation_fn, activation_prime):
-    net = NeuralNet(mse, mse_prime)
+    net = NeuralNet(binary_cross_entropy, binary_cross_entropy_prime)
 
 
     net.add(LinearLayer(features, hidden_length), name = "Input")
