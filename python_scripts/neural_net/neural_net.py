@@ -231,8 +231,8 @@ def image_reconstruction():
     IMAGE_WIDTH = norm_factors[0] + 1
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 1000
-    EPOCHS = 1500000
-    LEARNING_RATE = 0.00005
+    EPOCHS = 10_000_00_0
+    LEARNING_RATE = 0.005
     EPOCH_OFFSET = 0 
     RESUME_FILE = ''
     TIME_CHECK = 1000
@@ -254,7 +254,7 @@ def image_reconstruction():
         if epoch % CHECKPOINT == 0:
             pass # net.save_weights(f'output/checkpoint/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
 
-        if epoch % 1000 == 0:
+        if epoch % 10000 == 0:
             (f"\n\t\tDrawing at epoch {epoch}")
             predictions = net.predict(X_train)
             draw_predictions_scatter(X_train, epoch + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, predictions)
@@ -268,7 +268,7 @@ def image_reconstruction():
     if X_train is not None:
         INPUT_FEATURES = X_train.shape[1] 
         OUTPUT_NODES = Y_train.shape[1]
-        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 50, tanh, tanh_prime)
+        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 128, tanh, tanh_prime)
         # net = build_siren_net(INPUT_FEATURES, OUTPUT_NODES, 50)
         
         if net.load_weights(RESUME_FILE):

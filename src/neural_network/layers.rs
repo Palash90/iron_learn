@@ -2,8 +2,7 @@ use super::NeuralNetDataType;
 use crate::neural_network::ActivationFn;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
-use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
+use rand::Rng;
 
 pub trait Layer<T>
 where
@@ -32,7 +31,7 @@ where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
-        let mut rng = StdRng::seed_from_u64(42);
+        let mut rng = rand::rng(); // StdRng::seed_from_u64(42);
 
         let limit = (6.0 / (input_size as f32 + output_size as f32)).sqrt();
 

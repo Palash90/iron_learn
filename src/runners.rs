@@ -18,8 +18,7 @@ use crate::NeuralNet;
 use crate::NeuralNetBuilder;
 
 use crate::neural_network::MeanSquaredErrorLoss;
-
-use crate::commons::add_bias_term;
+use image::{ImageBuffer, Luma};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct XY {
@@ -199,9 +198,8 @@ where
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
     let hidden_length = GLOBAL_CONTEXT.get().unwrap().hidden_layer_length;
 
-    let Data {
-        neural_network: xy, ..
-    } = deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
+    let Data { cat_image: xy, .. } =
+        deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
@@ -209,12 +207,12 @@ where
     //let (x, x_mean, x_std) = normalize_features_mean_std(&x);
     //let (y, y_mean, y_std) = normalize_features_mean_std(&y);
 
-    let x = add_bias_term(&x).unwrap();
+    // let x = add_bias_term(&x).unwrap();
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
     let input_length = xy.n;
 
-    let input_length = input_length + 1; // To compensate for bias
+    // let input_length = input_length + 1; // To compensate for bias
 
     let nn = NeuralNetBuilder::<T>::new();
     let mut nn = nn;
@@ -246,41 +244,29 @@ where
     let mut nn = nn.build(loss_function_instance);
 
     let mut start_time = Instant::now();
+    let mut last_epoch = 0;
 
-    let monitor = |epoch: usize, err: NeuralNetDataType, nn: &mut NeuralNet<T>| {
+    let monitor = |epoch: usize,
+                   err: NeuralNetDataType,
+                   current_lr: NeuralNetDataType,
+                   nn: &mut NeuralNet<T>| {
         let elapsed = start_time.elapsed();
         start_time = Instant::now();
 
-        println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err);
+        println!("\tEpoch {epoch}: Loss (MSE) = {err:.8}, Current LR : {current_lr:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
 
-        if epoch == 1 {
-            let pred = nn.predict(&x).unwrap();
+        last_epoch = epoch;
 
-            pred.print_matrix();
+        if epoch % 5000 == 0 {
+            let y_pred = nn.predict(&x).unwrap();
 
-            for layer in &nn.layers {
-                println!("{}", layer.as_ref().name());
-
-                match layer.as_ref().get_parameters() {
-                    Some(p) => p.print_matrix(),
-                    None => {}
-                }
-            }
-        }
-
-        println!(
-            "Hook completed at epoch {}, time took {:.2?}",
-            epoch, elapsed
-        );
-
-        if epoch != 0 && epoch % 100000 == 0 {
-            nn.predict(&x).unwrap().print_matrix();
+            draw_image(epoch as i32, &x, &y_pred, 200, 200);
         }
     };
 
-    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, 1000);
+    draw_image(-1, &x, &y, 200, 200);
 
-    //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
+    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, 1000);
 
     //let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 
@@ -294,4 +280,43 @@ where
 
     //let predictions = denormalize_features(&predictions, &y_mean, &y_std);
     Ok(())
+}
+
+fn draw_image<T>(epoch: i32, x_test: &T, y: &T, height: u32, width: u32)
+where
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+{
+    let mut image_data: Vec<(u32, u32, u8)> = vec![];
+
+    let x_data = x_test.get_data();
+    let y_data = y.get_data();
+
+    for i in 0..y_data.len() {
+        let x_co = x_data[2 * i] as u32;
+        let y_co = x_data[2 * i + 1] as u32;
+        let pixel = match y_data[i] > 0.5f32 {
+            true => 0,
+            false => 255,
+        };
+
+        image_data.push((x_co, y_co, pixel));
+    }
+
+    draw_grid(image_data, epoch, height, width);
+}
+
+fn draw_grid(points: Vec<(u32, u32, u8)>, epoch: i32, height: u32, width: u32) {
+    let mut imgbuf = ImageBuffer::new(width, height);
+
+    for (x, y, pixel) in points {
+        if x < width && y < height {
+            imgbuf.put_pixel(x, y, Luma([pixel]));
+        }
+    }
+
+    let image_file = "output".to_owned() + &epoch.to_string() + ".png";
+
+    imgbuf.save(&image_file).unwrap();
+
+    println!("Image successfully rendered to {}", image_file);
 }

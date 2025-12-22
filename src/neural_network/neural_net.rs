@@ -43,7 +43,7 @@ where
         hook_interval: usize,
     ) -> Result<(), String>
     where
-        F: FnMut(usize, NeuralNetDataType, &mut Self),
+        F: FnMut(usize, NeuralNetDataType, NeuralNetDataType, &mut Self),
     {
         let lr_min = 1e-6;
 
@@ -86,7 +86,7 @@ where
                 let e_2 = e_1.sum().unwrap();
 
                 let err_val = e_2.get_data()[0];
-                hook(i, err_val, self);
+                hook(i, err_val, current_lr, self);
             }
         }
 
