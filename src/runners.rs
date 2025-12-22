@@ -211,7 +211,7 @@ where
     let x = add_bias_term(&x).unwrap();
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
-    let hidden_length = 50; // Should be even
+    let hidden_length = 2; // Should be even
     let input_length = 2;
 
     let input_length = input_length + 1; // To compensate for bias
@@ -273,7 +273,7 @@ where
         }
     };
 
-    let _ = nn.fit(&x, &y, e as usize, 0, l, true, monitor, 1);
+    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, 1000);
 
     //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
 
