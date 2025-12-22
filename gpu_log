@@ -283,3 +283,4019 @@ Hook completed at epoch 190, time took 13.78ms
 Hook completed at epoch 195, time took 9.72ms
 
 ✓ All training tasks completed
+✓ GPU initialization successful
+✓ CUBLAS initialization successful
+Memory pool created for device NVIDIA GeForce RTX 3050 Laptop GPU
+
+╔════════════════════════════════╗
+║ Iron Learn v5
+║ Mode: GPU
+║ Learning Rate: 0.0001
+║ Epochs: 10000
+║ Data Path: data.json
+╚════════════════════════════════╝
+
+Running GPU-based training...
+
+	Epoch 0: Loss (MSE) = 0.25648421
+Hook completed at epoch 0, time took 2.81ms
+	Epoch 5: Loss (MSE) = 0.25660753
+Hook completed at epoch 5, time took 12.63ms
+	Epoch 10: Loss (MSE) = 0.25661394
+Hook completed at epoch 10, time took 10.24ms
+	Epoch 15: Loss (MSE) = 0.25669473
+Hook completed at epoch 15, time took 10.01ms
+	Epoch 20: Loss (MSE) = 0.25670022
+Hook completed at epoch 20, time took 40.19ms
+	Epoch 25: Loss (MSE) = 0.25669548
+Hook completed at epoch 25, time took 52.62ms
+	Epoch 30: Loss (MSE) = 0.25676090
+Hook completed at epoch 30, time took 42.83ms
+	Epoch 35: Loss (MSE) = 0.25684369
+Hook completed at epoch 35, time took 10.02ms
+	Epoch 40: Loss (MSE) = 0.25689125
+Hook completed at epoch 40, time took 10.00ms
+	Epoch 45: Loss (MSE) = 0.25690553
+Hook completed at epoch 45, time took 11.05ms
+	Epoch 50: Loss (MSE) = 0.25695205
+Hook completed at epoch 50, time took 42.83ms
+	Epoch 55: Loss (MSE) = 0.25712362
+Hook completed at epoch 55, time took 9.41ms
+	Epoch 60: Loss (MSE) = 0.25716913
+Hook completed at epoch 60, time took 10.09ms
+	Epoch 65: Loss (MSE) = 0.25718346
+Hook completed at epoch 65, time took 30.49ms
+	Epoch 70: Loss (MSE) = 0.25719789
+Hook completed at epoch 70, time took 10.10ms
+	Epoch 75: Loss (MSE) = 0.25727075
+Hook completed at epoch 75, time took 10.36ms
+	Epoch 80: Loss (MSE) = 0.25730738
+Hook completed at epoch 80, time took 10.14ms
+	Epoch 85: Loss (MSE) = 0.25725636
+Hook completed at epoch 85, time took 10.07ms
+	Epoch 90: Loss (MSE) = 0.25722593
+Hook completed at epoch 90, time took 29.49ms
+	Epoch 95: Loss (MSE) = 0.25727704
+Hook completed at epoch 95, time took 10.42ms
+	Epoch 100: Loss (MSE) = 0.25733787
+Hook completed at epoch 100, time took 10.21ms
+	Epoch 105: Loss (MSE) = 0.25732592
+Hook completed at epoch 105, time took 9.96ms
+	Epoch 110: Loss (MSE) = 0.25752684
+Hook completed at epoch 110, time took 10.41ms
+	Epoch 115: Loss (MSE) = 0.25756192
+Hook completed at epoch 115, time took 11.52ms
+	Epoch 120: Loss (MSE) = 0.25762025
+Hook completed at epoch 120, time took 11.61ms
+	Epoch 125: Loss (MSE) = 0.25768462
+Hook completed at epoch 125, time took 30.19ms
+	Epoch 130: Loss (MSE) = 0.25774303
+Hook completed at epoch 130, time took 10.36ms
+	Epoch 135: Loss (MSE) = 0.25780147
+Hook completed at epoch 135, time took 15.22ms
+	Epoch 140: Loss (MSE) = 0.25790790
+Hook completed at epoch 140, time took 29.52ms
+	Epoch 145: Loss (MSE) = 0.25796005
+Hook completed at epoch 145, time took 10.69ms
+	Epoch 150: Loss (MSE) = 0.25804484
+Hook completed at epoch 150, time took 10.48ms
+	Epoch 155: Loss (MSE) = 0.25820965
+Hook completed at epoch 155, time took 30.02ms
+	Epoch 160: Loss (MSE) = 0.25823966
+Hook completed at epoch 160, time took 30.04ms
+	Epoch 165: Loss (MSE) = 0.25820133
+Hook completed at epoch 165, time took 30.25ms
+	Epoch 170: Loss (MSE) = 0.25830913
+Hook completed at epoch 170, time took 9.68ms
+	Epoch 175: Loss (MSE) = 0.25843069
+Hook completed at epoch 175, time took 11.64ms
+	Epoch 180: Loss (MSE) = 0.25842276
+Hook completed at epoch 180, time took 10.22ms
+	Epoch 185: Loss (MSE) = 0.25851473
+Hook completed at epoch 185, time took 30.60ms
+	Epoch 190: Loss (MSE) = 0.25858715
+Hook completed at epoch 190, time took 11.35ms
+	Epoch 195: Loss (MSE) = 0.25864840
+Hook completed at epoch 195, time took 9.98ms
+	Epoch 200: Loss (MSE) = 0.25859997
+Hook completed at epoch 200, time took 11.21ms
+	Epoch 205: Loss (MSE) = 0.25867987
+Hook completed at epoch 205, time took 10.24ms
+	Epoch 210: Loss (MSE) = 0.25876102
+Hook completed at epoch 210, time took 10.01ms
+	Epoch 215: Loss (MSE) = 0.25874758
+Hook completed at epoch 215, time took 30.01ms
+	Epoch 220: Loss (MSE) = 0.25881469
+Hook completed at epoch 220, time took 11.17ms
+	Epoch 225: Loss (MSE) = 0.25884634
+Hook completed at epoch 225, time took 10.46ms
+	Epoch 230: Loss (MSE) = 0.25888163
+Hook completed at epoch 230, time took 29.19ms
+	Epoch 235: Loss (MSE) = 0.25891244
+Hook completed at epoch 235, time took 8.25ms
+	Epoch 240: Loss (MSE) = 0.25898647
+Hook completed at epoch 240, time took 9.33ms
+	Epoch 245: Loss (MSE) = 0.25908405
+Hook completed at epoch 245, time took 28.78ms
+	Epoch 250: Loss (MSE) = 0.25922522
+Hook completed at epoch 250, time took 9.70ms
+	Epoch 255: Loss (MSE) = 0.25932559
+Hook completed at epoch 255, time took 8.57ms
+	Epoch 260: Loss (MSE) = 0.25935665
+Hook completed at epoch 260, time took 9.77ms
+	Epoch 265: Loss (MSE) = 0.25952473
+Hook completed at epoch 265, time took 9.72ms
+	Epoch 270: Loss (MSE) = 0.25961226
+Hook completed at epoch 270, time took 29.13ms
+	Epoch 275: Loss (MSE) = 0.25965145
+Hook completed at epoch 275, time took 9.58ms
+	Epoch 280: Loss (MSE) = 0.25964463
+Hook completed at epoch 280, time took 10.20ms
+	Epoch 285: Loss (MSE) = 0.25973982
+Hook completed at epoch 285, time took 9.41ms
+	Epoch 290: Loss (MSE) = 0.25979045
+Hook completed at epoch 290, time took 9.59ms
+	Epoch 295: Loss (MSE) = 0.25981048
+Hook completed at epoch 295, time took 9.75ms
+	Epoch 300: Loss (MSE) = 0.25981259
+Hook completed at epoch 300, time took 9.05ms
+	Epoch 305: Loss (MSE) = 0.25974491
+Hook completed at epoch 305, time took 9.52ms
+	Epoch 310: Loss (MSE) = 0.25985575
+Hook completed at epoch 310, time took 9.06ms
+	Epoch 315: Loss (MSE) = 0.25991264
+Hook completed at epoch 315, time took 27.50ms
+	Epoch 320: Loss (MSE) = 0.25994852
+Hook completed at epoch 320, time took 8.89ms
+	Epoch 325: Loss (MSE) = 0.26001203
+Hook completed at epoch 325, time took 9.19ms
+	Epoch 330: Loss (MSE) = 0.26003355
+Hook completed at epoch 330, time took 28.85ms
+	Epoch 335: Loss (MSE) = 0.26009291
+Hook completed at epoch 335, time took 10.36ms
+	Epoch 340: Loss (MSE) = 0.26018590
+Hook completed at epoch 340, time took 9.93ms
+	Epoch 345: Loss (MSE) = 0.26006532
+Hook completed at epoch 345, time took 28.48ms
+	Epoch 350: Loss (MSE) = 0.26013178
+Hook completed at epoch 350, time took 11.45ms
+	Epoch 355: Loss (MSE) = 0.26040602
+Hook completed at epoch 355, time took 10.20ms
+	Epoch 360: Loss (MSE) = 0.26050746
+Hook completed at epoch 360, time took 9.25ms
+	Epoch 365: Loss (MSE) = 0.26056957
+Hook completed at epoch 365, time took 8.56ms
+	Epoch 370: Loss (MSE) = 0.26061490
+Hook completed at epoch 370, time took 9.39ms
+	Epoch 375: Loss (MSE) = 0.26070842
+Hook completed at epoch 375, time took 28.30ms
+	Epoch 380: Loss (MSE) = 0.26089674
+Hook completed at epoch 380, time took 9.43ms
+	Epoch 385: Loss (MSE) = 0.26094958
+Hook completed at epoch 385, time took 12.71ms
+	Epoch 390: Loss (MSE) = 0.26101601
+Hook completed at epoch 390, time took 9.88ms
+	Epoch 395: Loss (MSE) = 0.26113391
+Hook completed at epoch 395, time took 9.12ms
+	Epoch 400: Loss (MSE) = 0.26113123
+Hook completed at epoch 400, time took 10.59ms
+	Epoch 405: Loss (MSE) = 0.26101869
+Hook completed at epoch 405, time took 9.48ms
+	Epoch 410: Loss (MSE) = 0.26088676
+Hook completed at epoch 410, time took 10.50ms
+	Epoch 415: Loss (MSE) = 0.26095721
+Hook completed at epoch 415, time took 10.81ms
+	Epoch 420: Loss (MSE) = 0.26094157
+Hook completed at epoch 420, time took 29.76ms
+	Epoch 425: Loss (MSE) = 0.26075047
+Hook completed at epoch 425, time took 9.54ms
+	Epoch 430: Loss (MSE) = 0.26075283
+Hook completed at epoch 430, time took 24.73ms
+	Epoch 435: Loss (MSE) = 0.26088676
+Hook completed at epoch 435, time took 9.12ms
+	Epoch 440: Loss (MSE) = 0.26089838
+Hook completed at epoch 440, time took 9.44ms
+	Epoch 445: Loss (MSE) = 0.26102796
+Hook completed at epoch 445, time took 9.63ms
+	Epoch 450: Loss (MSE) = 0.26103666
+Hook completed at epoch 450, time took 9.52ms
+	Epoch 455: Loss (MSE) = 0.26107341
+Hook completed at epoch 455, time took 27.51ms
+	Epoch 460: Loss (MSE) = 0.26114812
+Hook completed at epoch 460, time took 8.82ms
+	Epoch 465: Loss (MSE) = 0.26135078
+Hook completed at epoch 465, time took 18.99ms
+	Epoch 470: Loss (MSE) = 0.26137200
+Hook completed at epoch 470, time took 9.39ms
+	Epoch 475: Loss (MSE) = 0.26138949
+Hook completed at epoch 475, time took 28.75ms
+	Epoch 480: Loss (MSE) = 0.26139161
+Hook completed at epoch 480, time took 29.24ms
+	Epoch 485: Loss (MSE) = 0.26136270
+Hook completed at epoch 485, time took 8.96ms
+	Epoch 490: Loss (MSE) = 0.26131511
+Hook completed at epoch 490, time took 28.04ms
+	Epoch 495: Loss (MSE) = 0.26129809
+Hook completed at epoch 495, time took 9.28ms
+	Epoch 500: Loss (MSE) = 0.26140183
+Hook completed at epoch 500, time took 8.68ms
+	Epoch 505: Loss (MSE) = 0.26138103
+Hook completed at epoch 505, time took 9.28ms
+	Epoch 510: Loss (MSE) = 0.26152205
+Hook completed at epoch 510, time took 9.36ms
+	Epoch 515: Loss (MSE) = 0.26150796
+Hook completed at epoch 515, time took 28.97ms
+	Epoch 520: Loss (MSE) = 0.26157424
+Hook completed at epoch 520, time took 9.89ms
+	Epoch 525: Loss (MSE) = 0.26164842
+Hook completed at epoch 525, time took 9.43ms
+	Epoch 530: Loss (MSE) = 0.26159850
+Hook completed at epoch 530, time took 22.53ms
+	Epoch 535: Loss (MSE) = 0.26158100
+Hook completed at epoch 535, time took 8.87ms
+	Epoch 540: Loss (MSE) = 0.26178336
+Hook completed at epoch 540, time took 9.35ms
+	Epoch 545: Loss (MSE) = 0.26175290
+Hook completed at epoch 545, time took 29.40ms
+	Epoch 550: Loss (MSE) = 0.26185846
+Hook completed at epoch 550, time took 9.04ms
+	Epoch 555: Loss (MSE) = 0.26203611
+Hook completed at epoch 555, time took 9.09ms
+	Epoch 560: Loss (MSE) = 0.26205641
+Hook completed at epoch 560, time took 9.38ms
+	Epoch 565: Loss (MSE) = 0.26205611
+Hook completed at epoch 565, time took 8.92ms
+	Epoch 570: Loss (MSE) = 0.26217368
+Hook completed at epoch 570, time took 9.00ms
+	Epoch 575: Loss (MSE) = 0.26214212
+Hook completed at epoch 575, time took 10.11ms
+	Epoch 580: Loss (MSE) = 0.26223868
+Hook completed at epoch 580, time took 10.66ms
+	Epoch 585: Loss (MSE) = 0.26228574
+Hook completed at epoch 585, time took 9.46ms
+	Epoch 590: Loss (MSE) = 0.26234707
+Hook completed at epoch 590, time took 9.69ms
+	Epoch 595: Loss (MSE) = 0.26235372
+Hook completed at epoch 595, time took 8.00ms
+	Epoch 600: Loss (MSE) = 0.26245466
+Hook completed at epoch 600, time took 8.38ms
+	Epoch 605: Loss (MSE) = 0.26240674
+Hook completed at epoch 605, time took 8.91ms
+	Epoch 610: Loss (MSE) = 0.26248226
+Hook completed at epoch 610, time took 29.80ms
+	Epoch 615: Loss (MSE) = 0.26263621
+Hook completed at epoch 615, time took 9.45ms
+	Epoch 620: Loss (MSE) = 0.26272219
+Hook completed at epoch 620, time took 9.49ms
+	Epoch 625: Loss (MSE) = 0.26267651
+Hook completed at epoch 625, time took 8.80ms
+	Epoch 630: Loss (MSE) = 0.26267952
+Hook completed at epoch 630, time took 9.56ms
+	Epoch 635: Loss (MSE) = 0.26269904
+Hook completed at epoch 635, time took 28.48ms
+	Epoch 640: Loss (MSE) = 0.26272669
+Hook completed at epoch 640, time took 9.17ms
+	Epoch 645: Loss (MSE) = 0.26282209
+Hook completed at epoch 645, time took 28.12ms
+	Epoch 650: Loss (MSE) = 0.26289982
+Hook completed at epoch 650, time took 13.65ms
+	Epoch 655: Loss (MSE) = 0.26284137
+Hook completed at epoch 655, time took 29.19ms
+	Epoch 660: Loss (MSE) = 0.26289940
+Hook completed at epoch 660, time took 9.60ms
+	Epoch 665: Loss (MSE) = 0.26298112
+Hook completed at epoch 665, time took 29.90ms
+	Epoch 670: Loss (MSE) = 0.26295087
+Hook completed at epoch 670, time took 8.80ms
+	Epoch 675: Loss (MSE) = 0.26304966
+Hook completed at epoch 675, time took 8.55ms
+	Epoch 680: Loss (MSE) = 0.26322651
+Hook completed at epoch 680, time took 10.37ms
+	Epoch 685: Loss (MSE) = 0.26316798
+Hook completed at epoch 685, time took 9.63ms
+	Epoch 690: Loss (MSE) = 0.26321101
+Hook completed at epoch 690, time took 9.21ms
+	Epoch 695: Loss (MSE) = 0.26324475
+Hook completed at epoch 695, time took 9.26ms
+	Epoch 700: Loss (MSE) = 0.26328704
+Hook completed at epoch 700, time took 9.05ms
+	Epoch 705: Loss (MSE) = 0.26333112
+Hook completed at epoch 705, time took 9.67ms
+	Epoch 710: Loss (MSE) = 0.26334742
+Hook completed at epoch 710, time took 9.32ms
+	Epoch 715: Loss (MSE) = 0.26346043
+Hook completed at epoch 715, time took 9.48ms
+	Epoch 720: Loss (MSE) = 0.26348913
+Hook completed at epoch 720, time took 28.19ms
+	Epoch 725: Loss (MSE) = 0.26359388
+Hook completed at epoch 725, time took 15.04ms
+	Epoch 730: Loss (MSE) = 0.26328808
+Hook completed at epoch 730, time took 9.91ms
+	Epoch 735: Loss (MSE) = 0.26337481
+Hook completed at epoch 735, time took 10.13ms
+	Epoch 740: Loss (MSE) = 0.26327264
+Hook completed at epoch 740, time took 28.80ms
+	Epoch 745: Loss (MSE) = 0.26330903
+Hook completed at epoch 745, time took 8.91ms
+	Epoch 750: Loss (MSE) = 0.26351067
+Hook completed at epoch 750, time took 28.46ms
+	Epoch 755: Loss (MSE) = 0.26358891
+Hook completed at epoch 755, time took 10.85ms
+	Epoch 760: Loss (MSE) = 0.26356000
+Hook completed at epoch 760, time took 8.93ms
+	Epoch 765: Loss (MSE) = 0.26355264
+Hook completed at epoch 765, time took 9.87ms
+	Epoch 770: Loss (MSE) = 0.26353806
+Hook completed at epoch 770, time took 9.37ms
+	Epoch 775: Loss (MSE) = 0.26359823
+Hook completed at epoch 775, time took 28.83ms
+	Epoch 780: Loss (MSE) = 0.26362631
+Hook completed at epoch 780, time took 9.16ms
+	Epoch 785: Loss (MSE) = 0.26363584
+Hook completed at epoch 785, time took 28.10ms
+	Epoch 790: Loss (MSE) = 0.26373675
+Hook completed at epoch 790, time took 10.26ms
+	Epoch 795: Loss (MSE) = 0.26370767
+Hook completed at epoch 795, time took 9.04ms
+	Epoch 800: Loss (MSE) = 0.26380143
+Hook completed at epoch 800, time took 8.80ms
+	Epoch 805: Loss (MSE) = 0.26373255
+Hook completed at epoch 805, time took 10.18ms
+	Epoch 810: Loss (MSE) = 0.26375109
+Hook completed at epoch 810, time took 9.18ms
+	Epoch 815: Loss (MSE) = 0.26377606
+Hook completed at epoch 815, time took 9.27ms
+	Epoch 820: Loss (MSE) = 0.26361480
+Hook completed at epoch 820, time took 9.53ms
+	Epoch 825: Loss (MSE) = 0.26363122
+Hook completed at epoch 825, time took 10.33ms
+	Epoch 830: Loss (MSE) = 0.26355809
+Hook completed at epoch 830, time took 28.88ms
+	Epoch 835: Loss (MSE) = 0.26372600
+Hook completed at epoch 835, time took 14.83ms
+	Epoch 840: Loss (MSE) = 0.26387572
+Hook completed at epoch 840, time took 8.98ms
+	Epoch 845: Loss (MSE) = 0.26386571
+Hook completed at epoch 845, time took 9.17ms
+	Epoch 850: Loss (MSE) = 0.26388928
+Hook completed at epoch 850, time took 9.47ms
+	Epoch 855: Loss (MSE) = 0.26400173
+Hook completed at epoch 855, time took 9.59ms
+	Epoch 860: Loss (MSE) = 0.26416379
+Hook completed at epoch 860, time took 9.12ms
+	Epoch 865: Loss (MSE) = 0.26407218
+Hook completed at epoch 865, time took 9.43ms
+	Epoch 870: Loss (MSE) = 0.26401591
+Hook completed at epoch 870, time took 8.94ms
+	Epoch 875: Loss (MSE) = 0.26398805
+Hook completed at epoch 875, time took 9.43ms
+	Epoch 880: Loss (MSE) = 0.26390183
+Hook completed at epoch 880, time took 9.12ms
+	Epoch 885: Loss (MSE) = 0.26388848
+Hook completed at epoch 885, time took 8.42ms
+	Epoch 890: Loss (MSE) = 0.26403889
+Hook completed at epoch 890, time took 9.26ms
+	Epoch 895: Loss (MSE) = 0.26398507
+Hook completed at epoch 895, time took 9.41ms
+	Epoch 900: Loss (MSE) = 0.26400167
+Hook completed at epoch 900, time took 29.54ms
+	Epoch 905: Loss (MSE) = 0.26392633
+Hook completed at epoch 905, time took 10.30ms
+	Epoch 910: Loss (MSE) = 0.26407844
+Hook completed at epoch 910, time took 10.16ms
+	Epoch 915: Loss (MSE) = 0.26418021
+Hook completed at epoch 915, time took 9.18ms
+	Epoch 920: Loss (MSE) = 0.26423576
+Hook completed at epoch 920, time took 9.73ms
+	Epoch 925: Loss (MSE) = 0.26421982
+Hook completed at epoch 925, time took 9.57ms
+	Epoch 930: Loss (MSE) = 0.26431262
+Hook completed at epoch 930, time took 15.60ms
+	Epoch 935: Loss (MSE) = 0.26439697
+Hook completed at epoch 935, time took 9.58ms
+	Epoch 940: Loss (MSE) = 0.26443771
+Hook completed at epoch 940, time took 9.31ms
+	Epoch 945: Loss (MSE) = 0.26444218
+Hook completed at epoch 945, time took 28.59ms
+	Epoch 950: Loss (MSE) = 0.26440597
+Hook completed at epoch 950, time took 9.71ms
+	Epoch 955: Loss (MSE) = 0.26444447
+Hook completed at epoch 955, time took 28.28ms
+	Epoch 960: Loss (MSE) = 0.26452550
+Hook completed at epoch 960, time took 9.79ms
+	Epoch 965: Loss (MSE) = 0.26462793
+Hook completed at epoch 965, time took 9.36ms
+	Epoch 970: Loss (MSE) = 0.26467738
+Hook completed at epoch 970, time took 74.66ms
+	Epoch 975: Loss (MSE) = 0.26468506
+Hook completed at epoch 975, time took 9.11ms
+	Epoch 980: Loss (MSE) = 0.26466450
+Hook completed at epoch 980, time took 7.97ms
+	Epoch 985: Loss (MSE) = 0.26468313
+Hook completed at epoch 985, time took 11.04ms
+	Epoch 990: Loss (MSE) = 0.26471359
+Hook completed at epoch 990, time took 8.90ms
+	Epoch 995: Loss (MSE) = 0.26471138
+Hook completed at epoch 995, time took 9.46ms
+	Epoch 1000: Loss (MSE) = 0.26472694
+Hook completed at epoch 1000, time took 8.41ms
+	Epoch 1005: Loss (MSE) = 0.26479217
+Hook completed at epoch 1005, time took 8.76ms
+	Epoch 1010: Loss (MSE) = 0.26485834
+Hook completed at epoch 1010, time took 8.62ms
+	Epoch 1015: Loss (MSE) = 0.26505145
+Hook completed at epoch 1015, time took 8.76ms
+	Epoch 1020: Loss (MSE) = 0.26506898
+Hook completed at epoch 1020, time took 8.94ms
+	Epoch 1025: Loss (MSE) = 0.26506588
+Hook completed at epoch 1025, time took 9.04ms
+	Epoch 1030: Loss (MSE) = 0.26512215
+Hook completed at epoch 1030, time took 8.92ms
+	Epoch 1035: Loss (MSE) = 0.26518214
+Hook completed at epoch 1035, time took 11.02ms
+	Epoch 1040: Loss (MSE) = 0.26525763
+Hook completed at epoch 1040, time took 10.17ms
+	Epoch 1045: Loss (MSE) = 0.26542783
+Hook completed at epoch 1045, time took 8.87ms
+	Epoch 1050: Loss (MSE) = 0.26540053
+Hook completed at epoch 1050, time took 11.73ms
+	Epoch 1055: Loss (MSE) = 0.26547179
+Hook completed at epoch 1055, time took 10.20ms
+	Epoch 1060: Loss (MSE) = 0.26548165
+Hook completed at epoch 1060, time took 8.85ms
+	Epoch 1065: Loss (MSE) = 0.26569632
+Hook completed at epoch 1065, time took 9.05ms
+	Epoch 1070: Loss (MSE) = 0.26571298
+Hook completed at epoch 1070, time took 8.52ms
+	Epoch 1075: Loss (MSE) = 0.26574937
+Hook completed at epoch 1075, time took 8.34ms
+	Epoch 1080: Loss (MSE) = 0.26565427
+Hook completed at epoch 1080, time took 8.13ms
+	Epoch 1085: Loss (MSE) = 0.26561284
+Hook completed at epoch 1085, time took 8.70ms
+	Epoch 1090: Loss (MSE) = 0.26576939
+Hook completed at epoch 1090, time took 20.69ms
+	Epoch 1095: Loss (MSE) = 0.26579750
+Hook completed at epoch 1095, time took 10.27ms
+	Epoch 1100: Loss (MSE) = 0.26591858
+Hook completed at epoch 1100, time took 9.21ms
+	Epoch 1105: Loss (MSE) = 0.26599208
+Hook completed at epoch 1105, time took 8.52ms
+	Epoch 1110: Loss (MSE) = 0.26589739
+Hook completed at epoch 1110, time took 29.06ms
+	Epoch 1115: Loss (MSE) = 0.26571149
+Hook completed at epoch 1115, time took 9.27ms
+	Epoch 1120: Loss (MSE) = 0.26580641
+Hook completed at epoch 1120, time took 9.52ms
+	Epoch 1125: Loss (MSE) = 0.26579073
+Hook completed at epoch 1125, time took 22.52ms
+	Epoch 1130: Loss (MSE) = 0.26568791
+Hook completed at epoch 1130, time took 10.33ms
+	Epoch 1135: Loss (MSE) = 0.26550674
+Hook completed at epoch 1135, time took 9.85ms
+	Epoch 1140: Loss (MSE) = 0.26553041
+Hook completed at epoch 1140, time took 9.67ms
+	Epoch 1145: Loss (MSE) = 0.26563710
+Hook completed at epoch 1145, time took 10.27ms
+	Epoch 1150: Loss (MSE) = 0.26560780
+Hook completed at epoch 1150, time took 8.78ms
+	Epoch 1155: Loss (MSE) = 0.26552248
+Hook completed at epoch 1155, time took 8.68ms
+	Epoch 1160: Loss (MSE) = 0.26555735
+Hook completed at epoch 1160, time took 9.23ms
+	Epoch 1165: Loss (MSE) = 0.26563242
+Hook completed at epoch 1165, time took 28.94ms
+	Epoch 1170: Loss (MSE) = 0.26570481
+Hook completed at epoch 1170, time took 12.46ms
+	Epoch 1175: Loss (MSE) = 0.26566190
+Hook completed at epoch 1175, time took 9.83ms
+	Epoch 1180: Loss (MSE) = 0.26587430
+Hook completed at epoch 1180, time took 9.46ms
+	Epoch 1185: Loss (MSE) = 0.26577395
+Hook completed at epoch 1185, time took 28.82ms
+	Epoch 1190: Loss (MSE) = 0.26598150
+Hook completed at epoch 1190, time took 9.46ms
+	Epoch 1195: Loss (MSE) = 0.26612809
+Hook completed at epoch 1195, time took 9.06ms
+	Epoch 1200: Loss (MSE) = 0.26610747
+Hook completed at epoch 1200, time took 21.63ms
+	Epoch 1205: Loss (MSE) = 0.26594639
+Hook completed at epoch 1205, time took 14.41ms
+	Epoch 1210: Loss (MSE) = 0.26599303
+Hook completed at epoch 1210, time took 9.18ms
+	Epoch 1215: Loss (MSE) = 0.26593852
+Hook completed at epoch 1215, time took 28.67ms
+	Epoch 1220: Loss (MSE) = 0.26599360
+Hook completed at epoch 1220, time took 28.16ms
+	Epoch 1225: Loss (MSE) = 0.26610306
+Hook completed at epoch 1225, time took 28.80ms
+	Epoch 1230: Loss (MSE) = 0.26584381
+Hook completed at epoch 1230, time took 9.30ms
+	Epoch 1235: Loss (MSE) = 0.26582664
+Hook completed at epoch 1235, time took 29.94ms
+	Epoch 1240: Loss (MSE) = 0.26589084
+Hook completed at epoch 1240, time took 10.22ms
+	Epoch 1245: Loss (MSE) = 0.26592919
+Hook completed at epoch 1245, time took 9.53ms
+	Epoch 1250: Loss (MSE) = 0.26593789
+Hook completed at epoch 1250, time took 11.39ms
+	Epoch 1255: Loss (MSE) = 0.26597938
+Hook completed at epoch 1255, time took 9.82ms
+	Epoch 1260: Loss (MSE) = 0.26605895
+Hook completed at epoch 1260, time took 9.85ms
+	Epoch 1265: Loss (MSE) = 0.26608783
+Hook completed at epoch 1265, time took 9.52ms
+	Epoch 1270: Loss (MSE) = 0.26603663
+Hook completed at epoch 1270, time took 11.61ms
+	Epoch 1275: Loss (MSE) = 0.26605132
+Hook completed at epoch 1275, time took 9.38ms
+	Epoch 1280: Loss (MSE) = 0.26605573
+Hook completed at epoch 1280, time took 9.94ms
+	Epoch 1285: Loss (MSE) = 0.26593035
+Hook completed at epoch 1285, time took 29.12ms
+	Epoch 1290: Loss (MSE) = 0.26612288
+Hook completed at epoch 1290, time took 10.12ms
+	Epoch 1295: Loss (MSE) = 0.26616767
+Hook completed at epoch 1295, time took 30.04ms
+	Epoch 1300: Loss (MSE) = 0.26629484
+Hook completed at epoch 1300, time took 20.30ms
+	Epoch 1305: Loss (MSE) = 0.26625827
+Hook completed at epoch 1305, time took 9.03ms
+	Epoch 1310: Loss (MSE) = 0.26625752
+Hook completed at epoch 1310, time took 28.84ms
+	Epoch 1315: Loss (MSE) = 0.26629692
+Hook completed at epoch 1315, time took 9.13ms
+	Epoch 1320: Loss (MSE) = 0.26630157
+Hook completed at epoch 1320, time took 9.82ms
+	Epoch 1325: Loss (MSE) = 0.26620099
+Hook completed at epoch 1325, time took 28.62ms
+	Epoch 1330: Loss (MSE) = 0.26607516
+Hook completed at epoch 1330, time took 10.45ms
+	Epoch 1335: Loss (MSE) = 0.26604769
+Hook completed at epoch 1335, time took 10.37ms
+	Epoch 1340: Loss (MSE) = 0.26599053
+Hook completed at epoch 1340, time took 9.41ms
+	Epoch 1345: Loss (MSE) = 0.26610994
+Hook completed at epoch 1345, time took 9.39ms
+	Epoch 1350: Loss (MSE) = 0.26606899
+Hook completed at epoch 1350, time took 9.16ms
+	Epoch 1355: Loss (MSE) = 0.26602000
+Hook completed at epoch 1355, time took 9.06ms
+	Epoch 1360: Loss (MSE) = 0.26570478
+Hook completed at epoch 1360, time took 9.19ms
+	Epoch 1365: Loss (MSE) = 0.26582193
+Hook completed at epoch 1365, time took 9.06ms
+	Epoch 1370: Loss (MSE) = 0.26564413
+Hook completed at epoch 1370, time took 28.64ms
+	Epoch 1375: Loss (MSE) = 0.26541299
+Hook completed at epoch 1375, time took 9.21ms
+	Epoch 1380: Loss (MSE) = 0.26540616
+Hook completed at epoch 1380, time took 10.00ms
+	Epoch 1385: Loss (MSE) = 0.26536569
+Hook completed at epoch 1385, time took 9.48ms
+	Epoch 1390: Loss (MSE) = 0.26535615
+Hook completed at epoch 1390, time took 28.88ms
+	Epoch 1395: Loss (MSE) = 0.26542708
+Hook completed at epoch 1395, time took 9.46ms
+	Epoch 1400: Loss (MSE) = 0.26550701
+Hook completed at epoch 1400, time took 11.85ms
+	Epoch 1405: Loss (MSE) = 0.26568273
+Hook completed at epoch 1405, time took 9.44ms
+	Epoch 1410: Loss (MSE) = 0.26528326
+Hook completed at epoch 1410, time took 23.85ms
+	Epoch 1415: Loss (MSE) = 0.26533836
+Hook completed at epoch 1415, time took 10.67ms
+	Epoch 1420: Loss (MSE) = 0.26529351
+Hook completed at epoch 1420, time took 8.04ms
+	Epoch 1425: Loss (MSE) = 0.26528955
+Hook completed at epoch 1425, time took 29.95ms
+	Epoch 1430: Loss (MSE) = 0.26520482
+Hook completed at epoch 1430, time took 29.75ms
+	Epoch 1435: Loss (MSE) = 0.26526421
+Hook completed at epoch 1435, time took 21.40ms
+	Epoch 1440: Loss (MSE) = 0.26533982
+Hook completed at epoch 1440, time took 9.24ms
+	Epoch 1445: Loss (MSE) = 0.26529533
+Hook completed at epoch 1445, time took 8.74ms
+	Epoch 1450: Loss (MSE) = 0.26534092
+Hook completed at epoch 1450, time took 9.29ms
+	Epoch 1455: Loss (MSE) = 0.26531032
+Hook completed at epoch 1455, time took 13.01ms
+	Epoch 1460: Loss (MSE) = 0.26531437
+Hook completed at epoch 1460, time took 15.54ms
+	Epoch 1465: Loss (MSE) = 0.26529792
+Hook completed at epoch 1465, time took 8.91ms
+	Epoch 1470: Loss (MSE) = 0.26542181
+Hook completed at epoch 1470, time took 10.08ms
+	Epoch 1475: Loss (MSE) = 0.26555544
+Hook completed at epoch 1475, time took 9.20ms
+	Epoch 1480: Loss (MSE) = 0.26548746
+Hook completed at epoch 1480, time took 19.97ms
+	Epoch 1485: Loss (MSE) = 0.26535100
+Hook completed at epoch 1485, time took 9.32ms
+	Epoch 1490: Loss (MSE) = 0.26538530
+Hook completed at epoch 1490, time took 8.93ms
+	Epoch 1495: Loss (MSE) = 0.26533425
+Hook completed at epoch 1495, time took 8.91ms
+	Epoch 1500: Loss (MSE) = 0.26530930
+Hook completed at epoch 1500, time took 9.66ms
+	Epoch 1505: Loss (MSE) = 0.26531684
+Hook completed at epoch 1505, time took 10.52ms
+	Epoch 1510: Loss (MSE) = 0.26537395
+Hook completed at epoch 1510, time took 9.39ms
+	Epoch 1515: Loss (MSE) = 0.26545000
+Hook completed at epoch 1515, time took 8.79ms
+	Epoch 1520: Loss (MSE) = 0.26543087
+Hook completed at epoch 1520, time took 8.71ms
+	Epoch 1525: Loss (MSE) = 0.26531610
+Hook completed at epoch 1525, time took 9.03ms
+	Epoch 1530: Loss (MSE) = 0.26528114
+Hook completed at epoch 1530, time took 8.89ms
+	Epoch 1535: Loss (MSE) = 0.26537883
+Hook completed at epoch 1535, time took 9.76ms
+	Epoch 1540: Loss (MSE) = 0.26538160
+Hook completed at epoch 1540, time took 28.86ms
+	Epoch 1545: Loss (MSE) = 0.26525596
+Hook completed at epoch 1545, time took 8.68ms
+	Epoch 1550: Loss (MSE) = 0.26530129
+Hook completed at epoch 1550, time took 10.35ms
+	Epoch 1555: Loss (MSE) = 0.26535702
+Hook completed at epoch 1555, time took 9.25ms
+	Epoch 1560: Loss (MSE) = 0.26540756
+Hook completed at epoch 1560, time took 9.67ms
+	Epoch 1565: Loss (MSE) = 0.26550269
+Hook completed at epoch 1565, time took 8.72ms
+	Epoch 1570: Loss (MSE) = 0.26557916
+Hook completed at epoch 1570, time took 9.86ms
+	Epoch 1575: Loss (MSE) = 0.26553243
+Hook completed at epoch 1575, time took 21.66ms
+	Epoch 1580: Loss (MSE) = 0.26551446
+Hook completed at epoch 1580, time took 9.51ms
+	Epoch 1585: Loss (MSE) = 0.26571634
+Hook completed at epoch 1585, time took 8.59ms
+	Epoch 1590: Loss (MSE) = 0.26564401
+Hook completed at epoch 1590, time took 29.24ms
+	Epoch 1595: Loss (MSE) = 0.26571196
+Hook completed at epoch 1595, time took 13.57ms
+	Epoch 1600: Loss (MSE) = 0.26566571
+Hook completed at epoch 1600, time took 29.36ms
+	Epoch 1605: Loss (MSE) = 0.26572591
+Hook completed at epoch 1605, time took 8.96ms
+	Epoch 1610: Loss (MSE) = 0.26574999
+Hook completed at epoch 1610, time took 8.50ms
+	Epoch 1615: Loss (MSE) = 0.26570374
+Hook completed at epoch 1615, time took 9.50ms
+	Epoch 1620: Loss (MSE) = 0.26577744
+Hook completed at epoch 1620, time took 9.69ms
+	Epoch 1625: Loss (MSE) = 0.26573941
+Hook completed at epoch 1625, time took 8.41ms
+	Epoch 1630: Loss (MSE) = 0.26571009
+Hook completed at epoch 1630, time took 8.36ms
+	Epoch 1635: Loss (MSE) = 0.26568004
+Hook completed at epoch 1635, time took 8.53ms
+	Epoch 1640: Loss (MSE) = 0.26534522
+Hook completed at epoch 1640, time took 8.84ms
+	Epoch 1645: Loss (MSE) = 0.26533312
+Hook completed at epoch 1645, time took 9.13ms
+	Epoch 1650: Loss (MSE) = 0.26530427
+Hook completed at epoch 1650, time took 8.88ms
+	Epoch 1655: Loss (MSE) = 0.26532754
+Hook completed at epoch 1655, time took 8.62ms
+	Epoch 1660: Loss (MSE) = 0.26511449
+Hook completed at epoch 1660, time took 9.48ms
+	Epoch 1665: Loss (MSE) = 0.26510108
+Hook completed at epoch 1665, time took 8.77ms
+	Epoch 1670: Loss (MSE) = 0.26498854
+Hook completed at epoch 1670, time took 27.66ms
+	Epoch 1675: Loss (MSE) = 0.26515928
+Hook completed at epoch 1675, time took 28.52ms
+	Epoch 1680: Loss (MSE) = 0.26526219
+Hook completed at epoch 1680, time took 10.24ms
+	Epoch 1685: Loss (MSE) = 0.26527935
+Hook completed at epoch 1685, time took 27.87ms
+	Epoch 1690: Loss (MSE) = 0.26528966
+Hook completed at epoch 1690, time took 8.97ms
+	Epoch 1695: Loss (MSE) = 0.26547894
+Hook completed at epoch 1695, time took 8.99ms
+	Epoch 1700: Loss (MSE) = 0.26541898
+Hook completed at epoch 1700, time took 8.49ms
+	Epoch 1705: Loss (MSE) = 0.26555198
+Hook completed at epoch 1705, time took 8.87ms
+	Epoch 1710: Loss (MSE) = 0.26553801
+Hook completed at epoch 1710, time took 8.39ms
+	Epoch 1715: Loss (MSE) = 0.26563358
+Hook completed at epoch 1715, time took 9.42ms
+	Epoch 1720: Loss (MSE) = 0.26564980
+Hook completed at epoch 1720, time took 9.24ms
+	Epoch 1725: Loss (MSE) = 0.26572224
+Hook completed at epoch 1725, time took 10.39ms
+	Epoch 1730: Loss (MSE) = 0.26582789
+Hook completed at epoch 1730, time took 10.01ms
+	Epoch 1735: Loss (MSE) = 0.26584125
+Hook completed at epoch 1735, time took 21.93ms
+	Epoch 1740: Loss (MSE) = 0.26594046
+Hook completed at epoch 1740, time took 9.42ms
+	Epoch 1745: Loss (MSE) = 0.26599413
+Hook completed at epoch 1745, time took 8.91ms
+	Epoch 1750: Loss (MSE) = 0.26603058
+Hook completed at epoch 1750, time took 8.67ms
+	Epoch 1755: Loss (MSE) = 0.26618356
+Hook completed at epoch 1755, time took 8.06ms
+	Epoch 1760: Loss (MSE) = 0.26616657
+Hook completed at epoch 1760, time took 8.80ms
+	Epoch 1765: Loss (MSE) = 0.26613933
+Hook completed at epoch 1765, time took 9.43ms
+	Epoch 1770: Loss (MSE) = 0.26625791
+Hook completed at epoch 1770, time took 8.61ms
+	Epoch 1775: Loss (MSE) = 0.26632753
+Hook completed at epoch 1775, time took 28.81ms
+	Epoch 1780: Loss (MSE) = 0.26644611
+Hook completed at epoch 1780, time took 10.82ms
+	Epoch 1785: Loss (MSE) = 0.26650518
+Hook completed at epoch 1785, time took 8.31ms
+	Epoch 1790: Loss (MSE) = 0.26644456
+Hook completed at epoch 1790, time took 8.69ms
+	Epoch 1795: Loss (MSE) = 0.26628557
+Hook completed at epoch 1795, time took 29.33ms
+	Epoch 1800: Loss (MSE) = 0.26599771
+Hook completed at epoch 1800, time took 9.30ms
+	Epoch 1805: Loss (MSE) = 0.26594663
+Hook completed at epoch 1805, time took 29.30ms
+	Epoch 1810: Loss (MSE) = 0.26594999
+Hook completed at epoch 1810, time took 23.62ms
+	Epoch 1815: Loss (MSE) = 0.26591638
+Hook completed at epoch 1815, time took 8.99ms
+	Epoch 1820: Loss (MSE) = 0.26579395
+Hook completed at epoch 1820, time took 29.99ms
+	Epoch 1825: Loss (MSE) = 0.26570940
+Hook completed at epoch 1825, time took 9.40ms
+	Epoch 1830: Loss (MSE) = 0.26580015
+Hook completed at epoch 1830, time took 10.40ms
+	Epoch 1835: Loss (MSE) = 0.26583615
+Hook completed at epoch 1835, time took 9.45ms
+	Epoch 1840: Loss (MSE) = 0.26594582
+Hook completed at epoch 1840, time took 9.15ms
+	Epoch 1845: Loss (MSE) = 0.26589215
+Hook completed at epoch 1845, time took 8.83ms
+	Epoch 1850: Loss (MSE) = 0.26593131
+Hook completed at epoch 1850, time took 14.63ms
+	Epoch 1855: Loss (MSE) = 0.26576334
+Hook completed at epoch 1855, time took 9.50ms
+	Epoch 1860: Loss (MSE) = 0.26583076
+Hook completed at epoch 1860, time took 10.47ms
+	Epoch 1865: Loss (MSE) = 0.26578900
+Hook completed at epoch 1865, time took 10.08ms
+	Epoch 1870: Loss (MSE) = 0.26577479
+Hook completed at epoch 1870, time took 29.02ms
+	Epoch 1875: Loss (MSE) = 0.26593599
+Hook completed at epoch 1875, time took 9.03ms
+	Epoch 1880: Loss (MSE) = 0.26562268
+Hook completed at epoch 1880, time took 8.96ms
+	Epoch 1885: Loss (MSE) = 0.26550823
+Hook completed at epoch 1885, time took 23.48ms
+	Epoch 1890: Loss (MSE) = 0.26524830
+Hook completed at epoch 1890, time took 9.76ms
+	Epoch 1895: Loss (MSE) = 0.26528063
+Hook completed at epoch 1895, time took 8.42ms
+	Epoch 1900: Loss (MSE) = 0.26517335
+Hook completed at epoch 1900, time took 9.07ms
+	Epoch 1905: Loss (MSE) = 0.26510522
+Hook completed at epoch 1905, time took 9.16ms
+	Epoch 1910: Loss (MSE) = 0.26500160
+Hook completed at epoch 1910, time took 8.79ms
+	Epoch 1915: Loss (MSE) = 0.26480567
+Hook completed at epoch 1915, time took 9.54ms
+	Epoch 1920: Loss (MSE) = 0.26478851
+Hook completed at epoch 1920, time took 8.15ms
+	Epoch 1925: Loss (MSE) = 0.26476744
+Hook completed at epoch 1925, time took 10.42ms
+	Epoch 1930: Loss (MSE) = 0.26485303
+Hook completed at epoch 1930, time took 27.69ms
+	Epoch 1935: Loss (MSE) = 0.26496071
+Hook completed at epoch 1935, time took 9.38ms
+	Epoch 1940: Loss (MSE) = 0.26489076
+Hook completed at epoch 1940, time took 29.03ms
+	Epoch 1945: Loss (MSE) = 0.26468015
+Hook completed at epoch 1945, time took 9.85ms
+	Epoch 1950: Loss (MSE) = 0.26428542
+Hook completed at epoch 1950, time took 28.55ms
+	Epoch 1955: Loss (MSE) = 0.26426730
+Hook completed at epoch 1955, time took 9.08ms
+	Epoch 1960: Loss (MSE) = 0.26428384
+Hook completed at epoch 1960, time took 9.58ms
+	Epoch 1965: Loss (MSE) = 0.26416904
+Hook completed at epoch 1965, time took 20.73ms
+	Epoch 1970: Loss (MSE) = 0.26407743
+Hook completed at epoch 1970, time took 9.66ms
+	Epoch 1975: Loss (MSE) = 0.26393506
+Hook completed at epoch 1975, time took 28.75ms
+	Epoch 1980: Loss (MSE) = 0.26377621
+Hook completed at epoch 1980, time took 9.39ms
+	Epoch 1985: Loss (MSE) = 0.26384214
+Hook completed at epoch 1985, time took 9.67ms
+	Epoch 1990: Loss (MSE) = 0.26381817
+Hook completed at epoch 1990, time took 8.88ms
+	Epoch 1995: Loss (MSE) = 0.26400685
+Hook completed at epoch 1995, time took 74.34ms
+	Epoch 2000: Loss (MSE) = 0.26401624
+Hook completed at epoch 2000, time took 9.57ms
+	Epoch 2005: Loss (MSE) = 0.26403487
+Hook completed at epoch 2005, time took 8.84ms
+	Epoch 2010: Loss (MSE) = 0.26388729
+Hook completed at epoch 2010, time took 9.24ms
+	Epoch 2015: Loss (MSE) = 0.26390982
+Hook completed at epoch 2015, time took 29.51ms
+	Epoch 2020: Loss (MSE) = 0.26392904
+Hook completed at epoch 2020, time took 9.34ms
+	Epoch 2025: Loss (MSE) = 0.26394939
+Hook completed at epoch 2025, time took 9.45ms
+	Epoch 2030: Loss (MSE) = 0.26377741
+Hook completed at epoch 2030, time took 30.22ms
+	Epoch 2035: Loss (MSE) = 0.26365656
+Hook completed at epoch 2035, time took 10.75ms
+	Epoch 2040: Loss (MSE) = 0.26349133
+Hook completed at epoch 2040, time took 10.54ms
+	Epoch 2045: Loss (MSE) = 0.26352251
+Hook completed at epoch 2045, time took 30.09ms
+	Epoch 2050: Loss (MSE) = 0.26358700
+Hook completed at epoch 2050, time took 9.57ms
+	Epoch 2055: Loss (MSE) = 0.26347986
+Hook completed at epoch 2055, time took 10.02ms
+	Epoch 2060: Loss (MSE) = 0.26360723
+Hook completed at epoch 2060, time took 10.21ms
+	Epoch 2065: Loss (MSE) = 0.26356494
+Hook completed at epoch 2065, time took 9.37ms
+	Epoch 2070: Loss (MSE) = 0.26352412
+Hook completed at epoch 2070, time took 9.97ms
+	Epoch 2075: Loss (MSE) = 0.26356754
+Hook completed at epoch 2075, time took 9.72ms
+	Epoch 2080: Loss (MSE) = 0.26304144
+Hook completed at epoch 2080, time took 29.59ms
+	Epoch 2085: Loss (MSE) = 0.26313084
+Hook completed at epoch 2085, time took 8.91ms
+	Epoch 2090: Loss (MSE) = 0.26323444
+Hook completed at epoch 2090, time took 9.87ms
+	Epoch 2095: Loss (MSE) = 0.26321232
+Hook completed at epoch 2095, time took 9.22ms
+	Epoch 2100: Loss (MSE) = 0.26318872
+Hook completed at epoch 2100, time took 9.41ms
+	Epoch 2105: Loss (MSE) = 0.26333538
+Hook completed at epoch 2105, time took 11.44ms
+	Epoch 2110: Loss (MSE) = 0.26305002
+Hook completed at epoch 2110, time took 9.74ms
+	Epoch 2115: Loss (MSE) = 0.26300424
+Hook completed at epoch 2115, time took 9.13ms
+	Epoch 2120: Loss (MSE) = 0.26293442
+Hook completed at epoch 2120, time took 28.99ms
+	Epoch 2125: Loss (MSE) = 0.26293153
+Hook completed at epoch 2125, time took 9.20ms
+	Epoch 2130: Loss (MSE) = 0.26300976
+Hook completed at epoch 2130, time took 10.44ms
+	Epoch 2135: Loss (MSE) = 0.26301074
+Hook completed at epoch 2135, time took 10.90ms
+	Epoch 2140: Loss (MSE) = 0.26312211
+Hook completed at epoch 2140, time took 9.06ms
+	Epoch 2145: Loss (MSE) = 0.26300144
+Hook completed at epoch 2145, time took 9.41ms
+	Epoch 2150: Loss (MSE) = 0.26298913
+Hook completed at epoch 2150, time took 29.02ms
+	Epoch 2155: Loss (MSE) = 0.26310357
+Hook completed at epoch 2155, time took 9.19ms
+	Epoch 2160: Loss (MSE) = 0.26305923
+Hook completed at epoch 2160, time took 9.24ms
+	Epoch 2165: Loss (MSE) = 0.26292253
+Hook completed at epoch 2165, time took 29.16ms
+	Epoch 2170: Loss (MSE) = 0.26309076
+Hook completed at epoch 2170, time took 9.53ms
+	Epoch 2175: Loss (MSE) = 0.26297387
+Hook completed at epoch 2175, time took 9.12ms
+	Epoch 2180: Loss (MSE) = 0.26314640
+Hook completed at epoch 2180, time took 9.10ms
+	Epoch 2185: Loss (MSE) = 0.26310158
+Hook completed at epoch 2185, time took 9.97ms
+	Epoch 2190: Loss (MSE) = 0.26312509
+Hook completed at epoch 2190, time took 8.72ms
+	Epoch 2195: Loss (MSE) = 0.26306146
+Hook completed at epoch 2195, time took 9.53ms
+	Epoch 2200: Loss (MSE) = 0.26301134
+Hook completed at epoch 2200, time took 8.81ms
+	Epoch 2205: Loss (MSE) = 0.26303908
+Hook completed at epoch 2205, time took 8.89ms
+	Epoch 2210: Loss (MSE) = 0.26276597
+Hook completed at epoch 2210, time took 9.13ms
+	Epoch 2215: Loss (MSE) = 0.26278239
+Hook completed at epoch 2215, time took 28.63ms
+	Epoch 2220: Loss (MSE) = 0.26275289
+Hook completed at epoch 2220, time took 9.42ms
+	Epoch 2225: Loss (MSE) = 0.26284418
+Hook completed at epoch 2225, time took 29.45ms
+	Epoch 2230: Loss (MSE) = 0.26301587
+Hook completed at epoch 2230, time took 9.15ms
+	Epoch 2235: Loss (MSE) = 0.26297179
+Hook completed at epoch 2235, time took 9.83ms
+	Epoch 2240: Loss (MSE) = 0.26297399
+Hook completed at epoch 2240, time took 11.14ms
+	Epoch 2245: Loss (MSE) = 0.26295725
+Hook completed at epoch 2245, time took 27.94ms
+	Epoch 2250: Loss (MSE) = 0.26287046
+Hook completed at epoch 2250, time took 10.16ms
+	Epoch 2255: Loss (MSE) = 0.26306185
+Hook completed at epoch 2255, time took 10.24ms
+	Epoch 2260: Loss (MSE) = 0.26287508
+Hook completed at epoch 2260, time took 29.37ms
+	Epoch 2265: Loss (MSE) = 0.26266283
+Hook completed at epoch 2265, time took 15.76ms
+	Epoch 2270: Loss (MSE) = 0.26238248
+Hook completed at epoch 2270, time took 9.08ms
+	Epoch 2275: Loss (MSE) = 0.26240322
+Hook completed at epoch 2275, time took 9.29ms
+	Epoch 2280: Loss (MSE) = 0.26232651
+Hook completed at epoch 2280, time took 20.70ms
+	Epoch 2285: Loss (MSE) = 0.26232269
+Hook completed at epoch 2285, time took 8.34ms
+	Epoch 2290: Loss (MSE) = 0.26226461
+Hook completed at epoch 2290, time took 8.58ms
+	Epoch 2295: Loss (MSE) = 0.26233706
+Hook completed at epoch 2295, time took 10.42ms
+	Epoch 2300: Loss (MSE) = 0.26229617
+Hook completed at epoch 2300, time took 9.74ms
+	Epoch 2305: Loss (MSE) = 0.26245233
+Hook completed at epoch 2305, time took 9.26ms
+	Epoch 2310: Loss (MSE) = 0.26239443
+Hook completed at epoch 2310, time took 9.39ms
+	Epoch 2315: Loss (MSE) = 0.26238331
+Hook completed at epoch 2315, time took 8.90ms
+	Epoch 2320: Loss (MSE) = 0.26253748
+Hook completed at epoch 2320, time took 8.52ms
+	Epoch 2325: Loss (MSE) = 0.26252818
+Hook completed at epoch 2325, time took 8.28ms
+	Epoch 2330: Loss (MSE) = 0.26251182
+Hook completed at epoch 2330, time took 9.23ms
+	Epoch 2335: Loss (MSE) = 0.26274878
+Hook completed at epoch 2335, time took 9.40ms
+	Epoch 2340: Loss (MSE) = 0.26255625
+Hook completed at epoch 2340, time took 9.18ms
+	Epoch 2345: Loss (MSE) = 0.26233575
+Hook completed at epoch 2345, time took 29.06ms
+	Epoch 2350: Loss (MSE) = 0.26217437
+Hook completed at epoch 2350, time took 30.10ms
+	Epoch 2355: Loss (MSE) = 0.26218837
+Hook completed at epoch 2355, time took 9.64ms
+	Epoch 2360: Loss (MSE) = 0.26226097
+Hook completed at epoch 2360, time took 9.56ms
+	Epoch 2365: Loss (MSE) = 0.26238704
+Hook completed at epoch 2365, time took 11.47ms
+	Epoch 2370: Loss (MSE) = 0.26239133
+Hook completed at epoch 2370, time took 11.87ms
+	Epoch 2375: Loss (MSE) = 0.26251560
+Hook completed at epoch 2375, time took 9.15ms
+	Epoch 2380: Loss (MSE) = 0.26261356
+Hook completed at epoch 2380, time took 29.24ms
+	Epoch 2385: Loss (MSE) = 0.26258153
+Hook completed at epoch 2385, time took 10.34ms
+	Epoch 2390: Loss (MSE) = 0.26263893
+Hook completed at epoch 2390, time took 28.97ms
+	Epoch 2395: Loss (MSE) = 0.26257026
+Hook completed at epoch 2395, time took 27.14ms
+	Epoch 2400: Loss (MSE) = 0.26251495
+Hook completed at epoch 2400, time took 8.83ms
+	Epoch 2405: Loss (MSE) = 0.26247215
+Hook completed at epoch 2405, time took 8.96ms
+	Epoch 2410: Loss (MSE) = 0.26242307
+Hook completed at epoch 2410, time took 9.25ms
+	Epoch 2415: Loss (MSE) = 0.26244503
+Hook completed at epoch 2415, time took 9.30ms
+	Epoch 2420: Loss (MSE) = 0.26240557
+Hook completed at epoch 2420, time took 8.93ms
+	Epoch 2425: Loss (MSE) = 0.26241714
+Hook completed at epoch 2425, time took 8.76ms
+	Epoch 2430: Loss (MSE) = 0.26243231
+Hook completed at epoch 2430, time took 9.39ms
+	Epoch 2435: Loss (MSE) = 0.26241356
+Hook completed at epoch 2435, time took 9.25ms
+	Epoch 2440: Loss (MSE) = 0.26236361
+Hook completed at epoch 2440, time took 9.33ms
+	Epoch 2445: Loss (MSE) = 0.26237741
+Hook completed at epoch 2445, time took 9.29ms
+	Epoch 2450: Loss (MSE) = 0.26234928
+Hook completed at epoch 2450, time took 28.27ms
+	Epoch 2455: Loss (MSE) = 0.26233599
+Hook completed at epoch 2455, time took 33.03ms
+	Epoch 2460: Loss (MSE) = 0.26246226
+Hook completed at epoch 2460, time took 9.70ms
+	Epoch 2465: Loss (MSE) = 0.26242518
+Hook completed at epoch 2465, time took 10.24ms
+	Epoch 2470: Loss (MSE) = 0.26250935
+Hook completed at epoch 2470, time took 9.51ms
+	Epoch 2475: Loss (MSE) = 0.26254418
+Hook completed at epoch 2475, time took 8.53ms
+	Epoch 2480: Loss (MSE) = 0.26260075
+Hook completed at epoch 2480, time took 10.18ms
+	Epoch 2485: Loss (MSE) = 0.26258120
+Hook completed at epoch 2485, time took 28.69ms
+	Epoch 2490: Loss (MSE) = 0.26253355
+Hook completed at epoch 2490, time took 48.53ms
+	Epoch 2495: Loss (MSE) = 0.26265803
+Hook completed at epoch 2495, time took 9.94ms
+	Epoch 2500: Loss (MSE) = 0.26264751
+Hook completed at epoch 2500, time took 14.48ms
+	Epoch 2505: Loss (MSE) = 0.26254225
+Hook completed at epoch 2505, time took 11.61ms
+	Epoch 2510: Loss (MSE) = 0.26251277
+Hook completed at epoch 2510, time took 9.55ms
+	Epoch 2515: Loss (MSE) = 0.26241851
+Hook completed at epoch 2515, time took 29.18ms
+	Epoch 2520: Loss (MSE) = 0.26245344
+Hook completed at epoch 2520, time took 29.39ms
+	Epoch 2525: Loss (MSE) = 0.26253539
+Hook completed at epoch 2525, time took 9.92ms
+	Epoch 2530: Loss (MSE) = 0.26235786
+Hook completed at epoch 2530, time took 10.02ms
+	Epoch 2535: Loss (MSE) = 0.26247662
+Hook completed at epoch 2535, time took 9.97ms
+	Epoch 2540: Loss (MSE) = 0.26244920
+Hook completed at epoch 2540, time took 10.32ms
+	Epoch 2545: Loss (MSE) = 0.26238811
+Hook completed at epoch 2545, time took 9.53ms
+	Epoch 2550: Loss (MSE) = 0.26215097
+Hook completed at epoch 2550, time took 29.04ms
+	Epoch 2555: Loss (MSE) = 0.26228267
+Hook completed at epoch 2555, time took 8.84ms
+	Epoch 2560: Loss (MSE) = 0.26224801
+Hook completed at epoch 2560, time took 10.22ms
+	Epoch 2565: Loss (MSE) = 0.26224732
+Hook completed at epoch 2565, time took 9.20ms
+	Epoch 2570: Loss (MSE) = 0.26228419
+Hook completed at epoch 2570, time took 9.51ms
+	Epoch 2575: Loss (MSE) = 0.26223996
+Hook completed at epoch 2575, time took 9.61ms
+	Epoch 2580: Loss (MSE) = 0.26215258
+Hook completed at epoch 2580, time took 9.30ms
+	Epoch 2585: Loss (MSE) = 0.26225033
+Hook completed at epoch 2585, time took 9.72ms
+	Epoch 2590: Loss (MSE) = 0.26233777
+Hook completed at epoch 2590, time took 9.32ms
+	Epoch 2595: Loss (MSE) = 0.26243073
+Hook completed at epoch 2595, time took 10.26ms
+	Epoch 2600: Loss (MSE) = 0.26259115
+Hook completed at epoch 2600, time took 28.95ms
+	Epoch 2605: Loss (MSE) = 0.26267800
+Hook completed at epoch 2605, time took 28.80ms
+	Epoch 2610: Loss (MSE) = 0.26278073
+Hook completed at epoch 2610, time took 9.56ms
+	Epoch 2615: Loss (MSE) = 0.26282093
+Hook completed at epoch 2615, time took 9.37ms
+	Epoch 2620: Loss (MSE) = 0.26283425
+Hook completed at epoch 2620, time took 9.45ms
+	Epoch 2625: Loss (MSE) = 0.26273495
+Hook completed at epoch 2625, time took 28.76ms
+	Epoch 2630: Loss (MSE) = 0.26282120
+Hook completed at epoch 2630, time took 8.96ms
+	Epoch 2635: Loss (MSE) = 0.26286957
+Hook completed at epoch 2635, time took 10.32ms
+	Epoch 2640: Loss (MSE) = 0.26283291
+Hook completed at epoch 2640, time took 10.34ms
+	Epoch 2645: Loss (MSE) = 0.26293311
+Hook completed at epoch 2645, time took 9.63ms
+	Epoch 2650: Loss (MSE) = 0.26303944
+Hook completed at epoch 2650, time took 9.76ms
+	Epoch 2655: Loss (MSE) = 0.26314124
+Hook completed at epoch 2655, time took 9.67ms
+	Epoch 2660: Loss (MSE) = 0.26302931
+Hook completed at epoch 2660, time took 28.60ms
+	Epoch 2665: Loss (MSE) = 0.26317218
+Hook completed at epoch 2665, time took 29.40ms
+	Epoch 2670: Loss (MSE) = 0.26326111
+Hook completed at epoch 2670, time took 10.38ms
+	Epoch 2675: Loss (MSE) = 0.26334673
+Hook completed at epoch 2675, time took 10.57ms
+	Epoch 2680: Loss (MSE) = 0.26334402
+Hook completed at epoch 2680, time took 9.10ms
+	Epoch 2685: Loss (MSE) = 0.26336452
+Hook completed at epoch 2685, time took 9.30ms
+	Epoch 2690: Loss (MSE) = 0.26338857
+Hook completed at epoch 2690, time took 8.65ms
+	Epoch 2695: Loss (MSE) = 0.26352215
+Hook completed at epoch 2695, time took 28.77ms
+	Epoch 2700: Loss (MSE) = 0.26363987
+Hook completed at epoch 2700, time took 8.53ms
+	Epoch 2705: Loss (MSE) = 0.26380661
+Hook completed at epoch 2705, time took 9.34ms
+	Epoch 2710: Loss (MSE) = 0.26368099
+Hook completed at epoch 2710, time took 9.67ms
+	Epoch 2715: Loss (MSE) = 0.26374254
+Hook completed at epoch 2715, time took 9.52ms
+	Epoch 2720: Loss (MSE) = 0.26368135
+Hook completed at epoch 2720, time took 8.99ms
+	Epoch 2725: Loss (MSE) = 0.26383212
+Hook completed at epoch 2725, time took 9.47ms
+	Epoch 2730: Loss (MSE) = 0.26381633
+Hook completed at epoch 2730, time took 10.15ms
+	Epoch 2735: Loss (MSE) = 0.26385173
+Hook completed at epoch 2735, time took 10.37ms
+	Epoch 2740: Loss (MSE) = 0.26396009
+Hook completed at epoch 2740, time took 9.56ms
+	Epoch 2745: Loss (MSE) = 0.26399013
+Hook completed at epoch 2745, time took 28.94ms
+	Epoch 2750: Loss (MSE) = 0.26419842
+Hook completed at epoch 2750, time took 9.72ms
+	Epoch 2755: Loss (MSE) = 0.26432467
+Hook completed at epoch 2755, time took 9.31ms
+	Epoch 2760: Loss (MSE) = 0.26416954
+Hook completed at epoch 2760, time took 9.46ms
+	Epoch 2765: Loss (MSE) = 0.26429951
+Hook completed at epoch 2765, time took 9.33ms
+	Epoch 2770: Loss (MSE) = 0.26426390
+Hook completed at epoch 2770, time took 9.46ms
+	Epoch 2775: Loss (MSE) = 0.26410991
+Hook completed at epoch 2775, time took 8.93ms
+	Epoch 2780: Loss (MSE) = 0.26408195
+Hook completed at epoch 2780, time took 8.79ms
+	Epoch 2785: Loss (MSE) = 0.26390296
+Hook completed at epoch 2785, time took 8.79ms
+	Epoch 2790: Loss (MSE) = 0.26350021
+Hook completed at epoch 2790, time took 8.81ms
+	Epoch 2795: Loss (MSE) = 0.26363251
+Hook completed at epoch 2795, time took 9.15ms
+	Epoch 2800: Loss (MSE) = 0.26360151
+Hook completed at epoch 2800, time took 8.82ms
+	Epoch 2805: Loss (MSE) = 0.26358235
+Hook completed at epoch 2805, time took 8.86ms
+	Epoch 2810: Loss (MSE) = 0.26364228
+Hook completed at epoch 2810, time took 9.37ms
+	Epoch 2815: Loss (MSE) = 0.26364860
+Hook completed at epoch 2815, time took 9.35ms
+	Epoch 2820: Loss (MSE) = 0.26356712
+Hook completed at epoch 2820, time took 9.98ms
+	Epoch 2825: Loss (MSE) = 0.26326472
+Hook completed at epoch 2825, time took 19.46ms
+	Epoch 2830: Loss (MSE) = 0.26317129
+Hook completed at epoch 2830, time took 29.13ms
+	Epoch 2835: Loss (MSE) = 0.26312149
+Hook completed at epoch 2835, time took 28.86ms
+	Epoch 2840: Loss (MSE) = 0.26326576
+Hook completed at epoch 2840, time took 9.48ms
+	Epoch 2845: Loss (MSE) = 0.26341948
+Hook completed at epoch 2845, time took 10.54ms
+	Epoch 2850: Loss (MSE) = 0.26328802
+Hook completed at epoch 2850, time took 8.45ms
+	Epoch 2855: Loss (MSE) = 0.26344305
+Hook completed at epoch 2855, time took 9.28ms
+	Epoch 2860: Loss (MSE) = 0.26329580
+Hook completed at epoch 2860, time took 9.17ms
+	Epoch 2865: Loss (MSE) = 0.26329896
+Hook completed at epoch 2865, time took 9.52ms
+	Epoch 2870: Loss (MSE) = 0.26310265
+Hook completed at epoch 2870, time took 9.70ms
+	Epoch 2875: Loss (MSE) = 0.26309112
+Hook completed at epoch 2875, time took 9.32ms
+	Epoch 2880: Loss (MSE) = 0.26311791
+Hook completed at epoch 2880, time took 9.49ms
+	Epoch 2885: Loss (MSE) = 0.26309782
+Hook completed at epoch 2885, time took 9.71ms
+	Epoch 2890: Loss (MSE) = 0.26313046
+Hook completed at epoch 2890, time took 9.27ms
+	Epoch 2895: Loss (MSE) = 0.26307583
+Hook completed at epoch 2895, time took 28.08ms
+	Epoch 2900: Loss (MSE) = 0.26299554
+Hook completed at epoch 2900, time took 10.36ms
+	Epoch 2905: Loss (MSE) = 0.26273620
+Hook completed at epoch 2905, time took 10.30ms
+	Epoch 2910: Loss (MSE) = 0.26256773
+Hook completed at epoch 2910, time took 9.61ms
+	Epoch 2915: Loss (MSE) = 0.26282170
+Hook completed at epoch 2915, time took 11.14ms
+	Epoch 2920: Loss (MSE) = 0.26298711
+Hook completed at epoch 2920, time took 9.84ms
+	Epoch 2925: Loss (MSE) = 0.26274666
+Hook completed at epoch 2925, time took 9.15ms
+	Epoch 2930: Loss (MSE) = 0.26270178
+Hook completed at epoch 2930, time took 9.37ms
+	Epoch 2935: Loss (MSE) = 0.26265261
+Hook completed at epoch 2935, time took 9.13ms
+	Epoch 2940: Loss (MSE) = 0.26256207
+Hook completed at epoch 2940, time took 9.52ms
+	Epoch 2945: Loss (MSE) = 0.26258960
+Hook completed at epoch 2945, time took 9.37ms
+	Epoch 2950: Loss (MSE) = 0.26245803
+Hook completed at epoch 2950, time took 9.22ms
+	Epoch 2955: Loss (MSE) = 0.26262331
+Hook completed at epoch 2955, time took 9.33ms
+	Epoch 2960: Loss (MSE) = 0.26258337
+Hook completed at epoch 2960, time took 28.73ms
+	Epoch 2965: Loss (MSE) = 0.26228589
+Hook completed at epoch 2965, time took 29.07ms
+	Epoch 2970: Loss (MSE) = 0.26216218
+Hook completed at epoch 2970, time took 10.48ms
+	Epoch 2975: Loss (MSE) = 0.26220351
+Hook completed at epoch 2975, time took 9.66ms
+	Epoch 2980: Loss (MSE) = 0.26218197
+Hook completed at epoch 2980, time took 10.18ms
+	Epoch 2985: Loss (MSE) = 0.26242504
+Hook completed at epoch 2985, time took 10.13ms
+	Epoch 2990: Loss (MSE) = 0.26252642
+Hook completed at epoch 2990, time took 9.63ms
+	Epoch 2995: Loss (MSE) = 0.26242203
+Hook completed at epoch 2995, time took 9.23ms
+	Epoch 3000: Loss (MSE) = 0.26231772
+Hook completed at epoch 3000, time took 9.52ms
+	Epoch 3005: Loss (MSE) = 0.26222247
+Hook completed at epoch 3005, time took 94.56ms
+	Epoch 3010: Loss (MSE) = 0.26241592
+Hook completed at epoch 3010, time took 31.86ms
+	Epoch 3015: Loss (MSE) = 0.26233923
+Hook completed at epoch 3015, time took 10.64ms
+	Epoch 3020: Loss (MSE) = 0.26235369
+Hook completed at epoch 3020, time took 29.94ms
+	Epoch 3025: Loss (MSE) = 0.26236263
+Hook completed at epoch 3025, time took 9.62ms
+	Epoch 3030: Loss (MSE) = 0.26228932
+Hook completed at epoch 3030, time took 9.28ms
+	Epoch 3035: Loss (MSE) = 0.26201114
+Hook completed at epoch 3035, time took 29.18ms
+	Epoch 3040: Loss (MSE) = 0.26208568
+Hook completed at epoch 3040, time took 29.22ms
+	Epoch 3045: Loss (MSE) = 0.26224020
+Hook completed at epoch 3045, time took 10.17ms
+	Epoch 3050: Loss (MSE) = 0.26226872
+Hook completed at epoch 3050, time took 10.02ms
+	Epoch 3055: Loss (MSE) = 0.26233268
+Hook completed at epoch 3055, time took 9.52ms
+	Epoch 3060: Loss (MSE) = 0.26238146
+Hook completed at epoch 3060, time took 10.12ms
+	Epoch 3065: Loss (MSE) = 0.26223093
+Hook completed at epoch 3065, time took 11.20ms
+	Epoch 3070: Loss (MSE) = 0.26221386
+Hook completed at epoch 3070, time took 9.48ms
+	Epoch 3075: Loss (MSE) = 0.26217374
+Hook completed at epoch 3075, time took 10.33ms
+	Epoch 3080: Loss (MSE) = 0.26237485
+Hook completed at epoch 3080, time took 9.65ms
+	Epoch 3085: Loss (MSE) = 0.26232341
+Hook completed at epoch 3085, time took 28.50ms
+	Epoch 3090: Loss (MSE) = 0.26234883
+Hook completed at epoch 3090, time took 21.96ms
+	Epoch 3095: Loss (MSE) = 0.26227483
+Hook completed at epoch 3095, time took 10.40ms
+	Epoch 3100: Loss (MSE) = 0.26230299
+Hook completed at epoch 3100, time took 8.77ms
+	Epoch 3105: Loss (MSE) = 0.26229927
+Hook completed at epoch 3105, time took 9.31ms
+	Epoch 3110: Loss (MSE) = 0.26225391
+Hook completed at epoch 3110, time took 9.52ms
+	Epoch 3115: Loss (MSE) = 0.26217732
+Hook completed at epoch 3115, time took 28.81ms
+	Epoch 3120: Loss (MSE) = 0.26216999
+Hook completed at epoch 3120, time took 27.94ms
+	Epoch 3125: Loss (MSE) = 0.26211220
+Hook completed at epoch 3125, time took 19.86ms
+	Epoch 3130: Loss (MSE) = 0.26200300
+Hook completed at epoch 3130, time took 9.34ms
+	Epoch 3135: Loss (MSE) = 0.26210386
+Hook completed at epoch 3135, time took 8.75ms
+	Epoch 3140: Loss (MSE) = 0.26215470
+Hook completed at epoch 3140, time took 8.70ms
+	Epoch 3145: Loss (MSE) = 0.26214406
+Hook completed at epoch 3145, time took 8.49ms
+	Epoch 3150: Loss (MSE) = 0.26194876
+Hook completed at epoch 3150, time took 8.65ms
+	Epoch 3155: Loss (MSE) = 0.26213962
+Hook completed at epoch 3155, time took 8.09ms
+	Epoch 3160: Loss (MSE) = 0.26220769
+Hook completed at epoch 3160, time took 9.67ms
+	Epoch 3165: Loss (MSE) = 0.26225534
+Hook completed at epoch 3165, time took 29.62ms
+	Epoch 3170: Loss (MSE) = 0.26226228
+Hook completed at epoch 3170, time took 10.28ms
+	Epoch 3175: Loss (MSE) = 0.26233348
+Hook completed at epoch 3175, time took 10.58ms
+	Epoch 3180: Loss (MSE) = 0.26249456
+Hook completed at epoch 3180, time took 9.11ms
+	Epoch 3185: Loss (MSE) = 0.26260376
+Hook completed at epoch 3185, time took 8.65ms
+	Epoch 3190: Loss (MSE) = 0.26276034
+Hook completed at epoch 3190, time took 29.36ms
+	Epoch 3195: Loss (MSE) = 0.26304364
+Hook completed at epoch 3195, time took 28.18ms
+	Epoch 3200: Loss (MSE) = 0.26309639
+Hook completed at epoch 3200, time took 10.63ms
+	Epoch 3205: Loss (MSE) = 0.26296458
+Hook completed at epoch 3205, time took 9.18ms
+	Epoch 3210: Loss (MSE) = 0.26302183
+Hook completed at epoch 3210, time took 28.91ms
+	Epoch 3215: Loss (MSE) = 0.26302904
+Hook completed at epoch 3215, time took 8.62ms
+	Epoch 3220: Loss (MSE) = 0.26301283
+Hook completed at epoch 3220, time took 10.00ms
+	Epoch 3225: Loss (MSE) = 0.26315117
+Hook completed at epoch 3225, time took 9.34ms
+	Epoch 3230: Loss (MSE) = 0.26320827
+Hook completed at epoch 3230, time took 8.81ms
+	Epoch 3235: Loss (MSE) = 0.26315746
+Hook completed at epoch 3235, time took 9.41ms
+	Epoch 3240: Loss (MSE) = 0.26322234
+Hook completed at epoch 3240, time took 9.22ms
+	Epoch 3245: Loss (MSE) = 0.26321867
+Hook completed at epoch 3245, time took 9.29ms
+	Epoch 3250: Loss (MSE) = 0.26330531
+Hook completed at epoch 3250, time took 9.10ms
+	Epoch 3255: Loss (MSE) = 0.26335427
+Hook completed at epoch 3255, time took 9.05ms
+	Epoch 3260: Loss (MSE) = 0.26341876
+Hook completed at epoch 3260, time took 8.74ms
+	Epoch 3265: Loss (MSE) = 0.26349109
+Hook completed at epoch 3265, time took 8.54ms
+	Epoch 3270: Loss (MSE) = 0.26359779
+Hook completed at epoch 3270, time took 8.54ms
+	Epoch 3275: Loss (MSE) = 0.26347011
+Hook completed at epoch 3275, time took 28.61ms
+	Epoch 3280: Loss (MSE) = 0.26352593
+Hook completed at epoch 3280, time took 8.73ms
+	Epoch 3285: Loss (MSE) = 0.26333269
+Hook completed at epoch 3285, time took 15.93ms
+	Epoch 3290: Loss (MSE) = 0.26335099
+Hook completed at epoch 3290, time took 9.79ms
+	Epoch 3295: Loss (MSE) = 0.26316133
+Hook completed at epoch 3295, time took 9.08ms
+	Epoch 3300: Loss (MSE) = 0.26346305
+Hook completed at epoch 3300, time took 8.81ms
+	Epoch 3305: Loss (MSE) = 0.26316994
+Hook completed at epoch 3305, time took 8.93ms
+	Epoch 3310: Loss (MSE) = 0.26337397
+Hook completed at epoch 3310, time took 8.94ms
+	Epoch 3315: Loss (MSE) = 0.26342621
+Hook completed at epoch 3315, time took 9.36ms
+	Epoch 3320: Loss (MSE) = 0.26353627
+Hook completed at epoch 3320, time took 8.56ms
+	Epoch 3325: Loss (MSE) = 0.26346412
+Hook completed at epoch 3325, time took 8.62ms
+	Epoch 3330: Loss (MSE) = 0.26367110
+Hook completed at epoch 3330, time took 8.84ms
+	Epoch 3335: Loss (MSE) = 0.26355621
+Hook completed at epoch 3335, time took 8.60ms
+	Epoch 3340: Loss (MSE) = 0.26371375
+Hook completed at epoch 3340, time took 8.58ms
+	Epoch 3345: Loss (MSE) = 0.26373664
+Hook completed at epoch 3345, time took 9.80ms
+	Epoch 3350: Loss (MSE) = 0.26397341
+Hook completed at epoch 3350, time took 28.32ms
+	Epoch 3355: Loss (MSE) = 0.26398104
+Hook completed at epoch 3355, time took 28.31ms
+	Epoch 3360: Loss (MSE) = 0.26384792
+Hook completed at epoch 3360, time took 28.47ms
+	Epoch 3365: Loss (MSE) = 0.26385802
+Hook completed at epoch 3365, time took 16.57ms
+	Epoch 3370: Loss (MSE) = 0.26372048
+Hook completed at epoch 3370, time took 9.13ms
+	Epoch 3375: Loss (MSE) = 0.26362339
+Hook completed at epoch 3375, time took 9.15ms
+	Epoch 3380: Loss (MSE) = 0.26351485
+Hook completed at epoch 3380, time took 8.72ms
+	Epoch 3385: Loss (MSE) = 0.26353529
+Hook completed at epoch 3385, time took 8.97ms
+	Epoch 3390: Loss (MSE) = 0.26332545
+Hook completed at epoch 3390, time took 9.14ms
+	Epoch 3395: Loss (MSE) = 0.26310337
+Hook completed at epoch 3395, time took 9.24ms
+	Epoch 3400: Loss (MSE) = 0.26286879
+Hook completed at epoch 3400, time took 9.25ms
+	Epoch 3405: Loss (MSE) = 0.26271436
+Hook completed at epoch 3405, time took 28.06ms
+	Epoch 3410: Loss (MSE) = 0.26267654
+Hook completed at epoch 3410, time took 18.41ms
+	Epoch 3415: Loss (MSE) = 0.26271838
+Hook completed at epoch 3415, time took 28.34ms
+	Epoch 3420: Loss (MSE) = 0.26254630
+Hook completed at epoch 3420, time took 8.94ms
+	Epoch 3425: Loss (MSE) = 0.26171377
+Hook completed at epoch 3425, time took 9.78ms
+	Epoch 3430: Loss (MSE) = 0.26176998
+Hook completed at epoch 3430, time took 28.03ms
+	Epoch 3435: Loss (MSE) = 0.26180702
+Hook completed at epoch 3435, time took 8.84ms
+	Epoch 3440: Loss (MSE) = 0.26185361
+Hook completed at epoch 3440, time took 9.65ms
+	Epoch 3445: Loss (MSE) = 0.26152140
+Hook completed at epoch 3445, time took 8.38ms
+	Epoch 3450: Loss (MSE) = 0.26149166
+Hook completed at epoch 3450, time took 9.09ms
+	Epoch 3455: Loss (MSE) = 0.26158023
+Hook completed at epoch 3455, time took 8.67ms
+	Epoch 3460: Loss (MSE) = 0.26143938
+Hook completed at epoch 3460, time took 9.77ms
+	Epoch 3465: Loss (MSE) = 0.26136011
+Hook completed at epoch 3465, time took 9.28ms
+	Epoch 3470: Loss (MSE) = 0.26148832
+Hook completed at epoch 3470, time took 28.67ms
+	Epoch 3475: Loss (MSE) = 0.26153892
+Hook completed at epoch 3475, time took 57.90ms
+	Epoch 3480: Loss (MSE) = 0.26162696
+Hook completed at epoch 3480, time took 8.53ms
+	Epoch 3485: Loss (MSE) = 0.26188982
+Hook completed at epoch 3485, time took 9.17ms
+	Epoch 3490: Loss (MSE) = 0.26193276
+Hook completed at epoch 3490, time took 9.77ms
+	Epoch 3495: Loss (MSE) = 0.26208991
+Hook completed at epoch 3495, time took 9.05ms
+	Epoch 3500: Loss (MSE) = 0.26211056
+Hook completed at epoch 3500, time took 8.77ms
+	Epoch 3505: Loss (MSE) = 0.26225251
+Hook completed at epoch 3505, time took 26.11ms
+	Epoch 3510: Loss (MSE) = 0.26224071
+Hook completed at epoch 3510, time took 9.12ms
+	Epoch 3515: Loss (MSE) = 0.26170531
+Hook completed at epoch 3515, time took 8.84ms
+	Epoch 3520: Loss (MSE) = 0.26194885
+Hook completed at epoch 3520, time took 9.55ms
+	Epoch 3525: Loss (MSE) = 0.26220870
+Hook completed at epoch 3525, time took 27.47ms
+	Epoch 3530: Loss (MSE) = 0.26194161
+Hook completed at epoch 3530, time took 9.61ms
+	Epoch 3535: Loss (MSE) = 0.26200914
+Hook completed at epoch 3535, time took 24.79ms
+	Epoch 3540: Loss (MSE) = 0.26201621
+Hook completed at epoch 3540, time took 9.43ms
+	Epoch 3545: Loss (MSE) = 0.26199061
+Hook completed at epoch 3545, time took 9.02ms
+	Epoch 3550: Loss (MSE) = 0.26215023
+Hook completed at epoch 3550, time took 8.61ms
+	Epoch 3555: Loss (MSE) = 0.26247302
+Hook completed at epoch 3555, time took 8.52ms
+	Epoch 3560: Loss (MSE) = 0.26246136
+Hook completed at epoch 3560, time took 8.98ms
+	Epoch 3565: Loss (MSE) = 0.26215160
+Hook completed at epoch 3565, time took 8.90ms
+	Epoch 3570: Loss (MSE) = 0.26214507
+Hook completed at epoch 3570, time took 9.06ms
+	Epoch 3575: Loss (MSE) = 0.26214737
+Hook completed at epoch 3575, time took 8.59ms
+	Epoch 3580: Loss (MSE) = 0.26204455
+Hook completed at epoch 3580, time took 8.77ms
+	Epoch 3585: Loss (MSE) = 0.26202586
+Hook completed at epoch 3585, time took 9.06ms
+	Epoch 3590: Loss (MSE) = 0.26192042
+Hook completed at epoch 3590, time took 24.48ms
+	Epoch 3595: Loss (MSE) = 0.26204258
+Hook completed at epoch 3595, time took 27.78ms
+	Epoch 3600: Loss (MSE) = 0.26177719
+Hook completed at epoch 3600, time took 9.20ms
+	Epoch 3605: Loss (MSE) = 0.26185703
+Hook completed at epoch 3605, time took 28.08ms
+	Epoch 3610: Loss (MSE) = 0.26208112
+Hook completed at epoch 3610, time took 9.50ms
+	Epoch 3615: Loss (MSE) = 0.26211071
+Hook completed at epoch 3615, time took 8.80ms
+	Epoch 3620: Loss (MSE) = 0.26222262
+Hook completed at epoch 3620, time took 9.28ms
+	Epoch 3625: Loss (MSE) = 0.26230460
+Hook completed at epoch 3625, time took 8.78ms
+	Epoch 3630: Loss (MSE) = 0.26194096
+Hook completed at epoch 3630, time took 9.19ms
+	Epoch 3635: Loss (MSE) = 0.26195857
+Hook completed at epoch 3635, time took 8.68ms
+	Epoch 3640: Loss (MSE) = 0.26193842
+Hook completed at epoch 3640, time took 8.61ms
+	Epoch 3645: Loss (MSE) = 0.26173764
+Hook completed at epoch 3645, time took 8.87ms
+	Epoch 3650: Loss (MSE) = 0.26181301
+Hook completed at epoch 3650, time took 9.04ms
+	Epoch 3655: Loss (MSE) = 0.26177993
+Hook completed at epoch 3655, time took 9.04ms
+	Epoch 3660: Loss (MSE) = 0.26182607
+Hook completed at epoch 3660, time took 9.20ms
+	Epoch 3665: Loss (MSE) = 0.26208723
+Hook completed at epoch 3665, time took 9.17ms
+	Epoch 3670: Loss (MSE) = 0.26207367
+Hook completed at epoch 3670, time took 26.03ms
+	Epoch 3675: Loss (MSE) = 0.26209939
+Hook completed at epoch 3675, time took 9.38ms
+	Epoch 3680: Loss (MSE) = 0.26218396
+Hook completed at epoch 3680, time took 9.52ms
+	Epoch 3685: Loss (MSE) = 0.26224941
+Hook completed at epoch 3685, time took 9.06ms
+	Epoch 3690: Loss (MSE) = 0.26217800
+Hook completed at epoch 3690, time took 9.99ms
+	Epoch 3695: Loss (MSE) = 0.26216748
+Hook completed at epoch 3695, time took 9.44ms
+	Epoch 3700: Loss (MSE) = 0.26218984
+Hook completed at epoch 3700, time took 9.49ms
+	Epoch 3705: Loss (MSE) = 0.26199910
+Hook completed at epoch 3705, time took 27.68ms
+	Epoch 3710: Loss (MSE) = 0.26194111
+Hook completed at epoch 3710, time took 10.29ms
+	Epoch 3715: Loss (MSE) = 0.26222190
+Hook completed at epoch 3715, time took 10.36ms
+	Epoch 3720: Loss (MSE) = 0.26218706
+Hook completed at epoch 3720, time took 9.54ms
+	Epoch 3725: Loss (MSE) = 0.26224062
+Hook completed at epoch 3725, time took 10.34ms
+	Epoch 3730: Loss (MSE) = 0.26216668
+Hook completed at epoch 3730, time took 9.21ms
+	Epoch 3735: Loss (MSE) = 0.26222947
+Hook completed at epoch 3735, time took 28.46ms
+	Epoch 3740: Loss (MSE) = 0.26234481
+Hook completed at epoch 3740, time took 25.91ms
+	Epoch 3745: Loss (MSE) = 0.26225254
+Hook completed at epoch 3745, time took 29.08ms
+	Epoch 3750: Loss (MSE) = 0.26217309
+Hook completed at epoch 3750, time took 10.25ms
+	Epoch 3755: Loss (MSE) = 0.26219332
+Hook completed at epoch 3755, time took 9.80ms
+	Epoch 3760: Loss (MSE) = 0.26203564
+Hook completed at epoch 3760, time took 9.40ms
+	Epoch 3765: Loss (MSE) = 0.26202291
+Hook completed at epoch 3765, time took 9.21ms
+	Epoch 3770: Loss (MSE) = 0.26194859
+Hook completed at epoch 3770, time took 8.88ms
+	Epoch 3775: Loss (MSE) = 0.26212648
+Hook completed at epoch 3775, time took 8.73ms
+	Epoch 3780: Loss (MSE) = 0.26177037
+Hook completed at epoch 3780, time took 26.90ms
+	Epoch 3785: Loss (MSE) = 0.26169223
+Hook completed at epoch 3785, time took 9.60ms
+	Epoch 3790: Loss (MSE) = 0.26147780
+Hook completed at epoch 3790, time took 9.60ms
+	Epoch 3795: Loss (MSE) = 0.26154757
+Hook completed at epoch 3795, time took 9.93ms
+	Epoch 3800: Loss (MSE) = 0.26161242
+Hook completed at epoch 3800, time took 28.08ms
+	Epoch 3805: Loss (MSE) = 0.26158726
+Hook completed at epoch 3805, time took 9.37ms
+	Epoch 3810: Loss (MSE) = 0.26153103
+Hook completed at epoch 3810, time took 9.60ms
+	Epoch 3815: Loss (MSE) = 0.26156813
+Hook completed at epoch 3815, time took 9.39ms
+	Epoch 3820: Loss (MSE) = 0.26142383
+Hook completed at epoch 3820, time took 10.30ms
+	Epoch 3825: Loss (MSE) = 0.26133192
+Hook completed at epoch 3825, time took 9.66ms
+	Epoch 3830: Loss (MSE) = 0.26129186
+Hook completed at epoch 3830, time took 9.15ms
+	Epoch 3835: Loss (MSE) = 0.26082829
+Hook completed at epoch 3835, time took 9.27ms
+	Epoch 3840: Loss (MSE) = 0.26103464
+Hook completed at epoch 3840, time took 9.26ms
+	Epoch 3845: Loss (MSE) = 0.26109031
+Hook completed at epoch 3845, time took 8.99ms
+	Epoch 3850: Loss (MSE) = 0.26120642
+Hook completed at epoch 3850, time took 8.83ms
+	Epoch 3855: Loss (MSE) = 0.26120076
+Hook completed at epoch 3855, time took 8.55ms
+	Epoch 3860: Loss (MSE) = 0.26098946
+Hook completed at epoch 3860, time took 18.63ms
+	Epoch 3865: Loss (MSE) = 0.26107427
+Hook completed at epoch 3865, time took 15.73ms
+	Epoch 3870: Loss (MSE) = 0.26101470
+Hook completed at epoch 3870, time took 9.56ms
+	Epoch 3875: Loss (MSE) = 0.26090625
+Hook completed at epoch 3875, time took 8.80ms
+	Epoch 3880: Loss (MSE) = 0.26119369
+Hook completed at epoch 3880, time took 19.70ms
+	Epoch 3885: Loss (MSE) = 0.26148066
+Hook completed at epoch 3885, time took 27.60ms
+	Epoch 3890: Loss (MSE) = 0.26166984
+Hook completed at epoch 3890, time took 26.48ms
+	Epoch 3895: Loss (MSE) = 0.26163614
+Hook completed at epoch 3895, time took 9.50ms
+	Epoch 3900: Loss (MSE) = 0.26156497
+Hook completed at epoch 3900, time took 9.58ms
+	Epoch 3905: Loss (MSE) = 0.26153362
+Hook completed at epoch 3905, time took 10.09ms
+	Epoch 3910: Loss (MSE) = 0.26149276
+Hook completed at epoch 3910, time took 9.38ms
+	Epoch 3915: Loss (MSE) = 0.26144770
+Hook completed at epoch 3915, time took 9.97ms
+	Epoch 3920: Loss (MSE) = 0.26156735
+Hook completed at epoch 3920, time took 10.64ms
+	Epoch 3925: Loss (MSE) = 0.26179022
+Hook completed at epoch 3925, time took 28.06ms
+	Epoch 3930: Loss (MSE) = 0.26161736
+Hook completed at epoch 3930, time took 9.28ms
+	Epoch 3935: Loss (MSE) = 0.26179001
+Hook completed at epoch 3935, time took 9.72ms
+	Epoch 3940: Loss (MSE) = 0.26184356
+Hook completed at epoch 3940, time took 9.35ms
+	Epoch 3945: Loss (MSE) = 0.26185799
+Hook completed at epoch 3945, time took 9.09ms
+	Epoch 3950: Loss (MSE) = 0.26180512
+Hook completed at epoch 3950, time took 8.79ms
+	Epoch 3955: Loss (MSE) = 0.26179698
+Hook completed at epoch 3955, time took 9.05ms
+	Epoch 3960: Loss (MSE) = 0.26141432
+Hook completed at epoch 3960, time took 9.12ms
+	Epoch 3965: Loss (MSE) = 0.26132971
+Hook completed at epoch 3965, time took 9.57ms
+	Epoch 3970: Loss (MSE) = 0.26146388
+Hook completed at epoch 3970, time took 9.67ms
+	Epoch 3975: Loss (MSE) = 0.26118124
+Hook completed at epoch 3975, time took 9.43ms
+	Epoch 3980: Loss (MSE) = 0.26100555
+Hook completed at epoch 3980, time took 9.42ms
+	Epoch 3985: Loss (MSE) = 0.26110026
+Hook completed at epoch 3985, time took 87.10ms
+	Epoch 3990: Loss (MSE) = 0.26132166
+Hook completed at epoch 3990, time took 9.60ms
+	Epoch 3995: Loss (MSE) = 0.26128978
+Hook completed at epoch 3995, time took 9.65ms
+	Epoch 4000: Loss (MSE) = 0.26116666
+Hook completed at epoch 4000, time took 9.75ms
+	Epoch 4005: Loss (MSE) = 0.26103580
+Hook completed at epoch 4005, time took 9.56ms
+	Epoch 4010: Loss (MSE) = 0.26107711
+Hook completed at epoch 4010, time took 9.56ms
+	Epoch 4015: Loss (MSE) = 0.26095772
+Hook completed at epoch 4015, time took 9.11ms
+	Epoch 4020: Loss (MSE) = 0.26083544
+Hook completed at epoch 4020, time took 9.41ms
+	Epoch 4025: Loss (MSE) = 0.26079604
+Hook completed at epoch 4025, time took 9.23ms
+	Epoch 4030: Loss (MSE) = 0.26059869
+Hook completed at epoch 4030, time took 8.88ms
+	Epoch 4035: Loss (MSE) = 0.26063514
+Hook completed at epoch 4035, time took 9.43ms
+	Epoch 4040: Loss (MSE) = 0.26048592
+Hook completed at epoch 4040, time took 9.65ms
+	Epoch 4045: Loss (MSE) = 0.26064038
+Hook completed at epoch 4045, time took 9.21ms
+	Epoch 4050: Loss (MSE) = 0.26071402
+Hook completed at epoch 4050, time took 9.25ms
+	Epoch 4055: Loss (MSE) = 0.26075253
+Hook completed at epoch 4055, time took 11.50ms
+	Epoch 4060: Loss (MSE) = 0.26042214
+Hook completed at epoch 4060, time took 9.24ms
+	Epoch 4065: Loss (MSE) = 0.26042899
+Hook completed at epoch 4065, time took 9.21ms
+	Epoch 4070: Loss (MSE) = 0.26064241
+Hook completed at epoch 4070, time took 10.32ms
+	Epoch 4075: Loss (MSE) = 0.26048240
+Hook completed at epoch 4075, time took 10.37ms
+	Epoch 4080: Loss (MSE) = 0.26025134
+Hook completed at epoch 4080, time took 10.10ms
+	Epoch 4085: Loss (MSE) = 0.26016080
+Hook completed at epoch 4085, time took 10.24ms
+	Epoch 4090: Loss (MSE) = 0.26010644
+Hook completed at epoch 4090, time took 9.43ms
+	Epoch 4095: Loss (MSE) = 0.26000267
+Hook completed at epoch 4095, time took 9.45ms
+	Epoch 4100: Loss (MSE) = 0.26001269
+Hook completed at epoch 4100, time took 9.28ms
+	Epoch 4105: Loss (MSE) = 0.26006192
+Hook completed at epoch 4105, time took 9.97ms
+	Epoch 4110: Loss (MSE) = 0.26025960
+Hook completed at epoch 4110, time took 9.67ms
+	Epoch 4115: Loss (MSE) = 0.26005721
+Hook completed at epoch 4115, time took 9.37ms
+	Epoch 4120: Loss (MSE) = 0.25993058
+Hook completed at epoch 4120, time took 8.75ms
+	Epoch 4125: Loss (MSE) = 0.25996530
+Hook completed at epoch 4125, time took 9.39ms
+	Epoch 4130: Loss (MSE) = 0.26003435
+Hook completed at epoch 4130, time took 10.60ms
+	Epoch 4135: Loss (MSE) = 0.25983953
+Hook completed at epoch 4135, time took 9.87ms
+	Epoch 4140: Loss (MSE) = 0.25960335
+Hook completed at epoch 4140, time took 28.84ms
+	Epoch 4145: Loss (MSE) = 0.25980693
+Hook completed at epoch 4145, time took 19.03ms
+	Epoch 4150: Loss (MSE) = 0.25976983
+Hook completed at epoch 4150, time took 20.10ms
+	Epoch 4155: Loss (MSE) = 0.25964594
+Hook completed at epoch 4155, time took 26.05ms
+	Epoch 4160: Loss (MSE) = 0.25990760
+Hook completed at epoch 4160, time took 9.87ms
+	Epoch 4165: Loss (MSE) = 0.25992090
+Hook completed at epoch 4165, time took 9.32ms
+	Epoch 4170: Loss (MSE) = 0.26008439
+Hook completed at epoch 4170, time took 24.12ms
+	Epoch 4175: Loss (MSE) = 0.25982907
+Hook completed at epoch 4175, time took 9.89ms
+	Epoch 4180: Loss (MSE) = 0.25987986
+Hook completed at epoch 4180, time took 9.90ms
+	Epoch 4185: Loss (MSE) = 0.26013774
+Hook completed at epoch 4185, time took 9.00ms
+	Epoch 4190: Loss (MSE) = 0.26014385
+Hook completed at epoch 4190, time took 9.43ms
+	Epoch 4195: Loss (MSE) = 0.25999090
+Hook completed at epoch 4195, time took 8.62ms
+	Epoch 4200: Loss (MSE) = 0.25982723
+Hook completed at epoch 4200, time took 15.05ms
+	Epoch 4205: Loss (MSE) = 0.25994885
+Hook completed at epoch 4205, time took 10.12ms
+	Epoch 4210: Loss (MSE) = 0.25985515
+Hook completed at epoch 4210, time took 10.58ms
+	Epoch 4215: Loss (MSE) = 0.25992012
+Hook completed at epoch 4215, time took 9.59ms
+	Epoch 4220: Loss (MSE) = 0.26000607
+Hook completed at epoch 4220, time took 11.72ms
+	Epoch 4225: Loss (MSE) = 0.25990218
+Hook completed at epoch 4225, time took 9.67ms
+	Epoch 4230: Loss (MSE) = 0.26004857
+Hook completed at epoch 4230, time took 9.11ms
+	Epoch 4235: Loss (MSE) = 0.25942552
+Hook completed at epoch 4235, time took 9.37ms
+	Epoch 4240: Loss (MSE) = 0.25899968
+Hook completed at epoch 4240, time took 27.73ms
+	Epoch 4245: Loss (MSE) = 0.25891557
+Hook completed at epoch 4245, time took 27.30ms
+	Epoch 4250: Loss (MSE) = 0.25924045
+Hook completed at epoch 4250, time took 14.90ms
+	Epoch 4255: Loss (MSE) = 0.25929740
+Hook completed at epoch 4255, time took 10.08ms
+	Epoch 4260: Loss (MSE) = 0.25924703
+Hook completed at epoch 4260, time took 9.37ms
+	Epoch 4265: Loss (MSE) = 0.25898576
+Hook completed at epoch 4265, time took 9.27ms
+	Epoch 4270: Loss (MSE) = 0.25872871
+Hook completed at epoch 4270, time took 9.62ms
+	Epoch 4275: Loss (MSE) = 0.25885084
+Hook completed at epoch 4275, time took 9.69ms
+	Epoch 4280: Loss (MSE) = 0.25889561
+Hook completed at epoch 4280, time took 9.18ms
+	Epoch 4285: Loss (MSE) = 0.25875163
+Hook completed at epoch 4285, time took 9.51ms
+	Epoch 4290: Loss (MSE) = 0.25847095
+Hook completed at epoch 4290, time took 9.46ms
+	Epoch 4295: Loss (MSE) = 0.25847656
+Hook completed at epoch 4295, time took 10.58ms
+	Epoch 4300: Loss (MSE) = 0.25813305
+Hook completed at epoch 4300, time took 20.31ms
+	Epoch 4305: Loss (MSE) = 0.25844949
+Hook completed at epoch 4305, time took 9.58ms
+	Epoch 4310: Loss (MSE) = 0.25873333
+Hook completed at epoch 4310, time took 25.31ms
+	Epoch 4315: Loss (MSE) = 0.25890046
+Hook completed at epoch 4315, time took 9.46ms
+	Epoch 4320: Loss (MSE) = 0.25861245
+Hook completed at epoch 4320, time took 27.74ms
+	Epoch 4325: Loss (MSE) = 0.25855684
+Hook completed at epoch 4325, time took 21.83ms
+	Epoch 4330: Loss (MSE) = 0.25867096
+Hook completed at epoch 4330, time took 10.30ms
+	Epoch 4335: Loss (MSE) = 0.25846332
+Hook completed at epoch 4335, time took 9.10ms
+	Epoch 4340: Loss (MSE) = 0.25814292
+Hook completed at epoch 4340, time took 9.25ms
+	Epoch 4345: Loss (MSE) = 0.25821352
+Hook completed at epoch 4345, time took 9.16ms
+	Epoch 4350: Loss (MSE) = 0.25797546
+Hook completed at epoch 4350, time took 8.91ms
+	Epoch 4355: Loss (MSE) = 0.25794825
+Hook completed at epoch 4355, time took 9.17ms
+	Epoch 4360: Loss (MSE) = 0.25753969
+Hook completed at epoch 4360, time took 9.14ms
+	Epoch 4365: Loss (MSE) = 0.25746524
+Hook completed at epoch 4365, time took 9.42ms
+	Epoch 4370: Loss (MSE) = 0.25762025
+Hook completed at epoch 4370, time took 10.26ms
+	Epoch 4375: Loss (MSE) = 0.25736398
+Hook completed at epoch 4375, time took 20.16ms
+	Epoch 4380: Loss (MSE) = 0.25755036
+Hook completed at epoch 4380, time took 9.80ms
+	Epoch 4385: Loss (MSE) = 0.25796854
+Hook completed at epoch 4385, time took 28.47ms
+	Epoch 4390: Loss (MSE) = 0.25817922
+Hook completed at epoch 4390, time took 28.40ms
+	Epoch 4395: Loss (MSE) = 0.25852439
+Hook completed at epoch 4395, time took 9.74ms
+	Epoch 4400: Loss (MSE) = 0.25854033
+Hook completed at epoch 4400, time took 10.75ms
+	Epoch 4405: Loss (MSE) = 0.25868502
+Hook completed at epoch 4405, time took 10.54ms
+	Epoch 4410: Loss (MSE) = 0.25846076
+Hook completed at epoch 4410, time took 11.13ms
+	Epoch 4415: Loss (MSE) = 0.25836873
+Hook completed at epoch 4415, time took 9.97ms
+	Epoch 4420: Loss (MSE) = 0.25827202
+Hook completed at epoch 4420, time took 8.96ms
+	Epoch 4425: Loss (MSE) = 0.25812560
+Hook completed at epoch 4425, time took 9.85ms
+	Epoch 4430: Loss (MSE) = 0.25813967
+Hook completed at epoch 4430, time took 28.23ms
+	Epoch 4435: Loss (MSE) = 0.25741893
+Hook completed at epoch 4435, time took 10.00ms
+	Epoch 4440: Loss (MSE) = 0.25719726
+Hook completed at epoch 4440, time took 9.61ms
+	Epoch 4445: Loss (MSE) = 0.25737181
+Hook completed at epoch 4445, time took 19.80ms
+	Epoch 4450: Loss (MSE) = 0.25711340
+Hook completed at epoch 4450, time took 28.31ms
+	Epoch 4455: Loss (MSE) = 0.25739032
+Hook completed at epoch 4455, time took 27.67ms
+	Epoch 4460: Loss (MSE) = 0.25712633
+Hook completed at epoch 4460, time took 9.47ms
+	Epoch 4465: Loss (MSE) = 0.25625548
+Hook completed at epoch 4465, time took 10.33ms
+	Epoch 4470: Loss (MSE) = 0.25645140
+Hook completed at epoch 4470, time took 11.82ms
+	Epoch 4475: Loss (MSE) = 0.25609756
+Hook completed at epoch 4475, time took 10.13ms
+	Epoch 4480: Loss (MSE) = 0.25580317
+Hook completed at epoch 4480, time took 27.31ms
+	Epoch 4485: Loss (MSE) = 0.25635335
+Hook completed at epoch 4485, time took 71.09ms
+	Epoch 4490: Loss (MSE) = 0.25626141
+Hook completed at epoch 4490, time took 10.60ms
+	Epoch 4495: Loss (MSE) = 0.25651923
+Hook completed at epoch 4495, time took 28.19ms
+	Epoch 4500: Loss (MSE) = 0.25673187
+Hook completed at epoch 4500, time took 9.83ms
+	Epoch 4505: Loss (MSE) = 0.25638181
+Hook completed at epoch 4505, time took 9.54ms
+	Epoch 4510: Loss (MSE) = 0.25616819
+Hook completed at epoch 4510, time took 10.35ms
+	Epoch 4515: Loss (MSE) = 0.25626904
+Hook completed at epoch 4515, time took 9.99ms
+	Epoch 4520: Loss (MSE) = 0.25590530
+Hook completed at epoch 4520, time took 9.65ms
+	Epoch 4525: Loss (MSE) = 0.25432485
+Hook completed at epoch 4525, time took 9.91ms
+	Epoch 4530: Loss (MSE) = 0.25478584
+Hook completed at epoch 4530, time took 9.72ms
+	Epoch 4535: Loss (MSE) = 0.25492346
+Hook completed at epoch 4535, time took 9.06ms
+	Epoch 4540: Loss (MSE) = 0.25494796
+Hook completed at epoch 4540, time took 9.35ms
+	Epoch 4545: Loss (MSE) = 0.25474814
+Hook completed at epoch 4545, time took 9.43ms
+	Epoch 4550: Loss (MSE) = 0.25488999
+Hook completed at epoch 4550, time took 9.28ms
+	Epoch 4555: Loss (MSE) = 0.25515211
+Hook completed at epoch 4555, time took 9.92ms
+	Epoch 4560: Loss (MSE) = 0.25476229
+Hook completed at epoch 4560, time took 9.51ms
+	Epoch 4565: Loss (MSE) = 0.25473303
+Hook completed at epoch 4565, time took 9.49ms
+	Epoch 4570: Loss (MSE) = 0.25444275
+Hook completed at epoch 4570, time took 9.99ms
+	Epoch 4575: Loss (MSE) = 0.25472167
+Hook completed at epoch 4575, time took 10.23ms
+	Epoch 4580: Loss (MSE) = 0.25495273
+Hook completed at epoch 4580, time took 10.30ms
+	Epoch 4585: Loss (MSE) = 0.25428557
+Hook completed at epoch 4585, time took 9.46ms
+	Epoch 4590: Loss (MSE) = 0.25431901
+Hook completed at epoch 4590, time took 9.93ms
+	Epoch 4595: Loss (MSE) = 0.25448939
+Hook completed at epoch 4595, time took 9.68ms
+	Epoch 4600: Loss (MSE) = 0.25442237
+Hook completed at epoch 4600, time took 9.91ms
+	Epoch 4605: Loss (MSE) = 0.25462031
+Hook completed at epoch 4605, time took 9.57ms
+	Epoch 4610: Loss (MSE) = 0.25438178
+Hook completed at epoch 4610, time took 11.15ms
+	Epoch 4615: Loss (MSE) = 0.25424680
+Hook completed at epoch 4615, time took 9.28ms
+	Epoch 4620: Loss (MSE) = 0.25393668
+Hook completed at epoch 4620, time took 9.49ms
+	Epoch 4625: Loss (MSE) = 0.25362039
+Hook completed at epoch 4625, time took 11.42ms
+	Epoch 4630: Loss (MSE) = 0.25364476
+Hook completed at epoch 4630, time took 9.44ms
+	Epoch 4635: Loss (MSE) = 0.25360546
+Hook completed at epoch 4635, time took 10.15ms
+	Epoch 4640: Loss (MSE) = 0.25402501
+Hook completed at epoch 4640, time took 28.38ms
+	Epoch 4645: Loss (MSE) = 0.25421888
+Hook completed at epoch 4645, time took 9.75ms
+	Epoch 4650: Loss (MSE) = 0.25406983
+Hook completed at epoch 4650, time took 9.47ms
+	Epoch 4655: Loss (MSE) = 0.25433230
+Hook completed at epoch 4655, time took 10.46ms
+	Epoch 4660: Loss (MSE) = 0.25437391
+Hook completed at epoch 4660, time took 9.92ms
+	Epoch 4665: Loss (MSE) = 0.25419396
+Hook completed at epoch 4665, time took 9.53ms
+	Epoch 4670: Loss (MSE) = 0.25399792
+Hook completed at epoch 4670, time took 9.53ms
+	Epoch 4675: Loss (MSE) = 0.25411263
+Hook completed at epoch 4675, time took 10.39ms
+	Epoch 4680: Loss (MSE) = 0.25430691
+Hook completed at epoch 4680, time took 9.28ms
+	Epoch 4685: Loss (MSE) = 0.25428689
+Hook completed at epoch 4685, time took 10.13ms
+	Epoch 4690: Loss (MSE) = 0.25408018
+Hook completed at epoch 4690, time took 9.03ms
+	Epoch 4695: Loss (MSE) = 0.25426587
+Hook completed at epoch 4695, time took 9.18ms
+	Epoch 4700: Loss (MSE) = 0.25439650
+Hook completed at epoch 4700, time took 9.72ms
+	Epoch 4705: Loss (MSE) = 0.25393066
+Hook completed at epoch 4705, time took 10.03ms
+	Epoch 4710: Loss (MSE) = 0.25434595
+Hook completed at epoch 4710, time took 10.32ms
+	Epoch 4715: Loss (MSE) = 0.25425494
+Hook completed at epoch 4715, time took 10.33ms
+	Epoch 4720: Loss (MSE) = 0.25456792
+Hook completed at epoch 4720, time took 10.78ms
+	Epoch 4725: Loss (MSE) = 0.25441077
+Hook completed at epoch 4725, time took 10.10ms
+	Epoch 4730: Loss (MSE) = 0.25474653
+Hook completed at epoch 4730, time took 9.31ms
+	Epoch 4735: Loss (MSE) = 0.25445119
+Hook completed at epoch 4735, time took 10.15ms
+	Epoch 4740: Loss (MSE) = 0.25444180
+Hook completed at epoch 4740, time took 9.62ms
+	Epoch 4745: Loss (MSE) = 0.25462857
+Hook completed at epoch 4745, time took 9.19ms
+	Epoch 4750: Loss (MSE) = 0.25478718
+Hook completed at epoch 4750, time took 9.39ms
+	Epoch 4755: Loss (MSE) = 0.25434607
+Hook completed at epoch 4755, time took 9.28ms
+	Epoch 4760: Loss (MSE) = 0.25448248
+Hook completed at epoch 4760, time took 9.52ms
+	Epoch 4765: Loss (MSE) = 0.25439930
+Hook completed at epoch 4765, time took 12.01ms
+	Epoch 4770: Loss (MSE) = 0.25379321
+Hook completed at epoch 4770, time took 10.05ms
+	Epoch 4775: Loss (MSE) = 0.25373268
+Hook completed at epoch 4775, time took 9.29ms
+	Epoch 4780: Loss (MSE) = 0.25373313
+Hook completed at epoch 4780, time took 8.87ms
+	Epoch 4785: Loss (MSE) = 0.25430912
+Hook completed at epoch 4785, time took 9.25ms
+	Epoch 4790: Loss (MSE) = 0.25434810
+Hook completed at epoch 4790, time took 28.57ms
+	Epoch 4795: Loss (MSE) = 0.25418210
+Hook completed at epoch 4795, time took 28.43ms
+	Epoch 4800: Loss (MSE) = 0.25450870
+Hook completed at epoch 4800, time took 10.45ms
+	Epoch 4805: Loss (MSE) = 0.25483912
+Hook completed at epoch 4805, time took 9.85ms
+	Epoch 4810: Loss (MSE) = 0.25488290
+Hook completed at epoch 4810, time took 9.75ms
+	Epoch 4815: Loss (MSE) = 0.25480187
+Hook completed at epoch 4815, time took 9.16ms
+	Epoch 4820: Loss (MSE) = 0.25471452
+Hook completed at epoch 4820, time took 8.62ms
+	Epoch 4825: Loss (MSE) = 0.25545055
+Hook completed at epoch 4825, time took 9.79ms
+	Epoch 4830: Loss (MSE) = 0.25460684
+Hook completed at epoch 4830, time took 9.85ms
+	Epoch 4835: Loss (MSE) = 0.25464177
+Hook completed at epoch 4835, time took 9.04ms
+	Epoch 4840: Loss (MSE) = 0.25485581
+Hook completed at epoch 4840, time took 9.36ms
+	Epoch 4845: Loss (MSE) = 0.25476056
+Hook completed at epoch 4845, time took 29.04ms
+	Epoch 4850: Loss (MSE) = 0.25457740
+Hook completed at epoch 4850, time took 9.47ms
+	Epoch 4855: Loss (MSE) = 0.25409052
+Hook completed at epoch 4855, time took 9.52ms
+	Epoch 4860: Loss (MSE) = 0.25430503
+Hook completed at epoch 4860, time took 9.55ms
+	Epoch 4865: Loss (MSE) = 0.25408304
+Hook completed at epoch 4865, time took 9.22ms
+	Epoch 4870: Loss (MSE) = 0.25411066
+Hook completed at epoch 4870, time took 9.78ms
+	Epoch 4875: Loss (MSE) = 0.25396028
+Hook completed at epoch 4875, time took 9.11ms
+	Epoch 4880: Loss (MSE) = 0.25415432
+Hook completed at epoch 4880, time took 29.29ms
+	Epoch 4885: Loss (MSE) = 0.25429508
+Hook completed at epoch 4885, time took 24.63ms
+	Epoch 4890: Loss (MSE) = 0.25447571
+Hook completed at epoch 4890, time took 10.30ms
+	Epoch 4895: Loss (MSE) = 0.25442809
+Hook completed at epoch 4895, time took 9.98ms
+	Epoch 4900: Loss (MSE) = 0.25385156
+Hook completed at epoch 4900, time took 9.16ms
+	Epoch 4905: Loss (MSE) = 0.25410432
+Hook completed at epoch 4905, time took 9.90ms
+	Epoch 4910: Loss (MSE) = 0.25418839
+Hook completed at epoch 4910, time took 9.23ms
+	Epoch 4915: Loss (MSE) = 0.25393581
+Hook completed at epoch 4915, time took 9.53ms
+	Epoch 4920: Loss (MSE) = 0.25410497
+Hook completed at epoch 4920, time took 9.40ms
+	Epoch 4925: Loss (MSE) = 0.25383428
+Hook completed at epoch 4925, time took 13.54ms
+	Epoch 4930: Loss (MSE) = 0.25390297
+Hook completed at epoch 4930, time took 9.69ms
+	Epoch 4935: Loss (MSE) = 0.25377977
+Hook completed at epoch 4935, time took 9.05ms
+	Epoch 4940: Loss (MSE) = 0.25370947
+Hook completed at epoch 4940, time took 9.09ms
+	Epoch 4945: Loss (MSE) = 0.25366619
+Hook completed at epoch 4945, time took 10.03ms
+	Epoch 4950: Loss (MSE) = 0.25359878
+Hook completed at epoch 4950, time took 28.82ms
+	Epoch 4955: Loss (MSE) = 0.25325784
+Hook completed at epoch 4955, time took 9.85ms
+	Epoch 4960: Loss (MSE) = 0.25304317
+Hook completed at epoch 4960, time took 9.52ms
+	Epoch 4965: Loss (MSE) = 0.25333843
+Hook completed at epoch 4965, time took 14.15ms
+	Epoch 4970: Loss (MSE) = 0.25351673
+Hook completed at epoch 4970, time took 14.69ms
+	Epoch 4975: Loss (MSE) = 0.25204617
+Hook completed at epoch 4975, time took 9.05ms
+	Epoch 4980: Loss (MSE) = 0.25218293
+Hook completed at epoch 4980, time took 9.61ms
+	Epoch 4985: Loss (MSE) = 0.25217700
+Hook completed at epoch 4985, time took 8.97ms
+	Epoch 4990: Loss (MSE) = 0.25212795
+Hook completed at epoch 4990, time took 10.03ms
+	Epoch 4995: Loss (MSE) = 0.25224546
+Hook completed at epoch 4995, time took 8.91ms
+	Epoch 5000: Loss (MSE) = 0.25215068
+Hook completed at epoch 5000, time took 9.03ms
+	Epoch 5005: Loss (MSE) = 0.25201529
+Hook completed at epoch 5005, time took 27.81ms
+	Epoch 5010: Loss (MSE) = 0.25144026
+Hook completed at epoch 5010, time took 9.41ms
+	Epoch 5015: Loss (MSE) = 0.25169501
+Hook completed at epoch 5015, time took 10.01ms
+	Epoch 5020: Loss (MSE) = 0.25170431
+Hook completed at epoch 5020, time took 27.73ms
+	Epoch 5025: Loss (MSE) = 0.25176001
+Hook completed at epoch 5025, time took 9.62ms
+	Epoch 5030: Loss (MSE) = 0.25154307
+Hook completed at epoch 5030, time took 9.58ms
+	Epoch 5035: Loss (MSE) = 0.25236019
+Hook completed at epoch 5035, time took 92.15ms
+	Epoch 5040: Loss (MSE) = 0.25160727
+Hook completed at epoch 5040, time took 27.77ms
+	Epoch 5045: Loss (MSE) = 0.25241470
+Hook completed at epoch 5045, time took 18.84ms
+	Epoch 5050: Loss (MSE) = 0.25222960
+Hook completed at epoch 5050, time took 10.03ms
+	Epoch 5055: Loss (MSE) = 0.25235432
+Hook completed at epoch 5055, time took 9.70ms
+	Epoch 5060: Loss (MSE) = 0.25202444
+Hook completed at epoch 5060, time took 9.86ms
+	Epoch 5065: Loss (MSE) = 0.25184214
+Hook completed at epoch 5065, time took 9.36ms
+	Epoch 5070: Loss (MSE) = 0.25211629
+Hook completed at epoch 5070, time took 28.75ms
+	Epoch 5075: Loss (MSE) = 0.25211078
+Hook completed at epoch 5075, time took 9.49ms
+	Epoch 5080: Loss (MSE) = 0.25228021
+Hook completed at epoch 5080, time took 9.59ms
+	Epoch 5085: Loss (MSE) = 0.25164902
+Hook completed at epoch 5085, time took 9.73ms
+	Epoch 5090: Loss (MSE) = 0.25161836
+Hook completed at epoch 5090, time took 9.76ms
+	Epoch 5095: Loss (MSE) = 0.25202915
+Hook completed at epoch 5095, time took 11.47ms
+	Epoch 5100: Loss (MSE) = 0.25173137
+Hook completed at epoch 5100, time took 10.18ms
+	Epoch 5105: Loss (MSE) = 0.25097656
+Hook completed at epoch 5105, time took 9.43ms
+	Epoch 5110: Loss (MSE) = 0.25123808
+Hook completed at epoch 5110, time took 9.81ms
+	Epoch 5115: Loss (MSE) = 0.25146270
+Hook completed at epoch 5115, time took 9.24ms
+	Epoch 5120: Loss (MSE) = 0.25107247
+Hook completed at epoch 5120, time took 10.31ms
+	Epoch 5125: Loss (MSE) = 0.25147668
+Hook completed at epoch 5125, time took 10.25ms
+	Epoch 5130: Loss (MSE) = 0.25144243
+Hook completed at epoch 5130, time took 9.77ms
+	Epoch 5135: Loss (MSE) = 0.25155044
+Hook completed at epoch 5135, time took 10.73ms
+	Epoch 5140: Loss (MSE) = 0.25188217
+Hook completed at epoch 5140, time took 9.76ms
+	Epoch 5145: Loss (MSE) = 0.25202841
+Hook completed at epoch 5145, time took 10.41ms
+	Epoch 5150: Loss (MSE) = 0.25210369
+Hook completed at epoch 5150, time took 10.40ms
+	Epoch 5155: Loss (MSE) = 0.25258869
+Hook completed at epoch 5155, time took 9.58ms
+	Epoch 5160: Loss (MSE) = 0.25195685
+Hook completed at epoch 5160, time took 9.19ms
+	Epoch 5165: Loss (MSE) = 0.25218499
+Hook completed at epoch 5165, time took 9.80ms
+	Epoch 5170: Loss (MSE) = 0.25239059
+Hook completed at epoch 5170, time took 9.67ms
+	Epoch 5175: Loss (MSE) = 0.25261983
+Hook completed at epoch 5175, time took 9.61ms
+	Epoch 5180: Loss (MSE) = 0.25235876
+Hook completed at epoch 5180, time took 23.56ms
+	Epoch 5185: Loss (MSE) = 0.25254494
+Hook completed at epoch 5185, time took 9.76ms
+	Epoch 5190: Loss (MSE) = 0.25305638
+Hook completed at epoch 5190, time took 9.72ms
+	Epoch 5195: Loss (MSE) = 0.25292453
+Hook completed at epoch 5195, time took 9.95ms
+	Epoch 5200: Loss (MSE) = 0.25289533
+Hook completed at epoch 5200, time took 27.49ms
+	Epoch 5205: Loss (MSE) = 0.25287032
+Hook completed at epoch 5205, time took 28.16ms
+	Epoch 5210: Loss (MSE) = 0.25288606
+Hook completed at epoch 5210, time took 10.06ms
+	Epoch 5215: Loss (MSE) = 0.25306305
+Hook completed at epoch 5215, time took 20.00ms
+	Epoch 5220: Loss (MSE) = 0.25349611
+Hook completed at epoch 5220, time took 28.47ms
+	Epoch 5225: Loss (MSE) = 0.25307858
+Hook completed at epoch 5225, time took 27.80ms
+	Epoch 5230: Loss (MSE) = 0.25328508
+Hook completed at epoch 5230, time took 10.10ms
+	Epoch 5235: Loss (MSE) = 0.25309879
+Hook completed at epoch 5235, time took 28.27ms
+	Epoch 5240: Loss (MSE) = 0.25282681
+Hook completed at epoch 5240, time took 9.53ms
+	Epoch 5245: Loss (MSE) = 0.25281855
+Hook completed at epoch 5245, time took 9.29ms
+	Epoch 5250: Loss (MSE) = 0.25310299
+Hook completed at epoch 5250, time took 28.41ms
+	Epoch 5255: Loss (MSE) = 0.25328824
+Hook completed at epoch 5255, time took 9.99ms
+	Epoch 5260: Loss (MSE) = 0.25347325
+Hook completed at epoch 5260, time took 9.21ms
+	Epoch 5265: Loss (MSE) = 0.25366235
+Hook completed at epoch 5265, time took 9.41ms
+	Epoch 5270: Loss (MSE) = 0.25386980
+Hook completed at epoch 5270, time took 9.74ms
+	Epoch 5275: Loss (MSE) = 0.25404853
+Hook completed at epoch 5275, time took 9.29ms
+	Epoch 5280: Loss (MSE) = 0.25420731
+Hook completed at epoch 5280, time took 9.26ms
+	Epoch 5285: Loss (MSE) = 0.25393224
+Hook completed at epoch 5285, time took 9.49ms
+	Epoch 5290: Loss (MSE) = 0.25339559
+Hook completed at epoch 5290, time took 9.30ms
+	Epoch 5295: Loss (MSE) = 0.25394121
+Hook completed at epoch 5295, time took 9.50ms
+	Epoch 5300: Loss (MSE) = 0.25366616
+Hook completed at epoch 5300, time took 9.48ms
+	Epoch 5305: Loss (MSE) = 0.25385866
+Hook completed at epoch 5305, time took 9.59ms
+	Epoch 5310: Loss (MSE) = 0.25431091
+Hook completed at epoch 5310, time took 9.22ms
+	Epoch 5315: Loss (MSE) = 0.25426134
+Hook completed at epoch 5315, time took 9.71ms
+	Epoch 5320: Loss (MSE) = 0.25462830
+Hook completed at epoch 5320, time took 25.28ms
+	Epoch 5325: Loss (MSE) = 0.25463519
+Hook completed at epoch 5325, time took 20.90ms
+	Epoch 5330: Loss (MSE) = 0.25518364
+Hook completed at epoch 5330, time took 29.92ms
+	Epoch 5335: Loss (MSE) = 0.25456327
+Hook completed at epoch 5335, time took 10.31ms
+	Epoch 5340: Loss (MSE) = 0.25388402
+Hook completed at epoch 5340, time took 28.76ms
+	Epoch 5345: Loss (MSE) = 0.25389546
+Hook completed at epoch 5345, time took 9.05ms
+	Epoch 5350: Loss (MSE) = 0.25381091
+Hook completed at epoch 5350, time took 18.92ms
+	Epoch 5355: Loss (MSE) = 0.25346833
+Hook completed at epoch 5355, time took 28.79ms
+	Epoch 5360: Loss (MSE) = 0.25325376
+Hook completed at epoch 5360, time took 9.96ms
+	Epoch 5365: Loss (MSE) = 0.25330406
+Hook completed at epoch 5365, time took 28.14ms
+	Epoch 5370: Loss (MSE) = 0.25355563
+Hook completed at epoch 5370, time took 24.69ms
+	Epoch 5375: Loss (MSE) = 0.25257242
+Hook completed at epoch 5375, time took 9.23ms
+	Epoch 5380: Loss (MSE) = 0.25280660
+Hook completed at epoch 5380, time took 10.59ms
+	Epoch 5385: Loss (MSE) = 0.25257665
+Hook completed at epoch 5385, time took 9.21ms
+	Epoch 5390: Loss (MSE) = 0.25317016
+Hook completed at epoch 5390, time took 8.86ms
+	Epoch 5395: Loss (MSE) = 0.25335672
+Hook completed at epoch 5395, time took 9.10ms
+	Epoch 5400: Loss (MSE) = 0.25304809
+Hook completed at epoch 5400, time took 10.18ms
+	Epoch 5405: Loss (MSE) = 0.25314796
+Hook completed at epoch 5405, time took 11.44ms
+	Epoch 5410: Loss (MSE) = 0.25296009
+Hook completed at epoch 5410, time took 10.04ms
+	Epoch 5415: Loss (MSE) = 0.25286019
+Hook completed at epoch 5415, time took 10.05ms
+	Epoch 5420: Loss (MSE) = 0.25236279
+Hook completed at epoch 5420, time took 9.76ms
+	Epoch 5425: Loss (MSE) = 0.25200218
+Hook completed at epoch 5425, time took 9.83ms
+	Epoch 5430: Loss (MSE) = 0.25223592
+Hook completed at epoch 5430, time took 27.98ms
+	Epoch 5435: Loss (MSE) = 0.25257039
+Hook completed at epoch 5435, time took 28.55ms
+	Epoch 5440: Loss (MSE) = 0.25255045
+Hook completed at epoch 5440, time took 9.55ms
+	Epoch 5445: Loss (MSE) = 0.25298032
+Hook completed at epoch 5445, time took 10.04ms
+	Epoch 5450: Loss (MSE) = 0.25300181
+Hook completed at epoch 5450, time took 10.88ms
+	Epoch 5455: Loss (MSE) = 0.25342613
+Hook completed at epoch 5455, time took 10.05ms
+	Epoch 5460: Loss (MSE) = 0.25349376
+Hook completed at epoch 5460, time took 9.59ms
+	Epoch 5465: Loss (MSE) = 0.25338456
+Hook completed at epoch 5465, time took 27.69ms
+	Epoch 5470: Loss (MSE) = 0.25171128
+Hook completed at epoch 5470, time took 28.58ms
+	Epoch 5475: Loss (MSE) = 0.25188860
+Hook completed at epoch 5475, time took 21.16ms
+	Epoch 5480: Loss (MSE) = 0.25196955
+Hook completed at epoch 5480, time took 70.90ms
+	Epoch 5485: Loss (MSE) = 0.25251028
+Hook completed at epoch 5485, time took 10.42ms
+	Epoch 5490: Loss (MSE) = 0.25263453
+Hook completed at epoch 5490, time took 9.55ms
+	Epoch 5495: Loss (MSE) = 0.25297374
+Hook completed at epoch 5495, time took 9.61ms
+	Epoch 5500: Loss (MSE) = 0.25338131
+Hook completed at epoch 5500, time took 10.32ms
+	Epoch 5505: Loss (MSE) = 0.25286055
+Hook completed at epoch 5505, time took 10.33ms
+	Epoch 5510: Loss (MSE) = 0.25303373
+Hook completed at epoch 5510, time took 9.33ms
+	Epoch 5515: Loss (MSE) = 0.25314859
+Hook completed at epoch 5515, time took 9.48ms
+	Epoch 5520: Loss (MSE) = 0.25268823
+Hook completed at epoch 5520, time took 9.93ms
+	Epoch 5525: Loss (MSE) = 0.25368854
+Hook completed at epoch 5525, time took 9.47ms
+	Epoch 5530: Loss (MSE) = 0.25375184
+Hook completed at epoch 5530, time took 9.38ms
+	Epoch 5535: Loss (MSE) = 0.25378036
+Hook completed at epoch 5535, time took 10.59ms
+	Epoch 5540: Loss (MSE) = 0.25469443
+Hook completed at epoch 5540, time took 28.90ms
+	Epoch 5545: Loss (MSE) = 0.25439766
+Hook completed at epoch 5545, time took 12.66ms
+	Epoch 5550: Loss (MSE) = 0.25441036
+Hook completed at epoch 5550, time took 10.47ms
+	Epoch 5555: Loss (MSE) = 0.25446749
+Hook completed at epoch 5555, time took 9.99ms
+	Epoch 5560: Loss (MSE) = 0.25512323
+Hook completed at epoch 5560, time took 9.57ms
+	Epoch 5565: Loss (MSE) = 0.25442582
+Hook completed at epoch 5565, time took 10.07ms
+	Epoch 5570: Loss (MSE) = 0.25514838
+Hook completed at epoch 5570, time took 10.01ms
+	Epoch 5575: Loss (MSE) = 0.25499076
+Hook completed at epoch 5575, time took 9.56ms
+	Epoch 5580: Loss (MSE) = 0.25523782
+Hook completed at epoch 5580, time took 9.39ms
+	Epoch 5585: Loss (MSE) = 0.25562376
+Hook completed at epoch 5585, time took 9.84ms
+	Epoch 5590: Loss (MSE) = 0.25532940
+Hook completed at epoch 5590, time took 11.11ms
+	Epoch 5595: Loss (MSE) = 0.25541610
+Hook completed at epoch 5595, time took 9.91ms
+	Epoch 5600: Loss (MSE) = 0.25475129
+Hook completed at epoch 5600, time took 9.38ms
+	Epoch 5605: Loss (MSE) = 0.25436223
+Hook completed at epoch 5605, time took 10.54ms
+	Epoch 5610: Loss (MSE) = 0.25400019
+Hook completed at epoch 5610, time took 29.06ms
+	Epoch 5615: Loss (MSE) = 0.25552756
+Hook completed at epoch 5615, time took 9.32ms
+	Epoch 5620: Loss (MSE) = 0.25595176
+Hook completed at epoch 5620, time took 28.23ms
+	Epoch 5625: Loss (MSE) = 0.25622901
+Hook completed at epoch 5625, time took 9.18ms
+	Epoch 5630: Loss (MSE) = 0.25624710
+Hook completed at epoch 5630, time took 9.19ms
+	Epoch 5635: Loss (MSE) = 0.25658038
+Hook completed at epoch 5635, time took 10.15ms
+	Epoch 5640: Loss (MSE) = 0.25689760
+Hook completed at epoch 5640, time took 9.78ms
+	Epoch 5645: Loss (MSE) = 0.25689009
+Hook completed at epoch 5645, time took 28.55ms
+	Epoch 5650: Loss (MSE) = 0.25607553
+Hook completed at epoch 5650, time took 28.64ms
+	Epoch 5655: Loss (MSE) = 0.25551862
+Hook completed at epoch 5655, time took 9.94ms
+	Epoch 5660: Loss (MSE) = 0.25545254
+Hook completed at epoch 5660, time took 10.01ms
+	Epoch 5665: Loss (MSE) = 0.25585148
+Hook completed at epoch 5665, time took 10.09ms
+	Epoch 5670: Loss (MSE) = 0.25628093
+Hook completed at epoch 5670, time took 9.23ms
+	Epoch 5675: Loss (MSE) = 0.25600889
+Hook completed at epoch 5675, time took 9.05ms
+	Epoch 5680: Loss (MSE) = 0.25684077
+Hook completed at epoch 5680, time took 9.44ms
+	Epoch 5685: Loss (MSE) = 0.25705588
+Hook completed at epoch 5685, time took 10.11ms
+	Epoch 5690: Loss (MSE) = 0.25668374
+Hook completed at epoch 5690, time took 10.03ms
+	Epoch 5695: Loss (MSE) = 0.25725064
+Hook completed at epoch 5695, time took 9.88ms
+	Epoch 5700: Loss (MSE) = 0.25596839
+Hook completed at epoch 5700, time took 27.63ms
+	Epoch 5705: Loss (MSE) = 0.25619978
+Hook completed at epoch 5705, time took 10.11ms
+	Epoch 5710: Loss (MSE) = 0.25699493
+Hook completed at epoch 5710, time took 10.76ms
+	Epoch 5715: Loss (MSE) = 0.25722495
+Hook completed at epoch 5715, time took 11.64ms
+	Epoch 5720: Loss (MSE) = 0.25678200
+Hook completed at epoch 5720, time took 28.44ms
+	Epoch 5725: Loss (MSE) = 0.25721848
+Hook completed at epoch 5725, time took 9.95ms
+	Epoch 5730: Loss (MSE) = 0.25817060
+Hook completed at epoch 5730, time took 10.64ms
+	Epoch 5735: Loss (MSE) = 0.25881472
+Hook completed at epoch 5735, time took 9.57ms
+	Epoch 5740: Loss (MSE) = 0.25848910
+Hook completed at epoch 5740, time took 10.36ms
+	Epoch 5745: Loss (MSE) = 0.25924614
+Hook completed at epoch 5745, time took 10.24ms
+	Epoch 5750: Loss (MSE) = 0.25998789
+Hook completed at epoch 5750, time took 28.80ms
+	Epoch 5755: Loss (MSE) = 0.26048061
+Hook completed at epoch 5755, time took 9.92ms
+	Epoch 5760: Loss (MSE) = 0.26035857
+Hook completed at epoch 5760, time took 10.11ms
+	Epoch 5765: Loss (MSE) = 0.26062000
+Hook completed at epoch 5765, time took 10.06ms
+	Epoch 5770: Loss (MSE) = 0.25961712
+Hook completed at epoch 5770, time took 9.33ms
+	Epoch 5775: Loss (MSE) = 0.25953493
+Hook completed at epoch 5775, time took 10.22ms
+	Epoch 5780: Loss (MSE) = 0.25920534
+Hook completed at epoch 5780, time took 10.48ms
+	Epoch 5785: Loss (MSE) = 0.25942281
+Hook completed at epoch 5785, time took 10.54ms
+	Epoch 5790: Loss (MSE) = 0.26030093
+Hook completed at epoch 5790, time took 29.42ms
+	Epoch 5795: Loss (MSE) = 0.26080698
+Hook completed at epoch 5795, time took 10.22ms
+	Epoch 5800: Loss (MSE) = 0.26007208
+Hook completed at epoch 5800, time took 28.37ms
+	Epoch 5805: Loss (MSE) = 0.26034260
+Hook completed at epoch 5805, time took 21.35ms
+	Epoch 5810: Loss (MSE) = 0.26074767
+Hook completed at epoch 5810, time took 10.02ms
+	Epoch 5815: Loss (MSE) = 0.26201406
+Hook completed at epoch 5815, time took 28.48ms
+	Epoch 5820: Loss (MSE) = 0.26209086
+Hook completed at epoch 5820, time took 29.60ms
+	Epoch 5825: Loss (MSE) = 0.26285744
+Hook completed at epoch 5825, time took 9.88ms
+	Epoch 5830: Loss (MSE) = 0.26285619
+Hook completed at epoch 5830, time took 10.10ms
+	Epoch 5835: Loss (MSE) = 0.26297426
+Hook completed at epoch 5835, time took 10.08ms
+	Epoch 5840: Loss (MSE) = 0.26304695
+Hook completed at epoch 5840, time took 10.55ms
+	Epoch 5845: Loss (MSE) = 0.26324081
+Hook completed at epoch 5845, time took 10.59ms
+	Epoch 5850: Loss (MSE) = 0.26182869
+Hook completed at epoch 5850, time took 28.83ms
+	Epoch 5855: Loss (MSE) = 0.26223409
+Hook completed at epoch 5855, time took 28.54ms
+	Epoch 5860: Loss (MSE) = 0.26258102
+Hook completed at epoch 5860, time took 10.51ms
+	Epoch 5865: Loss (MSE) = 0.26180279
+Hook completed at epoch 5865, time took 9.74ms
+	Epoch 5870: Loss (MSE) = 0.26140916
+Hook completed at epoch 5870, time took 10.45ms
+	Epoch 5875: Loss (MSE) = 0.26053065
+Hook completed at epoch 5875, time took 10.23ms
+	Epoch 5880: Loss (MSE) = 0.26020402
+Hook completed at epoch 5880, time took 9.78ms
+	Epoch 5885: Loss (MSE) = 0.26071143
+Hook completed at epoch 5885, time took 10.27ms
+	Epoch 5890: Loss (MSE) = 0.26021034
+Hook completed at epoch 5890, time took 9.69ms
+	Epoch 5895: Loss (MSE) = 0.26082414
+Hook completed at epoch 5895, time took 9.43ms
+	Epoch 5900: Loss (MSE) = 0.26090962
+Hook completed at epoch 5900, time took 9.80ms
+	Epoch 5905: Loss (MSE) = 0.26106459
+Hook completed at epoch 5905, time took 10.07ms
+	Epoch 5910: Loss (MSE) = 0.26105145
+Hook completed at epoch 5910, time took 9.95ms
+	Epoch 5915: Loss (MSE) = 0.26050919
+Hook completed at epoch 5915, time took 9.96ms
+	Epoch 5920: Loss (MSE) = 0.26035827
+Hook completed at epoch 5920, time took 26.49ms
+	Epoch 5925: Loss (MSE) = 0.26082709
+Hook completed at epoch 5925, time took 9.43ms
+	Epoch 5930: Loss (MSE) = 0.25952154
+Hook completed at epoch 5930, time took 9.89ms
+	Epoch 5935: Loss (MSE) = 0.25956377
+Hook completed at epoch 5935, time took 9.46ms
+	Epoch 5940: Loss (MSE) = 0.25964692
+Hook completed at epoch 5940, time took 9.13ms
+	Epoch 5945: Loss (MSE) = 0.25925100
+Hook completed at epoch 5945, time took 9.35ms
+	Epoch 5950: Loss (MSE) = 0.25904050
+Hook completed at epoch 5950, time took 10.55ms
+	Epoch 5955: Loss (MSE) = 0.25859287
+Hook completed at epoch 5955, time took 10.11ms
+	Epoch 5960: Loss (MSE) = 0.25965941
+Hook completed at epoch 5960, time took 27.56ms
+	Epoch 5965: Loss (MSE) = 0.26038051
+Hook completed at epoch 5965, time took 9.86ms
+	Epoch 5970: Loss (MSE) = 0.26026690
+Hook completed at epoch 5970, time took 9.62ms
+	Epoch 5975: Loss (MSE) = 0.26045728
+Hook completed at epoch 5975, time took 10.28ms
+	Epoch 5980: Loss (MSE) = 0.26037607
+Hook completed at epoch 5980, time took 65.47ms
+	Epoch 5985: Loss (MSE) = 0.25979024
+Hook completed at epoch 5985, time took 12.79ms
+	Epoch 5990: Loss (MSE) = 0.25976405
+Hook completed at epoch 5990, time took 28.70ms
+	Epoch 5995: Loss (MSE) = 0.25921148
+Hook completed at epoch 5995, time took 28.75ms
+	Epoch 6000: Loss (MSE) = 0.25940478
+Hook completed at epoch 6000, time took 27.11ms
+	Epoch 6005: Loss (MSE) = 0.25845444
+Hook completed at epoch 6005, time took 9.70ms
+	Epoch 6010: Loss (MSE) = 0.25813150
+Hook completed at epoch 6010, time took 9.74ms
+	Epoch 6015: Loss (MSE) = 0.25772628
+Hook completed at epoch 6015, time took 9.13ms
+	Epoch 6020: Loss (MSE) = 0.25808492
+Hook completed at epoch 6020, time took 9.49ms
+	Epoch 6025: Loss (MSE) = 0.25710779
+Hook completed at epoch 6025, time took 9.72ms
+	Epoch 6030: Loss (MSE) = 0.25704312
+Hook completed at epoch 6030, time took 10.63ms
+	Epoch 6035: Loss (MSE) = 0.25674707
+Hook completed at epoch 6035, time took 9.72ms
+	Epoch 6040: Loss (MSE) = 0.25724006
+Hook completed at epoch 6040, time took 10.86ms
+	Epoch 6045: Loss (MSE) = 0.25668180
+Hook completed at epoch 6045, time took 10.24ms
+	Epoch 6050: Loss (MSE) = 0.25668845
+Hook completed at epoch 6050, time took 10.36ms
+	Epoch 6055: Loss (MSE) = 0.25479877
+Hook completed at epoch 6055, time took 10.54ms
+	Epoch 6060: Loss (MSE) = 0.25318915
+Hook completed at epoch 6060, time took 9.66ms
+	Epoch 6065: Loss (MSE) = 0.25233963
+Hook completed at epoch 6065, time took 9.96ms
+	Epoch 6070: Loss (MSE) = 0.25196823
+Hook completed at epoch 6070, time took 9.65ms
+	Epoch 6075: Loss (MSE) = 0.25251156
+Hook completed at epoch 6075, time took 9.68ms
+	Epoch 6080: Loss (MSE) = 0.25250179
+Hook completed at epoch 6080, time took 9.88ms
+	Epoch 6085: Loss (MSE) = 0.25282377
+Hook completed at epoch 6085, time took 10.61ms
+	Epoch 6090: Loss (MSE) = 0.25339463
+Hook completed at epoch 6090, time took 10.14ms
+	Epoch 6095: Loss (MSE) = 0.25373739
+Hook completed at epoch 6095, time took 9.58ms
+	Epoch 6100: Loss (MSE) = 0.25402725
+Hook completed at epoch 6100, time took 18.65ms
+	Epoch 6105: Loss (MSE) = 0.25374869
+Hook completed at epoch 6105, time took 10.02ms
+	Epoch 6110: Loss (MSE) = 0.25346157
+Hook completed at epoch 6110, time took 9.75ms
+	Epoch 6115: Loss (MSE) = 0.25360662
+Hook completed at epoch 6115, time took 28.09ms
+	Epoch 6120: Loss (MSE) = 0.25237921
+Hook completed at epoch 6120, time took 28.86ms
+	Epoch 6125: Loss (MSE) = 0.25212675
+Hook completed at epoch 6125, time took 9.64ms
+	Epoch 6130: Loss (MSE) = 0.25224391
+Hook completed at epoch 6130, time took 10.66ms
+	Epoch 6135: Loss (MSE) = 0.25269192
+Hook completed at epoch 6135, time took 9.70ms
+	Epoch 6140: Loss (MSE) = 0.25305626
+Hook completed at epoch 6140, time took 9.62ms
+	Epoch 6145: Loss (MSE) = 0.25344163
+Hook completed at epoch 6145, time took 10.05ms
+	Epoch 6150: Loss (MSE) = 0.25383586
+Hook completed at epoch 6150, time took 10.05ms
+	Epoch 6155: Loss (MSE) = 0.25387153
+Hook completed at epoch 6155, time took 10.20ms
+	Epoch 6160: Loss (MSE) = 0.25382334
+Hook completed at epoch 6160, time took 10.04ms
+	Epoch 6165: Loss (MSE) = 0.25429532
+Hook completed at epoch 6165, time took 28.37ms
+	Epoch 6170: Loss (MSE) = 0.25459677
+Hook completed at epoch 6170, time took 10.67ms
+	Epoch 6175: Loss (MSE) = 0.25485465
+Hook completed at epoch 6175, time took 10.05ms
+	Epoch 6180: Loss (MSE) = 0.25496903
+Hook completed at epoch 6180, time took 28.53ms
+	Epoch 6185: Loss (MSE) = 0.25492629
+Hook completed at epoch 6185, time took 28.13ms
+	Epoch 6190: Loss (MSE) = 0.25368485
+Hook completed at epoch 6190, time took 9.36ms
+	Epoch 6195: Loss (MSE) = 0.25375190
+Hook completed at epoch 6195, time took 9.48ms
+	Epoch 6200: Loss (MSE) = 0.25412041
+Hook completed at epoch 6200, time took 19.66ms
+	Epoch 6205: Loss (MSE) = 0.25447837
+Hook completed at epoch 6205, time took 10.02ms
+	Epoch 6210: Loss (MSE) = 0.25418332
+Hook completed at epoch 6210, time took 10.39ms
+	Epoch 6215: Loss (MSE) = 0.25398222
+Hook completed at epoch 6215, time took 10.19ms
+	Epoch 6220: Loss (MSE) = 0.25340533
+Hook completed at epoch 6220, time took 29.22ms
+	Epoch 6225: Loss (MSE) = 0.25318056
+Hook completed at epoch 6225, time took 10.88ms
+	Epoch 6230: Loss (MSE) = 0.25285658
+Hook completed at epoch 6230, time took 26.36ms
+	Epoch 6235: Loss (MSE) = 0.25282079
+Hook completed at epoch 6235, time took 10.22ms
+	Epoch 6240: Loss (MSE) = 0.25231266
+Hook completed at epoch 6240, time took 28.92ms
+	Epoch 6245: Loss (MSE) = 0.25242817
+Hook completed at epoch 6245, time took 10.12ms
+	Epoch 6250: Loss (MSE) = 0.25285673
+Hook completed at epoch 6250, time took 9.87ms
+	Epoch 6255: Loss (MSE) = 0.25249612
+Hook completed at epoch 6255, time took 10.16ms
+	Epoch 6260: Loss (MSE) = 0.25237548
+Hook completed at epoch 6260, time took 9.44ms
+	Epoch 6265: Loss (MSE) = 0.25284746
+Hook completed at epoch 6265, time took 9.60ms
+	Epoch 6270: Loss (MSE) = 0.25286689
+Hook completed at epoch 6270, time took 20.34ms
+	Epoch 6275: Loss (MSE) = 0.25296456
+Hook completed at epoch 6275, time took 11.17ms
+	Epoch 6280: Loss (MSE) = 0.25217527
+Hook completed at epoch 6280, time took 27.67ms
+	Epoch 6285: Loss (MSE) = 0.25232115
+Hook completed at epoch 6285, time took 10.90ms
+	Epoch 6290: Loss (MSE) = 0.25242692
+Hook completed at epoch 6290, time took 11.39ms
+	Epoch 6295: Loss (MSE) = 0.25238258
+Hook completed at epoch 6295, time took 9.83ms
+	Epoch 6300: Loss (MSE) = 0.25262401
+Hook completed at epoch 6300, time took 11.37ms
+	Epoch 6305: Loss (MSE) = 0.25295466
+Hook completed at epoch 6305, time took 9.83ms
+	Epoch 6310: Loss (MSE) = 0.25287035
+Hook completed at epoch 6310, time took 10.40ms
+	Epoch 6315: Loss (MSE) = 0.25278237
+Hook completed at epoch 6315, time took 12.04ms
+	Epoch 6320: Loss (MSE) = 0.25285050
+Hook completed at epoch 6320, time took 26.79ms
+	Epoch 6325: Loss (MSE) = 0.25265607
+Hook completed at epoch 6325, time took 9.53ms
+	Epoch 6330: Loss (MSE) = 0.25287405
+Hook completed at epoch 6330, time took 11.30ms
+	Epoch 6335: Loss (MSE) = 0.25294206
+Hook completed at epoch 6335, time took 10.82ms
+	Epoch 6340: Loss (MSE) = 0.25295144
+Hook completed at epoch 6340, time took 10.76ms
+	Epoch 6345: Loss (MSE) = 0.25282344
+Hook completed at epoch 6345, time took 10.91ms
+	Epoch 6350: Loss (MSE) = 0.25279695
+Hook completed at epoch 6350, time took 9.93ms
+	Epoch 6355: Loss (MSE) = 0.25254738
+Hook completed at epoch 6355, time took 13.60ms
+	Epoch 6360: Loss (MSE) = 0.25182602
+Hook completed at epoch 6360, time took 32.62ms
+	Epoch 6365: Loss (MSE) = 0.25187585
+Hook completed at epoch 6365, time took 9.66ms
+	Epoch 6370: Loss (MSE) = 0.25190610
+Hook completed at epoch 6370, time took 14.96ms
+	Epoch 6375: Loss (MSE) = 0.25175351
+Hook completed at epoch 6375, time took 10.93ms
+	Epoch 6380: Loss (MSE) = 0.25169298
+Hook completed at epoch 6380, time took 9.29ms
+	Epoch 6385: Loss (MSE) = 0.25187808
+Hook completed at epoch 6385, time took 9.02ms
+	Epoch 6390: Loss (MSE) = 0.25150144
+Hook completed at epoch 6390, time took 10.21ms
+	Epoch 6395: Loss (MSE) = 0.25149414
+Hook completed at epoch 6395, time took 12.07ms
+	Epoch 6400: Loss (MSE) = 0.25199550
+Hook completed at epoch 6400, time took 10.20ms
+	Epoch 6405: Loss (MSE) = 0.25185826
+Hook completed at epoch 6405, time took 11.06ms
+	Epoch 6410: Loss (MSE) = 0.25144553
+Hook completed at epoch 6410, time took 11.26ms
+	Epoch 6415: Loss (MSE) = 0.25154072
+Hook completed at epoch 6415, time took 10.63ms
+	Epoch 6420: Loss (MSE) = 0.25179276
+Hook completed at epoch 6420, time took 28.83ms
+	Epoch 6425: Loss (MSE) = 0.25144714
+Hook completed at epoch 6425, time took 14.67ms
+	Epoch 6430: Loss (MSE) = 0.25144356
+Hook completed at epoch 6430, time took 9.82ms
+	Epoch 6435: Loss (MSE) = 0.25149822
+Hook completed at epoch 6435, time took 28.93ms
+	Epoch 6440: Loss (MSE) = 0.25139558
+Hook completed at epoch 6440, time took 10.11ms
+	Epoch 6445: Loss (MSE) = 0.25131747
+Hook completed at epoch 6445, time took 83.99ms
+	Epoch 6450: Loss (MSE) = 0.25078136
+Hook completed at epoch 6450, time took 9.78ms
+	Epoch 6455: Loss (MSE) = 0.25075400
+Hook completed at epoch 6455, time took 11.07ms
+	Epoch 6460: Loss (MSE) = 0.25070831
+Hook completed at epoch 6460, time took 11.00ms
+	Epoch 6465: Loss (MSE) = 0.25093403
+Hook completed at epoch 6465, time took 28.44ms
+	Epoch 6470: Loss (MSE) = 0.25116491
+Hook completed at epoch 6470, time took 12.97ms
+	Epoch 6475: Loss (MSE) = 0.25111866
+Hook completed at epoch 6475, time took 10.77ms
+	Epoch 6480: Loss (MSE) = 0.25088152
+Hook completed at epoch 6480, time took 11.40ms
+	Epoch 6485: Loss (MSE) = 0.25092170
+Hook completed at epoch 6485, time took 11.07ms
+	Epoch 6490: Loss (MSE) = 0.25090826
+Hook completed at epoch 6490, time took 21.16ms
+	Epoch 6495: Loss (MSE) = 0.25062266
+Hook completed at epoch 6495, time took 10.28ms
+	Epoch 6500: Loss (MSE) = 0.25081706
+Hook completed at epoch 6500, time took 9.29ms
+	Epoch 6505: Loss (MSE) = 0.25048724
+Hook completed at epoch 6505, time took 9.83ms
+	Epoch 6510: Loss (MSE) = 0.25093877
+Hook completed at epoch 6510, time took 10.20ms
+	Epoch 6515: Loss (MSE) = 0.25081012
+Hook completed at epoch 6515, time took 10.54ms
+	Epoch 6520: Loss (MSE) = 0.25075373
+Hook completed at epoch 6520, time took 10.46ms
+	Epoch 6525: Loss (MSE) = 0.25047079
+Hook completed at epoch 6525, time took 10.29ms
+	Epoch 6530: Loss (MSE) = 0.25049132
+Hook completed at epoch 6530, time took 11.39ms
+	Epoch 6535: Loss (MSE) = 0.24973379
+Hook completed at epoch 6535, time took 9.94ms
+	Epoch 6540: Loss (MSE) = 0.24996267
+Hook completed at epoch 6540, time took 10.28ms
+	Epoch 6545: Loss (MSE) = 0.25037348
+Hook completed at epoch 6545, time took 29.04ms
+	Epoch 6550: Loss (MSE) = 0.25017357
+Hook completed at epoch 6550, time took 15.45ms
+	Epoch 6555: Loss (MSE) = 0.24951591
+Hook completed at epoch 6555, time took 9.43ms
+	Epoch 6560: Loss (MSE) = 0.24966025
+Hook completed at epoch 6560, time took 9.72ms
+	Epoch 6565: Loss (MSE) = 0.24947253
+Hook completed at epoch 6565, time took 10.47ms
+	Epoch 6570: Loss (MSE) = 0.24954090
+Hook completed at epoch 6570, time took 9.97ms
+	Epoch 6575: Loss (MSE) = 0.24963535
+Hook completed at epoch 6575, time took 10.14ms
+	Epoch 6580: Loss (MSE) = 0.24998510
+Hook completed at epoch 6580, time took 10.47ms
+	Epoch 6585: Loss (MSE) = 0.24996310
+Hook completed at epoch 6585, time took 10.10ms
+	Epoch 6590: Loss (MSE) = 0.24977922
+Hook completed at epoch 6590, time took 27.19ms
+	Epoch 6595: Loss (MSE) = 0.24970135
+Hook completed at epoch 6595, time took 9.83ms
+	Epoch 6600: Loss (MSE) = 0.25002271
+Hook completed at epoch 6600, time took 9.54ms
+	Epoch 6605: Loss (MSE) = 0.25005966
+Hook completed at epoch 6605, time took 9.50ms
+	Epoch 6610: Loss (MSE) = 0.25022370
+Hook completed at epoch 6610, time took 28.37ms
+	Epoch 6615: Loss (MSE) = 0.25041801
+Hook completed at epoch 6615, time took 9.66ms
+	Epoch 6620: Loss (MSE) = 0.24995722
+Hook completed at epoch 6620, time took 9.33ms
+	Epoch 6625: Loss (MSE) = 0.25020719
+Hook completed at epoch 6625, time took 9.43ms
+	Epoch 6630: Loss (MSE) = 0.25056571
+Hook completed at epoch 6630, time took 9.32ms
+	Epoch 6635: Loss (MSE) = 0.25052810
+Hook completed at epoch 6635, time took 10.99ms
+	Epoch 6640: Loss (MSE) = 0.25025478
+Hook completed at epoch 6640, time took 9.44ms
+	Epoch 6645: Loss (MSE) = 0.25024277
+Hook completed at epoch 6645, time took 28.94ms
+	Epoch 6650: Loss (MSE) = 0.25033647
+Hook completed at epoch 6650, time took 29.09ms
+	Epoch 6655: Loss (MSE) = 0.25051108
+Hook completed at epoch 6655, time took 24.41ms
+	Epoch 6660: Loss (MSE) = 0.25063753
+Hook completed at epoch 6660, time took 10.28ms
+	Epoch 6665: Loss (MSE) = 0.25040737
+Hook completed at epoch 6665, time took 23.71ms
+	Epoch 6670: Loss (MSE) = 0.25051397
+Hook completed at epoch 6670, time took 10.05ms
+	Epoch 6675: Loss (MSE) = 0.25022423
+Hook completed at epoch 6675, time took 9.56ms
+	Epoch 6680: Loss (MSE) = 0.25004128
+Hook completed at epoch 6680, time took 9.78ms
+	Epoch 6685: Loss (MSE) = 0.24948436
+Hook completed at epoch 6685, time took 10.29ms
+	Epoch 6690: Loss (MSE) = 0.24960369
+Hook completed at epoch 6690, time took 9.77ms
+	Epoch 6695: Loss (MSE) = 0.24975994
+Hook completed at epoch 6695, time took 9.20ms
+	Epoch 6700: Loss (MSE) = 0.24905531
+Hook completed at epoch 6700, time took 19.40ms
+	Epoch 6705: Loss (MSE) = 0.24906942
+Hook completed at epoch 6705, time took 28.05ms
+	Epoch 6710: Loss (MSE) = 0.24906182
+Hook completed at epoch 6710, time took 17.27ms
+	Epoch 6715: Loss (MSE) = 0.25011596
+Hook completed at epoch 6715, time took 29.60ms
+	Epoch 6720: Loss (MSE) = 0.25025478
+Hook completed at epoch 6720, time took 24.57ms
+	Epoch 6725: Loss (MSE) = 0.25029224
+Hook completed at epoch 6725, time took 10.16ms
+	Epoch 6730: Loss (MSE) = 0.25048685
+Hook completed at epoch 6730, time took 9.80ms
+	Epoch 6735: Loss (MSE) = 0.25059748
+Hook completed at epoch 6735, time took 10.47ms
+	Epoch 6740: Loss (MSE) = 0.25031051
+Hook completed at epoch 6740, time took 10.42ms
+	Epoch 6745: Loss (MSE) = 0.24516641
+Hook completed at epoch 6745, time took 10.18ms
+	Epoch 6750: Loss (MSE) = 0.24554032
+Hook completed at epoch 6750, time took 11.94ms
+	Epoch 6755: Loss (MSE) = 0.24546792
+Hook completed at epoch 6755, time took 9.86ms
+	Epoch 6760: Loss (MSE) = 0.24522248
+Hook completed at epoch 6760, time took 12.13ms
+	Epoch 6765: Loss (MSE) = 0.24537027
+Hook completed at epoch 6765, time took 10.00ms
+	Epoch 6770: Loss (MSE) = 0.24505945
+Hook completed at epoch 6770, time took 10.13ms
+	Epoch 6775: Loss (MSE) = 0.24615380
+Hook completed at epoch 6775, time took 29.37ms
+	Epoch 6780: Loss (MSE) = 0.24665530
+Hook completed at epoch 6780, time took 21.35ms
+	Epoch 6785: Loss (MSE) = 0.24660540
+Hook completed at epoch 6785, time took 9.72ms
+	Epoch 6790: Loss (MSE) = 0.24682003
+Hook completed at epoch 6790, time took 9.67ms
+	Epoch 6795: Loss (MSE) = 0.24654108
+Hook completed at epoch 6795, time took 10.24ms
+	Epoch 6800: Loss (MSE) = 0.24633922
+Hook completed at epoch 6800, time took 10.35ms
+	Epoch 6805: Loss (MSE) = 0.24649930
+Hook completed at epoch 6805, time took 10.19ms
+	Epoch 6810: Loss (MSE) = 0.24643187
+Hook completed at epoch 6810, time took 9.89ms
+	Epoch 6815: Loss (MSE) = 0.24646825
+Hook completed at epoch 6815, time took 10.92ms
+	Epoch 6820: Loss (MSE) = 0.24657744
+Hook completed at epoch 6820, time took 9.92ms
+	Epoch 6825: Loss (MSE) = 0.24605319
+Hook completed at epoch 6825, time took 9.98ms
+	Epoch 6830: Loss (MSE) = 0.24683598
+Hook completed at epoch 6830, time took 9.64ms
+	Epoch 6835: Loss (MSE) = 0.24715105
+Hook completed at epoch 6835, time took 10.05ms
+	Epoch 6840: Loss (MSE) = 0.24750742
+Hook completed at epoch 6840, time took 10.36ms
+	Epoch 6845: Loss (MSE) = 0.24764803
+Hook completed at epoch 6845, time took 27.95ms
+	Epoch 6850: Loss (MSE) = 0.24779773
+Hook completed at epoch 6850, time took 10.71ms
+	Epoch 6855: Loss (MSE) = 0.24797392
+Hook completed at epoch 6855, time took 10.35ms
+	Epoch 6860: Loss (MSE) = 0.24835122
+Hook completed at epoch 6860, time took 28.48ms
+	Epoch 6865: Loss (MSE) = 0.24860653
+Hook completed at epoch 6865, time took 26.84ms
+	Epoch 6870: Loss (MSE) = 0.24856091
+Hook completed at epoch 6870, time took 23.15ms
+	Epoch 6875: Loss (MSE) = 0.24877092
+Hook completed at epoch 6875, time took 9.89ms
+	Epoch 6880: Loss (MSE) = 0.24856378
+Hook completed at epoch 6880, time took 9.86ms
+	Epoch 6885: Loss (MSE) = 0.24851881
+Hook completed at epoch 6885, time took 9.30ms
+	Epoch 6890: Loss (MSE) = 0.24782844
+Hook completed at epoch 6890, time took 9.75ms
+	Epoch 6895: Loss (MSE) = 0.24912690
+Hook completed at epoch 6895, time took 16.02ms
+	Epoch 6900: Loss (MSE) = 0.24899763
+Hook completed at epoch 6900, time took 28.82ms
+	Epoch 6905: Loss (MSE) = 0.24897572
+Hook completed at epoch 6905, time took 10.03ms
+	Epoch 6910: Loss (MSE) = 0.24881880
+Hook completed at epoch 6910, time took 65.41ms
+	Epoch 6915: Loss (MSE) = 0.24912050
+Hook completed at epoch 6915, time took 28.91ms
+	Epoch 6920: Loss (MSE) = 0.24945542
+Hook completed at epoch 6920, time took 10.06ms
+	Epoch 6925: Loss (MSE) = 0.24965484
+Hook completed at epoch 6925, time took 13.14ms
+	Epoch 6930: Loss (MSE) = 0.24943012
+Hook completed at epoch 6930, time took 9.98ms
+	Epoch 6935: Loss (MSE) = 0.24916859
+Hook completed at epoch 6935, time took 11.96ms
+	Epoch 6940: Loss (MSE) = 0.24917182
+Hook completed at epoch 6940, time took 10.58ms
+	Epoch 6945: Loss (MSE) = 0.24930443
+Hook completed at epoch 6945, time took 28.80ms
+	Epoch 6950: Loss (MSE) = 0.24934542
+Hook completed at epoch 6950, time took 10.39ms
+	Epoch 6955: Loss (MSE) = 0.24950138
+Hook completed at epoch 6955, time took 10.30ms
+	Epoch 6960: Loss (MSE) = 0.24961901
+Hook completed at epoch 6960, time took 10.26ms
+	Epoch 6965: Loss (MSE) = 0.24962732
+Hook completed at epoch 6965, time took 10.54ms
+	Epoch 6970: Loss (MSE) = 0.24967550
+Hook completed at epoch 6970, time took 10.95ms
+	Epoch 6975: Loss (MSE) = 0.24952683
+Hook completed at epoch 6975, time took 10.90ms
+	Epoch 6980: Loss (MSE) = 0.24945736
+Hook completed at epoch 6980, time took 10.99ms
+	Epoch 6985: Loss (MSE) = 0.24950406
+Hook completed at epoch 6985, time took 9.95ms
+	Epoch 6990: Loss (MSE) = 0.24974419
+Hook completed at epoch 6990, time took 10.12ms
+	Epoch 6995: Loss (MSE) = 0.25003496
+Hook completed at epoch 6995, time took 11.24ms
+	Epoch 7000: Loss (MSE) = 0.25006926
+Hook completed at epoch 7000, time took 10.24ms
+	Epoch 7005: Loss (MSE) = 0.25003219
+Hook completed at epoch 7005, time took 10.00ms
+	Epoch 7010: Loss (MSE) = 0.24967892
+Hook completed at epoch 7010, time took 10.32ms
+	Epoch 7015: Loss (MSE) = 0.24978411
+Hook completed at epoch 7015, time took 10.82ms
+	Epoch 7020: Loss (MSE) = 0.24980959
+Hook completed at epoch 7020, time took 11.10ms
+	Epoch 7025: Loss (MSE) = 0.24956569
+Hook completed at epoch 7025, time took 28.67ms
+	Epoch 7030: Loss (MSE) = 0.24936363
+Hook completed at epoch 7030, time took 29.45ms
+	Epoch 7035: Loss (MSE) = 0.24928054
+Hook completed at epoch 7035, time took 10.16ms
+	Epoch 7040: Loss (MSE) = 0.24926798
+Hook completed at epoch 7040, time took 9.36ms
+	Epoch 7045: Loss (MSE) = 0.24929824
+Hook completed at epoch 7045, time took 18.01ms
+	Epoch 7050: Loss (MSE) = 0.24938351
+Hook completed at epoch 7050, time took 10.48ms
+	Epoch 7055: Loss (MSE) = 0.24922046
+Hook completed at epoch 7055, time took 28.41ms
+	Epoch 7060: Loss (MSE) = 0.24917512
+Hook completed at epoch 7060, time took 28.63ms
+	Epoch 7065: Loss (MSE) = 0.24912211
+Hook completed at epoch 7065, time took 9.96ms
+	Epoch 7070: Loss (MSE) = 0.24887370
+Hook completed at epoch 7070, time took 10.15ms
+	Epoch 7075: Loss (MSE) = 0.24857679
+Hook completed at epoch 7075, time took 30.87ms
+	Epoch 7080: Loss (MSE) = 0.24950419
+Hook completed at epoch 7080, time took 29.72ms
+	Epoch 7085: Loss (MSE) = 0.24902381
+Hook completed at epoch 7085, time took 31.12ms
+	Epoch 7090: Loss (MSE) = 0.24908960
+Hook completed at epoch 7090, time took 18.24ms
+	Epoch 7095: Loss (MSE) = 0.24895996
+Hook completed at epoch 7095, time took 9.99ms
+	Epoch 7100: Loss (MSE) = 0.24553475
+Hook completed at epoch 7100, time took 10.17ms
+	Epoch 7105: Loss (MSE) = 0.24575973
+Hook completed at epoch 7105, time took 11.75ms
+	Epoch 7110: Loss (MSE) = 0.24579172
+Hook completed at epoch 7110, time took 10.19ms
+	Epoch 7115: Loss (MSE) = 0.24588253
+Hook completed at epoch 7115, time took 10.64ms
+	Epoch 7120: Loss (MSE) = 0.24581997
+Hook completed at epoch 7120, time took 9.76ms
+	Epoch 7125: Loss (MSE) = 0.24580708
+Hook completed at epoch 7125, time took 10.28ms
+	Epoch 7130: Loss (MSE) = 0.24591172
+Hook completed at epoch 7130, time took 10.15ms
+	Epoch 7135: Loss (MSE) = 0.24589211
+Hook completed at epoch 7135, time took 10.96ms
+	Epoch 7140: Loss (MSE) = 0.24593386
+Hook completed at epoch 7140, time took 11.03ms
+	Epoch 7145: Loss (MSE) = 0.24577287
+Hook completed at epoch 7145, time took 28.77ms
+	Epoch 7150: Loss (MSE) = 0.24581501
+Hook completed at epoch 7150, time took 28.98ms
+	Epoch 7155: Loss (MSE) = 0.24570243
+Hook completed at epoch 7155, time took 28.52ms
+	Epoch 7160: Loss (MSE) = 0.24564503
+Hook completed at epoch 7160, time took 10.21ms
+	Epoch 7165: Loss (MSE) = 0.24581385
+Hook completed at epoch 7165, time took 30.33ms
+	Epoch 7170: Loss (MSE) = 0.24561252
+Hook completed at epoch 7170, time took 13.24ms
+	Epoch 7175: Loss (MSE) = 0.24559279
+Hook completed at epoch 7175, time took 10.08ms
+	Epoch 7180: Loss (MSE) = 0.24562396
+Hook completed at epoch 7180, time took 9.07ms
+	Epoch 7185: Loss (MSE) = 0.24542826
+Hook completed at epoch 7185, time took 9.91ms
+	Epoch 7190: Loss (MSE) = 0.24549055
+Hook completed at epoch 7190, time took 10.13ms
+	Epoch 7195: Loss (MSE) = 0.24523526
+Hook completed at epoch 7195, time took 10.37ms
+	Epoch 7200: Loss (MSE) = 0.24521855
+Hook completed at epoch 7200, time took 10.97ms
+	Epoch 7205: Loss (MSE) = 0.24516742
+Hook completed at epoch 7205, time took 9.83ms
+	Epoch 7210: Loss (MSE) = 0.24523881
+Hook completed at epoch 7210, time took 10.50ms
+	Epoch 7215: Loss (MSE) = 0.24520871
+Hook completed at epoch 7215, time took 29.06ms
+	Epoch 7220: Loss (MSE) = 0.24522524
+Hook completed at epoch 7220, time took 11.01ms
+	Epoch 7225: Loss (MSE) = 0.24519445
+Hook completed at epoch 7225, time took 10.35ms
+	Epoch 7230: Loss (MSE) = 0.24529299
+Hook completed at epoch 7230, time took 11.18ms
+	Epoch 7235: Loss (MSE) = 0.24530198
+Hook completed at epoch 7235, time took 10.87ms
+	Epoch 7240: Loss (MSE) = 0.24486756
+Hook completed at epoch 7240, time took 10.58ms
+	Epoch 7245: Loss (MSE) = 0.24479873
+Hook completed at epoch 7245, time took 12.11ms
+	Epoch 7250: Loss (MSE) = 0.24476029
+Hook completed at epoch 7250, time took 10.77ms
+	Epoch 7255: Loss (MSE) = 0.24458636
+Hook completed at epoch 7255, time took 28.77ms
+	Epoch 7260: Loss (MSE) = 0.24460609
+Hook completed at epoch 7260, time took 10.59ms
+	Epoch 7265: Loss (MSE) = 0.24461395
+Hook completed at epoch 7265, time took 10.79ms
+	Epoch 7270: Loss (MSE) = 0.24463886
+Hook completed at epoch 7270, time took 10.29ms
+	Epoch 7275: Loss (MSE) = 0.24478817
+Hook completed at epoch 7275, time took 10.82ms
+	Epoch 7280: Loss (MSE) = 0.24455640
+Hook completed at epoch 7280, time took 29.34ms
+	Epoch 7285: Loss (MSE) = 0.24458857
+Hook completed at epoch 7285, time took 11.47ms
+	Epoch 7290: Loss (MSE) = 0.24437554
+Hook completed at epoch 7290, time took 9.77ms
+	Epoch 7295: Loss (MSE) = 0.24445936
+Hook completed at epoch 7295, time took 28.52ms
+	Epoch 7300: Loss (MSE) = 0.24442901
+Hook completed at epoch 7300, time took 21.61ms
+	Epoch 7305: Loss (MSE) = 0.24451618
+Hook completed at epoch 7305, time took 10.42ms
+	Epoch 7310: Loss (MSE) = 0.24455136
+Hook completed at epoch 7310, time took 29.40ms
+	Epoch 7315: Loss (MSE) = 0.24483314
+Hook completed at epoch 7315, time took 29.54ms
+	Epoch 7320: Loss (MSE) = 0.24476649
+Hook completed at epoch 7320, time took 29.05ms
+	Epoch 7325: Loss (MSE) = 0.24479881
+Hook completed at epoch 7325, time took 10.41ms
+	Epoch 7330: Loss (MSE) = 0.24485642
+Hook completed at epoch 7330, time took 10.34ms
+	Epoch 7335: Loss (MSE) = 0.24490941
+Hook completed at epoch 7335, time took 67.11ms
+	Epoch 7340: Loss (MSE) = 0.24499196
+Hook completed at epoch 7340, time took 10.14ms
+	Epoch 7345: Loss (MSE) = 0.24503464
+Hook completed at epoch 7345, time took 15.28ms
+	Epoch 7350: Loss (MSE) = 0.24501386
+Hook completed at epoch 7350, time took 10.43ms
+	Epoch 7355: Loss (MSE) = 0.24506132
+Hook completed at epoch 7355, time took 10.79ms
+	Epoch 7360: Loss (MSE) = 0.24503785
+Hook completed at epoch 7360, time took 10.43ms
+	Epoch 7365: Loss (MSE) = 0.24501941
+Hook completed at epoch 7365, time took 15.26ms
+	Epoch 7370: Loss (MSE) = 0.24511300
+Hook completed at epoch 7370, time took 28.40ms
+	Epoch 7375: Loss (MSE) = 0.24502733
+Hook completed at epoch 7375, time took 11.16ms
+	Epoch 7380: Loss (MSE) = 0.24499859
+Hook completed at epoch 7380, time took 12.12ms
+	Epoch 7385: Loss (MSE) = 0.24498524
+Hook completed at epoch 7385, time took 10.56ms
+	Epoch 7390: Loss (MSE) = 0.24500932
+Hook completed at epoch 7390, time took 11.66ms
+	Epoch 7395: Loss (MSE) = 0.24503496
+Hook completed at epoch 7395, time took 11.56ms
+	Epoch 7400: Loss (MSE) = 0.24507865
+Hook completed at epoch 7400, time took 9.59ms
+	Epoch 7405: Loss (MSE) = 0.24516964
+Hook completed at epoch 7405, time took 9.76ms
+	Epoch 7410: Loss (MSE) = 0.24521399
+Hook completed at epoch 7410, time took 9.87ms
+	Epoch 7415: Loss (MSE) = 0.24521217
+Hook completed at epoch 7415, time took 10.00ms
+	Epoch 7420: Loss (MSE) = 0.24531859
+Hook completed at epoch 7420, time took 9.90ms
+	Epoch 7425: Loss (MSE) = 0.24523935
+Hook completed at epoch 7425, time took 11.21ms
+	Epoch 7430: Loss (MSE) = 0.24518329
+Hook completed at epoch 7430, time took 11.37ms
+	Epoch 7435: Loss (MSE) = 0.24517196
+Hook completed at epoch 7435, time took 10.29ms
+	Epoch 7440: Loss (MSE) = 0.24506152
+Hook completed at epoch 7440, time took 29.35ms
+	Epoch 7445: Loss (MSE) = 0.24506782
+Hook completed at epoch 7445, time took 10.38ms
+	Epoch 7450: Loss (MSE) = 0.24512930
+Hook completed at epoch 7450, time took 10.93ms
+	Epoch 7455: Loss (MSE) = 0.24511313
+Hook completed at epoch 7455, time took 21.91ms
+	Epoch 7460: Loss (MSE) = 0.24514863
+Hook completed at epoch 7460, time took 22.19ms
+	Epoch 7465: Loss (MSE) = 0.24510939
+Hook completed at epoch 7465, time took 11.50ms
+	Epoch 7470: Loss (MSE) = 0.24517521
+Hook completed at epoch 7470, time took 10.09ms
+	Epoch 7475: Loss (MSE) = 0.24524002
+Hook completed at epoch 7475, time took 10.33ms
+	Epoch 7480: Loss (MSE) = 0.24533288
+Hook completed at epoch 7480, time took 10.22ms
+	Epoch 7485: Loss (MSE) = 0.24532932
+Hook completed at epoch 7485, time took 10.80ms
+	Epoch 7490: Loss (MSE) = 0.24539641
+Hook completed at epoch 7490, time took 29.76ms
+	Epoch 7495: Loss (MSE) = 0.24532941
+Hook completed at epoch 7495, time took 16.81ms
+	Epoch 7500: Loss (MSE) = 0.24534199
+Hook completed at epoch 7500, time took 11.06ms
+	Epoch 7505: Loss (MSE) = 0.24531527
+Hook completed at epoch 7505, time took 10.25ms
+	Epoch 7510: Loss (MSE) = 0.24521446
+Hook completed at epoch 7510, time took 11.01ms
+	Epoch 7515: Loss (MSE) = 0.24527729
+Hook completed at epoch 7515, time took 12.79ms
+	Epoch 7520: Loss (MSE) = 0.24525404
+Hook completed at epoch 7520, time took 30.11ms
+	Epoch 7525: Loss (MSE) = 0.24530360
+Hook completed at epoch 7525, time took 12.17ms
+	Epoch 7530: Loss (MSE) = 0.24535015
+Hook completed at epoch 7530, time took 10.34ms
+	Epoch 7535: Loss (MSE) = 0.24536923
+Hook completed at epoch 7535, time took 10.93ms
+	Epoch 7540: Loss (MSE) = 0.24529377
+Hook completed at epoch 7540, time took 11.11ms
+	Epoch 7545: Loss (MSE) = 0.24532284
+Hook completed at epoch 7545, time took 10.94ms
+	Epoch 7550: Loss (MSE) = 0.24560072
+Hook completed at epoch 7550, time took 10.48ms
+	Epoch 7555: Loss (MSE) = 0.24563614
+Hook completed at epoch 7555, time took 13.02ms
+	Epoch 7560: Loss (MSE) = 0.24562404
+Hook completed at epoch 7560, time took 29.24ms
+	Epoch 7565: Loss (MSE) = 0.24564439
+Hook completed at epoch 7565, time took 11.27ms
+	Epoch 7570: Loss (MSE) = 0.24562463
+Hook completed at epoch 7570, time took 10.66ms
+	Epoch 7575: Loss (MSE) = 0.24565083
+Hook completed at epoch 7575, time took 10.21ms
+	Epoch 7580: Loss (MSE) = 0.24564108
+Hook completed at epoch 7580, time took 9.93ms
+	Epoch 7585: Loss (MSE) = 0.24568754
+Hook completed at epoch 7585, time took 10.29ms
+	Epoch 7590: Loss (MSE) = 0.24578509
+Hook completed at epoch 7590, time took 9.87ms
+	Epoch 7595: Loss (MSE) = 0.24569920
+Hook completed at epoch 7595, time took 10.42ms
+	Epoch 7600: Loss (MSE) = 0.24567623
+Hook completed at epoch 7600, time took 29.78ms
+	Epoch 7605: Loss (MSE) = 0.24565673
+Hook completed at epoch 7605, time took 19.29ms
+	Epoch 7610: Loss (MSE) = 0.24571261
+Hook completed at epoch 7610, time took 10.39ms
+	Epoch 7615: Loss (MSE) = 0.24571873
+Hook completed at epoch 7615, time took 10.24ms
+	Epoch 7620: Loss (MSE) = 0.24570771
+Hook completed at epoch 7620, time took 11.29ms
+	Epoch 7625: Loss (MSE) = 0.24563867
+Hook completed at epoch 7625, time took 10.24ms
+	Epoch 7630: Loss (MSE) = 0.24565625
+Hook completed at epoch 7630, time took 10.49ms
+	Epoch 7635: Loss (MSE) = 0.24566332
+Hook completed at epoch 7635, time took 10.25ms
+	Epoch 7640: Loss (MSE) = 0.24568072
+Hook completed at epoch 7640, time took 11.18ms
+	Epoch 7645: Loss (MSE) = 0.24570712
+Hook completed at epoch 7645, time took 10.79ms
+	Epoch 7650: Loss (MSE) = 0.24578322
+Hook completed at epoch 7650, time took 24.79ms
+	Epoch 7655: Loss (MSE) = 0.24583046
+Hook completed at epoch 7655, time took 9.93ms
+	Epoch 7660: Loss (MSE) = 0.24578384
+Hook completed at epoch 7660, time took 9.79ms
+	Epoch 7665: Loss (MSE) = 0.24579714
+Hook completed at epoch 7665, time took 30.02ms
+	Epoch 7670: Loss (MSE) = 0.24579628
+Hook completed at epoch 7670, time took 10.13ms
+	Epoch 7675: Loss (MSE) = 0.24583527
+Hook completed at epoch 7675, time took 26.74ms
+	Epoch 7680: Loss (MSE) = 0.24585474
+Hook completed at epoch 7680, time took 9.90ms
+	Epoch 7685: Loss (MSE) = 0.24591441
+Hook completed at epoch 7685, time took 29.90ms
+	Epoch 7690: Loss (MSE) = 0.24592002
+Hook completed at epoch 7690, time took 11.27ms
+	Epoch 7695: Loss (MSE) = 0.24586846
+Hook completed at epoch 7695, time took 29.17ms
+	Epoch 7700: Loss (MSE) = 0.24588422
+Hook completed at epoch 7700, time took 10.48ms
+	Epoch 7705: Loss (MSE) = 0.24587367
+Hook completed at epoch 7705, time took 12.00ms
+	Epoch 7710: Loss (MSE) = 0.24591690
+Hook completed at epoch 7710, time took 11.22ms
+	Epoch 7715: Loss (MSE) = 0.24592359
+Hook completed at epoch 7715, time took 10.70ms
+	Epoch 7720: Loss (MSE) = 0.24593331
+Hook completed at epoch 7720, time took 10.14ms
+	Epoch 7725: Loss (MSE) = 0.24593984
+Hook completed at epoch 7725, time took 28.91ms
+	Epoch 7730: Loss (MSE) = 0.24595450
+Hook completed at epoch 7730, time took 10.01ms
+	Epoch 7735: Loss (MSE) = 0.24595226
+Hook completed at epoch 7735, time took 11.73ms
+	Epoch 7740: Loss (MSE) = 0.24596953
+Hook completed at epoch 7740, time took 22.36ms
+	Epoch 7745: Loss (MSE) = 0.24600077
+Hook completed at epoch 7745, time took 29.16ms
+	Epoch 7750: Loss (MSE) = 0.24600747
+Hook completed at epoch 7750, time took 28.19ms
+	Epoch 7755: Loss (MSE) = 0.24600127
+Hook completed at epoch 7755, time took 29.51ms
+	Epoch 7760: Loss (MSE) = 0.24600783
+Hook completed at epoch 7760, time took 12.14ms
+	Epoch 7765: Loss (MSE) = 0.24602877
+Hook completed at epoch 7765, time took 11.01ms
+	Epoch 7770: Loss (MSE) = 0.24603425
+Hook completed at epoch 7770, time took 14.50ms
+	Epoch 7775: Loss (MSE) = 0.24603367
+Hook completed at epoch 7775, time took 22.39ms
+	Epoch 7780: Loss (MSE) = 0.24603567
+Hook completed at epoch 7780, time took 10.62ms
+	Epoch 7785: Loss (MSE) = 0.24606673
+Hook completed at epoch 7785, time took 45.63ms
+	Epoch 7790: Loss (MSE) = 0.24603739
+Hook completed at epoch 7790, time took 10.86ms
+	Epoch 7795: Loss (MSE) = 0.24604601
+Hook completed at epoch 7795, time took 10.99ms
+	Epoch 7800: Loss (MSE) = 0.24604778
+Hook completed at epoch 7800, time took 13.50ms
+	Epoch 7805: Loss (MSE) = 0.24604517
+Hook completed at epoch 7805, time took 10.75ms
+	Epoch 7810: Loss (MSE) = 0.24605170
+Hook completed at epoch 7810, time took 9.99ms
+	Epoch 7815: Loss (MSE) = 0.24601835
+Hook completed at epoch 7815, time took 9.69ms
+	Epoch 7820: Loss (MSE) = 0.24601969
+Hook completed at epoch 7820, time took 9.43ms
+	Epoch 7825: Loss (MSE) = 0.24605195
+Hook completed at epoch 7825, time took 10.53ms
+	Epoch 7830: Loss (MSE) = 0.24607746
+Hook completed at epoch 7830, time took 10.79ms
+	Epoch 7835: Loss (MSE) = 0.24607044
+Hook completed at epoch 7835, time took 10.63ms
+	Epoch 7840: Loss (MSE) = 0.24610636
+Hook completed at epoch 7840, time took 11.48ms
+	Epoch 7845: Loss (MSE) = 0.24611914
+Hook completed at epoch 7845, time took 11.67ms
+	Epoch 7850: Loss (MSE) = 0.24614035
+Hook completed at epoch 7850, time took 26.61ms
+	Epoch 7855: Loss (MSE) = 0.24615128
+Hook completed at epoch 7855, time took 10.21ms
+	Epoch 7860: Loss (MSE) = 0.24614671
+Hook completed at epoch 7860, time took 10.16ms
+	Epoch 7865: Loss (MSE) = 0.24614370
+Hook completed at epoch 7865, time took 10.82ms
+	Epoch 7870: Loss (MSE) = 0.24615136
+Hook completed at epoch 7870, time took 10.16ms
+	Epoch 7875: Loss (MSE) = 0.24616697
+Hook completed at epoch 7875, time took 11.19ms
+	Epoch 7880: Loss (MSE) = 0.24618807
+Hook completed at epoch 7880, time took 10.55ms
+	Epoch 7885: Loss (MSE) = 0.24619675
+Hook completed at epoch 7885, time took 10.36ms
+	Epoch 7890: Loss (MSE) = 0.24619608
+Hook completed at epoch 7890, time took 12.30ms
+	Epoch 7895: Loss (MSE) = 0.24619588
+Hook completed at epoch 7895, time took 12.83ms
+	Epoch 7900: Loss (MSE) = 0.24621689
+Hook completed at epoch 7900, time took 11.85ms
+	Epoch 7905: Loss (MSE) = 0.24621765
+Hook completed at epoch 7905, time took 11.03ms
+	Epoch 7910: Loss (MSE) = 0.24622893
+Hook completed at epoch 7910, time took 10.41ms
+	Epoch 7915: Loss (MSE) = 0.24623260
+Hook completed at epoch 7915, time took 10.10ms
+	Epoch 7920: Loss (MSE) = 0.24628522
+Hook completed at epoch 7920, time took 10.96ms
+	Epoch 7925: Loss (MSE) = 0.24629234
+Hook completed at epoch 7925, time took 10.96ms
+	Epoch 7930: Loss (MSE) = 0.24632241
+Hook completed at epoch 7930, time took 13.68ms
+	Epoch 7935: Loss (MSE) = 0.24632342
+Hook completed at epoch 7935, time took 14.15ms
+	Epoch 7940: Loss (MSE) = 0.24631794
+Hook completed at epoch 7940, time took 12.63ms
+	Epoch 7945: Loss (MSE) = 0.24633512
+Hook completed at epoch 7945, time took 13.08ms
+	Epoch 7950: Loss (MSE) = 0.24635297
+Hook completed at epoch 7950, time took 30.38ms
+	Epoch 7955: Loss (MSE) = 0.24654676
+Hook completed at epoch 7955, time took 12.40ms
+	Epoch 7960: Loss (MSE) = 0.24654607
+Hook completed at epoch 7960, time took 10.53ms
+	Epoch 7965: Loss (MSE) = 0.24656132
+Hook completed at epoch 7965, time took 10.89ms
+	Epoch 7970: Loss (MSE) = 0.24655174
+Hook completed at epoch 7970, time took 10.43ms
+	Epoch 7975: Loss (MSE) = 0.24655120
+Hook completed at epoch 7975, time took 10.13ms
+	Epoch 7980: Loss (MSE) = 0.24656178
+Hook completed at epoch 7980, time took 11.30ms
+	Epoch 7985: Loss (MSE) = 0.24658152
+Hook completed at epoch 7985, time took 10.37ms
+	Epoch 7990: Loss (MSE) = 0.24659863
+Hook completed at epoch 7990, time took 10.41ms
+	Epoch 7995: Loss (MSE) = 0.24661031
+Hook completed at epoch 7995, time took 10.14ms
+	Epoch 8000: Loss (MSE) = 0.24661709
+Hook completed at epoch 8000, time took 10.29ms
+	Epoch 8005: Loss (MSE) = 0.24662024
+Hook completed at epoch 8005, time took 11.68ms
+	Epoch 8010: Loss (MSE) = 0.24662304
+Hook completed at epoch 8010, time took 29.43ms
+	Epoch 8015: Loss (MSE) = 0.24662812
+Hook completed at epoch 8015, time took 11.32ms
+	Epoch 8020: Loss (MSE) = 0.24663937
+Hook completed at epoch 8020, time took 10.68ms
+	Epoch 8025: Loss (MSE) = 0.24664946
+Hook completed at epoch 8025, time took 11.29ms
+	Epoch 8030: Loss (MSE) = 0.24665314
+Hook completed at epoch 8030, time took 10.43ms
+	Epoch 8035: Loss (MSE) = 0.24677365
+Hook completed at epoch 8035, time took 10.50ms
+	Epoch 8040: Loss (MSE) = 0.24675967
+Hook completed at epoch 8040, time took 11.82ms
+	Epoch 8045: Loss (MSE) = 0.24675944
+Hook completed at epoch 8045, time took 11.56ms
+	Epoch 8050: Loss (MSE) = 0.24675903
+Hook completed at epoch 8050, time took 10.62ms
+	Epoch 8055: Loss (MSE) = 0.24676669
+Hook completed at epoch 8055, time took 11.41ms
+	Epoch 8060: Loss (MSE) = 0.24678080
+Hook completed at epoch 8060, time took 10.93ms
+	Epoch 8065: Loss (MSE) = 0.24675348
+Hook completed at epoch 8065, time took 9.73ms
+	Epoch 8070: Loss (MSE) = 0.24676397
+Hook completed at epoch 8070, time took 11.65ms
+	Epoch 8075: Loss (MSE) = 0.24676964
+Hook completed at epoch 8075, time took 10.38ms
+	Epoch 8080: Loss (MSE) = 0.24677682
+Hook completed at epoch 8080, time took 10.75ms
+	Epoch 8085: Loss (MSE) = 0.24683738
+Hook completed at epoch 8085, time took 27.58ms
+	Epoch 8090: Loss (MSE) = 0.24686657
+Hook completed at epoch 8090, time took 13.93ms
+	Epoch 8095: Loss (MSE) = 0.24690026
+Hook completed at epoch 8095, time took 11.26ms
+	Epoch 8100: Loss (MSE) = 0.24692851
+Hook completed at epoch 8100, time took 11.37ms
+	Epoch 8105: Loss (MSE) = 0.24693702
+Hook completed at epoch 8105, time took 10.53ms
+	Epoch 8110: Loss (MSE) = 0.24694705
+Hook completed at epoch 8110, time took 30.17ms
+	Epoch 8115: Loss (MSE) = 0.24693370
+Hook completed at epoch 8115, time took 10.08ms
+	Epoch 8120: Loss (MSE) = 0.24692984
+Hook completed at epoch 8120, time took 10.22ms
+	Epoch 8125: Loss (MSE) = 0.24691513
+Hook completed at epoch 8125, time took 10.60ms
+	Epoch 8130: Loss (MSE) = 0.24691913
+Hook completed at epoch 8130, time took 10.94ms
+	Epoch 8135: Loss (MSE) = 0.24692819
+Hook completed at epoch 8135, time took 10.18ms
+	Epoch 8140: Loss (MSE) = 0.24694225
+Hook completed at epoch 8140, time took 10.17ms
+	Epoch 8145: Loss (MSE) = 0.24698579
+Hook completed at epoch 8145, time took 10.23ms
+	Epoch 8150: Loss (MSE) = 0.24700840
+Hook completed at epoch 8150, time took 10.37ms
+	Epoch 8155: Loss (MSE) = 0.24698612
+Hook completed at epoch 8155, time took 11.26ms
+	Epoch 8160: Loss (MSE) = 0.24696058
+Hook completed at epoch 8160, time took 11.39ms
+	Epoch 8165: Loss (MSE) = 0.24697950
+Hook completed at epoch 8165, time took 28.30ms
+	Epoch 8170: Loss (MSE) = 0.24696997
+Hook completed at epoch 8170, time took 10.47ms
+	Epoch 8175: Loss (MSE) = 0.24700418
+Hook completed at epoch 8175, time took 30.05ms
+	Epoch 8180: Loss (MSE) = 0.24698737
+Hook completed at epoch 8180, time took 10.64ms
+	Epoch 8185: Loss (MSE) = 0.24697635
+Hook completed at epoch 8185, time took 11.28ms
+	Epoch 8190: Loss (MSE) = 0.24697432
+Hook completed at epoch 8190, time took 11.14ms
+	Epoch 8195: Loss (MSE) = 0.24696749
+Hook completed at epoch 8195, time took 9.74ms
+	Epoch 8200: Loss (MSE) = 0.24699640
+Hook completed at epoch 8200, time took 9.87ms
+	Epoch 8205: Loss (MSE) = 0.24699807
+Hook completed at epoch 8205, time took 11.33ms
+	Epoch 8210: Loss (MSE) = 0.24699171
+Hook completed at epoch 8210, time took 11.68ms
+	Epoch 8215: Loss (MSE) = 0.24706277
+Hook completed at epoch 8215, time took 10.39ms
+	Epoch 8220: Loss (MSE) = 0.24701941
+Hook completed at epoch 8220, time took 10.40ms
+	Epoch 8225: Loss (MSE) = 0.24704458
+Hook completed at epoch 8225, time took 11.23ms
+	Epoch 8230: Loss (MSE) = 0.24703234
+Hook completed at epoch 8230, time took 11.26ms
+	Epoch 8235: Loss (MSE) = 0.24703799
+Hook completed at epoch 8235, time took 30.71ms
+	Epoch 8240: Loss (MSE) = 0.24703604
+Hook completed at epoch 8240, time took 11.10ms
+	Epoch 8245: Loss (MSE) = 0.24703440
+Hook completed at epoch 8245, time took 12.86ms
+	Epoch 8250: Loss (MSE) = 0.24702874
+Hook completed at epoch 8250, time took 11.89ms
+	Epoch 8255: Loss (MSE) = 0.24703282
+Hook completed at epoch 8255, time took 11.48ms
+	Epoch 8260: Loss (MSE) = 0.24703360
+Hook completed at epoch 8260, time took 12.18ms
+	Epoch 8265: Loss (MSE) = 0.24703449
+Hook completed at epoch 8265, time took 11.25ms
+	Epoch 8270: Loss (MSE) = 0.24704206
+Hook completed at epoch 8270, time took 12.58ms
+	Epoch 8275: Loss (MSE) = 0.24705839
+Hook completed at epoch 8275, time took 11.26ms
+	Epoch 8280: Loss (MSE) = 0.24705616
+Hook completed at epoch 8280, time took 12.55ms
+	Epoch 8285: Loss (MSE) = 0.24712116
+Hook completed at epoch 8285, time took 10.65ms
+	Epoch 8290: Loss (MSE) = 0.24710611
+Hook completed at epoch 8290, time took 14.37ms
+	Epoch 8295: Loss (MSE) = 0.24714151
+Hook completed at epoch 8295, time took 10.50ms
+	Epoch 8300: Loss (MSE) = 0.24708638
+Hook completed at epoch 8300, time took 10.37ms
+	Epoch 8305: Loss (MSE) = 0.24709108
+Hook completed at epoch 8305, time took 10.50ms
+	Epoch 8310: Loss (MSE) = 0.24708873
+Hook completed at epoch 8310, time took 10.71ms
+	Epoch 8315: Loss (MSE) = 0.24710093
+Hook completed at epoch 8315, time took 68.88ms
+	Epoch 8320: Loss (MSE) = 0.24709746
+Hook completed at epoch 8320, time took 9.99ms
+	Epoch 8325: Loss (MSE) = 0.24710655
+Hook completed at epoch 8325, time took 9.78ms
+	Epoch 8330: Loss (MSE) = 0.24710993
+Hook completed at epoch 8330, time took 12.47ms
+	Epoch 8335: Loss (MSE) = 0.24706149
+Hook completed at epoch 8335, time took 11.52ms
+	Epoch 8340: Loss (MSE) = 0.25170347
+Hook completed at epoch 8340, time took 11.42ms
+	Epoch 8345: Loss (MSE) = 0.25169954
+Hook completed at epoch 8345, time took 28.92ms
+	Epoch 8350: Loss (MSE) = 0.25160801
+Hook completed at epoch 8350, time took 12.44ms
+	Epoch 8355: Loss (MSE) = 0.25160691
+Hook completed at epoch 8355, time took 10.83ms
+	Epoch 8360: Loss (MSE) = 0.25155950
+Hook completed at epoch 8360, time took 10.79ms
+	Epoch 8365: Loss (MSE) = 0.25145090
+Hook completed at epoch 8365, time took 10.37ms
+	Epoch 8370: Loss (MSE) = 0.25138900
+Hook completed at epoch 8370, time took 10.11ms
+	Epoch 8375: Loss (MSE) = 0.25132057
+Hook completed at epoch 8375, time took 12.09ms
+	Epoch 8380: Loss (MSE) = 0.25135008
+Hook completed at epoch 8380, time took 11.50ms
+	Epoch 8385: Loss (MSE) = 0.25136876
+Hook completed at epoch 8385, time took 31.19ms
+	Epoch 8390: Loss (MSE) = 0.25134134
+Hook completed at epoch 8390, time took 10.35ms
+	Epoch 8395: Loss (MSE) = 0.25130206
+Hook completed at epoch 8395, time took 11.46ms
+	Epoch 8400: Loss (MSE) = 0.25098276
+Hook completed at epoch 8400, time took 10.43ms
+	Epoch 8405: Loss (MSE) = 0.25107852
+Hook completed at epoch 8405, time took 11.05ms
+	Epoch 8410: Loss (MSE) = 0.25101447
+Hook completed at epoch 8410, time took 10.68ms
+	Epoch 8415: Loss (MSE) = 0.25108856
+Hook completed at epoch 8415, time took 10.43ms
+	Epoch 8420: Loss (MSE) = 0.25098136
+Hook completed at epoch 8420, time took 10.61ms
+	Epoch 8425: Loss (MSE) = 0.25094080
+Hook completed at epoch 8425, time took 11.60ms
+	Epoch 8430: Loss (MSE) = 0.25092176
+Hook completed at epoch 8430, time took 11.54ms
+	Epoch 8435: Loss (MSE) = 0.25092006
+Hook completed at epoch 8435, time took 12.28ms
+	Epoch 8440: Loss (MSE) = 0.25093156
+Hook completed at epoch 8440, time took 10.73ms
+	Epoch 8445: Loss (MSE) = 0.25086051
+Hook completed at epoch 8445, time took 30.16ms
+	Epoch 8450: Loss (MSE) = 0.25095376
+Hook completed at epoch 8450, time took 18.48ms
+	Epoch 8455: Loss (MSE) = 0.25104856
+Hook completed at epoch 8455, time took 10.22ms
+	Epoch 8460: Loss (MSE) = 0.25124380
+Hook completed at epoch 8460, time took 10.84ms
+	Epoch 8465: Loss (MSE) = 0.25115165
+Hook completed at epoch 8465, time took 12.72ms
+	Epoch 8470: Loss (MSE) = 0.25112772
+Hook completed at epoch 8470, time took 10.99ms
+	Epoch 8475: Loss (MSE) = 0.25119036
+Hook completed at epoch 8475, time took 10.11ms
+	Epoch 8480: Loss (MSE) = 0.25121355
+Hook completed at epoch 8480, time took 10.54ms
+	Epoch 8485: Loss (MSE) = 0.25128970
+Hook completed at epoch 8485, time took 13.18ms
+	Epoch 8490: Loss (MSE) = 0.25130725
+Hook completed at epoch 8490, time took 10.08ms
+	Epoch 8495: Loss (MSE) = 0.25126457
+Hook completed at epoch 8495, time took 10.20ms
+	Epoch 8500: Loss (MSE) = 0.25130191
+Hook completed at epoch 8500, time took 10.89ms
+	Epoch 8505: Loss (MSE) = 0.25122315
+Hook completed at epoch 8505, time took 12.58ms
+	Epoch 8510: Loss (MSE) = 0.25118780
+Hook completed at epoch 8510, time took 10.98ms
+	Epoch 8515: Loss (MSE) = 0.25119597
+Hook completed at epoch 8515, time took 9.91ms
+	Epoch 8520: Loss (MSE) = 0.25115335
+Hook completed at epoch 8520, time took 11.08ms
+	Epoch 8525: Loss (MSE) = 0.25115785
+Hook completed at epoch 8525, time took 11.44ms
+	Epoch 8530: Loss (MSE) = 0.25112504
+Hook completed at epoch 8530, time took 28.86ms
+	Epoch 8535: Loss (MSE) = 0.25115860
+Hook completed at epoch 8535, time took 10.13ms
+	Epoch 8540: Loss (MSE) = 0.25115761
+Hook completed at epoch 8540, time took 10.68ms
+	Epoch 8545: Loss (MSE) = 0.25109106
+Hook completed at epoch 8545, time took 10.67ms
+	Epoch 8550: Loss (MSE) = 0.25114220
+Hook completed at epoch 8550, time took 22.40ms
+	Epoch 8555: Loss (MSE) = 0.25113663
+Hook completed at epoch 8555, time took 10.08ms
+	Epoch 8560: Loss (MSE) = 0.25113934
+Hook completed at epoch 8560, time took 11.60ms
+	Epoch 8565: Loss (MSE) = 0.25112933
+Hook completed at epoch 8565, time took 10.55ms
+	Epoch 8570: Loss (MSE) = 0.25113067
+Hook completed at epoch 8570, time took 20.98ms
+	Epoch 8575: Loss (MSE) = 0.25109443
+Hook completed at epoch 8575, time took 10.65ms
+	Epoch 8580: Loss (MSE) = 0.25131819
+Hook completed at epoch 8580, time took 30.23ms
+	Epoch 8585: Loss (MSE) = 0.25134450
+Hook completed at epoch 8585, time took 11.48ms
+	Epoch 8590: Loss (MSE) = 0.25133979
+Hook completed at epoch 8590, time took 12.05ms
+	Epoch 8595: Loss (MSE) = 0.25139159
+Hook completed at epoch 8595, time took 19.28ms
+	Epoch 8600: Loss (MSE) = 0.25133801
+Hook completed at epoch 8600, time took 10.44ms
+	Epoch 8605: Loss (MSE) = 0.25134951
+Hook completed at epoch 8605, time took 13.78ms
+	Epoch 8610: Loss (MSE) = 0.25132748
+Hook completed at epoch 8610, time took 33.66ms
+	Epoch 8615: Loss (MSE) = 0.25144094
+Hook completed at epoch 8615, time took 10.36ms
+	Epoch 8620: Loss (MSE) = 0.25133514
+Hook completed at epoch 8620, time took 13.93ms
+	Epoch 8625: Loss (MSE) = 0.25133500
+Hook completed at epoch 8625, time took 11.24ms
+	Epoch 8630: Loss (MSE) = 0.25131989
+Hook completed at epoch 8630, time took 21.83ms
+	Epoch 8635: Loss (MSE) = 0.25138164
+Hook completed at epoch 8635, time took 29.24ms
+	Epoch 8640: Loss (MSE) = 0.25141475
+Hook completed at epoch 8640, time took 28.76ms
+	Epoch 8645: Loss (MSE) = 0.25127283
+Hook completed at epoch 8645, time took 10.77ms
+	Epoch 8650: Loss (MSE) = 0.25125548
+Hook completed at epoch 8650, time took 24.98ms
+	Epoch 8655: Loss (MSE) = 0.25120294
+Hook completed at epoch 8655, time took 10.16ms
+	Epoch 8660: Loss (MSE) = 0.25138089
+Hook completed at epoch 8660, time took 10.50ms
+	Epoch 8665: Loss (MSE) = 0.25133085
+Hook completed at epoch 8665, time took 12.41ms
+	Epoch 8670: Loss (MSE) = 0.25131515
+Hook completed at epoch 8670, time took 10.10ms
+	Epoch 8675: Loss (MSE) = 0.25133401
+Hook completed at epoch 8675, time took 10.27ms
+	Epoch 8680: Loss (MSE) = 0.25149837
+Hook completed at epoch 8680, time took 22.66ms
+	Epoch 8685: Loss (MSE) = 0.25143141
+Hook completed at epoch 8685, time took 11.61ms
+	Epoch 8690: Loss (MSE) = 0.25136983
+Hook completed at epoch 8690, time took 10.78ms
+	Epoch 8695: Loss (MSE) = 0.25129518
+Hook completed at epoch 8695, time took 10.85ms
+	Epoch 8700: Loss (MSE) = 0.25181997
+Hook completed at epoch 8700, time took 10.68ms
+	Epoch 8705: Loss (MSE) = 0.25075275
+Hook completed at epoch 8705, time took 10.49ms
+	Epoch 8710: Loss (MSE) = 0.24994320
+Hook completed at epoch 8710, time took 10.83ms
+	Epoch 8715: Loss (MSE) = 0.24998474
+Hook completed at epoch 8715, time took 28.67ms
+	Epoch 8720: Loss (MSE) = 0.24994281
+Hook completed at epoch 8720, time took 10.89ms
+	Epoch 8725: Loss (MSE) = 0.24996243
+Hook completed at epoch 8725, time took 10.95ms
+	Epoch 8730: Loss (MSE) = 0.24993777
+Hook completed at epoch 8730, time took 11.08ms
+	Epoch 8735: Loss (MSE) = 0.24996231
+Hook completed at epoch 8735, time took 13.20ms
+	Epoch 8740: Loss (MSE) = 0.24991894
+Hook completed at epoch 8740, time took 19.96ms
+	Epoch 8745: Loss (MSE) = 0.25001961
+Hook completed at epoch 8745, time took 19.98ms
+	Epoch 8750: Loss (MSE) = 0.25006944
+Hook completed at epoch 8750, time took 10.74ms
+	Epoch 8755: Loss (MSE) = 0.25008145
+Hook completed at epoch 8755, time took 13.85ms
+	Epoch 8760: Loss (MSE) = 0.25004914
+Hook completed at epoch 8760, time took 10.94ms
+	Epoch 8765: Loss (MSE) = 0.25008231
+Hook completed at epoch 8765, time took 10.98ms
+	Epoch 8770: Loss (MSE) = 0.25012374
+Hook completed at epoch 8770, time took 11.46ms
+	Epoch 8775: Loss (MSE) = 0.25013474
+Hook completed at epoch 8775, time took 10.70ms
+	Epoch 8780: Loss (MSE) = 0.25011486
+Hook completed at epoch 8780, time took 10.37ms
+	Epoch 8785: Loss (MSE) = 0.25004193
+Hook completed at epoch 8785, time took 68.59ms
+	Epoch 8790: Loss (MSE) = 0.25003439
+Hook completed at epoch 8790, time took 11.12ms
+	Epoch 8795: Loss (MSE) = 0.25003806
+Hook completed at epoch 8795, time took 10.81ms
+	Epoch 8800: Loss (MSE) = 0.25001261
+Hook completed at epoch 8800, time took 12.11ms
+	Epoch 8805: Loss (MSE) = 0.25004661
+Hook completed at epoch 8805, time took 9.69ms
+	Epoch 8810: Loss (MSE) = 0.25003126
+Hook completed at epoch 8810, time took 12.30ms
+	Epoch 8815: Loss (MSE) = 0.25002769
+Hook completed at epoch 8815, time took 10.00ms
+	Epoch 8820: Loss (MSE) = 0.25003850
+Hook completed at epoch 8820, time took 10.08ms
+	Epoch 8825: Loss (MSE) = 0.25004798
+Hook completed at epoch 8825, time took 9.79ms
+	Epoch 8830: Loss (MSE) = 0.25001487
+Hook completed at epoch 8830, time took 9.59ms
+	Epoch 8835: Loss (MSE) = 0.24997908
+Hook completed at epoch 8835, time took 9.36ms
+	Epoch 8840: Loss (MSE) = 0.24993756
+Hook completed at epoch 8840, time took 10.87ms
+	Epoch 8845: Loss (MSE) = 0.24990627
+Hook completed at epoch 8845, time took 9.99ms
+	Epoch 8850: Loss (MSE) = 0.24986064
+Hook completed at epoch 8850, time took 14.93ms
+	Epoch 8855: Loss (MSE) = 0.24980199
+Hook completed at epoch 8855, time took 18.58ms
+	Epoch 8860: Loss (MSE) = 0.24985582
+Hook completed at epoch 8860, time took 15.89ms
+	Epoch 8865: Loss (MSE) = 0.24990752
+Hook completed at epoch 8865, time took 11.50ms
+	Epoch 8870: Loss (MSE) = 0.24989805
+Hook completed at epoch 8870, time took 9.14ms
+	Epoch 8875: Loss (MSE) = 0.24983710
+Hook completed at epoch 8875, time took 9.16ms
+	Epoch 8880: Loss (MSE) = 0.24984446
+Hook completed at epoch 8880, time took 9.12ms
+	Epoch 8885: Loss (MSE) = 0.24979730
+Hook completed at epoch 8885, time took 9.09ms
+	Epoch 8890: Loss (MSE) = 0.24982116
+Hook completed at epoch 8890, time took 9.25ms
+	Epoch 8895: Loss (MSE) = 0.24985518
+Hook completed at epoch 8895, time took 9.48ms
+	Epoch 8900: Loss (MSE) = 0.24981490
+Hook completed at epoch 8900, time took 10.01ms
+	Epoch 8905: Loss (MSE) = 0.24978089
+Hook completed at epoch 8905, time took 10.46ms
+	Epoch 8910: Loss (MSE) = 0.24977073
+Hook completed at epoch 8910, time took 10.84ms
+	Epoch 8915: Loss (MSE) = 0.24975592
+Hook completed at epoch 8915, time took 10.96ms
+	Epoch 8920: Loss (MSE) = 0.24974886
+Hook completed at epoch 8920, time took 15.44ms
+	Epoch 8925: Loss (MSE) = 0.24974287
+Hook completed at epoch 8925, time took 11.44ms
+	Epoch 8930: Loss (MSE) = 0.24963869
+Hook completed at epoch 8930, time took 10.17ms
+	Epoch 8935: Loss (MSE) = 0.24956803
+Hook completed at epoch 8935, time took 9.82ms
+	Epoch 8940: Loss (MSE) = 0.24956360
+Hook completed at epoch 8940, time took 11.16ms
+	Epoch 8945: Loss (MSE) = 0.24954993
+Hook completed at epoch 8945, time took 14.93ms
+	Epoch 8950: Loss (MSE) = 0.24953476
+Hook completed at epoch 8950, time took 10.38ms
+	Epoch 8955: Loss (MSE) = 0.24964170
+Hook completed at epoch 8955, time took 11.13ms
+	Epoch 8960: Loss (MSE) = 0.24967287
+Hook completed at epoch 8960, time took 10.64ms
+	Epoch 8965: Loss (MSE) = 0.24969760
+Hook completed at epoch 8965, time took 10.71ms
+	Epoch 8970: Loss (MSE) = 0.24972960
+Hook completed at epoch 8970, time took 11.29ms
+	Epoch 8975: Loss (MSE) = 0.24972808
+Hook completed at epoch 8975, time took 10.64ms
+	Epoch 8980: Loss (MSE) = 0.24969757
+Hook completed at epoch 8980, time took 11.58ms
+	Epoch 8985: Loss (MSE) = 0.24967775
+Hook completed at epoch 8985, time took 11.64ms
+	Epoch 8990: Loss (MSE) = 0.24967116
+Hook completed at epoch 8990, time took 11.00ms
+	Epoch 8995: Loss (MSE) = 0.24965918
+Hook completed at epoch 8995, time took 28.97ms
+	Epoch 9000: Loss (MSE) = 0.24966866
+Hook completed at epoch 9000, time took 10.45ms
+	Epoch 9005: Loss (MSE) = 0.24967572
+Hook completed at epoch 9005, time took 9.90ms
+	Epoch 9010: Loss (MSE) = 0.24967350
+Hook completed at epoch 9010, time took 19.42ms
+	Epoch 9015: Loss (MSE) = 0.24955204
+Hook completed at epoch 9015, time took 10.28ms
+	Epoch 9020: Loss (MSE) = 0.24954510
+Hook completed at epoch 9020, time took 10.29ms
+	Epoch 9025: Loss (MSE) = 0.24959145
+Hook completed at epoch 9025, time took 10.35ms
+	Epoch 9030: Loss (MSE) = 0.24958603
+Hook completed at epoch 9030, time took 9.96ms
+	Epoch 9035: Loss (MSE) = 0.24960195
+Hook completed at epoch 9035, time took 10.12ms
+	Epoch 9040: Loss (MSE) = 0.24957180
+Hook completed at epoch 9040, time took 10.60ms
+	Epoch 9045: Loss (MSE) = 0.24962953
+Hook completed at epoch 9045, time took 29.98ms
+	Epoch 9050: Loss (MSE) = 0.24961478
+Hook completed at epoch 9050, time took 9.48ms
+	Epoch 9055: Loss (MSE) = 0.24961969
+Hook completed at epoch 9055, time took 10.48ms
+	Epoch 9060: Loss (MSE) = 0.24952543
+Hook completed at epoch 9060, time took 9.96ms
+	Epoch 9065: Loss (MSE) = 0.24951693
+Hook completed at epoch 9065, time took 10.73ms
+	Epoch 9070: Loss (MSE) = 0.24962777
+Hook completed at epoch 9070, time took 10.50ms
+	Epoch 9075: Loss (MSE) = 0.24964726
+Hook completed at epoch 9075, time took 9.97ms
+	Epoch 9080: Loss (MSE) = 0.24968454
+Hook completed at epoch 9080, time took 28.02ms
+	Epoch 9085: Loss (MSE) = 0.24972847
+Hook completed at epoch 9085, time took 10.19ms
+	Epoch 9090: Loss (MSE) = 0.25177997
+Hook completed at epoch 9090, time took 10.93ms
+	Epoch 9095: Loss (MSE) = 0.25179052
+Hook completed at epoch 9095, time took 11.52ms
+	Epoch 9100: Loss (MSE) = 0.25180271
+Hook completed at epoch 9100, time took 9.99ms
+	Epoch 9105: Loss (MSE) = 0.25178257
+Hook completed at epoch 9105, time took 9.83ms
+	Epoch 9110: Loss (MSE) = 0.25180405
+Hook completed at epoch 9110, time took 9.94ms
+	Epoch 9115: Loss (MSE) = 0.25186470
+Hook completed at epoch 9115, time took 10.21ms
+	Epoch 9120: Loss (MSE) = 0.25187558
+Hook completed at epoch 9120, time took 26.89ms
+	Epoch 9125: Loss (MSE) = 0.25193566
+Hook completed at epoch 9125, time took 9.62ms
+	Epoch 9130: Loss (MSE) = 0.25193253
+Hook completed at epoch 9130, time took 10.81ms
+	Epoch 9135: Loss (MSE) = 0.25199586
+Hook completed at epoch 9135, time took 11.16ms
+	Epoch 9140: Loss (MSE) = 0.25195533
+Hook completed at epoch 9140, time took 10.11ms
+	Epoch 9145: Loss (MSE) = 0.25181586
+Hook completed at epoch 9145, time took 10.08ms
+	Epoch 9150: Loss (MSE) = 0.25212872
+Hook completed at epoch 9150, time took 10.16ms
+	Epoch 9155: Loss (MSE) = 0.25209481
+Hook completed at epoch 9155, time took 9.77ms
+	Epoch 9160: Loss (MSE) = 0.25207984
+Hook completed at epoch 9160, time took 9.78ms
+	Epoch 9165: Loss (MSE) = 0.25207818
+Hook completed at epoch 9165, time took 10.73ms
+	Epoch 9170: Loss (MSE) = 0.25211734
+Hook completed at epoch 9170, time took 9.60ms
+	Epoch 9175: Loss (MSE) = 0.25213444
+Hook completed at epoch 9175, time took 9.90ms
+	Epoch 9180: Loss (MSE) = 0.25257337
+Hook completed at epoch 9180, time took 9.57ms
+	Epoch 9185: Loss (MSE) = 0.25257051
+Hook completed at epoch 9185, time took 10.08ms
+	Epoch 9190: Loss (MSE) = 0.25256127
+Hook completed at epoch 9190, time took 10.32ms
+	Epoch 9195: Loss (MSE) = 0.25253314
+Hook completed at epoch 9195, time took 9.88ms
+	Epoch 9200: Loss (MSE) = 0.25253344
+Hook completed at epoch 9200, time took 9.77ms
+	Epoch 9205: Loss (MSE) = 0.25252748
+Hook completed at epoch 9205, time took 10.35ms
+	Epoch 9210: Loss (MSE) = 0.25250837
+Hook completed at epoch 9210, time took 25.48ms
+	Epoch 9215: Loss (MSE) = 0.25251564
+Hook completed at epoch 9215, time took 29.29ms
+	Epoch 9220: Loss (MSE) = 0.25254238
+Hook completed at epoch 9220, time took 17.42ms
+	Epoch 9225: Loss (MSE) = 0.25252700
+Hook completed at epoch 9225, time took 9.74ms
+	Epoch 9230: Loss (MSE) = 0.25253028
+Hook completed at epoch 9230, time took 9.75ms
+	Epoch 9235: Loss (MSE) = 0.25251848
+Hook completed at epoch 9235, time took 9.75ms
+	Epoch 9240: Loss (MSE) = 0.25250894
+Hook completed at epoch 9240, time took 11.21ms
+	Epoch 9245: Loss (MSE) = 0.25249341
+Hook completed at epoch 9245, time took 9.49ms
+	Epoch 9250: Loss (MSE) = 0.25248384
+Hook completed at epoch 9250, time took 9.49ms
+	Epoch 9255: Loss (MSE) = 0.25245962
+Hook completed at epoch 9255, time took 19.48ms
+	Epoch 9260: Loss (MSE) = 0.25243831
+Hook completed at epoch 9260, time took 10.28ms
+	Epoch 9265: Loss (MSE) = 0.25244939
+Hook completed at epoch 9265, time took 23.46ms
+	Epoch 9270: Loss (MSE) = 0.25244612
+Hook completed at epoch 9270, time took 9.83ms
+	Epoch 9275: Loss (MSE) = 0.25243214
+Hook completed at epoch 9275, time took 10.69ms
+	Epoch 9280: Loss (MSE) = 0.25240117
+Hook completed at epoch 9280, time took 26.61ms
+	Epoch 9285: Loss (MSE) = 0.25238925
+Hook completed at epoch 9285, time took 9.80ms
+	Epoch 9290: Loss (MSE) = 0.25244534
+Hook completed at epoch 9290, time took 9.65ms
+	Epoch 9295: Loss (MSE) = 0.25244552
+Hook completed at epoch 9295, time took 9.56ms
+	Epoch 9300: Loss (MSE) = 0.25246027
+Hook completed at epoch 9300, time took 11.88ms
+	Epoch 9305: Loss (MSE) = 0.25246567
+Hook completed at epoch 9305, time took 9.54ms
+	Epoch 9310: Loss (MSE) = 0.25244537
+Hook completed at epoch 9310, time took 11.25ms
+	Epoch 9315: Loss (MSE) = 0.25229520
+Hook completed at epoch 9315, time took 9.87ms
+	Epoch 9320: Loss (MSE) = 0.25228211
+Hook completed at epoch 9320, time took 9.86ms
+	Epoch 9325: Loss (MSE) = 0.25228047
+Hook completed at epoch 9325, time took 10.22ms
+	Epoch 9330: Loss (MSE) = 0.25226521
+Hook completed at epoch 9330, time took 68.80ms
+	Epoch 9335: Loss (MSE) = 0.25226042
+Hook completed at epoch 9335, time took 25.36ms
+	Epoch 9340: Loss (MSE) = 0.25226957
+Hook completed at epoch 9340, time took 24.65ms
+	Epoch 9345: Loss (MSE) = 0.25234699
+Hook completed at epoch 9345, time took 10.61ms
+	Epoch 9350: Loss (MSE) = 0.25235224
+Hook completed at epoch 9350, time took 25.44ms
+	Epoch 9355: Loss (MSE) = 0.25234804
+Hook completed at epoch 9355, time took 25.40ms
+	Epoch 9360: Loss (MSE) = 0.25234580
+Hook completed at epoch 9360, time took 20.83ms
+	Epoch 9365: Loss (MSE) = 0.25234497
+Hook completed at epoch 9365, time took 9.90ms
+	Epoch 9370: Loss (MSE) = 0.25234628
+Hook completed at epoch 9370, time took 9.60ms
+	Epoch 9375: Loss (MSE) = 0.25238723
+Hook completed at epoch 9375, time took 9.63ms
+	Epoch 9380: Loss (MSE) = 0.25237703
+Hook completed at epoch 9380, time took 9.52ms
+	Epoch 9385: Loss (MSE) = 0.25238800
+Hook completed at epoch 9385, time took 9.98ms
+	Epoch 9390: Loss (MSE) = 0.25237921
+Hook completed at epoch 9390, time took 10.39ms
+	Epoch 9395: Loss (MSE) = 0.25238231
+Hook completed at epoch 9395, time took 9.57ms
+	Epoch 9400: Loss (MSE) = 0.25239685
+Hook completed at epoch 9400, time took 9.41ms
+	Epoch 9405: Loss (MSE) = 0.25236487
+Hook completed at epoch 9405, time took 26.17ms
+	Epoch 9410: Loss (MSE) = 0.25236589
+Hook completed at epoch 9410, time took 9.68ms
+	Epoch 9415: Loss (MSE) = 0.25236973
+Hook completed at epoch 9415, time took 12.35ms
+	Epoch 9420: Loss (MSE) = 0.25234413
+Hook completed at epoch 9420, time took 9.42ms
+	Epoch 9425: Loss (MSE) = 0.25233102
+Hook completed at epoch 9425, time took 9.88ms
+	Epoch 9430: Loss (MSE) = 0.25234038
+Hook completed at epoch 9430, time took 9.43ms
+	Epoch 9435: Loss (MSE) = 0.25231981
+Hook completed at epoch 9435, time took 10.22ms
+	Epoch 9440: Loss (MSE) = 0.25231993
+Hook completed at epoch 9440, time took 26.04ms
+	Epoch 9445: Loss (MSE) = 0.25229889
+Hook completed at epoch 9445, time took 25.91ms
+	Epoch 9450: Loss (MSE) = 0.25227588
+Hook completed at epoch 9450, time took 16.36ms
+	Epoch 9455: Loss (MSE) = 0.25227579
+Hook completed at epoch 9455, time took 25.64ms
+	Epoch 9460: Loss (MSE) = 0.25227848
+Hook completed at epoch 9460, time took 9.34ms
+	Epoch 9465: Loss (MSE) = 0.25224364
+Hook completed at epoch 9465, time took 9.80ms
+	Epoch 9470: Loss (MSE) = 0.25225443
+Hook completed at epoch 9470, time took 10.04ms
+	Epoch 9475: Loss (MSE) = 0.25225079
+Hook completed at epoch 9475, time took 25.56ms
+	Epoch 9480: Loss (MSE) = 0.25224829
+Hook completed at epoch 9480, time took 10.15ms
+	Epoch 9485: Loss (MSE) = 0.25224277
+Hook completed at epoch 9485, time took 11.29ms
+	Epoch 9490: Loss (MSE) = 0.25226611
+Hook completed at epoch 9490, time took 25.78ms
+	Epoch 9495: Loss (MSE) = 0.25230601
+Hook completed at epoch 9495, time took 11.24ms
+	Epoch 9500: Loss (MSE) = 0.25230724
+Hook completed at epoch 9500, time took 15.59ms
+	Epoch 9505: Loss (MSE) = 0.25229144
+Hook completed at epoch 9505, time took 10.62ms
+	Epoch 9510: Loss (MSE) = 0.25235674
+Hook completed at epoch 9510, time took 10.87ms
+	Epoch 9515: Loss (MSE) = 0.25238433
+Hook completed at epoch 9515, time took 25.81ms
+	Epoch 9520: Loss (MSE) = 0.25242794
+Hook completed at epoch 9520, time took 9.60ms
+	Epoch 9525: Loss (MSE) = 0.25238082
+Hook completed at epoch 9525, time took 10.45ms
+	Epoch 9530: Loss (MSE) = 0.25239420
+Hook completed at epoch 9530, time took 9.45ms
+	Epoch 9535: Loss (MSE) = 0.25237265
+Hook completed at epoch 9535, time took 10.86ms
+	Epoch 9540: Loss (MSE) = 0.25236675
+Hook completed at epoch 9540, time took 11.36ms
+	Epoch 9545: Loss (MSE) = 0.25236514
+Hook completed at epoch 9545, time took 9.42ms
+	Epoch 9550: Loss (MSE) = 0.25239584
+Hook completed at epoch 9550, time took 11.42ms
+	Epoch 9555: Loss (MSE) = 0.25234079
+Hook completed at epoch 9555, time took 25.36ms
+	Epoch 9560: Loss (MSE) = 0.25232404
+Hook completed at epoch 9560, time took 11.83ms
+	Epoch 9565: Loss (MSE) = 0.25230700
+Hook completed at epoch 9565, time took 27.30ms
+	Epoch 9570: Loss (MSE) = 0.25229523
+Hook completed at epoch 9570, time took 11.63ms
+	Epoch 9575: Loss (MSE) = 0.25230655
+Hook completed at epoch 9575, time took 15.82ms
+	Epoch 9580: Loss (MSE) = 0.25226498
+Hook completed at epoch 9580, time took 10.70ms
+	Epoch 9585: Loss (MSE) = 0.25226074
+Hook completed at epoch 9585, time took 10.75ms
+	Epoch 9590: Loss (MSE) = 0.25226790
+Hook completed at epoch 9590, time took 14.58ms
+	Epoch 9595: Loss (MSE) = 0.25230008
+Hook completed at epoch 9595, time took 11.43ms
+	Epoch 9600: Loss (MSE) = 0.25229284
+Hook completed at epoch 9600, time took 16.83ms
+	Epoch 9605: Loss (MSE) = 0.25227925
+Hook completed at epoch 9605, time took 10.06ms
+	Epoch 9610: Loss (MSE) = 0.25227907
+Hook completed at epoch 9610, time took 15.04ms
+	Epoch 9615: Loss (MSE) = 0.25229084
+Hook completed at epoch 9615, time took 10.13ms
+	Epoch 9620: Loss (MSE) = 0.25228730
+Hook completed at epoch 9620, time took 9.79ms
+	Epoch 9625: Loss (MSE) = 0.25232267
+Hook completed at epoch 9625, time took 10.84ms
+	Epoch 9630: Loss (MSE) = 0.25231841
+Hook completed at epoch 9630, time took 11.78ms
+	Epoch 9635: Loss (MSE) = 0.25232124
+Hook completed at epoch 9635, time took 28.17ms
+	Epoch 9640: Loss (MSE) = 0.25232384
+Hook completed at epoch 9640, time took 14.03ms
+	Epoch 9645: Loss (MSE) = 0.25231227
+Hook completed at epoch 9645, time took 14.13ms
+	Epoch 9650: Loss (MSE) = 0.25231838
+Hook completed at epoch 9650, time took 11.84ms
+	Epoch 9655: Loss (MSE) = 0.25235319
+Hook completed at epoch 9655, time took 16.38ms
+	Epoch 9660: Loss (MSE) = 0.25237498
+Hook completed at epoch 9660, time took 14.66ms
+	Epoch 9665: Loss (MSE) = 0.25238335
+Hook completed at epoch 9665, time took 9.76ms
+	Epoch 9670: Loss (MSE) = 0.25236988
+Hook completed at epoch 9670, time took 10.56ms
+	Epoch 9675: Loss (MSE) = 0.25235969
+Hook completed at epoch 9675, time took 9.89ms
+	Epoch 9680: Loss (MSE) = 0.25234899
+Hook completed at epoch 9680, time took 13.76ms
+	Epoch 9685: Loss (MSE) = 0.25234053
+Hook completed at epoch 9685, time took 17.68ms
+	Epoch 9690: Loss (MSE) = 0.25234693
+Hook completed at epoch 9690, time took 15.58ms
+	Epoch 9695: Loss (MSE) = 0.25235501
+Hook completed at epoch 9695, time took 32.27ms
+	Epoch 9700: Loss (MSE) = 0.25235242
+Hook completed at epoch 9700, time took 11.93ms
+	Epoch 9705: Loss (MSE) = 0.25236532
+Hook completed at epoch 9705, time took 10.14ms
+	Epoch 9710: Loss (MSE) = 0.25236553
+Hook completed at epoch 9710, time took 10.45ms
+	Epoch 9715: Loss (MSE) = 0.25235927
+Hook completed at epoch 9715, time took 11.67ms
+	Epoch 9720: Loss (MSE) = 0.25234133
+Hook completed at epoch 9720, time took 14.38ms
+	Epoch 9725: Loss (MSE) = 0.25234255
+Hook completed at epoch 9725, time took 11.72ms
+	Epoch 9730: Loss (MSE) = 0.25236291
+Hook completed at epoch 9730, time took 15.20ms
+	Epoch 9735: Loss (MSE) = 0.25244844
+Hook completed at epoch 9735, time took 13.19ms
+	Epoch 9740: Loss (MSE) = 0.25244075
+Hook completed at epoch 9740, time took 23.80ms
+	Epoch 9745: Loss (MSE) = 0.25244057
+Hook completed at epoch 9745, time took 11.29ms
+	Epoch 9750: Loss (MSE) = 0.25243124
+Hook completed at epoch 9750, time took 11.31ms
+	Epoch 9755: Loss (MSE) = 0.25242454
+Hook completed at epoch 9755, time took 10.47ms
+	Epoch 9760: Loss (MSE) = 0.25242287
+Hook completed at epoch 9760, time took 9.68ms
+	Epoch 9765: Loss (MSE) = 0.25241205
+Hook completed at epoch 9765, time took 9.90ms
+	Epoch 9770: Loss (MSE) = 0.25241098
+Hook completed at epoch 9770, time took 9.46ms
+	Epoch 9775: Loss (MSE) = 0.25239891
+Hook completed at epoch 9775, time took 10.20ms
+	Epoch 9780: Loss (MSE) = 0.25239164
+Hook completed at epoch 9780, time took 13.19ms
+	Epoch 9785: Loss (MSE) = 0.25239801
+Hook completed at epoch 9785, time took 28.60ms
+	Epoch 9790: Loss (MSE) = 0.25240344
+Hook completed at epoch 9790, time took 10.95ms
+	Epoch 9795: Loss (MSE) = 0.25240776
+Hook completed at epoch 9795, time took 23.33ms
+	Epoch 9800: Loss (MSE) = 0.25240415
+Hook completed at epoch 9800, time took 28.06ms
+	Epoch 9805: Loss (MSE) = 0.25240588
+Hook completed at epoch 9805, time took 28.10ms
+	Epoch 9810: Loss (MSE) = 0.25239950
+Hook completed at epoch 9810, time took 23.20ms
+	Epoch 9815: Loss (MSE) = 0.25238937
+Hook completed at epoch 9815, time took 10.91ms
+	Epoch 9820: Loss (MSE) = 0.25236711
+Hook completed at epoch 9820, time took 21.50ms
+	Epoch 9825: Loss (MSE) = 0.25239027
+Hook completed at epoch 9825, time took 30.92ms
+	Epoch 9830: Loss (MSE) = 0.25232443
+Hook completed at epoch 9830, time took 30.83ms
+	Epoch 9835: Loss (MSE) = 0.25232381
+Hook completed at epoch 9835, time took 28.80ms
+	Epoch 9840: Loss (MSE) = 0.25233006
+Hook completed at epoch 9840, time took 13.59ms
+	Epoch 9845: Loss (MSE) = 0.25233382
+Hook completed at epoch 9845, time took 10.27ms
+	Epoch 9850: Loss (MSE) = 0.25234741
+Hook completed at epoch 9850, time took 26.06ms
+	Epoch 9855: Loss (MSE) = 0.25235862
+Hook completed at epoch 9855, time took 26.01ms
+	Epoch 9860: Loss (MSE) = 0.25235915
+Hook completed at epoch 9860, time took 10.18ms
+	Epoch 9865: Loss (MSE) = 0.25238118
+Hook completed at epoch 9865, time took 9.94ms
+	Epoch 9870: Loss (MSE) = 0.25238010
+Hook completed at epoch 9870, time took 11.27ms
+	Epoch 9875: Loss (MSE) = 0.25236702
+Hook completed at epoch 9875, time took 11.21ms
+	Epoch 9880: Loss (MSE) = 0.25238639
+Hook completed at epoch 9880, time took 10.72ms
+	Epoch 9885: Loss (MSE) = 0.25238171
+Hook completed at epoch 9885, time took 10.52ms
+	Epoch 9890: Loss (MSE) = 0.25243530
+Hook completed at epoch 9890, time took 11.62ms
+	Epoch 9895: Loss (MSE) = 0.25250107
+Hook completed at epoch 9895, time took 27.35ms
+	Epoch 9900: Loss (MSE) = 0.25248191
+Hook completed at epoch 9900, time took 27.95ms
+	Epoch 9905: Loss (MSE) = 0.25245917
+Hook completed at epoch 9905, time took 13.36ms
+	Epoch 9910: Loss (MSE) = 0.25245380
+Hook completed at epoch 9910, time took 15.75ms
+	Epoch 9915: Loss (MSE) = 0.25244790
+Hook completed at epoch 9915, time took 10.91ms
+	Epoch 9920: Loss (MSE) = 0.25244701
+Hook completed at epoch 9920, time took 10.69ms
+	Epoch 9925: Loss (MSE) = 0.25249895
+Hook completed at epoch 9925, time took 28.18ms
+	Epoch 9930: Loss (MSE) = 0.25249884
+Hook completed at epoch 9930, time took 10.69ms
+	Epoch 9935: Loss (MSE) = 0.25248551
+Hook completed at epoch 9935, time took 11.29ms
+	Epoch 9940: Loss (MSE) = 0.25245973
+Hook completed at epoch 9940, time took 15.38ms
+	Epoch 9945: Loss (MSE) = 0.25245067
+Hook completed at epoch 9945, time took 11.10ms
+	Epoch 9950: Loss (MSE) = 0.25245655
+Hook completed at epoch 9950, time took 11.06ms
+	Epoch 9955: Loss (MSE) = 0.25245634
+Hook completed at epoch 9955, time took 11.02ms
+	Epoch 9960: Loss (MSE) = 0.25244433
+Hook completed at epoch 9960, time took 11.09ms
+	Epoch 9965: Loss (MSE) = 0.25242999
+Hook completed at epoch 9965, time took 11.10ms
+	Epoch 9970: Loss (MSE) = 0.25242120
+Hook completed at epoch 9970, time took 18.46ms
+	Epoch 9975: Loss (MSE) = 0.25242907
+Hook completed at epoch 9975, time took 28.80ms
+	Epoch 9980: Loss (MSE) = 0.25241759
+Hook completed at epoch 9980, time took 11.10ms
+	Epoch 9985: Loss (MSE) = 0.25242004
+Hook completed at epoch 9985, time took 29.49ms
+	Epoch 9990: Loss (MSE) = 0.25241011
+Hook completed at epoch 9990, time took 10.64ms
+	Epoch 9995: Loss (MSE) = 0.25241303
+Hook completed at epoch 9995, time took 29.90ms
+
+✓ All training tasks completed

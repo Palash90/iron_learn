@@ -213,7 +213,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
 
-        let result = get_device_buffer(total_elements as usize);
+        let result = self._get_initialized_buffer(total_elements as usize);
 
         let stream = Self::_get_stream();
 
@@ -255,7 +255,8 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let transpose = Self::_get_function("transpose_naive");
 
-        let result = get_device_buffer(self.shape.iter().product::<u32>() as usize);
+        let result =self._get_initialized_buffer(self.shape.iter().product::<u32>() as usize);
+
         let new_shape = vec![self.shape[1], self.shape[0]];
 
         const BLOCK_DIM_X: u32 = 16;
@@ -310,7 +311,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let total_elements = self.shape.iter().product::<u32>() as usize;
 
-        let result = get_device_buffer(total_elements);
+        let result = self._get_initialized_buffer(total_elements);
 
         let total_size_u32 = total_elements as u32;
         let threads_per_block = 1024;
@@ -455,7 +456,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block as u32;
 
-        let result = get_device_buffer(total_elements as usize);
+        let result = self._get_initialized_buffer(total_elements as usize);
 
         let stream = Self::_get_stream();
 
