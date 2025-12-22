@@ -255,7 +255,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let transpose = Self::_get_function("transpose_naive");
 
-        let result =self._get_initialized_buffer(self.shape.iter().product::<u32>() as usize);
+        let result = self._get_initialized_buffer(self.shape.iter().product::<u32>() as usize);
 
         let new_shape = vec![self.shape[1], self.shape[0]];
 
@@ -337,7 +337,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let data = self.get_data();
         let total: T = data.iter().fold(T::zero(), |acc, &x| acc + x);
 
-
         Self::_new(vec![1], vec![total])
     }
 
@@ -370,7 +369,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let buffer = get_device_buffer(size);
 
         let threads_per_block = 1024;
-        let grid_1d = (size as u32 + threads_per_block -1)/threads_per_block;
+        let grid_1d = (size as u32 + threads_per_block - 1) / threads_per_block;
         let stream = Self::_get_stream();
         let operation = Self::_get_function("fill_value");
 

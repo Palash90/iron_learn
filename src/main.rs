@@ -27,7 +27,7 @@ struct Args {
     #[arg(long, short, default_value = "false")]
     adjust_lr: bool,
 
-    #[arg(long, short='n', default_value = "4")]
+    #[arg(long, short = 'n', default_value = "4")]
     hidden_layers: u32,
 }
 
@@ -70,7 +70,7 @@ fn init() {
                     args.epochs,
                     true,
                     args.adjust_lr,
-                    args.hidden_layers
+                    args.hidden_layers,
                 );
 
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
@@ -85,7 +85,7 @@ fn init() {
                     args.epochs,
                     false,
                     args.adjust_lr,
-                    args.hidden_layers
+                    args.hidden_layers,
                 );
             }
         }
@@ -98,7 +98,7 @@ fn init() {
             args.epochs,
             false,
             args.adjust_lr,
-            args.hidden_layers
+            args.hidden_layers,
         );
     }
 }

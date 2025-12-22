@@ -73,7 +73,7 @@ where
                 error_prime = layer.backward(&error_prime, current_lr).unwrap();
             }
             T::synchronize();
-            
+
             let hook_interval = match epochs > hook_interval {
                 true => hook_interval,
                 false => epochs - 1,
@@ -101,7 +101,7 @@ where
                     "Layer {} ({}) Weights saved. (Shape: {:?})",
                     i,
                     layer.name(),
-                    w.len()
+                    w.get_shape()
                 );
             }
         }

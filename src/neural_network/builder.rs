@@ -5,6 +5,7 @@ use crate::neural_network::NeuralNetDataType;
 use crate::tensor::math::TensorMath;
 use crate::NeuralNet;
 use crate::Tensor;
+use colored::Colorize;
 
 pub struct NeuralNetBuilder<T>
 where
@@ -36,6 +37,36 @@ where
     }
 
     pub fn build(self, loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>) -> NeuralNet<T> {
+        println!("Building Network:");
+
+        // Map your layers into beautiful strings first
+        let layer_strings: Vec<String> = self
+            .layers
+            .iter()
+            .map(|layer| {
+                let name = layer.name(); // Get the name (e.g., "Linear", "ReLU")
+
+                match layer.as_ref().get_parameters() {
+                    Some(v) => {
+                        let shape = v.get_shape();
+                        // Format: Name [In, Out]
+                        format!("{} [{}, {}]", name.bold().cyan(), shape[0], shape[1])
+                    }
+                    None => {
+                        // Format for Activation layers: just the Name
+                        format!("{}", name.yellow())
+                    }
+                }
+            })
+            .collect();
+
+        // Join them with the arrow
+        let output = layer_strings.join(" ──▶ ");
+
+        println!("\nModel Architecture:");
+        println!("{}\n", output);
+
+        println!();
         NeuralNet {
             layers: self.layers,
             loss_fn,

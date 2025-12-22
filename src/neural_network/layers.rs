@@ -2,8 +2,8 @@ use super::NeuralNetDataType;
 use crate::neural_network::ActivationFn;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
-use rand::{Rng, SeedableRng};
 use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng};
 
 pub trait Layer<T>
 where
@@ -12,7 +12,7 @@ where
     fn forward(&mut self, input: &T) -> Result<T, String>;
     fn backward(&mut self, output_error: &T, learning_rate: NeuralNetDataType)
         -> Result<T, String>;
-    fn get_parameters(&self) -> Option<Vec<NeuralNetDataType>> {
+    fn get_parameters(&self) -> Option<T> {
         None
     }
     fn name(&self) -> &str;
@@ -80,8 +80,12 @@ where
         Ok(input_error)
     }
 
-    fn get_parameters(&self) -> Option<Vec<NeuralNetDataType>> {
-        Some(self.weights.get_data())
+    fn get_parameters(&self) -> Option<T> {
+        Some(
+            T::zeroes(self.weights.get_shape())
+                .add(&self.weights)
+                .unwrap(),
+        )
     }
 }
 

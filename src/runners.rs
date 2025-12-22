@@ -197,6 +197,7 @@ where
         .learning_rate as NeuralNetDataType;
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
+    let hidden_length = GLOBAL_CONTEXT.get().unwrap().hidden_layer_length;
 
     let Data {
         neural_network: xy, ..
@@ -211,8 +212,7 @@ where
     let x = add_bias_term(&x).unwrap();
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
-    let hidden_length = 2; // Should be even
-    let input_length = 2;
+    let input_length = xy.n;
 
     let input_length = input_length + 1; // To compensate for bias
 
@@ -259,7 +259,12 @@ where
             pred.print_matrix();
 
             for layer in &nn.layers {
-                println!("{}, {:?}", layer.as_ref().name(), layer.as_ref().get_parameters());
+                println!("{}", layer.as_ref().name());
+
+                match layer.as_ref().get_parameters() {
+                    Some(p) => p.print_matrix(),
+                    None => {}
+                }
             }
         }
 
