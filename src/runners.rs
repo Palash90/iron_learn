@@ -253,6 +253,16 @@ where
 
         println!("\tEpoch {}: Loss (MSE) = {:.8}", epoch, err);
 
+        if epoch == 1 {
+            let pred = nn.predict(&x).unwrap();
+
+            pred.print_matrix();
+
+            for layer in &nn.layers {
+                println!("{}, {:?}", layer.as_ref().name(), layer.as_ref().get_parameters());
+            }
+        }
+
         println!(
             "Hook completed at epoch {}, time took {:.2?}",
             epoch, elapsed
@@ -263,7 +273,7 @@ where
         }
     };
 
-    let _ = nn.fit(&x, &y, e as usize, 0, l, true, monitor, 5);
+    let _ = nn.fit(&x, &y, e as usize, 0, l, true, monitor, 1);
 
     //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
 
