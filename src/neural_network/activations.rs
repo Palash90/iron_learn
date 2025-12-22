@@ -14,14 +14,9 @@ where
     T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
 {
     let one_minus_out = T::ones(&output.get_shape()).sub(output)?;
-    let res = output.multiply(&one_minus_out).unwrap();
+    let res = output.multiply(&one_minus_out);
 
-    let epsilon = T::new(
-        output.get_shape().clone(),
-        vec![1e-6; output.get_shape().iter().product::<u32>() as usize],
-    )
-    .unwrap();
-    res.add(&epsilon)
+    res
 }
 
 pub fn tanh<T>(input: &T) -> Result<T, String>

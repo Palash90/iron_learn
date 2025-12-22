@@ -36,38 +36,38 @@ extern "C" __global__ void element_op(const float *s, float *r, int n, int op, f
         switch (op)
         {
         case 0:
-            r[idx] = exp(s[idx]);
+            r[idx] = expf(s[idx]);
             break;
         case 1:
             r[idx] = s[idx] * scale;
             break;
         case 2:
-            r[idx] = sin(s[idx]);
+            r[idx] = sinf(s[idx]);
             break;
         case 3:
-            r[idx] = cos(s[idx]);
+            r[idx] = cosf(s[idx]);
             break;
         case 4:
-            r[idx] = tan(s[idx]);
+            r[idx] = tanf(s[idx]);
             break;
         case 5:
-            r[idx] = tanh(s[idx]);
+            r[idx] = tanhf(s[idx]);
             break;
         case 6:
             if (s[idx] >= 0.0f)
             {
-                r[idx] = 1.0f / (1.0f + exp(-s[idx]));
+                r[idx] = 1.0f / (1.0f + expf(-s[idx]));
             }
             else
             {
-                r[idx] = exp(s[idx]) / (1.0f + exp(s[idx]));
+                r[idx] = expf(s[idx]) / (1.0f + expf(s[idx]));
             }
             break;
         case 7:
-            r[idx] = log10(s[idx]);
+            r[idx] = log10f(s[idx]);
             break;
         case 8:
-            r[idx] = log(s[idx]);
+            r[idx] = logf(s[idx]);
             break;
         default:
             break;
