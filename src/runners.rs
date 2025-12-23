@@ -2,7 +2,6 @@
 use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
 use crate::neural_network::LayerType;
-use crate::neural_network::{sigmoid, sigmoid_prime, tanh, tanh_prime};
 use crate::normalize_features;
 use crate::read_file::deserialize_data_double_precision;
 use crate::read_file::deserialize_model;

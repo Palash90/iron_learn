@@ -36,12 +36,12 @@ where
     fn _initialize_weights(input_size: u32, output_size: u32) -> Vec<NeuralNetDataType> {
         let mut rng = rand::rng(); //StdRng::seed_from_u64(42); // rand::rng();
 
-        let limit = (6.0 / (input_size as f32 + output_size as f32)).sqrt();
+        let limit = (6.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();
 
         let w_data: Vec<NeuralNetDataType> = (0..(input_size * output_size))
             //.map(|_| (rng.random::<NeuralNetDataType>() * 2.0 - 1.0) * limit) // For Xavier
             .map(|_| {
-                let val: f32 = StandardNormal.sample(&mut rng);
+                let val: NeuralNetDataType = StandardNormal.sample(&mut rng);
                 val as NeuralNetDataType
             })
             .collect();

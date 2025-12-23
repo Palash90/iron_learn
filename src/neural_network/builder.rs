@@ -1,5 +1,4 @@
 use super::layers::*;
-use crate::neural_network::ActivationFn;
 use crate::neural_network::LayerType;
 use crate::neural_network::LossFunction;
 use crate::neural_network::ModelData;
