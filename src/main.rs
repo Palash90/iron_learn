@@ -18,6 +18,9 @@ struct Args {
     #[arg(long, short, default_value = "false")]
     cpu: bool,
 
+    #[arg(long, short, default_value = "false")]
+    restore: bool,
+
     #[arg(long, short, default_value = "0.001")]
     lr: f64,
 
@@ -87,6 +90,7 @@ fn init() {
                     args.monitor_interval,
                     args.sleep_time,
                     args.name,
+                    args.restore,
                 );
 
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
@@ -106,6 +110,7 @@ fn init() {
                     args.monitor_interval,
                     args.sleep_time,
                     args.name,
+                    args.restore,
                 );
             }
         }
@@ -123,6 +128,7 @@ fn init() {
             args.monitor_interval,
             args.sleep_time,
             args.name,
+            args.restore,
         );
     }
 }

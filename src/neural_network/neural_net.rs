@@ -35,6 +35,8 @@ where
         param_count: u64,
         label: String,
         name: String,
+        current_epoch: usize,
+        current_lr: NeuralNetDataType,
     ) -> Self {
         Self {
             layers,
@@ -42,8 +44,8 @@ where
             parameter_count: param_count,
             label,
             name,
-            current_epoch: 0,
-            current_lr: 0.0,
+            current_epoch,
+            current_lr,
         }
     }
 

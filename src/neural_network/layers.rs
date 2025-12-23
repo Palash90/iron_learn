@@ -1,5 +1,5 @@
 use super::NeuralNetDataType;
-use crate::neural_network::{get_activations, LayerData, LayerType};
+use crate::neural_network::{get_activations, LayerType};
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 
@@ -53,11 +53,20 @@ where
         let w_data = Self::_initialize_weights(input_size, output_size);
 
         Ok(Self {
-            weights: T::new(vec![input_size, output_size], w_data)?,
+            weights: T::new(vec![input_size, output_size], w_data).unwrap(),
             input_cache: None,
             name: name.to_string(),
             layer_type: LayerType::Linear,
         })
+    }
+
+    pub fn from_data(weights: T, name: &str) -> Self {
+        Self {
+            weights,
+            input_cache: None,
+            name: name.to_string(),
+            layer_type: LayerType::Linear,
+        }
     }
 }
 

@@ -60,6 +60,7 @@ pub struct AppContext {
     pub monitor_interval: usize,
     pub sleep_time: u64,
     pub name: String,
+    pub restore: bool,
 }
 
 /// Initialize the global application context
@@ -112,6 +113,7 @@ pub fn init_context(
     monitor_interval: usize,
     sleep_time: u64,
     name: String,
+    restore: bool,
 ) {
     let ctx = AppContext {
         app_name,
@@ -126,6 +128,7 @@ pub fn init_context(
         monitor_interval,
         sleep_time,
         name,
+        restore,
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

@@ -205,6 +205,7 @@ where
     let monitor_interval = GLOBAL_CONTEXT.get().unwrap().monitor_interval;
     let sleep_time = GLOBAL_CONTEXT.get().unwrap().sleep_time;
     let name = &GLOBAL_CONTEXT.get().unwrap().name;
+    let restore = GLOBAL_CONTEXT.get().unwrap().restore;
 
     let Data { cat_image: xy, .. } =
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
@@ -225,11 +226,14 @@ where
     let nn = define_neural_net(hidden_length, input_length);
 
     let mut nn = match !weights_path.is_empty() {
-        true => {
-            let model = deserialize_model(&weights_path);
-            nn.build(loss_function_instance, model, name)
-        }
-        false => nn.build(loss_function_instance, None, name),
+        true => match deserialize_model(&weights_path) {
+            Some(model) => match restore {
+                true => NeuralNetBuilder::build_from_model(model, loss_function_instance),
+                false => nn.build(loss_function_instance, name),
+            },
+            None => nn.build(loss_function_instance, name),
+        },
+        false => nn.build(loss_function_instance, name),
     };
 
     let mut start_time = Instant::now();

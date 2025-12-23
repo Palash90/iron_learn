@@ -40,7 +40,6 @@ where
     pub fn build(
         self,
         loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
-        network_model: Option<ModelData>,
         name: &String,
     ) -> NeuralNet<T> {
         println!("Building Network:");
@@ -88,8 +87,54 @@ where
             parameter_count as u64,
             label,
             name.to_string(),
+            0,
+            0.0,
         )
     }
 
-    pub fn build_from_model(model: ModelData) {}
+    pub fn build_from_model(
+        model: ModelData,
+        loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
+    ) -> NeuralNet<T> {
+        println!("Restoring Model: {}", model.name.bold().green());
+        let mut layers: Vec<Box<dyn Layer<T>>> = Vec::new();
+
+        for layer_data in model.layers {
+            match layer_data.layer_type {
+                LayerType::Linear => {
+                    let weight_tensor = T::new(layer_data.shape, layer_data.weights).unwrap();
+
+                    let layer = LinearLayer::from_data(weight_tensor, &layer_data.name);
+
+                    layers.push(Box::new(layer));
+                }
+                LayerType::Sigmoid | LayerType::Tanh => {
+                    let layer = ActivationLayer::new(&layer_data.name, layer_data.layer_type);
+                    layers.push(Box::new(layer));
+                }
+            }
+        }
+
+        // Calculate parameter label (M, k, etc.) similar to your build method
+        let param_count = model.parameter_count as usize;
+        let label = if param_count >= 1_000_000 {
+            format!("{:.1}M", param_count as f64 / 1_000_000.0)
+        } else {
+            format!("{}k", param_count / 1_000)
+        };
+
+        // Construct the final NeuralNet with restored state
+        let net = NeuralNet::new(
+            layers,
+            loss_fn,
+            model.parameter_count,
+            label,
+            model.name,
+            model.epoch,
+            model.saved_lr,
+        );
+
+        println!("Model restored successfully at Epoch {}", model.epoch);
+        net
+    }
 }
