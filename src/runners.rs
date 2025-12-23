@@ -201,6 +201,8 @@ where
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
     let hidden_length = GLOBAL_CONTEXT.get().unwrap().hidden_layer_length;
     let weights_path = &GLOBAL_CONTEXT.get().unwrap().weights_path;
+    let monitor_interval = GLOBAL_CONTEXT.get().unwrap().monitor_interval;
+    let sleep_time = GLOBAL_CONTEXT.get().unwrap().sleep_time;
 
     let Data { cat_image: xy, .. } =
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
@@ -266,22 +268,24 @@ where
 
         last_epoch = epoch;
 
-        if epoch % 50 == 0 {
+        if epoch % monitor_interval == 0 {
             let y_pred = nn.predict(&x).unwrap();
 
             draw_image(epoch as i32, &x, &y_pred, 200, 200);
             nn.save_weights(&(weights_path.to_owned() + "/cp_" + &epoch.to_string() + ".json"));
 
             // Rest for a few seconds before starting again
-            println!("Taking a nap");
-            thread::sleep(Duration::from_secs(10));
-            println!("Awake again");
+            if sleep_time > 0 {
+                println!("Taking a nap");
+                thread::sleep(Duration::from_secs(sleep_time));
+                println!("Awake again");
+            }
         }
     };
 
     draw_image(-1, &x, &y, 200, 200);
 
-    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, 50);
+    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, monitor_interval);
 
     //let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 

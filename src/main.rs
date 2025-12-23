@@ -32,6 +32,12 @@ struct Args {
 
     #[arg(long, short, default_value = "weights")]
     weights_path: String,
+
+    #[arg(long, short, default_value = "1000")]
+    monitor_interval: usize,
+
+    #[arg(long, short, default_value = "30")]
+    sleep_time: u64,
 }
 
 fn init() {
@@ -75,6 +81,8 @@ fn init() {
                     args.adjust_lr,
                     args.hidden_layers,
                     args.weights_path,
+                    args.monitor_interval,
+                    args.sleep_time,
                 );
 
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
@@ -91,6 +99,8 @@ fn init() {
                     args.adjust_lr,
                     args.hidden_layers,
                     args.weights_path,
+                    args.monitor_interval,
+                    args.sleep_time,
                 );
             }
         }
@@ -105,6 +115,8 @@ fn init() {
             args.adjust_lr,
             args.hidden_layers,
             args.weights_path,
+            args.monitor_interval,
+            args.sleep_time,
         );
     }
 }

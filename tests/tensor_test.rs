@@ -160,5 +160,23 @@ pub fn fn_test() {
 
     let result = CpuTensor::new(vec![1, 2], vec![sigmoid(1.0), sigmoid(2.0)]).unwrap();
     let r = CpuTensor::sigmoid(&m1).unwrap();
-    //    assert_eq!(result, r);
+
+    let epsilon = 1e-6;
+
+    // Assuming your CpuTensor has a way to access the data slice
+    let left_data = result.get_data();
+    let right_data = r.get_data();
+
+    assert_eq!(result.get_shape(), r.get_shape(), "Shapes do not match");
+
+    for (l, r) in left_data.iter().zip(right_data.iter()) {
+        let diff = (l - r).abs();
+        assert!(
+            diff < epsilon,
+            "Values at index deviate too much: left={}, right={}, diff={}",
+            l,
+            r,
+            diff
+        );
+    }
 }

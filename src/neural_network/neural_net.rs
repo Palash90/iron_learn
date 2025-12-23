@@ -10,8 +10,8 @@ use serde::Serialize;
 
 use serde::Deserialize;
 use std::fs::File;
-use std::io::Write;
 use std::io;
+use std::io::Write;
 
 #[derive(Serialize, Deserialize)]
 struct LayerData {
@@ -127,13 +127,6 @@ where
                 };
 
                 model_storage.layers.push(layer_info);
-
-                println!(
-                    "Layer {} ({}) Weights prepared for saving. (Shape: {:?})",
-                    i,
-                    layer.name(),
-                    w.get_shape()
-                );
             }
         }
 

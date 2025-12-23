@@ -11,7 +11,7 @@
 //! The context is initialized once at application startup and remains immutable
 //! throughout the program lifetime using `OnceLock` for thread-safe access.
 
-use std::sync::OnceLock;
+use std::{sync::OnceLock, u32};
 
 /// Global singleton instance of application context
 ///
@@ -37,7 +37,7 @@ pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
 /// use iron_learn::{init_context, GLOBAL_CONTEXT};
 ///
 /// // Initialize at startup with full configuration
-/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false, false, 4, "w".to_string());
+/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false, false, 4, "w".to_string(), 1000, 40);
 ///
 /// // Access anywhere in the application
 /// let ctx = GLOBAL_CONTEXT.get().unwrap();
@@ -57,6 +57,8 @@ pub struct AppContext {
     pub lr_adjust: bool,
     pub hidden_layer_length: u32,
     pub weights_path: String,
+    pub monitor_interval: usize,
+    pub sleep_time: u64,
 }
 
 /// Initialize the global application context
@@ -90,7 +92,8 @@ pub struct AppContext {
 ///     false,
 ///     false,
 ///     4,
-///     "weights".to_string()
+///     "weights".to_string(),
+///     1000, 30
 /// );
 /// ```
 pub fn init_context(
@@ -103,6 +106,8 @@ pub fn init_context(
     lr_adjust: bool,
     hidden_layer_length: u32,
     weights_path: String,
+    monitor_interval: usize,
+    sleep_time: u64,
 ) {
     let ctx = AppContext {
         app_name,
@@ -114,6 +119,8 @@ pub fn init_context(
         lr_adjust,
         hidden_layer_length,
         weights_path,
+        monitor_interval,
+        sleep_time,
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

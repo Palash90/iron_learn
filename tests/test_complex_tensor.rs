@@ -1,4 +1,3 @@
-use iron_learn::tensor::math::TensorMath;
 use iron_learn::Complex;
 use iron_learn::CpuTensor;
 use iron_learn::Tensor;

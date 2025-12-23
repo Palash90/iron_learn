@@ -34,7 +34,19 @@ fn init() {
                 }
             };
 
-            init_context("Iron Learn", 5, String::new(), 0.0, 0, true, false, 2, "w".to_string());
+            init_context(
+                "Iron Learn",
+                5,
+                String::new(),
+                0.0,
+                0,
+                true,
+                false,
+                2,
+                "w".to_string(),
+                0,
+                0,
+            );
             init_gpu(Some(context), Some(module), Some(stream), Some(handle));
         }
         Err(e) => {
@@ -49,6 +61,8 @@ fn init() {
                 false,
                 2,
                 "w".to_string(),
+                0,
+                0,
             );
         }
     }
@@ -135,6 +149,12 @@ pub fn test_cuda_neg_float() {
     let m1 = GpuTensor::<TensorType>::new(vec![1, 4], vec![1.0, 2.0, -3.0, -4.0]).unwrap();
     let m2 = (-m1).unwrap();
     let result = GpuTensor::new(vec![1, 4], vec![-1.0, -2.0, 3.0, 4.0]).unwrap();
+
+    println!("Result");
+    m2.print_matrix();
+    result.print_matrix();
+
+    assert_eq!(result, m2);
 }
 
 #[test]
