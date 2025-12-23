@@ -39,7 +39,7 @@ struct Args {
     #[arg(long, short, default_value = "30")]
     sleep_time: u64,
 
-    #[arg(long, short, default_value = "parameters")]
+    #[arg(long, short, default_value = "model.json")]
     parameters_path: String,
 }
 

@@ -16,8 +16,14 @@ pub fn deserialize_data(data_path: &str) -> Result<Data, serde_json::Error> {
 }
 
 pub fn deserialize_model(data_path: &str) -> Option<ModelData> {
-    let contents =
-        fs::read_to_string(&data_path).expect(&format!("Failed to read data from {}", data_path));
+    let contents = match fs::read_to_string(&data_path) {
+        Ok(c) => c,
+        Err(_) => {
+            eprintln!("{}", &format!("Failed to read data from {}", data_path));
+            String::new()
+        }
+    };
+
     let data: ModelData = match serde_json::from_str(&contents) {
         Ok(d) => d,
         Err(err) => {
