@@ -227,9 +227,9 @@ where
     let mut nn = match !weights_path.is_empty() {
         true => {
             let model = deserialize_model(&weights_path);
-            nn.build(loss_function_instance, model)
+            nn.build(loss_function_instance, model, name)
         }
-        false => nn.build(loss_function_instance, None),
+        false => nn.build(loss_function_instance, None, name),
     };
 
     let mut start_time = Instant::now();

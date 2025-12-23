@@ -33,7 +33,7 @@ where
     }
 
     pub fn add_activation(&mut self, act: LayerType, name: &str) {
-        let layer = ActivationLayer::new(act, name);
+        let layer = ActivationLayer::new(name, act);
         self.layers.push(Box::new(layer));
     }
 
@@ -41,6 +41,7 @@ where
         self,
         loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
         network_model: Option<ModelData>,
+        name: &String,
     ) -> NeuralNet<T> {
         println!("Building Network:");
         let mut parameter_count = match network_model {
@@ -84,6 +85,12 @@ where
         println!("{}\n", output);
 
         println!();
-        NeuralNet::new(self.layers, loss_fn, parameter_count as u64, label)
+        NeuralNet::new(
+            self.layers,
+            loss_fn,
+            parameter_count as u64,
+            label,
+            name.to_string(),
+        )
     }
 }

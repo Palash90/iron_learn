@@ -1,5 +1,5 @@
 use super::NeuralNetDataType;
-use crate::neural_network::{get_activations, ActivationFn, LayerData, LayerType};
+use crate::neural_network::{get_activations, LayerData, LayerType};
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 
@@ -36,7 +36,8 @@ where
     fn _initialize_weights(input_size: u32, output_size: u32) -> Vec<NeuralNetDataType> {
         let mut rng = rand::rng(); //StdRng::seed_from_u64(42); // rand::rng();
 
-        let limit = (6.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();
+        let limit =
+            (6.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();
 
         let w_data: Vec<NeuralNetDataType> = (0..(input_size * output_size))
             //.map(|_| (rng.random::<NeuralNetDataType>() * 2.0 - 1.0) * limit) // For Xavier
