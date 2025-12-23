@@ -1,5 +1,5 @@
 use super::NeuralNetDataType;
-use crate::neural_network::ActivationFn;
+use crate::neural_network::{ActivationFn, LayerData};
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 
@@ -31,7 +31,7 @@ impl<T> LinearLayer<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
-    pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
+    fn _initialize_weights(input_size: u32, output_size: u32) -> Vec<NeuralNetDataType> {
         let mut rng = rand::rng(); //StdRng::seed_from_u64(42); // rand::rng();
 
         let limit = (6.0 / (input_size as f32 + output_size as f32)).sqrt();
@@ -43,6 +43,32 @@ where
                 val as NeuralNetDataType
             })
             .collect();
+
+        w_data
+    }
+    pub fn new(
+        input_size: u32,
+        output_size: u32,
+        name: &str,
+        model_data: Option<LayerData>,
+    ) -> Result<Self, String> {
+        let w_data = match model_data {
+            None => Self::_initialize_weights(input_size, output_size),
+            Some(model_data) => {
+                let incoming_input_size = model_data.shape[0];
+                let incoming_output_size = model_data.shape[1];
+                let incoming_name = model_data.name;
+
+                if incoming_input_size == input_size
+                    && incoming_output_size == output_size
+                    && incoming_name.eq(name)
+                {
+                    model_data.weights
+                } else {
+                    Self::_initialize_weights(input_size, output_size)
+                }
+            }
+        };
 
         Ok(Self {
             weights: T::new(vec![input_size, output_size], w_data)?,

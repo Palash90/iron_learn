@@ -37,7 +37,7 @@ pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
 /// use iron_learn::{init_context, GLOBAL_CONTEXT};
 ///
 /// // Initialize at startup with full configuration
-/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false, false, 4, "w".to_string(), 1000, 40);
+/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false, false, 4, "w".to_string(), 1000, 40, "".to_string());
 ///
 /// // Access anywhere in the application
 /// let ctx = GLOBAL_CONTEXT.get().unwrap();
@@ -51,7 +51,6 @@ pub struct AppContext {
     pub app_name: &'static str,
     pub version: u32,
     pub data_path: String,
-    pub parameters_file: String,
     pub learning_rate: f64,
     pub epochs: u32,
     pub gpu_enabled: bool,
@@ -60,6 +59,7 @@ pub struct AppContext {
     pub weights_path: String,
     pub monitor_interval: usize,
     pub sleep_time: u64,
+    pub name: String,
 }
 
 /// Initialize the global application context
@@ -94,14 +94,15 @@ pub struct AppContext {
 ///     false,
 ///     4,
 ///     "weights".to_string(),
-///     1000, 30
+///     1000,
+///     30,
+///     "".to_string()
 /// );
 /// ```
 pub fn init_context(
     app_name: &'static str,
     version: u32,
     data_path: String,
-    parameters_file: String,
     learning_rate: f64,
     epochs: u32,
     gpu_enabled: bool,
@@ -110,12 +111,12 @@ pub fn init_context(
     weights_path: String,
     monitor_interval: usize,
     sleep_time: u64,
+    name: String,
 ) {
     let ctx = AppContext {
         app_name,
         version,
         data_path,
-        parameters_file,
         learning_rate,
         epochs,
         gpu_enabled,
@@ -124,6 +125,7 @@ pub fn init_context(
         weights_path,
         monitor_interval,
         sleep_time,
+        name,
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

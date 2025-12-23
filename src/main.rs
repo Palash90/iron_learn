@@ -12,6 +12,9 @@ use std::ptr;
 #[command(name = "Iron Learn")]
 #[command(name = "A Rust Machine Learning Library")]
 struct Args {
+    #[arg(long, short, default_value = "neural-net")]
+    name: bool,
+
     #[arg(long, short, default_value = "false")]
     cpu: bool,
 
@@ -24,23 +27,20 @@ struct Args {
     #[arg(long, short, default_value = "data.json")]
     data_file: String,
 
-    #[arg(long, short, default_value = "")]
-    parameters_file: String,
-
     #[arg(long, short, default_value = "false")]
     adjust_lr: bool,
 
-    #[arg(long, short = 'n', default_value = "4")]
-    hidden_layers: u32,
-
-    #[arg(long, short, default_value = "weights")]
-    weights_path: String,
+    #[arg(long, short, default_value = "4")]
+    internal_layers: u32,
 
     #[arg(long, short, default_value = "1000")]
     monitor_interval: usize,
 
     #[arg(long, short, default_value = "30")]
     sleep_time: u64,
+
+    #[arg(long, short, default_value = "parameters")]
+    parameters_path: String,
 }
 
 fn init() {
@@ -78,15 +78,15 @@ fn init() {
                     "Iron Learn",
                     5,
                     args.data_file,
-                    args.parameters_file,
                     args.lr,
                     args.epochs,
                     true,
                     args.adjust_lr,
-                    args.hidden_layers,
-                    args.weights_path,
+                    args.internal_layers,
+                    args.parameters_path,
                     args.monitor_interval,
                     args.sleep_time,
+                    args.name,
                 );
 
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
@@ -97,15 +97,15 @@ fn init() {
                     "Iron Learn",
                     5,
                     args.data_file,
-                    args.parameters_file,
                     args.lr,
                     args.epochs,
                     false,
                     args.adjust_lr,
-                    args.hidden_layers,
-                    args.weights_path,
+                    args.internal_layers,
+                    args.parameters_path,
                     args.monitor_interval,
                     args.sleep_time,
+                    args.name,
                 );
             }
         }
@@ -114,15 +114,15 @@ fn init() {
             "Iron Learn",
             5,
             args.data_file,
-            args.parameters_file,
             args.lr,
             args.epochs,
             false,
             args.adjust_lr,
-            args.hidden_layers,
-            args.weights_path,
+            args.internal_layers,
+            args.parameters_path,
             args.monitor_interval,
             args.sleep_time,
+            args.name,
         );
     }
 }

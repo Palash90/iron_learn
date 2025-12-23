@@ -6,25 +6,11 @@ use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use std::f32::consts::PI;
 
-use serde::Serialize;
-
-use serde::Deserialize;
+use crate::neural_network::LayerData;
+use crate::neural_network::ModelData;
 use std::fs::File;
 use std::io;
 use std::io::Write;
-
-#[derive(Serialize, Deserialize)]
-struct LayerData {
-    name: String,
-    index: usize,
-    weights: Vec<NeuralNetDataType>,
-    shape: Vec<u32>,
-}
-
-#[derive(Serialize, Deserialize)]
-struct ModelData {
-    layers: Vec<LayerData>,
-}
 
 pub struct NeuralNet<T>
 where
@@ -32,8 +18,10 @@ where
 {
     pub layers: Vec<Box<dyn Layer<T>>>,
     pub loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
-    pub parameter_count: usize,
-    pub label: String
+    pub parameter_count: u64,
+    pub label: String,
+    pub name: String,
+    current_epoch: usize,
 }
 
 impl<T> NeuralNet<T>
@@ -71,6 +59,7 @@ where
 
         for i in 0..epochs {
             print!("\rProcessing epoch: {}", i);
+            self.current_epoch = i;
             io::stdout().flush().unwrap();
 
             let cos_term = ((PI as NeuralNetDataType * i as NeuralNetDataType)
@@ -117,7 +106,12 @@ where
     }
 
     pub fn save_weights(&self, filepath: &str) {
-        let mut model_storage = ModelData { layers: Vec::new() };
+        let mut model_storage = ModelData {
+            name: self.name.clone(),
+            parameter_count: self.parameter_count,
+            layers: Vec::new(),
+            epoch: self.current_epoch,
+        };
 
         for (i, layer) in self.layers.iter().enumerate() {
             if let Some(w) = layer.get_parameters() {

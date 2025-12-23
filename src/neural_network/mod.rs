@@ -12,6 +12,23 @@ pub mod loss_functions;
 pub use builder::NeuralNetBuilder;
 pub use loss_functions::{LossFunction, MeanSquaredErrorLoss};
 pub use neural_net::NeuralNet;
+use serde::Deserialize;
+use serde::Serialize;
+#[derive(Serialize, Deserialize)]
+pub struct LayerData {
+    pub name: String,
+    pub index: usize,
+    pub weights: Vec<NeuralNetDataType>,
+    pub shape: Vec<u32>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ModelData {
+    pub name: String,
+    pub parameter_count: u64,
+    pub layers: Vec<LayerData>,
+    pub epoch: usize,
+}
 
 // ============================================================================
 // Type Definitions

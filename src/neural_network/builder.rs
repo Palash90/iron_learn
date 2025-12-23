@@ -1,6 +1,7 @@
 use super::layers::*;
 use crate::neural_network::ActivationFn;
 use crate::neural_network::LossFunction;
+use crate::neural_network::ModelData;
 use crate::neural_network::NeuralNetDataType;
 use crate::tensor::math::TensorMath;
 use crate::NeuralNet;
@@ -36,11 +37,17 @@ where
         self.layers.push(Box::new(layer));
     }
 
-    pub fn build(self, loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>) -> NeuralNet<T> {
+    pub fn build(
+        self,
+        loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
+        network_model: Option<ModelData>,
+    ) -> NeuralNet<T> {
         println!("Building Network:");
-        let mut parameter_count = 0;
+        let mut parameter_count = match network_model {
+            None => 0,
+            Some(v) => v.parameter_count,
+        };
 
-        // Map your layers into beautiful strings first
         let layer_strings: Vec<String> = self
             .layers
             .iter()
@@ -50,7 +57,7 @@ where
                 match layer.as_ref().get_parameters() {
                     Some(v) => {
                         let shape = v.get_shape();
-                        parameter_count += shape.iter().product::<u32>();
+                        parameter_count += shape.iter().product::<u32>() as u64;
                         // Format: Name [In, Out]
                         format!("{} [{}, {}]", name.bold().cyan(), shape[0], shape[1])
                     }
@@ -80,7 +87,7 @@ where
         NeuralNet {
             layers: self.layers,
             loss_fn,
-            parameter_count,
+            parameter_count: parameter_count as u64,
             label,
         }
     }

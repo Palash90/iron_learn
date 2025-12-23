@@ -4,6 +4,7 @@ use crate::commons::normalize_features_mean_std;
 use crate::neural_network::{sigmoid, sigmoid_prime, tanh, tanh_prime};
 use crate::normalize_features;
 use crate::read_file::deserialize_data_double_precision;
+use crate::read_file::deserialize_model;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use crate::GLOBAL_CONTEXT;
@@ -203,6 +204,7 @@ where
     let weights_path = &GLOBAL_CONTEXT.get().unwrap().weights_path;
     let monitor_interval = GLOBAL_CONTEXT.get().unwrap().monitor_interval;
     let sleep_time = GLOBAL_CONTEXT.get().unwrap().sleep_time;
+    let name = &GLOBAL_CONTEXT.get().unwrap().name;
 
     let Data { cat_image: xy, .. } =
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
@@ -220,6 +222,67 @@ where
 
     // let input_length = input_length + 1; // To compensate for bias
 
+    let nn = define_neural_net(hidden_length, input_length);
+
+    let mut nn = match !weights_path.is_empty() {
+        true => {
+            let model = deserialize_model(&weights_path);
+            nn.build(loss_function_instance, model)
+        }
+        false => nn.build(loss_function_instance, None),
+    };
+
+    let mut start_time = Instant::now();
+    let mut last_epoch = 0;
+
+    let monitor = |epoch: usize,
+                   err: NeuralNetDataType,
+                   current_lr: NeuralNetDataType,
+                   nn: &mut NeuralNet<T>| {
+        let elapsed = start_time.elapsed();
+        start_time = Instant::now();
+
+        println!("\tEpoch {epoch}: Loss (MSE) = {err:.8}, Current LR : {current_lr:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
+
+        last_epoch = epoch;
+
+        if epoch % monitor_interval == 0 {
+            let y_pred = nn.predict(&x).unwrap();
+
+            draw_image(epoch as i32, &x, &y_pred, 200, 200);
+            nn.save_weights(&(weights_path.to_owned()));
+
+            // Rest for a few seconds before starting again
+            if sleep_time > 0 {
+                println!("Taking a nap");
+                thread::sleep(Duration::from_secs(sleep_time));
+                println!("Awake again");
+            }
+        }
+    };
+
+    draw_image(-1, &x, &y, 200, 200);
+
+    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, monitor_interval);
+
+    //let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
+
+    //let x_test = normalize_features(&x_test, &x_mean, &x_std);
+
+    //let x_test = add_bias_term(&x_test)?;
+
+    //let predictions = nn.predict(&x).unwrap();
+
+    //predictions.print_matrix();
+
+    //let predictions = denormalize_features(&predictions, &y_mean, &y_std);
+    Ok(())
+}
+
+fn define_neural_net<T>(hidden_length: u32, input_length: u32) -> NeuralNetBuilder<T>
+where
+    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+{
     let mut nn = NeuralNetBuilder::<T>::new();
 
     nn.add_linear(input_length, hidden_length, "Input");
@@ -251,54 +314,7 @@ where
 
     nn.add_linear(hidden_length / 2, 1, "Hidden Layer 9");
     nn.add_activation(sigmoid, sigmoid_prime, "Output Layer");
-
-    let mut nn = nn.build(loss_function_instance);
-
-    let mut start_time = Instant::now();
-    let mut last_epoch = 0;
-
-    let monitor = |epoch: usize,
-                   err: NeuralNetDataType,
-                   current_lr: NeuralNetDataType,
-                   nn: &mut NeuralNet<T>| {
-        let elapsed = start_time.elapsed();
-        start_time = Instant::now();
-
-        println!("\tEpoch {epoch}: Loss (MSE) = {err:.8}, Current LR : {current_lr:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
-
-        last_epoch = epoch;
-
-        if epoch % monitor_interval == 0 {
-            let y_pred = nn.predict(&x).unwrap();
-
-            draw_image(epoch as i32, &x, &y_pred, 200, 200);
-            nn.save_weights(&(weights_path.to_owned() + "/cp_" + &epoch.to_string() + ".json"));
-
-            // Rest for a few seconds before starting again
-            if sleep_time > 0 {
-                println!("Taking a nap");
-                thread::sleep(Duration::from_secs(sleep_time));
-                println!("Awake again");
-            }
-        }
-    };
-
-    draw_image(-1, &x, &y, 200, 200);
-
-    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, monitor_interval);
-
-    //let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
-
-    //let x_test = normalize_features(&x_test, &x_mean, &x_std);
-
-    //let x_test = add_bias_term(&x_test)?;
-
-    //let predictions = nn.predict(&x).unwrap();
-
-    //predictions.print_matrix();
-
-    //let predictions = denormalize_features(&predictions, &y_mean, &y_std);
-    Ok(())
+    nn
 }
 
 fn draw_image<T>(epoch: i32, x_test: &T, y: &T, height: u32, width: u32)
