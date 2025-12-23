@@ -44,10 +44,7 @@ where
         name: &String,
     ) -> NeuralNet<T> {
         println!("Building Network:");
-        let mut parameter_count = match network_model {
-            None => 0,
-            Some(v) => v.parameter_count,
-        };
+        let mut parameter_count = 0;
 
         let layer_strings: Vec<String> = self
             .layers

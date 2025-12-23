@@ -49,29 +49,8 @@ where
 
         w_data
     }
-    pub fn new(
-        input_size: u32,
-        output_size: u32,
-        name: &str,
-        model_data: Option<LayerData>,
-    ) -> Result<Self, String> {
-        let w_data = match model_data {
-            None => Self::_initialize_weights(input_size, output_size),
-            Some(model_data) => {
-                let incoming_input_size = model_data.shape[0];
-                let incoming_output_size = model_data.shape[1];
-                let incoming_name = model_data.name;
-
-                if incoming_input_size == input_size
-                    && incoming_output_size == output_size
-                    && incoming_name.eq(name)
-                {
-                    model_data.weights
-                } else {
-                    Self::_initialize_weights(input_size, output_size)
-                }
-            }
-        };
+    pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
+        let w_data = Self::_initialize_weights(input_size, output_size);
 
         Ok(Self {
             weights: T::new(vec![input_size, output_size], w_data)?,

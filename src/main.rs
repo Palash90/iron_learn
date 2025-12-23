@@ -13,7 +13,7 @@ use std::ptr;
 #[command(name = "A Rust Machine Learning Library")]
 struct Args {
     #[arg(long, short, default_value = "neural-net")]
-    name: bool,
+    name: String,
 
     #[arg(long, short, default_value = "false")]
     cpu: bool,
@@ -136,7 +136,7 @@ fn greet(ctx: &iron_learn::AppContext) {
     println!("║ Epochs: {}", ctx.epochs);
     println!("║ Hidden Layers: {}", ctx.hidden_layer_length);
     println!("║ Data Path: {}", ctx.data_path);
-    println!("║ Parameters Path: {}", ctx.parameters_file);
+    println!("║ Model Path: {}", ctx.weights_path);
     println!("║ Monitor Interval: {}", ctx.monitor_interval);
     println!("║ Intermediate Sleep Time: {} seconds", ctx.sleep_time);
     println!("╚═══════════════════════════════════════╝\n");
