@@ -114,16 +114,22 @@ where
         };
 
         for (i, layer) in self.layers.iter().enumerate() {
-            if let Some(w) = layer.get_parameters() {
-                let layer_info = LayerData {
-                    name: layer.name().to_string(),
-                    index: i,
-                    weights: w.get_data().to_vec(),
-                    shape: w.get_shape().to_vec(),
-                };
+            let (w, s) = match layer.get_parameters() {
+                Some(wt) => (wt.get_data().to_vec(), wt.get_shape().to_vec()),
+                None => (Vec::<NeuralNetDataType>::new(), Vec::<u32>::new()),
+            };
 
-                model_storage.layers.push(layer_info);
-            }
+            let layer_info = LayerData {
+                name: layer.name().to_string(),
+                index: i,
+                weights: w,
+                shape: s,
+                layer_type: layer.layer_type().to_string(),
+                activation: layer.activation().to_string(),
+                activation_prime: layer.activation_prime().to_string()
+            };
+
+            model_storage.layers.push(layer_info);
         }
 
         let json_data = serde_json::to_string_pretty(&model_storage)

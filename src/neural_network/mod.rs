@@ -16,6 +16,9 @@ use serde::Deserialize;
 use serde::Serialize;
 #[derive(Serialize, Deserialize)]
 pub struct LayerData {
+    pub layer_type: String,
+    pub activation: String,
+    pub activation_prime: String,
     pub name: String,
     pub index: usize,
     pub weights: Vec<NeuralNetDataType>,
@@ -27,7 +30,7 @@ pub struct ModelData {
     pub name: String,
     pub parameter_count: u64,
     pub layers: Vec<LayerData>,
-    pub epoch: usize,
+    pub epoch: usize
 }
 
 // ============================================================================

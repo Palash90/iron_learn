@@ -16,6 +16,9 @@ where
         None
     }
     fn name(&self) -> &str;
+    fn layer_type(&self) -> &str;
+    fn activation(&self) -> &str;
+    fn activation_prime(&self) -> &str;
 }
 
 pub struct LinearLayer<T>
@@ -25,6 +28,7 @@ where
     weights: T,
     input_cache: Option<T>,
     name: String,
+    layer_type: String,
 }
 
 impl<T> LinearLayer<T>
@@ -74,6 +78,7 @@ where
             weights: T::new(vec![input_size, output_size], w_data)?,
             input_cache: None,
             name: name.to_string(),
+            layer_type: "linear".to_string(),
         })
     }
 }
@@ -117,16 +122,29 @@ where
                 .unwrap(),
         )
     }
+
+    fn layer_type(&self) -> &str {
+        todo!()
+    }
+
+    fn activation(&self) -> &str {
+        todo!()
+    }
+
+    fn activation_prime(&self) -> &str {
+        todo!()
+    }
 }
 
 pub struct ActivationLayer<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
-    activation: ActivationFn<T>,
-    activation_prime: ActivationFn<T>,
+    activation: String,
+    activation_prime: String,
     output_cache: Option<T>,
     name: String,
+    layer_type: String,
 }
 
 impl<T> ActivationLayer<T>
@@ -134,12 +152,13 @@ where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     /// Now takes two function pointers as input
-    pub fn new(activation: ActivationFn<T>, activation_prime: ActivationFn<T>, name: &str) -> Self {
+    pub fn new(activation: String, activation_prime: String, name: &str) -> Self {
         Self {
             activation,
             activation_prime,
             output_cache: None,
             name: name.to_string(),
+            layer_type: "activation".to_string(),
         }
     }
 }
@@ -172,5 +191,17 @@ where
         let prime = (self.activation_prime)(out)?;
 
         prime.multiply(output_error)
+    }
+
+    fn layer_type(&self) -> &str {
+        &self.layer_type
+    }
+
+    fn activation(&self) -> &str {
+        &self.activation
+    }
+
+    fn activation_prime(&self) -> &str {
+        &self.activation_prime
     }
 }
