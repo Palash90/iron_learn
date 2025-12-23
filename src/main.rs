@@ -22,7 +22,10 @@ struct Args {
     epochs: u32,
 
     #[arg(long, short, default_value = "data.json")]
-    file: String,
+    data_file: String,
+
+    #[arg(long, short, default_value = "")]
+    parameters_file: String,
 
     #[arg(long, short, default_value = "false")]
     adjust_lr: bool,
@@ -74,7 +77,8 @@ fn init() {
                 init_context(
                     "Iron Learn",
                     5,
-                    args.file,
+                    args.data_file,
+                    args.parameters_file,
                     args.lr,
                     args.epochs,
                     true,
@@ -92,7 +96,8 @@ fn init() {
                 init_context(
                     "Iron Learn",
                     5,
-                    args.file,
+                    args.data_file,
+                    args.parameters_file,
                     args.lr,
                     args.epochs,
                     false,
@@ -108,7 +113,8 @@ fn init() {
         init_context(
             "Iron Learn",
             5,
-            args.file,
+            args.data_file,
+            args.parameters_file,
             args.lr,
             args.epochs,
             false,
@@ -130,6 +136,9 @@ fn greet(ctx: &iron_learn::AppContext) {
     println!("║ Epochs: {}", ctx.epochs);
     println!("║ Hidden Layers: {}", ctx.hidden_layer_length);
     println!("║ Data Path: {}", ctx.data_path);
+    println!("║ Parameters Path: {}", ctx.parameters_file);
+    println!("║ Monitor Interval: {}", ctx.monitor_interval);
+    println!("║ Intermediate Sleep Time: {} seconds", ctx.sleep_time);
     println!("╚═══════════════════════════════════════╝\n");
 }
 

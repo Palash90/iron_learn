@@ -38,6 +38,7 @@ where
 
     pub fn build(self, loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>) -> NeuralNet<T> {
         println!("Building Network:");
+        let mut parameter_count = 0;
 
         // Map your layers into beautiful strings first
         let layer_strings: Vec<String> = self
@@ -49,6 +50,7 @@ where
                 match layer.as_ref().get_parameters() {
                     Some(v) => {
                         let shape = v.get_shape();
+                        parameter_count += shape.iter().product::<u32>();
                         // Format: Name [In, Out]
                         format!("{} [{}, {}]", name.bold().cyan(), shape[0], shape[1])
                     }
@@ -60,16 +62,26 @@ where
             })
             .collect();
 
-        // Join them with the arrow
+        let parameter_count = parameter_count as usize;
+        let label = if parameter_count >= 1_000_000 {
+            format!("{:.1}M", parameter_count as f64 / 1_000_000.0)
+        } else if parameter_count >= 1_000 {
+            format!("{}k", parameter_count / 1_000)
+        } else {
+            format!("{}", parameter_count)
+        };
+
         let output = layer_strings.join(" ──▶ ");
 
-        println!("\nModel Architecture:");
+        println!("\nModel Architecture ({label}):");
         println!("{}\n", output);
 
         println!();
         NeuralNet {
             layers: self.layers,
             loss_fn,
+            parameter_count,
+            label,
         }
     }
 }

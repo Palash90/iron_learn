@@ -32,6 +32,8 @@ where
 {
     pub layers: Vec<Box<dyn Layer<T>>>,
     pub loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
+    pub parameter_count: usize,
+    pub label: String
 }
 
 impl<T> NeuralNet<T>
