@@ -1,6 +1,7 @@
 // use crate::commons::add_bias_term;
 use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
+use crate::neural_network::LayerType;
 use crate::neural_network::{sigmoid, sigmoid_prime, tanh, tanh_prime};
 use crate::normalize_features;
 use crate::read_file::deserialize_data_double_precision;
@@ -286,34 +287,34 @@ where
     let mut nn = NeuralNetBuilder::<T>::new();
 
     nn.add_linear(input_length, hidden_length, "Input");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 1");
+    nn.add_activation(LayerType::Tanh, "Activation Layer 1");
 
     nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 2");
+    nn.add_activation(LayerType::Tanh, "Activation Layer 2");
 
     nn.add_linear(hidden_length, 2 * hidden_length, "Hidden Layer 2");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 3");
+    nn.add_activation(LayerType::Tanh, "Activation Layer 3");
 
     nn.add_linear(2 * hidden_length, 4 * hidden_length, "Hidden Layer 3");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 4");
+    nn.add_activation(LayerType::Tanh, "Activation Layer 4");
 
     nn.add_linear(4 * hidden_length, 2 * hidden_length, "Hidden Layer 4");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 5");
+    nn.add_activation(LayerType::Tanh, "Activation Layer 5");
 
     nn.add_linear(2 * hidden_length, hidden_length, "Hidden Layer 5");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 6");
+    nn.add_activation(LayerType::Tanh, "Activation Layer 6");
 
     nn.add_linear(hidden_length, hidden_length / 2, "Hidden Layer 6");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 7");
+    nn.add_activation(LayerType::Tanh, "Activation Layer 7");
 
     nn.add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 7");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 8");
+    nn.add_activation(LayerType::Tanh, "Activation Layer 8");
 
     nn.add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 8");
-    nn.add_activation(tanh, tanh_prime, "Activation Layer 9");
+    nn.add_activation(LayerType::Tanh, "Activation Layer 9");
 
     nn.add_linear(hidden_length / 2, 1, "Hidden Layer 9");
-    nn.add_activation(sigmoid, sigmoid_prime, "Output Layer");
+    nn.add_activation(LayerType::Sigmoid, "Output Layer");
     nn
 }
 
