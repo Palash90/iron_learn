@@ -2,7 +2,7 @@
 // Internal Module Declarations
 // ============================================================================
 
-mod app_context;
+mod contexts;
 mod commons;
 mod complex;
 mod cpu_tensor;
@@ -35,7 +35,7 @@ pub use crate::cuda_tensor::GpuTensor;
 // Context & GPU Re-exports
 // ============================================================================
 
-pub use crate::app_context::{init_context, AppContext, GLOBAL_CONTEXT};
+pub use crate::contexts::{init_context, AppContext, GLOBAL_CONTEXT};
 pub use crate::gpu_context::{init_gpu, GpuContext, GPU_CONTEXT};
 
 // ============================================================================
