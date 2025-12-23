@@ -1,5 +1,6 @@
 use super::layers::*;
 use crate::neural_network::ActivationFn;
+use crate::neural_network::LayerType;
 use crate::neural_network::LossFunction;
 use crate::neural_network::ModelData;
 use crate::neural_network::NeuralNetDataType;
@@ -32,8 +33,8 @@ where
         }
     }
 
-    pub fn add_activation(&mut self, act: ActivationFn<T>, act_prime: ActivationFn<T>, name: &str) {
-        let layer = ActivationLayer::new(act, act_prime, name);
+    pub fn add_activation(&mut self, act: LayerType, name: &str) {
+        let layer = ActivationLayer::new(act, name);
         self.layers.push(Box::new(layer));
     }
 
@@ -84,11 +85,6 @@ where
         println!("{}\n", output);
 
         println!();
-        NeuralNet {
-            layers: self.layers,
-            loss_fn,
-            parameter_count: parameter_count as u64,
-            label,
-        }
+        NeuralNet::new(self.layers, loss_fn, parameter_count as u64, label)
     }
 }

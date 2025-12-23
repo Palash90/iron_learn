@@ -28,6 +28,23 @@ impl<T> NeuralNet<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
+    pub fn new(
+        layers: Vec<Box<dyn Layer<T>>>,
+        loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
+        param_count: u64,
+        label: String,
+        name: String,
+    ) -> Self {
+        Self {
+            layers,
+            loss_fn,
+            parameter_count: param_count,
+            label,
+            name,
+            current_epoch: 0,
+        }
+    }
+
     pub fn add(&mut self, layer: Box<dyn Layer<T>>) {
         self.layers.push(layer);
     }
