@@ -1,6 +1,29 @@
+use serde::{Deserialize, Serialize};
+
 use crate::neural_network::NeuralNetDataType;
 use crate::tensor::math::TensorMath;
-use crate::Tensor;
+use crate::{ActivationFn, Tensor};
+
+#[derive(Clone, Serialize, Deserialize)]
+pub enum LayerType {
+    Sigmoid,
+    Tanh,
+    Linear,
+}
+
+pub fn get_activations<T>(layer: &LayerType) -> (ActivationFn<T>, ActivationFn<T>)
+where
+    T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
+{
+    match layer {
+        LayerType::Sigmoid => (sigmoid, sigmoid_prime),
+        LayerType::Tanh => (tanh, tanh_prime),
+        LayerType::Linear => (
+            |x: &T| Ok(T::zeroes(x.get_shape())),
+            |x: &T| Ok(T::zeroes(x.get_shape())),
+        ),
+    }
+}
 
 pub fn sigmoid<T>(input: &T) -> Result<T, String>
 where

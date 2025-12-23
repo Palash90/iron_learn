@@ -124,9 +124,7 @@ where
                 index: i,
                 weights: w,
                 shape: s,
-                layer_type: layer.layer_type().to_string(),
-                activation: layer.activation().to_string(),
-                activation_prime: layer.activation_prime().to_string()
+                layer_type: layer.layer_type().clone(),
             };
 
             model_storage.layers.push(layer_info);

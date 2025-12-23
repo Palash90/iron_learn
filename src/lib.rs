@@ -2,9 +2,9 @@
 // Internal Module Declarations
 // ============================================================================
 
-mod contexts;
 mod commons;
 mod complex;
+mod contexts;
 mod cpu_tensor;
 mod cuda_tensor;
 mod gpu_context;
