@@ -90,4 +90,6 @@ where
             name.to_string(),
         )
     }
+
+    pub fn build_from_model(model: ModelData) {}
 }

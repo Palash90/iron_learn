@@ -22,6 +22,7 @@ where
     pub label: String,
     pub name: String,
     current_epoch: usize,
+    current_lr: NeuralNetDataType,
 }
 
 impl<T> NeuralNet<T>
@@ -42,6 +43,7 @@ where
             label,
             name,
             current_epoch: 0,
+            current_lr: 0.0,
         }
     }
 
@@ -74,20 +76,29 @@ where
     {
         let lr_min = 1e-6;
 
+        let total_timeline = (epochs + epoch_offset) as NeuralNetDataType;
+        let hook_interval = match epochs > hook_interval {
+            true => hook_interval,
+            false => epochs - 1,
+        };
+
         for i in 0..epochs {
-            print!("\rProcessing epoch: {}", i);
-            self.current_epoch = i;
+            let global_i = (i + epoch_offset) as NeuralNetDataType;
+
+            print!("\rProcessing epoch: {}", i + epoch_offset);
             io::stdout().flush().unwrap();
 
-            let cos_term = ((PI as NeuralNetDataType * i as NeuralNetDataType)
-                / ((epochs + epoch_offset) as NeuralNetDataType))
-                .cos();
+            self.current_epoch = i + epoch_offset;
+
+            let cos_term = ((PI as NeuralNetDataType * global_i) / total_timeline).cos();
 
             let decay_factor = 0.5 * (1.0 + cos_term);
             let current_lr = match lr_adjustment {
                 true => lr_min + (base_lr.f32() - lr_min) * decay_factor,
                 false => base_lr,
             };
+
+            self.current_lr = current_lr;
 
             let mut output = x_train.add(&T::zeroes(x_train.get_shape())).unwrap();
             for layer in &mut self.layers {
@@ -105,16 +116,12 @@ where
             }
             T::synchronize();
 
-            let hook_interval = match epochs > hook_interval {
-                true => hook_interval,
-                false => epochs - 1,
-            };
             // Hook (Periodic Reporting)
-            if i == 0 || i % hook_interval == 0 {
+            if i == 0 || (i + epoch_offset) % hook_interval == 0 {
                 T::synchronize();
                 let err_val = err.unwrap().sum().unwrap().get_data()[0];
 
-                hook(i, err_val, current_lr, self);
+                hook(i + epoch_offset, err_val, current_lr, self);
             }
         }
 
@@ -122,12 +129,13 @@ where
         Ok(())
     }
 
-    pub fn save_weights(&self, filepath: &str) {
+    pub fn save_model(&self, filepath: &str) {
         let mut model_storage = ModelData {
             name: self.name.clone(),
             parameter_count: self.parameter_count,
             layers: Vec::new(),
             epoch: self.current_epoch,
+            saved_lr: self.current_lr,
         };
 
         for (i, layer) in self.layers.iter().enumerate() {

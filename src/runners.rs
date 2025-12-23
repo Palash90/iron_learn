@@ -250,7 +250,7 @@ where
             let y_pred = nn.predict(&x).unwrap();
 
             draw_image(epoch as i32, &x, &y_pred, 200, 200);
-            nn.save_weights(&(weights_path.to_owned()));
+            nn.save_model(&(weights_path.to_owned()));
 
             // Rest for a few seconds before starting again
             if sleep_time > 0 {

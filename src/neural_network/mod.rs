@@ -29,6 +29,7 @@ pub struct ModelData {
     pub parameter_count: u64,
     pub layers: Vec<LayerData>,
     pub epoch: usize,
+    pub saved_lr: NeuralNetDataType,
 }
 
 // ============================================================================
