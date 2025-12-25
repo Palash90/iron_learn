@@ -10,7 +10,7 @@ mod cuda_tensor;
 mod gpu_context;
 mod gradient_descent;
 mod numeric;
-mod read_file;
+pub mod read_file;
 mod runners;
 use serde::{Deserialize, Serialize};
 pub mod neural_network;
