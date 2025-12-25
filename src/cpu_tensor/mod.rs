@@ -404,18 +404,6 @@ impl<T: SignedNumeric> Neg for CpuTensor<T> {
 
 // This trait implementation wires the public API to the internal logic.
 impl<T: Numeric> Tensor<T> for CpuTensor<T> {
-    fn print_matrix(&self) {
-        let rows = self.shape[0] as usize;
-        let cols = self.shape[1] as usize;
-
-        for r in 0..rows {
-            for c in 0..cols {
-                print!("{} ", self.data[r * cols + c]);
-            }
-            println!();
-        }
-    }
-
     /* Creation */
     /// Creates a new tensor with the provided shape and data.
     /// Wires to the internal validation logic.

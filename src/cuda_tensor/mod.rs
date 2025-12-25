@@ -40,26 +40,6 @@ pub struct GpuTensor<T: Numeric> {
     device_buffer: CustomDeviceBuffer<T>,
 }
 
-impl<T: Numeric + Zeroable> GpuTensor<T>
-where
-    T: Numeric,
-{
-    pub fn print_matrix(&self) {
-        let rows = self.shape[0] as usize;
-        let cols = match self.shape.len() {
-            2 => self.shape[1] as usize,
-            _ => 1,
-        };
-
-        for r in 0..rows {
-            for c in 0..cols {
-                print!("{:.2?}\t", self.get_data()[r * cols + c]);
-            }
-            println!();
-        }
-    }
-}
-
 impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         Self::_new(shape, data)
@@ -108,10 +88,6 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
             .as_ref()
             .expect("Stream could not be found"))
         .synchronize();
-    }
-
-    fn print_matrix(&self) -> () {
-        self.print_matrix()
     }
 
     fn zeroes(shape: &Vec<u32>) -> Self {

@@ -27,7 +27,7 @@ struct Args {
     #[arg(long, short, default_value = "10000")]
     epochs: u32,
 
-    #[arg(long, short, default_value = "data.json")]
+    #[arg(long, short, default_value = "data/linear.json")]
     data_file: String,
 
     #[arg(long, short, default_value = "false")]

@@ -3,6 +3,8 @@ use crate::neural_network::{get_activations, LayerType};
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 
+use rand::rngs::StdRng; // For Seedable range
+use rand::SeedableRng; // For Seedable range
 use rand_distr::{Distribution, StandardNormal};
 
 pub trait Layer<T>
@@ -34,7 +36,7 @@ where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     fn _initialize_weights(input_size: u32, output_size: u32) -> Vec<NeuralNetDataType> {
-        let mut rng = rand::rng(); //StdRng::seed_from_u64(42); // rand::rng();
+        let mut rng = StdRng::seed_from_u64(1610612741); // rand::rng();
 
         let limit =
             (6.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();

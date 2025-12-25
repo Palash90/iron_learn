@@ -184,7 +184,7 @@ where
 
     // let input_length = input_length + 1; // To compensate for bias
 
-    let nn = define_neural_net(hidden_length, input_length);
+    let nn = define_neural_net::<T>(hidden_length, input_length);
 
     let mut nn = match !weights_path.is_empty() {
         true => match deserialize_model(&weights_path) {
@@ -217,6 +217,11 @@ where
             draw_image(epoch as i32, &x, &y_pred, 200, 200);
             nn.save_model(&(weights_path.to_owned()));
 
+            let predictions = nn.predict(&x).unwrap();
+
+            //     println!();
+            //      predictions.print_matrix();
+
             // Rest for a few seconds before starting again
             if sleep_time > 0 {
                 println!("Taking a nap");
@@ -236,49 +241,41 @@ where
 
     //let x_test = add_bias_term(&x_test)?;
 
-    //let predictions = nn.predict(&x).unwrap();
+    let predictions = nn.predict(&x).unwrap();
 
-    //predictions.print_matrix();
+    println!();
+    predictions.print_matrix();
 
     //let predictions = denormalize_features(&predictions, &y_mean, &y_std);
     Ok(())
 }
 
-fn define_neural_net<T>(hidden_length: u32, input_length: u32) -> NeuralNetBuilder<T>
+fn define_neural_net<T>(hl: u32, il: u32) -> NeuralNetBuilder<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     let mut nn = NeuralNetBuilder::<T>::new();
 
-    nn.add_linear(input_length, hidden_length, "Input");
-    nn.add_activation(LayerType::Tanh, "Activation Layer 1");
+    let layers = [
+        (il, hl / 8, LayerType::Tanh, "Input", "AL 1"),
+        (hl / 8, hl / 8, LayerType::Tanh, "HL1", "AL2"),
+        (hl / 8, hl / 4, LayerType::Tanh, "HL2", "AL3"),
+        (hl / 4, hl / 4, LayerType::Tanh, "HL3", "AL4"),
+        (hl / 4, hl / 2, LayerType::Tanh, "HL4", "AL5"),
+        (hl / 2, hl / 2, LayerType::Tanh, "HL5", "AL6"),
+        (hl / 2, hl / 1, LayerType::Tanh, "HL6", "AL7"),
+        (hl / 1, hl / 1, LayerType::Tanh, "HL7", "AL8"),
+        (hl / 1, hl / 2, LayerType::Tanh, "HL8", "AL9"),
+        (hl / 2, hl / 4, LayerType::Tanh, "HL9", "AL10"),
+        (hl / 4, hl / 8, LayerType::Tanh, "HL10", "AL11"),
+        (hl / 8, hl / 8, LayerType::Tanh, "HL11", "AL12"),
+        (hl / 8, 1, LayerType::Sigmoid, "HL12", "Output"),
+    ];
 
-    nn.add_linear(hidden_length, hidden_length, "Hidden Layer 1");
-    nn.add_activation(LayerType::Tanh, "Activation Layer 2");
-
-    nn.add_linear(hidden_length, 2 * hidden_length, "Hidden Layer 2");
-    nn.add_activation(LayerType::Tanh, "Activation Layer 3");
-
-    nn.add_linear(2 * hidden_length, 4 * hidden_length, "Hidden Layer 3");
-    nn.add_activation(LayerType::Tanh, "Activation Layer 4");
-
-    nn.add_linear(4 * hidden_length, 2 * hidden_length, "Hidden Layer 4");
-    nn.add_activation(LayerType::Tanh, "Activation Layer 5");
-
-    nn.add_linear(2 * hidden_length, hidden_length, "Hidden Layer 5");
-    nn.add_activation(LayerType::Tanh, "Activation Layer 6");
-
-    nn.add_linear(hidden_length, hidden_length / 2, "Hidden Layer 6");
-    nn.add_activation(LayerType::Tanh, "Activation Layer 7");
-
-    nn.add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 7");
-    nn.add_activation(LayerType::Tanh, "Activation Layer 8");
-
-    nn.add_linear(hidden_length / 2, hidden_length / 2, "Hidden Layer 8");
-    nn.add_activation(LayerType::Tanh, "Activation Layer 9");
-
-    nn.add_linear(hidden_length / 2, 1, "Hidden Layer 9");
-    nn.add_activation(LayerType::Sigmoid, "Output Layer");
+    for layer in layers {
+        nn.add_linear(layer.0, layer.1, layer.3);
+        nn.add_activation(layer.2, layer.4);
+    }
     nn
 }
 
@@ -294,10 +291,7 @@ where
     for i in 0..y_data.len() {
         let x_co = x_data[2 * i] as u32;
         let y_co = x_data[2 * i + 1] as u32;
-        let pixel = match y_data[i] > 0.5f32 {
-            true => 0,
-            false => 255,
-        };
+        let pixel = (y_data[i] * 256.0) as u8;
 
         image_data.push((x_co, y_co, pixel));
     }
@@ -314,7 +308,7 @@ fn draw_grid(points: Vec<(u32, u32, u8)>, epoch: i32, height: u32, width: u32) {
         }
     }
 
-    let image_file = "output".to_owned() + &epoch.to_string() + ".png";
+    let image_file = "images/output".to_owned() + &epoch.to_string() + ".png";
 
     imgbuf.save(&image_file).unwrap();
 

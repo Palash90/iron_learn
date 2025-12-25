@@ -2,7 +2,22 @@ use crate::Numeric;
 pub mod math;
 
 pub trait Tensor<T: Numeric>: Sized {
-    fn print_matrix(&self) -> ();
+    fn print_matrix(&self) -> () {
+        let data = self.get_data();
+
+        let rows = self.get_shape()[0] as usize;
+        let cols = match self.get_shape().len() {
+            2 => self.get_shape()[1] as usize,
+            _ => 1,
+        };
+
+        for r in 0..rows {
+            for c in 0..cols {
+                print!("{:.6?}\t", data[r * cols + c]);
+            }
+            println!();
+        }
+    }
 
     /* Creation */
     // Returns a Tensor with all zero values

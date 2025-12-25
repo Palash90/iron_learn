@@ -81,7 +81,7 @@ where
         let total_timeline = (epochs + epoch_offset) as NeuralNetDataType;
         let hook_interval = match epochs > hook_interval {
             true => hook_interval,
-            false => epochs - 1,
+            false => epochs,
         };
 
         for i in 0..epochs {
