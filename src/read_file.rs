@@ -1,11 +1,11 @@
 use std::fs;
 
-use crate::{neural_network::ModelData, runners::DataDoublePrecision, Data};
+use crate::{neural_network::ModelData, XYDoublePrecision, XY};
 
-pub fn deserialize_data(data_path: &str) -> Result<Data, serde_json::Error> {
+pub fn deserialize_data(data_path: &str) -> Result<XY, serde_json::Error> {
     let contents =
         fs::read_to_string(&data_path).expect(&format!("Failed to read data from {}", data_path));
-    let data: Data = match serde_json::from_str(&contents) {
+    let data: XY = match serde_json::from_str(&contents) {
         Ok(d) => d,
         Err(err) => {
             eprintln!("Failed to parse JSON data: {}", err);
@@ -36,10 +36,10 @@ pub fn deserialize_model(data_path: &str) -> Option<ModelData> {
 
 pub fn deserialize_data_double_precision(
     data_path: &str,
-) -> Result<DataDoublePrecision, serde_json::Error> {
+) -> Result<XYDoublePrecision, serde_json::Error> {
     let contents =
         fs::read_to_string(&data_path).expect(&format!("Failed to read data from {}", data_path));
-    let data: DataDoublePrecision = match serde_json::from_str(&contents) {
+    let data: XYDoublePrecision = match serde_json::from_str(&contents) {
         Ok(d) => d,
         Err(err) => {
             eprintln!("Failed to parse JSON data: {}", err);

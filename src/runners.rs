@@ -34,15 +34,6 @@ pub struct XY {
     pub x_test: Vec<NeuralNetDataType>,
     pub y_test: Vec<NeuralNetDataType>,
 }
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct Data {
-    pub linear: XY,
-    pub logistic: XY,
-    pub neural_network: XY,
-    pub cat_image: XY,
-}
-
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct XYDoublePrecision {
     pub m: u32,
@@ -52,14 +43,6 @@ pub struct XYDoublePrecision {
     pub m_test: u32,
     pub x_test: Vec<f64>,
     pub y_test: Vec<f64>,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct DataDoublePrecision {
-    pub linear: XYDoublePrecision,
-    pub logistic: XYDoublePrecision,
-    pub neural_network: XYDoublePrecision,
-    pub cat_image: XYDoublePrecision,
 }
 
 pub fn run_logistic<T>() -> Result<(), String>
@@ -73,7 +56,7 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let DataDoublePrecision { logistic: xy, .. } = deserialize_data_double_precision(&data_path)
+    let xy: XYDoublePrecision = deserialize_data_double_precision(&data_path)
         .map_err(|e| format!("Data deserialization error: {}", e))?;
 
     print!("\nLogistic Regression\n");
@@ -131,7 +114,7 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let DataDoublePrecision { linear: xy, .. } = deserialize_data_double_precision(data_path)
+    let xy = deserialize_data_double_precision(data_path)
         .map_err(|e| format!("Data deserialization error: {}", e))?;
 
     print!("\nLinear Regression\n");
@@ -207,7 +190,7 @@ where
     let name = &GLOBAL_CONTEXT.get().unwrap().name;
     let restore = GLOBAL_CONTEXT.get().unwrap().restore;
 
-    let Data { cat_image: xy, .. } =
+    let xy =
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;

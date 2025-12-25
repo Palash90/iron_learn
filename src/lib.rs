@@ -52,7 +52,7 @@ pub use crate::neural_network::{
 // ============================================================================
 
 pub use crate::commons::normalize_features;
-pub use crate::runners::{run_linear, run_logistic, run_neural_net, Data, XY};
+pub use crate::runners::{run_linear, run_logistic, run_neural_net, XY, XYDoublePrecision};
 
 // ============================================================================
 // Gradient Descent Re-exports
