@@ -3,16 +3,15 @@ use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
 use crate::neural_network::LayerType;
 use crate::normalize_features;
+use crate::read_file::deserialize_data;
 use crate::read_file::deserialize_data_double_precision;
 use crate::read_file::deserialize_model;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
+use crate::DataDoublePrecision;
 use crate::GLOBAL_CONTEXT;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
-use serde::{Deserialize, Serialize};
 use std::time::Instant;
-
-use crate::read_file::deserialize_data;
 
 use crate::neural_network::NeuralNetDataType;
 use crate::NeuralNet;
@@ -23,27 +22,6 @@ use image::{ImageBuffer, Luma};
 
 use std::thread;
 use std::time::Duration;
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct XY {
-    pub m: u32,
-    pub n: u32,
-    pub x: Vec<NeuralNetDataType>,
-    pub y: Vec<NeuralNetDataType>,
-    pub m_test: u32,
-    pub x_test: Vec<NeuralNetDataType>,
-    pub y_test: Vec<NeuralNetDataType>,
-}
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct XYDoublePrecision {
-    pub m: u32,
-    pub n: u32,
-    pub x: Vec<f64>,
-    pub y: Vec<f64>,
-    pub m_test: u32,
-    pub x_test: Vec<f64>,
-    pub y_test: Vec<f64>,
-}
 
 pub fn run_logistic<T>() -> Result<(), String>
 where
@@ -56,7 +34,7 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let xy: XYDoublePrecision = deserialize_data_double_precision(&data_path)
+    let xy: DataDoublePrecision = deserialize_data_double_precision(&data_path)
         .map_err(|e| format!("Data deserialization error: {}", e))?;
 
     print!("\nLogistic Regression\n");

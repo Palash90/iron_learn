@@ -12,13 +12,35 @@ mod gradient_descent;
 mod numeric;
 mod read_file;
 mod runners;
-
+use serde::{Deserialize, Serialize};
 pub mod neural_network;
 pub mod tensor;
+use crate::neural_network::NeuralNetDataType;
 
 // ============================================================================
-// Type Re-exports
+// Types
 // ============================================================================
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Data {
+    pub m: u32,
+    pub n: u32,
+    pub x: Vec<NeuralNetDataType>,
+    pub y: Vec<NeuralNetDataType>,
+    pub m_test: u32,
+    pub x_test: Vec<NeuralNetDataType>,
+    pub y_test: Vec<NeuralNetDataType>,
+}
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct DataDoublePrecision {
+    pub m: u32,
+    pub n: u32,
+    pub x: Vec<f64>,
+    pub y: Vec<f64>,
+    pub m_test: u32,
+    pub x_test: Vec<f64>,
+    pub y_test: Vec<f64>,
+}
 
 pub use crate::complex::Complex;
 pub use crate::numeric::{Numeric, SignedNumeric};
@@ -52,7 +74,7 @@ pub use crate::neural_network::{
 // ============================================================================
 
 pub use crate::commons::normalize_features;
-pub use crate::runners::{run_linear, run_logistic, run_neural_net, XY, XYDoublePrecision};
+pub use crate::runners::{run_linear, run_logistic, run_neural_net};
 
 // ============================================================================
 // Gradient Descent Re-exports
