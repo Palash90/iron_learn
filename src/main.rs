@@ -136,6 +136,7 @@ pub fn init() {
 fn greet(ctx: &iron_learn::AppContext) {
     println!("\n╔═══════════════════════════════════════╗");
     println!("║ {} v{}", ctx.app_name, ctx.version);
+    println!("║ Name: {}", ctx.name);
     println!("║ Mode: {}", if ctx.gpu_enabled { "GPU" } else { "CPU" });
     println!("║ Learning Rate: {}", ctx.learning_rate);
     println!("║ Learning Rate Adjustment: {}", ctx.lr_adjust);

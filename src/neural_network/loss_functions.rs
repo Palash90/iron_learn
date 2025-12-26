@@ -106,42 +106,27 @@ where
     fn loss_prime(&self, y_true: &T, y_pred: &T) -> Result<T, String> {
         let shape = y_true.get_shape();
         let ones = T::ones(shape);
-        let epsilon = D::from(1e-7 as NeuralNetDataType);
 
-        //      println!("Ones");
-        //      ones.print_matrix();
+        // 1. Setup constants
+        let epsilon = D::from(1e-12 as NeuralNetDataType);
+        let one = D::from(1.0 as NeuralNetDataType);
+        let one_minus_epsilon = D::from((1.0 - 1e-12) as NeuralNetDataType);
 
-        // Formula: (y_pred - y_true) / [y_pred * (1 - y_pred)]
+        // 2. Stability: Clip y_pred just like the Python version
+        // This prevents division by zero in the denominator later
+        let clipped_pred = y_pred.clip(epsilon, one_minus_epsilon).unwrap();
 
-        // Numerator: (y_pred - y_true)
-        let numerator = y_pred.sub(y_true).unwrap();
+        // 3. Calculate: (clipped_pred - y_true) / [clipped_pred * (1 - clipped_pred)]
+        let numerator = clipped_pred.sub(y_true).unwrap();
+        let one_minus_pred = ones.sub(&clipped_pred).unwrap();
+        let denominator = clipped_pred.multiply(&one_minus_pred).unwrap();
 
-        //     println!("Loss prime numerator");
-        //    numerator.print_matrix();
+        let mut result = numerator.div(&denominator).unwrap();
 
-        // Denominator: y_pred * (1 - y_pred)
-        let one_minus_pred = ones.sub(y_pred).unwrap();
+        // 4. Normalization: Divide by y.size to get the mean gradient
+        let size = D::from(shape.iter().product::<u32>() as NeuralNetDataType);
+        result = result.scale(D::one() / size).unwrap();
 
-        //     println!("Loss prime one_minus_pred");
-        //     one_minus_pred.print_matrix();
-
-        let denominator = y_pred.multiply(&one_minus_pred).unwrap();
-
-        //      println!("Loss prime denominator");
-        //     denominator.print_matrix();
-
-        // Stability: Ensure we don't divide by zero
-        let safe_denominator = denominator.clip(epsilon, D::one()).unwrap();
-
-        //     println!("Loss prime safe_denominator");
-        //     safe_denominator.print_matrix();
-
-        // Note: This requires a 'div' method in your Tensor trait
-        let r = numerator.div(&safe_denominator).unwrap();
-
-        //      println!("Loss prime result");
-        //      r.print_matrix();
-
-        Ok(r)
+        Ok(result)
     }
 }

@@ -216,8 +216,8 @@ where
         if epoch % monitor_interval == 0 {
             let y_pred = nn.predict(&x).unwrap();
 
-            draw_image(epoch as i32, &x, &y_pred, 200, 200);
-            nn.save_model(&(weights_path.to_owned()));
+            draw_image(epoch as i32, &x, &y_pred, 200, 200, name);
+            nn.save_model(&(name.to_owned() + "/" + weights_path));
 
             //println!();
             //y_pred.print_matrix();
@@ -231,7 +231,7 @@ where
         }
     };
 
-    draw_image(-1, &x, &y, 200, 200);
+    draw_image(-1, &x, &y, 200, 200, name);
 
     let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, monitor_interval);
 
@@ -279,7 +279,7 @@ where
     nn
 }
 
-fn draw_image<T>(epoch: i32, x_test: &T, y: &T, height: u32, width: u32)
+fn draw_image<T>(epoch: i32, x_test: &T, y: &T, height: u32, width: u32, name: &String)
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
@@ -299,10 +299,10 @@ where
         image_data.push((x_co, y_co, pixel));
     }
 
-    draw_grid(image_data, epoch, height, width);
+    draw_grid(image_data, epoch, height, width, name);
 }
 
-fn draw_grid(points: Vec<(u32, u32, u8)>, epoch: i32, height: u32, width: u32) {
+fn draw_grid(points: Vec<(u32, u32, u8)>, epoch: i32, height: u32, width: u32, name: &String) {
     let mut imgbuf = ImageBuffer::new(width, height);
 
     for (x, y, pixel) in points {
@@ -311,7 +311,7 @@ fn draw_grid(points: Vec<(u32, u32, u8)>, epoch: i32, height: u32, width: u32) {
         }
     }
 
-    let image_file = "images/output".to_owned() + &epoch.to_string() + ".png";
+    let image_file = name.to_owned() + "/images/output" + &epoch.to_string() + ".png";
 
     imgbuf.save(&image_file).unwrap();
 
