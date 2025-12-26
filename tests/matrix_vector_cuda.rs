@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod cuda_tests {
 
+    use iron_learn::tensor::math::TensorMath;
     use iron_learn::GpuTensor;
     use iron_learn::Tensor;
-    use iron_learn::tensor::math::TensorMath;
 
     use iron_learn::init_context;
     use iron_learn::init_gpu;
@@ -14,10 +14,9 @@ mod cuda_tests {
     use cust::stream::StreamFlags;
     use std::ptr;
 
-
     type TensorType = f32;
 
-     fn init() {
+    fn init() {
         match cust::quick_init() {
             Ok(context) => {
                 eprintln!("✓ GPU initialization successful");
@@ -166,6 +165,34 @@ mod cuda_tests {
         result.print_matrix();
 
         assert_eq!(result, m2);
+    }
+
+    #[test]
+    fn test_cuda_matmul_identity() {
+        init();
+        
+        let a = GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0_f32, 2.0_f32, 3.0_f32, 4.0_f32])
+            .unwrap();
+        let identity =
+            GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0_f32, 0.0_f32, 0.0_f32, 1.0_f32])
+                .unwrap();
+
+        let result = a.mul(&identity).unwrap();
+        assert_eq!(result.get_data(), a.get_data());
+    }
+
+    #[test]
+    fn test_cuda_matmul_vector_dot_product() {
+        init();
+
+        // (1x3) * (3x1) = (1x1)
+        let a = GpuTensor::<TensorType>::new(vec![1, 3], vec![1.0_f32, 2.0_f32, 3.0_f32]).unwrap();
+        let b = GpuTensor::<TensorType>::new(vec![3, 1], vec![4.0_f32, 5.0_f32, 6.0_f32]).unwrap();
+
+        let result = a.mul(&b).unwrap();
+        // 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32
+        assert_eq!(result.get_data(), vec![32.0_f32]);
+        assert_eq!(result.get_shape(), &vec![1, 1]);
     }
 
     #[test]
