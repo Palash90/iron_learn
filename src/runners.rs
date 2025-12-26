@@ -216,11 +216,11 @@ where
         if epoch % monitor_interval == 0 {
             let y_pred = nn.predict(&x).unwrap();
 
-            // draw_image(epoch as i32, &x, &y_pred, 200, 200);
+            draw_image(epoch as i32, &x, &y_pred, 200, 200);
             nn.save_model(&(weights_path.to_owned()));
 
-            println!();
-            y_pred.print_matrix();
+            //println!();
+            //y_pred.print_matrix();
 
             // Rest for a few seconds before starting again
             if sleep_time > 0 {
@@ -243,7 +243,7 @@ where
 
     let predictions = nn.predict(&x).unwrap();
 
-    println!();
+    //println!();
     // predictions.print_matrix();
 
     //let predictions = denormalize_features(&predictions, &y_mean, &y_std);

@@ -426,7 +426,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let operation = Self::_get_function("fill_value");
 
         unsafe {
-            let _ = launch!(operation<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
+            let _ = launch!(operation<<<grid_1d, threads_per_block, 0, stream>>>(
                 device_buffer.as_device_ptr(),
                 size as i32,
                 value
