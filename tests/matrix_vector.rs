@@ -259,3 +259,25 @@ fn test_complex_tensor_add() {
     let expected = CpuTensor::new(vec![2, 2], vec![r1, r2, r3, r4]).unwrap();
     assert_eq!(expected, result);
 }
+
+#[test]
+pub fn test_scale_float() {
+    let m1 = CpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
+    let m2 = m1.scale(2.0).unwrap();
+    let result = CpuTensor::new(vec![2, 2], vec![2.0, 4.0, -6.0, 8.0]).unwrap();
+
+    println!("Result");
+    m2.print_matrix();
+    result.print_matrix();
+
+    assert_eq!(result, m2);
+
+    let m1 = CpuTensor::new(vec![1, 4], vec![1.0, 2.0, -3.0, -4.0]).unwrap();
+    let m2 = m1.scale(3.0).unwrap();
+    let result = CpuTensor::new(vec![1, 4], vec![3.0, 6.0, -9.0, -12.0]).unwrap();
+
+    m2.print_matrix();
+    result.print_matrix();
+
+    assert_eq!(result, m2);
+}
