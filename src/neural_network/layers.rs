@@ -36,7 +36,8 @@ where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     fn _initialize_weights(input_size: u32, output_size: u32) -> Vec<NeuralNetDataType> {
-        let mut rng = StdRng::seed_from_u64(1610612741); // rand::rng();
+        let mut rng = StdRng::seed_from_u64(1610612741);
+        let mut rng = rand::rng();
 
         let limit =
             (6.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();
@@ -82,24 +83,55 @@ where
 
     fn forward(&mut self, input: &T) -> Result<T, String> {
         self.input_cache = Some(input.add(&T::zeroes(input.get_shape()))?);
+        // println!();
+        //  println!("Layer Name {}", self.name);
+        //   println!("Input");
+        //  input.print_matrix();
+        //  println!("Weights");
+        //    self.weights.print_matrix();
         let matmul = input.mul(&self.weights)?;
+        //   println!("Output");
+        //  matmul.print_matrix();
         Ok(matmul)
     }
 
     fn backward(&mut self, output_error: &T, lr: NeuralNetDataType) -> Result<T, String> {
         let input = self.input_cache.as_ref().ok_or("No forward pass cache!")?;
 
+        // println!();
+        // println!("Layer Name {}", self.name);
+        // println!("output_error");
+        // output_error.print_matrix();
+
+        //  println!("Weights Matrix");
+        // self.weights.print_matrix();
+
         // Calculate Input Error: error * weights.T
         let w_t = self.weights.t()?;
+        //  println!("Weights transpose Matrix");
+        //  w_t.print_matrix();
         let input_error = output_error.mul(&w_t)?;
+        //  println!("Input Error");
+        //  input_error.print_matrix();
 
+        //  println!("Input Matrix");
+        //  input.print_matrix();
         // Calculate Weights Gradient: input.T * error
         let input_t = input.t()?;
+        //  println!("Input transpose matrix");
+        //   input_t.print_matrix();
+
         let weights_grad = input_t.mul(output_error)?;
+        //  println!("Weights gradient");
+        //   weights_grad.print_matrix();
 
         // Update Parameters
         let w_step = weights_grad.scale(lr)?;
+        //  println!("W_step");
+        //  w_step.print_matrix();
         self.weights = self.weights.sub(&w_step)?;
+        //   println!("Updated weights");
+        //  self.weights.print_matrix();
 
         Ok(input_error)
     }

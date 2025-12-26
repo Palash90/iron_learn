@@ -48,7 +48,7 @@ use std::fmt;
 /// let sum = z1 + z2;                 // 4 + 6i
 /// let product = z1 * z2;             // -5 + 10i
 /// ```
-#[derive(Debug, PartialEq, Copy, Clone, DeviceCopy)]
+#[derive(Debug, PartialEq, Copy, Clone, DeviceCopy, PartialOrd)]
 pub struct Complex {
     real: f64,
     imaginary: f64,

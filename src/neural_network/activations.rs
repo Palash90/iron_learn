@@ -9,6 +9,7 @@ pub enum LayerType {
     Sigmoid,
     Tanh,
     Linear,
+    Sin
 }
 
 pub fn get_activations<T>(layer: &LayerType) -> (ActivationFn<T>, ActivationFn<T>)
@@ -18,6 +19,7 @@ where
     match layer {
         LayerType::Sigmoid => (sigmoid, sigmoid_prime),
         LayerType::Tanh => (tanh, tanh_prime),
+        LayerType::Sin => (sin, cos),
         LayerType::Linear => (
             |x: &T| Ok(T::zeroes(x.get_shape())),
             |x: &T| Ok(T::zeroes(x.get_shape())),
@@ -58,4 +60,18 @@ where
     let ones = T::ones(&output.get_shape());
 
     ones.sub(&out_squared)
+}
+
+pub fn sin<T>(input: &T) -> Result<T, String>
+where
+    T: TensorMath<NeuralNetDataType, MathOutput = T>,
+{
+    input.sin()
+}
+
+pub fn cos<T>(output: &T) -> Result<T, String>
+where
+    T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
+{
+    output.cos()
 }

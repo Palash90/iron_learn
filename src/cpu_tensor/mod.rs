@@ -209,6 +209,21 @@ impl<T: Numeric> CpuTensor<T> {
         Ok(Self { shape, data })
     }
 
+    fn _clip(&self, min: T, max: T) -> Result<Self, String> {
+        let mut data = self.get_data();
+        let shape = self.get_shape().clone();
+
+        for val in data.iter_mut() {
+            if *val < min {
+                *val = min;
+            } else if *val > max {
+                *val = max;
+            }
+        }
+
+        Self::new(shape, data)
+    }
+
     fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
         if self.shape != rhs.shape {
             return Err(format!(
@@ -222,6 +237,27 @@ impl<T: Numeric> CpuTensor<T> {
             .iter()
             .zip(rhs.data.iter())
             .map(|(a, b)| a.mul(*b))
+            .collect();
+
+        Ok(Self {
+            shape: self.shape.clone(),
+            data: result,
+        })
+    }
+
+    fn _div(&self, rhs: &Self) -> Result<Self, String> {
+        if self.shape != rhs.shape {
+            return Err(format!(
+                "ShapeMismatch: Mismatch in shape of two Tensors {:?} {:?}",
+                self.shape, rhs.shape
+            ));
+        }
+
+        let result: Vec<T> = self
+            .data
+            .iter()
+            .zip(rhs.data.iter())
+            .map(|(a, b)| a.div(*b))
             .collect();
 
         Ok(Self {
@@ -460,6 +496,11 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
         self.hadamard(rhs)
     }
 
+    /// Element-wise division
+    fn div(&self, rhs: &Self) -> Result<Self, String> {
+        self._div(rhs)
+    }
+
     /// Element wise scaling (multiplication by a scalar).
     fn scale(&self, scalar: T) -> Result<Self, String> {
         Ok(self._s(scalar))
@@ -483,6 +524,10 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
     fn ones(shape: &Vec<u32>) -> Self {
         let data = vec![T::one(); shape.iter().product::<u32>() as usize];
         Self::_new(shape.clone(), data).unwrap()
+    }
+    
+    fn clip(&self, min: T, max: T) -> Result<Self, String> {
+        self.clip(min, max)
     }
 }
 

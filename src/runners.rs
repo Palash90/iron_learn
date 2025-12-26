@@ -174,6 +174,8 @@ where
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
 
+    let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
+
     //let (x, x_mean, x_std) = normalize_features_mean_std(&x);
     //let (y, y_mean, y_std) = normalize_features_mean_std(&y);
 
@@ -217,10 +219,8 @@ where
             draw_image(epoch as i32, &x, &y_pred, 200, 200);
             nn.save_model(&(weights_path.to_owned()));
 
-            let predictions = nn.predict(&x).unwrap();
-
-            //     println!();
-            //      predictions.print_matrix();
+            println!();
+            // y_pred.print_matrix();
 
             // Rest for a few seconds before starting again
             if sleep_time > 0 {
@@ -244,7 +244,7 @@ where
     let predictions = nn.predict(&x).unwrap();
 
     println!();
-    predictions.print_matrix();
+    // predictions.print_matrix();
 
     //let predictions = denormalize_features(&predictions, &y_mean, &y_std);
     Ok(())
@@ -257,19 +257,19 @@ where
     let mut nn = NeuralNetBuilder::<T>::new();
 
     let layers = [
-        (il, hl / 8, LayerType::Tanh, "Input", "AL 1"),
-        (hl / 8, hl / 8, LayerType::Tanh, "HL1", "AL2"),
-        (hl / 8, hl / 4, LayerType::Tanh, "HL2", "AL3"),
-        (hl / 4, hl / 4, LayerType::Tanh, "HL3", "AL4"),
-        (hl / 4, hl / 2, LayerType::Tanh, "HL4", "AL5"),
+        (il, hl, LayerType::Tanh, "Input", "AL 1"),
+        (hl, hl, LayerType::Tanh, "HL1", "AL2"),
+        (hl, 2*hl, LayerType::Tanh, "HL2", "AL3"),
+        (2 * hl, hl, LayerType::Tanh, "HL3", "AL4"),
+        (hl, hl / 2, LayerType::Tanh, "HL4", "AL5"),
         (hl / 2, hl / 2, LayerType::Tanh, "HL5", "AL6"),
-        (hl / 2, hl / 1, LayerType::Tanh, "HL6", "AL7"),
-        (hl / 1, hl / 1, LayerType::Tanh, "HL7", "AL8"),
-        (hl / 1, hl / 2, LayerType::Tanh, "HL8", "AL9"),
-        (hl / 2, hl / 4, LayerType::Tanh, "HL9", "AL10"),
-        (hl / 4, hl / 8, LayerType::Tanh, "HL10", "AL11"),
-        (hl / 8, hl / 8, LayerType::Tanh, "HL11", "AL12"),
-        (hl / 8, 1, LayerType::Sigmoid, "HL12", "Output"),
+        (hl / 2, hl / 2, LayerType::Sin, "HL6", "AL7"),
+        //  (hl / 1, hl / 1, LayerType::Sin, "HL7", "AL8"),
+        //  (hl / 1, hl / 2, LayerType::Sin, "HL8", "AL9"),
+        //  (hl / 2, hl / 4, LayerType::Tanh, "HL9", "AL10"),
+        //  (hl / 4, hl / 8, LayerType::Tanh, "HL10", "AL11"),
+        // (hl / 8, hl / 8, LayerType::Tanh, "HL11", "AL12"),
+        (hl / 2, 1, LayerType::Sigmoid, "HL12", "Output"),
     ];
 
     for layer in layers {
@@ -291,7 +291,10 @@ where
     for i in 0..y_data.len() {
         let x_co = x_data[2 * i] as u32;
         let y_co = x_data[2 * i + 1] as u32;
-        let pixel = (y_data[i] * 256.0) as u8;
+        let pixel: u8 = match y_data[i] > 0.5 {
+            true => 0,
+            false => 255,
+        };
 
         image_data.push((x_co, y_co, pixel));
     }

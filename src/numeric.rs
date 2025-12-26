@@ -21,6 +21,7 @@
 //! - Compatibility with custom types: Can be implemented for user-defined types like `Complex`.
 
 use cust::memory::DeviceCopy;
+use rand_distr::num_traits::FromPrimitive;
 
 use crate::complex::Complex;
 
@@ -38,6 +39,7 @@ pub trait Numeric:
     + std::fmt::Display
     + std::fmt::Debug
     + std::cmp::PartialEq
+    + std::cmp::PartialOrd
 {
     /// Returns the zero value of the type.
     fn zero() -> Self;
@@ -53,6 +55,14 @@ pub trait Numeric:
 
     /// Casts the value to Self and returns
     fn from_u32(value: u32) -> Self;
+
+    /// Casts the value to Self and returns
+    fn from_f64(value: f64) -> Self
+    where
+        Self: From<f64>,
+    {
+        value.try_into().expect("Conversion failed for {value}")
+    }
 }
 
 /// The `SignedNumeric` defines all the `Numeric` types that can be signed like `i32`, `i64` etc.

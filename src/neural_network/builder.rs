@@ -108,7 +108,7 @@ where
 
                     layers.push(Box::new(layer));
                 }
-                LayerType::Sigmoid | LayerType::Tanh => {
+                _ => {
                     let layer = ActivationLayer::new(&layer_data.name, layer_data.layer_type);
                     layers.push(Box::new(layer));
                 }

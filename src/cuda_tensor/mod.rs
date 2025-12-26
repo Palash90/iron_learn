@@ -97,6 +97,14 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     fn ones(shape: &Vec<u32>) -> Self {
         Self::_new_with_value(shape.to_vec(), T::one()).unwrap()
     }
+    
+    fn clip(&self, min: T, max: T) -> Result<Self, String> {
+        todo!()
+    }
+    
+    fn div(&self, rhs: &Self) -> Result<Self, String> {
+        todo!()
+    }
 }
 
 impl<T: Numeric + Zeroable> Add for GpuTensor<T> {

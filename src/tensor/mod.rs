@@ -56,8 +56,14 @@ pub trait Tensor<T: Numeric>: Sized {
     // Hadamard product
     fn multiply(&self, rhs: &Self) -> Result<Self, String>;
 
+    // Division
+    fn div(&self, rhs: &Self) -> Result<Self, String>;
+
     // Element wise scaling
     fn scale(&self, scalar: T) -> Result<Self, String>;
+
+    // Clip values to min, max
+    fn clip(&self, min: T, max: T) -> Result<Self, String>;
 
     /* Reducers */
     // Reduces rows column wise
