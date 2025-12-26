@@ -67,5 +67,10 @@ pub trait Tensor<T: Numeric>: Sized {
 
     /* Reducers */
     // Reduces rows column wise
-    fn sum(&self) -> Result<Self, String>;
+    fn sum(&self) -> Result<Self, String> {
+        let data = self.get_data();
+        let total: T = data.iter().fold(T::zero(), |acc, &x| acc + x);
+
+        Self::new(vec![1], vec![total])
+    }
 }

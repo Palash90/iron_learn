@@ -452,6 +452,16 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
         Self::_new(shape, data)
     }
 
+    fn zeroes(shape: &Vec<u32>) -> Self {
+        let data = vec![T::zero(); shape.iter().product::<u32>() as usize];
+        Self::_new(shape.clone(), data).unwrap()
+    }
+
+    fn ones(shape: &Vec<u32>) -> Self {
+        let data = vec![T::one(); shape.iter().product::<u32>() as usize];
+        Self::_new(shape.clone(), data).unwrap()
+    }
+
     /* Retrieval */
     /// Returns the shape of the Tensor.
     fn get_shape(&self) -> &Vec<u32> {
@@ -511,26 +521,7 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
         Ok(self._s(scalar))
     }
 
-    /* Reducers */
-    /// Reduces rows column wise (sums all elements).
-    /// **Note:** Based on your function name `sum`, I am implementing a full sum reduction (summing all elements into a 1-element tensor). If you intended a column or row-wise reduction that keeps one dimension, the logic will need adjustment.
-    fn sum(&self) -> Result<Self, String> {
-        let sum_val = self.data.iter().fold(T::zero(), |acc, &x| acc + x);
-
-        // Return a tensor with a single element and shape [1]
-        Self::new(vec![1], vec![sum_val])
-    }
-
-    fn zeroes(shape: &Vec<u32>) -> Self {
-        let data = vec![T::zero(); shape.iter().product::<u32>() as usize];
-        Self::_new(shape.clone(), data).unwrap()
-    }
-
-    fn ones(shape: &Vec<u32>) -> Self {
-        let data = vec![T::one(); shape.iter().product::<u32>() as usize];
-        Self::_new(shape.clone(), data).unwrap()
-    }
-
+    /// Clamp the value
     fn clip(&self, min: T, max: T) -> Result<Self, String> {
         self._clip(min, max)
     }

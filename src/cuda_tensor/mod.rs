@@ -81,10 +81,6 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
         self._mul(rhs)
     }
 
-    fn sum(&self) -> Result<Self, String> {
-        self._sum()
-    }
-
     fn t(&self) -> Result<Self, String> {
         self._t()
     }
@@ -347,13 +343,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         }
 
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
-    }
-
-    fn _sum(&self) -> Result<Self, String> {
-        let data = self.get_data();
-        let total: T = data.iter().fold(T::zero(), |acc, &x| acc + x);
-
-        Self::_new(vec![1], vec![total])
     }
 
     fn check_shape(shape: &[u32]) -> Option<Result<GpuTensor<T>, String>> {
