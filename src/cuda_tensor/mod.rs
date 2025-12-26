@@ -110,6 +110,14 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     fn clip(&self, min: T, max: T) -> Result<Self, String> {
         self._clip(min, max)
     }
+
+    fn sum(&self) -> Result<Self, String> {
+        let data = self._column_sum().unwrap().get_data();
+
+        let total: T = data.iter().fold(T::zero(), |acc, &x| acc + x);
+
+        Self::new(vec![1], vec![total])
+    }
 }
 
 impl<T: Numeric + Zeroable> Add for GpuTensor<T> {
@@ -343,6 +351,43 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         }
 
         Ok(Self::_with_device_buffer(self.shape.clone(), result))
+    }
+
+    fn _column_sum(&self) -> Result<Self, String> {
+        // Assuming self.shape is [rows, cols]
+        let num_rows = self.shape[0];
+
+        let num_cols = match self.shape.len() {
+            2 => self.shape[1],
+            _ => 1,
+        };
+
+        // 1. Get the kernel function
+        let sum_kernel = Self::_get_function("column_reduce");
+
+        // 2. Prepare result buffer: Only need space for 'num_cols' floats
+        let result = self._get_initialized_buffer(num_cols as usize);
+
+        // 3. Grid Setup: One thread per column
+        // Your kernel uses: int col = blockIdx.x * blockDim.x + threadIdx.x;
+        let threads_per_block = 256;
+        let grid_size = (num_cols + threads_per_block - 1) / threads_per_block;
+
+        let stream = Self::_get_stream();
+
+        unsafe {
+            // 4. Launch the kernel
+            // Note: We pass num_rows and num_cols as i32 to match your C++ signature
+            let _ = launch!(sum_kernel<<< grid_size, threads_per_block, 0, stream >>>(
+                self.device_buffer.as_device_ptr(),
+                result.as_device_ptr(),
+                num_rows as i32,
+                num_cols as i32
+            ));
+        }
+
+        // 5. Return a new Self with the reduced shape (e.g., [1, cols] or just [cols])
+        Ok(Self::_with_device_buffer(vec![1, num_cols], result))
     }
 
     fn check_shape(shape: &[u32]) -> Option<Result<GpuTensor<T>, String>> {

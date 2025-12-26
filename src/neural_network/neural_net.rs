@@ -107,20 +107,16 @@ where
                 output = layer.forward(&output).unwrap();
             }
 
-            T::synchronize();
 
             let err = self.loss_fn.loss(y_train, &output);
             T::synchronize();
 
             let mut error_prime = self.loss_fn.loss_prime(y_train, &output).unwrap();
 
-            T::synchronize();
-
             for layer in self.layers.iter_mut().rev() {
                 error_prime = layer.backward(&error_prime, current_lr).unwrap();
             }
-            T::synchronize();
-
+            
             // Hook (Periodic Reporting)
             if i == 0 || (i + epoch_offset) % hook_interval == 0 {
                 T::synchronize();
