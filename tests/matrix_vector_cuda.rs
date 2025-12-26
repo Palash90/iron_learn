@@ -170,7 +170,7 @@ mod cuda_tests {
     #[test]
     fn test_cuda_matmul_identity() {
         init();
-        
+
         let a = GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0_f32, 2.0_f32, 3.0_f32, 4.0_f32])
             .unwrap();
         let identity =

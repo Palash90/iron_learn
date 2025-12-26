@@ -34,6 +34,14 @@ enum OpType {
     LN = 8,
 }
 
+#[derive(Clone, Copy, Debug)]
+enum ArithmaticType {
+    ADD = 1,
+    SUB = 2,
+    MUL = 3,
+    DIV = 4,
+}
+
 #[derive(Debug)]
 pub struct GpuTensor<T: Numeric> {
     shape: Vec<u32>,
@@ -54,22 +62,27 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     }
 
     fn add(&self, rhs: &Self) -> Result<Self, String> {
-        self._add(rhs, false)
-    }
-    fn sum(&self) -> Result<Self, String> {
-        self._sum()
+        self._element_arithmatic(rhs, ArithmaticType::ADD)
     }
 
     fn sub(&self, rhs: &Self) -> Result<Self, String> {
-        self._add(rhs, true)
+        self._element_arithmatic(rhs, ArithmaticType::SUB)
+    }
+
+    fn multiply(&self, rhs: &Self) -> Result<Self, String> {
+        self._element_arithmatic(rhs, ArithmaticType::MUL)
+    }
+
+    fn div(&self, rhs: &Self) -> Result<Self, String> {
+        self._element_arithmatic(rhs, ArithmaticType::DIV)
     }
 
     fn mul(&self, rhs: &Self) -> Result<Self, String> {
         self._mul(rhs)
     }
 
-    fn multiply(&self, rhs: &Self) -> Result<Self, String> {
-        self.hadamard(rhs, false)
+    fn sum(&self) -> Result<Self, String> {
+        self._sum()
     }
 
     fn t(&self) -> Result<Self, String> {
@@ -102,16 +115,14 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
         self._clip(min, max)
     }
 
-    fn div(&self, rhs: &Self) -> Result<Self, String> {
-        self.hadamard(rhs, true)
-    }
+    
 }
 
 impl<T: Numeric + Zeroable> Add for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn add(self, rhs: Self) -> Result<Self, String> {
-        self._add(&rhs, false)
+        self._element_arithmatic(&rhs, ArithmaticType::ADD)
     }
 }
 
@@ -119,7 +130,7 @@ impl<T: Numeric + Zeroable> Sub for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn sub(self, rhs: Self) -> Result<Self, String> {
-        self._add(&rhs, true)
+        self._element_arithmatic(&rhs, ArithmaticType::SUB)
     }
 }
 
@@ -310,12 +321,12 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         self.shape.clone()
     }
 
-    fn _add(&self, rhs: &Self, sub: bool) -> Result<Self, String> {
+    fn _element_arithmatic(&self, rhs: &Self, op: ArithmaticType) -> Result<Self, String> {
         if self.shape != rhs.shape {
             return Err(format!("ShapeMismatch:The dimensions of two matrices are not compatible for addition/subtraction- {:?} {:?}", self.shape, rhs.shape));
         }
 
-        let add = Self::_get_function("vector_add");
+        let add = Self::_get_function("vector_arithmatic");
 
         let total_elements = self.shape.iter().product::<u32>() as usize;
 
@@ -325,7 +336,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let threads_per_block = 1024;
 
         let grid_1d = (total_size_u32 + threads_per_block - 1) / threads_per_block;
-        let sub_int = if sub { 1i32 } else { 0i32 };
 
         let stream = Self::_get_stream();
         unsafe {
@@ -334,7 +344,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
                 rhs.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
                 total_size_u32 as i32,
-                sub_int
+                op as u32
             ));
         }
 
@@ -444,46 +454,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             shape: shape.clone(),
             device_buffer,
         }
-    }
-
-    fn hadamard(&self, rhs: &Self, div: bool) -> Result<Self, String> {
-        if self.shape != rhs.shape {
-            let s = format!(
-                "ShapeMismatch:The dimensions of two matrices are not compatible for hadamard product- {:?} {:?}",
-                self.shape, rhs.shape
-            );
-            return Err(s);
-        }
-
-        // Set up common block size
-        let block_dim = 16;
-
-        let total_elements = self.shape.iter().product::<u32>();
-
-        let threads_per_block = 1024; // Use a typical 1D block size
-        let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block as u32;
-
-        let result = self._get_initialized_buffer(total_elements as usize);
-
-        let stream = Self::_get_stream();
-
-        let hadamard = Self::_get_function("hadamard_prod");
-        let div_int = match div {
-            true => 1,
-            false => 0,
-        };
-
-        unsafe {
-            let _ = launch!(hadamard<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
-                self.device_buffer.as_device_ptr(),
-                rhs.device_buffer.as_device_ptr(),
-                result.as_device_ptr(),
-                total_elements as i32,
-                div_int
-            ));
-        }
-
-        Ok(Self::_with_device_buffer(self.shape.clone(), result))
     }
 
     fn _gpu_mul(&self, rhs: &Self) -> Result<Self, String> {

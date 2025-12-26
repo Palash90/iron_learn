@@ -155,6 +155,6 @@ mod tests {
         println!("Result: {:?}", data);
 
         assert!(data[0].is_infinite());
-        assert!(data[1]==0.0);
+        assert!(data[1] == 0.0);
     }
 }

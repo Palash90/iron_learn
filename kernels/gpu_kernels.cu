@@ -12,14 +12,26 @@ extern "C" __global__ void fill_value(float *out, int n, float value)
     }
 }
 
-extern "C" __global__ void vector_add(const float *a, const float *b, float *out, int n, int sub)
+extern "C" __global__ void vector_arithmatic(const float *a, const float *b, float *out, int n, unsigned int op)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n)
     {
-        if (sub == 1)
+        if (op == 1)
+        {
+            out[idx] = a[idx] + b[idx];
+        }
+        else if (op == 2)
         {
             out[idx] = a[idx] - b[idx];
+        }
+        else if (op == 3)
+        {
+            out[idx] = a[idx] * b[idx];
+        }
+        else if (op == 4)
+        {
+            out[idx] = a[idx] / b[idx];
         }
         else
         {
@@ -175,18 +187,6 @@ extern "C" __global__ void matrix_mul(
     if (row < M && col < N)
     {
         C[row * N + col] = sum;
-    }
-}
-
-extern "C" __global__ void hadamard_prod(const float *A, const float *B, float *C, int n, int div)
-{
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < n)
-    {
-        if (div == 1)
-            C[idx] = A[idx] / B[idx];
-        else
-            C[idx] = A[idx] * B[idx];
     }
 }
 
