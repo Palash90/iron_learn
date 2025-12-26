@@ -209,7 +209,7 @@ where
         let elapsed = start_time.elapsed();
         start_time = Instant::now();
 
-        println!("\tEpoch {epoch}: Loss (MSE) = {err:.8}, Current LR : {current_lr:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
+        println!("\tEpoch {epoch}: Loss (BCE) = {err:.8}, Current LR : {current_lr:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
 
         last_epoch = epoch;
 
@@ -267,8 +267,8 @@ where
         //  (hl / 1, hl / 1, LayerType::Sin, "HL7", "AL8"),
         //  (hl / 1, hl / 2, LayerType::Sin, "HL8", "AL9"),
         //  (hl / 2, hl / 4, LayerType::Tanh, "HL9", "AL10"),
-        //  (hl / 4, hl / 8, LayerType::Tanh, "HL10", "AL11"),
-        // (hl / 8, hl / 8, LayerType::Tanh, "HL11", "AL12"),
+        (hl / 2, hl / 2, LayerType::Tanh, "HL10", "AL11"),
+        (hl / 2, hl / 2, LayerType::Tanh, "HL11", "AL12"),
         (hl / 2, 1, LayerType::Sigmoid, "HL12", "Output"),
     ];
 
