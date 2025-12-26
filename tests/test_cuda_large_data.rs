@@ -212,7 +212,7 @@ mod tests {
         let inner_k = 999;
         let cols_b = 9999;
 
-        let all_a = 1.0_f32;
+        let all_a = 45.0_f32;
         let all_b = 2.0_f32;
 
         let data1 = vec![all_a; rows_a * inner_k];

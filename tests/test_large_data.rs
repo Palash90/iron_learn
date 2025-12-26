@@ -4,7 +4,7 @@ mod tests {
     use iron_learn::Tensor;
 
     // Helper to simplify tensor creation in tests
-    fn new_gpu_tensor(shape: Vec<u32>, data: Vec<f32>) -> CpuTensor<f32> {
+    fn new_cpu_tensor(shape: Vec<u32>, data: Vec<f32>) -> CpuTensor<f32> {
         CpuTensor::<f32>::new(shape, data).unwrap()
     }
 
@@ -14,8 +14,8 @@ mod tests {
         let size = 10_000;
         let data1 = vec![1.0; size];
         let data2 = vec![2.0; size];
-        let t1 = new_gpu_tensor(vec![size as u32], data1);
-        let t2 = new_gpu_tensor(vec![size as u32], data2);
+        let t1 = new_cpu_tensor(vec![size as u32], data1);
+        let t2 = new_cpu_tensor(vec![size as u32], data2);
 
         let result = t1.div(&t2).unwrap();
         let data = result.get_data();
@@ -43,8 +43,8 @@ mod tests {
         let size = 10_000;
         let data1 = vec![1.0; size];
         let data2 = vec![2.0; size];
-        let t1 = new_gpu_tensor(vec![size as u32], data1);
-        let t2 = new_gpu_tensor(vec![size as u32], data2);
+        let t1 = new_cpu_tensor(vec![size as u32], data1);
+        let t2 = new_cpu_tensor(vec![size as u32], data2);
 
         let result = t1.multiply(&t2).unwrap();
         let data = result.get_data();
@@ -72,8 +72,8 @@ mod tests {
         let size = 10_000_000;
         let data1 = vec![1.0; size];
         let data2 = vec![2.0; size];
-        let t1 = new_gpu_tensor(vec![size as u32], data1);
-        let t2 = new_gpu_tensor(vec![size as u32], data2);
+        let t1 = new_cpu_tensor(vec![size as u32], data1);
+        let t2 = new_cpu_tensor(vec![size as u32], data2);
 
         let result = t1.add(&t2).unwrap();
         let data = result.get_data();
@@ -101,8 +101,8 @@ mod tests {
         let size = 10_000_000;
         let data1 = vec![1.0; size];
         let data2 = vec![2.0; size];
-        let t1 = new_gpu_tensor(vec![size as u32], data1);
-        let t2 = new_gpu_tensor(vec![size as u32], data2);
+        let t1 = new_cpu_tensor(vec![size as u32], data1);
+        let t2 = new_cpu_tensor(vec![size as u32], data2);
 
         let result = t1.sub(&t2).unwrap();
         let data = result.get_data();
@@ -136,8 +136,8 @@ mod tests {
         let data1 = vec![all_a; rows_a * inner_k];
         let data2 = vec![all_b; inner_k * cols_b];
 
-        let t1 = new_gpu_tensor(vec![rows_a as u32, inner_k as u32], data1);
-        let t2 = new_gpu_tensor(vec![inner_k as u32, cols_b as u32], data2);
+        let t1 = new_cpu_tensor(vec![rows_a as u32, inner_k as u32], data1);
+        let t2 = new_cpu_tensor(vec![inner_k as u32, cols_b as u32], data2);
 
         let result = t1.mul(&t2).expect("GPU Matmul failed");
         let result_data = result.get_data();

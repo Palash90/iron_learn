@@ -1,6 +1,5 @@
 #[cfg(test)]
 mod tests {
-    use super::*;
     use iron_learn::CpuTensor;
     use iron_learn::Numeric;
     use iron_learn::Tensor;

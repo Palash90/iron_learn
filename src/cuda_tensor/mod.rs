@@ -114,8 +114,6 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     fn clip(&self, min: T, max: T) -> Result<Self, String> {
         self._clip(min, max)
     }
-
-    
 }
 
 impl<T: Numeric + Zeroable> Add for GpuTensor<T> {
