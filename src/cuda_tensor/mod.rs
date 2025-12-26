@@ -69,7 +69,7 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     }
 
     fn multiply(&self, rhs: &Self) -> Result<Self, String> {
-        self.hadamard(rhs)
+        self.hadamard(rhs, false)
     }
 
     fn t(&self) -> Result<Self, String> {
@@ -97,13 +97,13 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     fn ones(shape: &Vec<u32>) -> Self {
         Self::_new_with_value(shape.to_vec(), T::one()).unwrap()
     }
-    
+
     fn clip(&self, min: T, max: T) -> Result<Self, String> {
-        todo!()
+        self._clip(min, max)
     }
-    
+
     fn div(&self, rhs: &Self) -> Result<Self, String> {
-        todo!()
+        self.hadamard(rhs, true)
     }
 }
 
@@ -210,6 +210,30 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
                 total_elements as i32,
                 op_type as i32,
                 scale
+            ));
+        };
+
+        Ok(Self::_with_device_buffer(self.shape.clone(), result))
+    }
+
+    fn _clip(&self, min: T, max: T) -> Result<Self, String> {
+        let total_elements: u32 = self.shape.iter().product();
+        let threads_per_block = 1024; // Use a typical 1D block size
+        let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
+
+        let result = self._get_initialized_buffer(total_elements as usize);
+
+        let stream = Self::_get_stream();
+
+        let operation = Self::_get_function("clip");
+
+        unsafe {
+            let _ = launch!(operation<<<grid_1d, threads_per_block, 0, stream>>>(
+                self.device_buffer.as_device_ptr(),
+                result.as_device_ptr(),
+                total_elements as i32,
+                min,
+                max
             ));
         };
 
@@ -422,7 +446,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         }
     }
 
-    fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
+    fn hadamard(&self, rhs: &Self, div: bool) -> Result<Self, String> {
         if self.shape != rhs.shape {
             let s = format!(
                 "ShapeMismatch:The dimensions of two matrices are not compatible for hadamard product- {:?} {:?}",
@@ -444,13 +468,18 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
         let stream = Self::_get_stream();
 
         let hadamard = Self::_get_function("hadamard_prod");
+        let div_int = match div {
+            true => 1,
+            false => 0,
+        };
 
         unsafe {
             let _ = launch!(hadamard<<<(grid_1d, 1, 1), (block_dim, block_dim, 1), 0, stream>>>(
                 self.device_buffer.as_device_ptr(),
                 rhs.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
-                total_elements as i32
+                total_elements as i32,
+                div_int
             ));
         }
 

@@ -1,6 +1,7 @@
 // use crate::commons::add_bias_term;
 use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
+use crate::neural_network::loss_functions::BinaryCrossEntropy;
 use crate::neural_network::LayerType;
 use crate::normalize_features;
 use crate::read_file::deserialize_data;
@@ -17,7 +18,6 @@ use crate::neural_network::NeuralNetDataType;
 use crate::NeuralNet;
 use crate::NeuralNetBuilder;
 
-use crate::neural_network::MeanSquaredErrorLoss;
 use image::{ImageBuffer, Luma};
 
 use std::thread;
@@ -181,7 +181,7 @@ where
 
     // let x = add_bias_term(&x).unwrap();
 
-    let loss_function_instance = Box::new(MeanSquaredErrorLoss);
+    let loss_function_instance = Box::new(BinaryCrossEntropy);
     let input_length = xy.n;
 
     // let input_length = input_length + 1; // To compensate for bias
@@ -216,11 +216,11 @@ where
         if epoch % monitor_interval == 0 {
             let y_pred = nn.predict(&x).unwrap();
 
-            draw_image(epoch as i32, &x, &y_pred, 200, 200);
+            // draw_image(epoch as i32, &x, &y_pred, 200, 200);
             nn.save_model(&(weights_path.to_owned()));
 
             println!();
-            // y_pred.print_matrix();
+            y_pred.print_matrix();
 
             // Rest for a few seconds before starting again
             if sleep_time > 0 {
@@ -259,11 +259,11 @@ where
     let layers = [
         (il, hl, LayerType::Tanh, "Input", "AL 1"),
         (hl, hl, LayerType::Tanh, "HL1", "AL2"),
-        (hl, 2*hl, LayerType::Tanh, "HL2", "AL3"),
+        (hl, 2 * hl, LayerType::Tanh, "HL2", "AL3"),
         (2 * hl, hl, LayerType::Tanh, "HL3", "AL4"),
         (hl, hl / 2, LayerType::Tanh, "HL4", "AL5"),
-        (hl / 2, hl / 2, LayerType::Tanh, "HL5", "AL6"),
-        (hl / 2, hl / 2, LayerType::Sin, "HL6", "AL7"),
+        // (hl / 2, hl / 2, LayerType::Tanh, "HL5", "AL6"),
+        // (hl / 2, hl / 2, LayerType::Sin, "HL6", "AL7"),
         //  (hl / 1, hl / 1, LayerType::Sin, "HL7", "AL8"),
         //  (hl / 1, hl / 2, LayerType::Sin, "HL8", "AL9"),
         //  (hl / 2, hl / 4, LayerType::Tanh, "HL9", "AL10"),

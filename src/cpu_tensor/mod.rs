@@ -210,18 +210,23 @@ impl<T: Numeric> CpuTensor<T> {
     }
 
     fn _clip(&self, min: T, max: T) -> Result<Self, String> {
-        let mut data = self.get_data();
+        let data = self.get_data();
         let shape = self.get_shape().clone();
 
-        for val in data.iter_mut() {
-            if *val < min {
-                *val = min;
-            } else if *val > max {
-                *val = max;
-            }
-        }
+        let result = data
+            .iter()
+            .map(|a| {
+                if *a < min {
+                    min
+                } else if *a > max {
+                    max
+                } else {
+                    *a
+                }
+            })
+            .collect();
 
-        Self::new(shape, data)
+        Self::new(shape, result)
     }
 
     fn hadamard(&self, rhs: &Self) -> Result<Self, String> {
@@ -525,9 +530,9 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
         let data = vec![T::one(); shape.iter().product::<u32>() as usize];
         Self::_new(shape.clone(), data).unwrap()
     }
-    
+
     fn clip(&self, min: T, max: T) -> Result<Self, String> {
-        self.clip(min, max)
+        self._clip(min, max)
     }
 }
 

@@ -9,7 +9,7 @@ pub enum LayerType {
     Sigmoid,
     Tanh,
     Linear,
-    Sin
+    Sin,
 }
 
 pub fn get_activations<T>(layer: &LayerType) -> (ActivationFn<T>, ActivationFn<T>)

@@ -46,7 +46,7 @@ struct Args {
     parameters_path: String,
 }
 
-fn init() {
+pub fn init() {
     let args = Args::parse();
     let gpu_enabled = !args.cpu;
     if gpu_enabled {

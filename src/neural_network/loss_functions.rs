@@ -1,5 +1,7 @@
+use crate::neural_network::NeuralNetDataType;
 use crate::tensor::math::TensorMath;
 use crate::Numeric;
+use crate::SignedNumeric;
 use crate::Tensor;
 
 pub trait LossFunction<D, T>
@@ -42,15 +44,15 @@ pub struct BinaryCrossEntropy;
 impl<T: Tensor<D> + 'static + TensorMath<D, MathOutput = T>, D> LossFunction<D, T>
     for BinaryCrossEntropy
 where
-    D: Numeric + From<f64>,
+    D: SignedNumeric + From<NeuralNetDataType>,
 {
     fn loss(&self, y_true: &T, y_pred: &T) -> Result<T, String> {
         let shape = y_true.get_shape();
         let ones = T::ones(shape);
-        
+
         // 1. Safety: Clip predictions to prevent ln(0) or ln(1-1)
-        let epsilon = D::from(1e-7);
-        let one_minus_epsilon = D::from(1.0 - 1e-7);
+        let epsilon = D::from(1e-7 as NeuralNetDataType);
+        let one_minus_epsilon = D::from(1.0 - 1e-7 as NeuralNetDataType);
         let clipped_pred = y_pred.clip(epsilon, one_minus_epsilon)?;
 
         // 2. Term 1: y * ln(y_hat)
@@ -65,8 +67,8 @@ where
 
         // 4. Combine: -mean(term1 + term2)
         let combined = term1.add(&term2)?;
-        let negative_one = D::from(-1.0);
-        
+        let negative_one = -D::one();
+
         // Scale by -1 and reduce to scalar loss
         combined.scale(negative_one)?.sum()
     }
@@ -74,19 +76,19 @@ where
     fn loss_prime(&self, y_true: &T, y_pred: &T) -> Result<T, String> {
         let shape = y_true.get_shape();
         let ones = T::ones(shape);
-        let epsilon = D::from(1e-7);
+        let epsilon = D::from(1e-7 as NeuralNetDataType);
 
         // Formula: (y_pred - y_true) / [y_pred * (1 - y_pred)]
-        
+
         // Numerator: (y_pred - y_true)
         let numerator = y_pred.sub(y_true)?;
 
         // Denominator: y_pred * (1 - y_pred)
         let one_minus_pred = ones.sub(y_pred)?;
         let denominator = y_pred.multiply(&one_minus_pred)?;
-        
+
         // Stability: Ensure we don't divide by zero
-        let safe_denominator = denominator.clip(epsilon, D::from(1.0))?;
+        let safe_denominator = denominator.clip(epsilon, D::one())?;
 
         // Note: This requires a 'div' method in your Tensor trait
         numerator.div(&safe_denominator)

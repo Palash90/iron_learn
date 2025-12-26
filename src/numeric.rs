@@ -21,7 +21,6 @@
 //! - Compatibility with custom types: Can be implemented for user-defined types like `Complex`.
 
 use cust::memory::DeviceCopy;
-use rand_distr::num_traits::FromPrimitive;
 
 use crate::complex::Complex;
 

@@ -28,6 +28,26 @@ extern "C" __global__ void vector_add(const float *a, const float *b, float *out
     }
 }
 
+extern "C" __global__ void clip(const float *s, float *r, int n, float min, float max)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < n)
+    {
+        if (s[idx] < min)
+        {
+            r[idx] = min;
+        }
+        else if (s[idx] > max)
+        {
+            r[idx] = max;
+        }
+        else
+        {
+            r[idx] = s[idx];
+        }
+    }
+}
+
 extern "C" __global__ void element_op(const float *s, float *r, int n, int op, float scale)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -158,12 +178,15 @@ extern "C" __global__ void matrix_mul(
     }
 }
 
-extern "C" __global__ void hadamard_prod(const float *A, const float *B, float *C, int n)
+extern "C" __global__ void hadamard_prod(const float *A, const float *B, float *C, int n, int div)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n)
     {
-        C[idx] = A[idx] * B[idx];
+        if (div == 1)
+            C[idx] = A[idx] / B[idx];
+        else
+            C[idx] = A[idx] * B[idx];
     }
 }
 
