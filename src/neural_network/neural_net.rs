@@ -84,7 +84,7 @@ where
             false => epochs,
         };
 
-        for i in 0..epochs {
+        for i in epoch_offset..epochs {
             let global_i = (i + epoch_offset) as NeuralNetDataType;
 
             self.current_epoch = i + epoch_offset;

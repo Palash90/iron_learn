@@ -1,5 +1,4 @@
 use super::NeuralNetDataType;
-use crate::commons::add_bias_term;
 use crate::neural_network::{get_activations, LayerType};
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;

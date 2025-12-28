@@ -232,8 +232,8 @@ def image_reconstruction():
 
     IMAGE_WIDTH = norm_factors[0] + 1
     IMAGE_HEIGHT = norm_factors[1] + 1
-    CHECKPOINT = 5000
-    EPOCHS = 30_000_01
+    CHECKPOINT = 2
+    EPOCHS = 2
     LEARNING_RATE = 0.0001
     EPOCH_OFFSET = 0 
     RESUME_FILE = ''
@@ -277,7 +277,16 @@ def image_reconstruction():
              print("Starting training from scratch.")
 
         print(f"\n🚀 Starting training for {EPOCHS} epochs...")
-        net.fit(X_train, Y_train, epochs=EPOCHS, epoch_offset=EPOCH_OFFSET, learning_rate=LEARNING_RATE, hook=epoch_hook)  
+        net.fit(X_train, Y_train, epochs=EPOCHS, epoch_offset=EPOCH_OFFSET, learning_rate=LEARNING_RATE, hook=epoch_hook)
+
+        output = net.predict(X_train)
+        data= {
+            'x': X_train[:, 0].tolist(),
+            'y': X_train[:, 1].tolist(),
+            'pixel_value': output[:, 0].tolist()
+        }
+        with open('data.json', 'w') as json_file:
+            json.dump(data, json_file)
 
 
 if __name__ == "__main__":

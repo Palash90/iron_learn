@@ -14,7 +14,7 @@ pub use loss_functions::{LossFunction, MeanSquaredErrorLoss};
 pub use neural_net::NeuralNet;
 use serde::Deserialize;
 use serde::Serialize;
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LayerData {
     pub layer_type: LayerType,
     pub name: String,
@@ -23,7 +23,7 @@ pub struct LayerData {
     pub shape: Vec<u32>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ModelData {
     pub name: String,
     pub parameter_count: u64,

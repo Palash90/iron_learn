@@ -109,14 +109,21 @@ where
                 LayerType::Linear => {
                     let weight_tensor = T::new(layer_data.shape, layer_data.weights).unwrap();
 
-                    println!("Building layer {} with weights {:?}", layer_data.name, weight_tensor.get_shape());
+                    println!(
+                        "Building layer {} with weights {:?}",
+                        layer_data.name,
+                        weight_tensor.get_shape()
+                    );
 
                     let layer = LinearLayer::from_data(weight_tensor, &layer_data.name);
 
                     layers.push(Box::new(layer));
                 }
                 _ => {
-                    println!("Building layer {} of type {:?}", layer_data.name, layer_data.layer_type);
+                    println!(
+                        "Building layer {} of type {:?}",
+                        layer_data.name, layer_data.layer_type
+                    );
 
                     let layer = ActivationLayer::new(&layer_data.name, layer_data.layer_type);
                     layers.push(Box::new(layer));

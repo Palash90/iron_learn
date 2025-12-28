@@ -157,7 +157,7 @@ pub fn run_neural_net<T>() -> Result<(), String>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
-    let l = GLOBAL_CONTEXT
+    let lr = GLOBAL_CONTEXT
         .get()
         .ok_or("GLOBAL_CONTEXT not initialized")?
         .learning_rate as NeuralNetDataType;
@@ -175,9 +175,11 @@ where
     let xy =
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
-    let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
-    let y = T::new(vec![xy.m, 1], xy.y.clone())?;
+    let x = T::new(vec![xy.m, xy.n], xy.x.clone()).unwrap();
+    let x = x.scale(1.0 / 199.0).unwrap(); // Normalization
+    let y = T::new(vec![xy.m, 1], xy.y.clone()).unwrap();
 
+    //let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
 
     //let (x, x_mean, x_std) = normalize_features_mean_std(&x);
@@ -194,15 +196,19 @@ where
 
     let weights_path = name.to_owned() + "/" + &weights_path;
 
-    let mut nn = match !weights_path.is_empty() {
+    let (l, epoch_offset, mut nn) = match !weights_path.is_empty() {
         true => match deserialize_model(&weights_path) {
             Some(model) => match restore {
-                true => NeuralNetBuilder::build_from_model(model, loss_function_instance),
-                false => nn.build(loss_function_instance, name),
+                true => (
+                    model.saved_lr.clone(),
+                    model.epoch.clone(),
+                    NeuralNetBuilder::build_from_model(model, loss_function_instance),
+                ),
+                false => (lr, 0, nn.build(loss_function_instance, name)),
             },
-            None => nn.build(loss_function_instance, name),
+            None => (lr, 0, nn.build(loss_function_instance, name)),
         },
-        false => nn.build(loss_function_instance, name),
+        false => (lr, 0, nn.build(loss_function_instance, name)),
     };
 
     let mut start_time = Instant::now();
@@ -245,7 +251,7 @@ where
         &x_with_bias,
         &y,
         e as usize,
-        0,
+        epoch_offset,
         l,
         lr_adjustment,
         monitor,
@@ -306,9 +312,9 @@ where
     let y_data = y.get_data();
 
     for i in 0..y_data.len() {
-        let x_co = x_data[2 * i] as u32;
-        let y_co = x_data[2 * i + 1] as u32;
-        let pixel = (y_data[i] * 255.0) as u8;
+        let x_co = (x_data[2 * i] * 199.0_f32).round() as u32;
+        let y_co = (x_data[2 * i + 1] * 199.0_f32).round() as u32;
+        let pixel = 255 - (y_data[i] * 255.0) as u8;
 
         if y_data[i] > 0.5 {
             //  println!("{}, {}, {}, {}", x_co, y_co, y_data[i], pixel);
@@ -321,7 +327,7 @@ where
 }
 
 fn draw_grid(points: Vec<(u32, u32, u8)>, epoch: i32, height: u32, width: u32, name: &String) {
-    let mut imgbuf = ImageBuffer::new(width, height);
+    let mut imgbuf = ImageBuffer::from_pixel(width, height, Luma([255u8]));
 
     for (x, y, pixel) in points {
         if x < width && y < height {
