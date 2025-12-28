@@ -48,7 +48,7 @@ struct Args {
     #[arg(long, short, default_value = "model.json")]
     parameters_path: String,
 
-    #[arg(long, short='D', default_value = "Normal")]
+    #[arg(long, short = 'D', default_value = "Normal")]
     distribution: String,
 }
 
@@ -173,9 +173,6 @@ fn main() {
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
     greet(ctx);
 
-    let p = iron_learn::neural_network::LinearLayer::<GpuTensor<f32>>::new(20, 1, "check_dist", &ctx.distribution).unwrap().get_parameters().unwrap().print_matrix();
-
-/*
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
         let _ = run_neural_net::<GpuTensor<f32>>();
@@ -184,5 +181,5 @@ fn main() {
         println!("Running CPU-based training...\n");
         let _ = run_neural_net::<CpuTensor<f32>>();
         println!("\n✓ All training tasks completed");
-    } */
+    }
 }
