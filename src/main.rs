@@ -58,7 +58,7 @@ pub fn init() {
         "NORMAL" => DistributionType::Normal,
         "XAVIER" => DistributionType::Xavier,
         "UNIFORM" => DistributionType::Uniform,
-        "STANDARDNORMAL" => DistributionType::StandardNormal,
+        "He" => DistributionType::He,
         _ => DistributionType::Normal,
     };
 

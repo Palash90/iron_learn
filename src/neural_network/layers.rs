@@ -1,12 +1,12 @@
 use super::NeuralNetDataType;
+use crate::commons::add_bias_term;
 use crate::neural_network::{get_activations, LayerType};
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 
 use rand::rngs::StdRng; // For Seedable range
-use rand::Rng;
 use rand::SeedableRng; // For Seedable range
-use rand_distr::{Distribution, Normal, StandardNormal};
+use rand_distr::{Distribution, Normal, Uniform};
 
 pub trait Layer<T>
 where
@@ -37,7 +37,7 @@ pub enum DistributionType {
     Xavier,
     Normal,
     Uniform,
-    StandardNormal,
+    He,
 }
 
 impl<T> LinearLayer<T>
@@ -50,23 +50,26 @@ where
         distribution: &DistributionType,
     ) -> Vec<NeuralNetDataType> {
         let mut rng = StdRng::seed_from_u64(1610612741);
-        //let mut rng = rand::rng();
-
+        let mut rng = rand::rng();
         let normal = Normal::new(0.0, 1.0).unwrap();
 
         let limit =
+            (2.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();
+        let xavier = Normal::new(0.0, limit).unwrap();
+
+        let uniform_limit =
             (6.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();
+        let uniform = Uniform::new(-uniform_limit, uniform_limit).unwrap();
+
+        let he_limit = (2.0 / (input_size as NeuralNetDataType)).sqrt();
+        let he = Normal::new(0.0, he_limit).unwrap();
 
         let w_data: Vec<NeuralNetDataType> = (0..(input_size * output_size))
             .map(|_| match distribution {
-                DistributionType::Uniform => rng.random::<NeuralNetDataType>(),
-                DistributionType::Xavier => (rng.random::<NeuralNetDataType>() * 2.0 - 1.0) * limit,
+                DistributionType::Uniform => uniform.sample(&mut rng) as NeuralNetDataType,
+                DistributionType::Xavier => xavier.sample(&mut rng) as NeuralNetDataType,
                 DistributionType::Normal => normal.sample(&mut rng) as NeuralNetDataType,
-
-                DistributionType::StandardNormal => {
-                    let val: f32 = StandardNormal.sample(&mut rng);
-                    val as NeuralNetDataType
-                }
+                DistributionType::He => he.sample(&mut rng) as NeuralNetDataType,
             })
             .collect();
 
@@ -80,8 +83,11 @@ where
     ) -> Result<Self, String> {
         let w_data = Self::_initialize_weights(input_size, output_size, &distribution);
 
+        let weights = T::new(vec![input_size, output_size], w_data).unwrap();
+        //let weights = add_bias_term(&weights).unwrap();
+
         Ok(Self {
-            weights: T::new(vec![input_size, output_size], w_data).unwrap(),
+            weights,
             input_cache: None,
             name: name.to_string(),
             layer_type: LayerType::Linear,

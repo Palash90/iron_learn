@@ -3,6 +3,7 @@ import time;
 import math;
 import numpy
 from common import DATA_TYPE
+import json
 
 class LinearLayer:
     def __init__(self, inputSize, outputSize):
@@ -154,12 +155,18 @@ class NeuralNet:
 
     def save_weights(self, filepath):
         state_dict = {}
+        state_dict_json={}
         for i, info in enumerate(self.layer_info):
             if isinstance(info['layer'], LinearLayer):
                 layer = info['layer']
                 state_dict[f'W{i}_{info["name"]}'] = layer.weights.get() 
                 state_dict[f'B{i}_{info["name"]}'] = layer.biases.get()
-        
+                state_dict_json[f'consolidated{i}_{info["name"]}']= layer.weights.get().flatten().tolist() #+ layer.biases.get().flatten().tolist()
+
+        out_file = open("myfile.json", "w") 
+        json.dump(state_dict_json, out_file, indent = 6) 
+        out_file.close() 
+
         numpy.savez_compressed(filepath, **state_dict)
         print(f"✅ Weights and biases saved to {filepath}")
 

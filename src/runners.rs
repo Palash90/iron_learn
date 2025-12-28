@@ -192,6 +192,8 @@ where
 
     let nn = define_neural_net::<T>(hidden_length, input_length, distribution);
 
+    let weights_path = name.to_owned() + "/" + &weights_path;
+
     let mut nn = match !weights_path.is_empty() {
         true => match deserialize_model(&weights_path) {
             Some(model) => match restore {
@@ -222,7 +224,7 @@ where
 
             if epoch % (monitor_interval) == 0 {
                 draw_image(epoch as i32, &x, &y_pred, 200, 200, name);
-                nn.save_model(&(name.to_owned() + "/" + weights_path));
+                nn.save_model(&weights_path);
             }
 
             //println!();

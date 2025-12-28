@@ -4,7 +4,7 @@ use crate::neural_network::NeuralNetDataType;
 use crate::tensor::math::TensorMath;
 use crate::{ActivationFn, Tensor};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LayerType {
     Sigmoid,
     Tanh,
@@ -21,8 +21,8 @@ where
         LayerType::Tanh => (tanh, tanh_prime),
         LayerType::Sin => (sin, cos),
         LayerType::Linear => (
-            |x: &T| Ok(T::zeroes(x.get_shape())),
-            |x: &T| Ok(T::zeroes(x.get_shape())),
+            |x: &T| Ok(T::zeroes(x.get_shape()).add(x).unwrap()),
+            |x: &T| Ok(T::ones(x.get_shape())),
         ),
     }
 }
