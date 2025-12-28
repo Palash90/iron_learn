@@ -461,8 +461,6 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
         let device_buffer = get_device_buffer::<T>(size);
 
-        let block_dim = 16;
-
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (size as u32 + threads_per_block - 1) / threads_per_block;
 

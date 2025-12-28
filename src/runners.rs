@@ -1,9 +1,10 @@
 use crate::MeanSquaredErrorLoss;
 // use crate::commons::add_bias_term;
+use crate::commons::add_bias_term;
 use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
-use crate::neural_network::loss_functions::BinaryCrossEntropy;
 use crate::neural_network::LayerType;
+use crate::neural_network::NeuralNetDataType;
 use crate::normalize_features;
 use crate::read_file::deserialize_data;
 use crate::read_file::deserialize_data_double_precision;
@@ -11,18 +12,18 @@ use crate::read_file::deserialize_model;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use crate::DataDoublePrecision;
+use crate::NeuralNet;
+use crate::NeuralNetBuilder;
 use crate::GLOBAL_CONTEXT;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use std::time::Instant;
-use crate::commons::add_bias_term;
-use crate::neural_network::NeuralNetDataType;
-use crate::NeuralNet;
-use crate::NeuralNetBuilder;
 
 use image::{ImageBuffer, Luma};
 
 use std::thread;
 use std::time::Duration;
+
+use crate::neural_network::DistributionType;
 
 pub fn run_logistic<T>() -> Result<(), String>
 where
@@ -168,6 +169,8 @@ where
     let sleep_time = GLOBAL_CONTEXT.get().unwrap().sleep_time;
     let name = &GLOBAL_CONTEXT.get().unwrap().name;
     let restore = GLOBAL_CONTEXT.get().unwrap().restore;
+    let lr_adjustment = GLOBAL_CONTEXT.get().unwrap().lr_adjust;
+    let distribution = &GLOBAL_CONTEXT.get().unwrap().distribution;
 
     let xy =
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
@@ -187,7 +190,7 @@ where
 
     let input_length = input_length + 1; // To compensate for bias
 
-    let nn = define_neural_net::<T>(hidden_length, input_length);
+    let nn = define_neural_net::<T>(hidden_length, input_length, distribution);
 
     let mut nn = match !weights_path.is_empty() {
         true => match deserialize_model(&weights_path) {
@@ -210,14 +213,14 @@ where
         let elapsed = start_time.elapsed();
         start_time = Instant::now();
 
-        println!("\tEpoch {epoch}: Loss (BCE) = {err:.8}, Current LR : {current_lr:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
+        println!("\tEpoch {epoch}: Loss (MSE) = {err:.8}, Current LR : {current_lr:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
 
         last_epoch = epoch;
 
         if epoch % monitor_interval == 0 {
             let y_pred = nn.predict(&x_with_bias).unwrap();
 
-            if epoch % (10 * monitor_interval) == 0 {
+            if epoch % (monitor_interval) == 0 {
                 draw_image(epoch as i32, &x, &y_pred, 200, 200, name);
                 nn.save_model(&(name.to_owned() + "/" + weights_path));
             }
@@ -236,7 +239,16 @@ where
 
     draw_image(-1, &x, &y, 200, 200, name);
 
-    let _ = nn.fit(&x_with_bias, &y, e as usize, 0, l, false, monitor, monitor_interval);
+    let _ = nn.fit(
+        &x_with_bias,
+        &y,
+        e as usize,
+        0,
+        l,
+        lr_adjustment,
+        monitor,
+        monitor_interval,
+    );
 
     //let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 
@@ -244,7 +256,7 @@ where
 
     //let x_test = add_bias_term(&x_test)?;
 
-    let predictions = nn.predict(&x).unwrap();
+    // let predictions = nn.predict(&x).unwrap();
 
     //println!();
     // predictions.print_matrix();
@@ -253,14 +265,14 @@ where
     Ok(())
 }
 
-fn define_neural_net<T>(hl: u32, il: u32) -> NeuralNetBuilder<T>
+fn define_neural_net<T>(hl: u32, input: u32, distribution: &DistributionType) -> NeuralNetBuilder<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
     let mut nn = NeuralNetBuilder::<T>::new();
 
     let layers = [
-        (il, hl, LayerType::Tanh, "Input", "AL 1"),
+        (input, hl, LayerType::Tanh, "Input", "AL 1"),
         (hl, hl, LayerType::Tanh, "HL1", "AL2"),
         (hl, 2 * hl, LayerType::Tanh, "HL2", "AL3"),
         (2 * hl, hl, LayerType::Tanh, "HL3", "AL4"),
@@ -276,7 +288,7 @@ where
     ];
 
     for layer in layers {
-        nn.add_linear(layer.0, layer.1, layer.3);
+        nn.add_linear(layer.0, layer.1, layer.3, distribution);
         nn.add_activation(layer.2, layer.4);
     }
     nn
@@ -294,10 +306,11 @@ where
     for i in 0..y_data.len() {
         let x_co = x_data[2 * i] as u32;
         let y_co = x_data[2 * i + 1] as u32;
-        let pixel: u8 = match y_data[i] > 0.5 {
-            true => 0,
-            false => 255,
-        };
+        let pixel = (y_data[i] * 255.0) as u8;
+
+        if y_data[i] > 0.5 {
+            //  println!("{}, {}, {}, {}", x_co, y_co, y_data[i], pixel);
+        }
 
         image_data.push((x_co, y_co, pixel));
     }

@@ -3,13 +3,13 @@ mod tests {
     use iron_learn::GpuTensor;
     use iron_learn::Tensor;
 
-    use iron_learn::init_context;
-    use iron_learn::init_gpu;
-
     use cublas_sys::*;
     use cust::prelude::Module;
     use cust::stream::Stream;
     use cust::stream::StreamFlags;
+    use iron_learn::init_context;
+    use iron_learn::init_gpu;
+    use iron_learn::neural_network::DistributionType;
     use std::ptr;
 
     fn init() {
@@ -51,6 +51,7 @@ mod tests {
                     0,
                     "".to_string(),
                     false,
+                    DistributionType::Normal,
                 );
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
             }
@@ -70,6 +71,7 @@ mod tests {
                     0,
                     "".to_string(),
                     false,
+                    DistributionType::Normal,
                 );
             }
         }

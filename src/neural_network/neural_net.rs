@@ -87,9 +87,6 @@ where
         for i in 0..epochs {
             let global_i = (i + epoch_offset) as NeuralNetDataType;
 
-            print!("\rProcessing epoch: {}", i + epoch_offset);
-            io::stdout().flush().unwrap();
-
             self.current_epoch = i + epoch_offset;
 
             let cos_term = ((PI as NeuralNetDataType * global_i) / total_timeline).cos();
@@ -102,11 +99,19 @@ where
 
             self.current_lr = current_lr;
 
+            print!(
+                "\rProcessing epoch: {}, adjust lr set to {}, current lr: {}",
+                i + epoch_offset,
+                lr_adjustment,
+                current_lr
+            );
+            io::stdout().flush().unwrap();
+
             let mut output = x_train.add(&T::zeroes(x_train.get_shape())).unwrap();
             for layer in &mut self.layers {
                 output = layer.forward(&output).unwrap();
             }
-
+            T::synchronize();
 
             let err = self.loss_fn.loss(y_train, &output);
             T::synchronize();
@@ -116,7 +121,8 @@ where
             for layer in self.layers.iter_mut().rev() {
                 error_prime = layer.backward(&error_prime, current_lr).unwrap();
             }
-            
+            T::synchronize();
+
             // Hook (Periodic Reporting)
             if i == 0 || (i + epoch_offset) % hook_interval == 0 {
                 T::synchronize();

@@ -13,6 +13,8 @@ mod tensor_math_large_tests {
     use cust::stream::StreamFlags;
     use std::ptr;
 
+    use iron_learn::neural_network::DistributionType;
+
     // Using the size that resulted in ~1 billion elements from your previous run
     const LARGE_M: u32 = 1000;
     const LARGE_N: u32 = 1000;
@@ -62,6 +64,7 @@ mod tensor_math_large_tests {
                     0,
                     "".to_string(),
                     false,
+                    DistributionType::Normal,
                 );
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
             }
@@ -81,6 +84,7 @@ mod tensor_math_large_tests {
                     0,
                     "".to_string(),
                     false,
+                    DistributionType::Normal,
                 );
             }
         }

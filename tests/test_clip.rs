@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
+    use iron_learn::neural_network::DistributionType;
     use iron_learn::CpuTensor;
     use iron_learn::Tensor;
-
     #[test]
     fn test_clip_basic_bounds() {
         let input = vec![-10.0, 0.0, 5.0, 10.0, 20.0];

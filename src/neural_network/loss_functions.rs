@@ -109,7 +109,6 @@ where
 
         // 1. Setup constants
         let epsilon = D::from(1e-12 as NeuralNetDataType);
-        let one = D::from(1.0 as NeuralNetDataType);
         let one_minus_epsilon = D::from((1.0 - 1e-12) as NeuralNetDataType);
 
         // 2. Stability: Clip y_pred just like the Python version

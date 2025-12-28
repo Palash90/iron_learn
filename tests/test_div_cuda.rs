@@ -10,6 +10,7 @@ mod tests {
     use cust::prelude::Module;
     use cust::stream::Stream;
     use cust::stream::StreamFlags;
+    use iron_learn::neural_network::DistributionType;
     use std::ptr;
 
     fn init() {
@@ -51,6 +52,7 @@ mod tests {
                     0,
                     "".to_string(),
                     false,
+                    DistributionType::Normal,
                 );
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
             }
@@ -70,6 +72,7 @@ mod tests {
                     0,
                     "".to_string(),
                     false,
+                    DistributionType::Normal,
                 );
             }
         }

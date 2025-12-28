@@ -4,9 +4,9 @@ use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 
 use rand::rngs::StdRng; // For Seedable range
+use rand::Rng;
 use rand::SeedableRng; // For Seedable range
 use rand_distr::{Distribution, StandardNormal};
-use rand::Rng;
 
 pub trait Layer<T>
 where
@@ -32,11 +32,22 @@ where
     layer_type: LayerType,
 }
 
+#[derive(Debug, Clone)]
+pub enum DistributionType {
+    Xavier,
+    Normal,
+    Simple
+}
+
 impl<T> LinearLayer<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
 {
-    fn _initialize_weights(input_size: u32, output_size: u32) -> Vec<NeuralNetDataType> {
+    fn _initialize_weights(
+        input_size: u32,
+        output_size: u32,
+        distribution: &DistributionType,
+    ) -> Vec<NeuralNetDataType> {
         let mut rng = StdRng::seed_from_u64(1610612741);
         let mut rng = rand::rng();
 
@@ -44,13 +55,25 @@ where
             (6.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();
 
         let w_data: Vec<NeuralNetDataType> = (0..(input_size * output_size))
-            .map(|_| (rng.random::<NeuralNetDataType>() * 2.0 - 1.0) * limit) // For Xavier
+            .map(|_| match distribution {
+                DistributionType::Simple => rng.gen(),
+                DistributionType::Xavier => (rng.random::<NeuralNetDataType>() * 2.0 - 1.0) * limit,
+                DistributionType::Normal => {
+                    let val: f32 = StandardNormal.sample(&mut rng);
+                    val as NeuralNetDataType
+                }
+            })
             .collect();
 
         w_data
     }
-    pub fn new(input_size: u32, output_size: u32, name: &str) -> Result<Self, String> {
-        let w_data = Self::_initialize_weights(input_size, output_size);
+    pub fn new(
+        input_size: u32,
+        output_size: u32,
+        name: &str,
+        distribution: &DistributionType,
+    ) -> Result<Self, String> {
+        let w_data = Self::_initialize_weights(input_size, output_size, &distribution);
 
         Ok(Self {
             weights: T::new(vec![input_size, output_size], w_data).unwrap(),

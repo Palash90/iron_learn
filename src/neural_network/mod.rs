@@ -51,7 +51,7 @@ pub use activations::*;
 // ============================================================================
 
 mod layers;
-pub use layers::{ActivationLayer, Layer, LinearLayer};
+pub use layers::{ActivationLayer, DistributionType, Layer, LinearLayer};
 
 // ============================================================================
 // Core Neural Network

@@ -4,6 +4,7 @@ use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
 use iron_learn::init_gpu;
+use iron_learn::neural_network::DistributionType;
 use iron_learn::run_neural_net;
 use iron_learn::{init_context, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
 use std::ptr;
@@ -44,11 +45,22 @@ struct Args {
 
     #[arg(long, short, default_value = "model.json")]
     parameters_path: String,
+
+    #[arg(long, short='D', default_value = "Simple")]
+    distribution: String,
 }
 
 pub fn init() {
     let args = Args::parse();
     let gpu_enabled = !args.cpu;
+
+    let distribution = match args.distribution.as_str().to_uppercase().as_str() {
+        "NORMAL" => DistributionType::Normal,
+        "XAVIER" => DistributionType::Xavier,
+        "SIMPLE" => DistributionType::Simple,
+        _ => DistributionType::Normal,
+    };
+
     if gpu_enabled {
         match cust::quick_init() {
             Ok(context) => {
@@ -91,6 +103,7 @@ pub fn init() {
                     args.sleep_time,
                     args.name,
                     args.restore,
+                    distribution,
                 );
 
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
@@ -111,6 +124,7 @@ pub fn init() {
                     args.sleep_time,
                     args.name,
                     args.restore,
+                    distribution,
                 );
             }
         }
@@ -129,6 +143,7 @@ pub fn init() {
             args.sleep_time,
             args.name,
             args.restore,
+            distribution,
         );
     }
 }

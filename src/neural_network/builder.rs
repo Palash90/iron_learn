@@ -23,8 +23,14 @@ where
         Self { layers: Vec::new() }
     }
 
-    pub fn add_linear(&mut self, input_size: u32, output_size: u32, name: &str) {
-        match LinearLayer::new(input_size, output_size, name) {
+    pub fn add_linear(
+        &mut self,
+        input_size: u32,
+        output_size: u32,
+        name: &str,
+        distribution: &DistributionType,
+    ) {
+        match LinearLayer::new(input_size, output_size, name, distribution) {
             Ok(layer) => self.layers.push(Box::new(layer)),
             Err(e) => {
                 eprintln!("Error adding LinearLayer: {}", e);
@@ -49,13 +55,12 @@ where
             .layers
             .iter()
             .map(|layer| {
-                let name = layer.name(); // Get the name (e.g., "Linear", "ReLU")
+                let name = layer.name();
 
                 match layer.as_ref().get_parameters() {
                     Some(v) => {
                         let shape = v.get_shape();
                         parameter_count += shape.iter().product::<u32>() as u64;
-                        // Format: Name [In, Out]
                         format!("{} [{}, {}]", name.bold().cyan(), shape[0], shape[1])
                     }
                     None => {

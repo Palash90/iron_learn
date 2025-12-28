@@ -13,6 +13,8 @@
 
 use std::{sync::OnceLock, u32};
 
+use crate::neural_network::DistributionType;
+
 /// Global singleton instance of application context
 ///
 /// Thread-safe access to the immutable application state initialized at startup.
@@ -35,9 +37,10 @@ pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
 ///
 /// ```rust,no_run
 /// use iron_learn::{init_context, GLOBAL_CONTEXT};
+/// use iron_learn::neural_network::DistributionType;
 ///
 /// // Initialize at startup with full configuration
-/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false, false, 4, "w".to_string(), 1000, 40, "".to_string(), false);
+/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false, false, 4, "w".to_string(), 1000, 40, "".to_string(), false, DistributionType::Normal);
 ///
 /// // Access anywhere in the application
 /// let ctx = GLOBAL_CONTEXT.get().unwrap();
@@ -61,6 +64,7 @@ pub struct AppContext {
     pub sleep_time: u64,
     pub name: String,
     pub restore: bool,
+    pub distribution: DistributionType,
 }
 
 /// Initialize the global application context
@@ -83,6 +87,7 @@ pub struct AppContext {
 ///
 /// ```rust,no_run
 /// use iron_learn::init_context;
+/// use iron_learn::neural_network::DistributionType;
 ///
 /// // Initialize with full configuration
 /// init_context(
@@ -98,7 +103,8 @@ pub struct AppContext {
 ///     1000,
 ///     30,
 ///     "".to_string(),
-///     false
+///     false,
+///     DistributionType::Normal
 /// );
 /// ```
 pub fn init_context(
@@ -115,6 +121,7 @@ pub fn init_context(
     sleep_time: u64,
     name: String,
     restore: bool,
+    distribution: DistributionType,
 ) {
     let ctx = AppContext {
         app_name,
@@ -130,6 +137,7 @@ pub fn init_context(
         sleep_time,
         name,
         restore,
+        distribution,
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

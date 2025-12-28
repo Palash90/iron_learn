@@ -12,6 +12,8 @@ mod sum_tests {
     use cust::stream::StreamFlags;
     use std::ptr;
 
+    use iron_learn::neural_network::DistributionType;
+
     fn init() {
         match cust::quick_init() {
             Ok(context) => {
@@ -51,6 +53,7 @@ mod sum_tests {
                     0,
                     "".to_string(),
                     false,
+                    DistributionType::Normal,
                 );
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
             }
@@ -70,6 +73,7 @@ mod sum_tests {
                     0,
                     "".to_string(),
                     false,
+                    DistributionType::Normal,
                 );
             }
         }

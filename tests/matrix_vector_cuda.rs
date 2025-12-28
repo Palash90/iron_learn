@@ -14,6 +14,8 @@ mod cuda_tests {
     use cust::stream::StreamFlags;
     use std::ptr;
 
+    use iron_learn::neural_network::DistributionType;
+
     type TensorType = f32;
 
     fn init() {
@@ -55,6 +57,7 @@ mod cuda_tests {
                     0,
                     "".to_string(),
                     false,
+                    DistributionType::Normal,
                 );
                 init_gpu(Some(context), Some(module), Some(stream), Some(handle));
             }
@@ -74,6 +77,7 @@ mod cuda_tests {
                     0,
                     "".to_string(),
                     false,
+                    DistributionType::Normal,
                 );
             }
         }
