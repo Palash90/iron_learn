@@ -100,10 +100,7 @@ where
             self.current_lr = current_lr;
 
             print!(
-                "\rProcessing epoch: {}, adjust lr set to {}, current lr: {}",
-                i + epoch_offset,
-                lr_adjustment,
-                current_lr
+                "\rProcessing epoch: {}/{epochs}, adjust lr set to {lr_adjustment}, current lr: {current_lr}", self.current_epoch
             );
             io::stdout().flush().unwrap();
 

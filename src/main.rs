@@ -3,8 +3,6 @@ use cublas_sys::*;
 use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
-use iron_learn::Layer;
-use iron_learn::Tensor;
 use iron_learn::init_gpu;
 use iron_learn::neural_network::DistributionType;
 use iron_learn::run_neural_net;

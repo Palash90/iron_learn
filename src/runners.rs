@@ -178,7 +178,7 @@ where
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
 
-    let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
+    //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
 
     //let (x, x_mean, x_std) = normalize_features_mean_std(&x);
     //let (y, y_mean, y_std) = normalize_features_mean_std(&y);
