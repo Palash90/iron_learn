@@ -9,6 +9,7 @@ from builder import *
 from common import DATA_TYPE
 
 np.cuda.runtime.setDevice(0)
+np.random.seed(1610612741)
 
 def visualize_network(net):
     """
@@ -231,12 +232,12 @@ def image_reconstruction():
 
     IMAGE_WIDTH = norm_factors[0] + 1
     IMAGE_HEIGHT = norm_factors[1] + 1
-    CHECKPOINT = 1000
-    EPOCHS = 100_000
-    LEARNING_RATE = 0.01
+    CHECKPOINT = 5000
+    EPOCHS = 30_000_01
+    LEARNING_RATE = 0.0001
     EPOCH_OFFSET = 0 
     RESUME_FILE = ''
-    TIME_CHECK = 1000
+    TIME_CHECK = 500
     LAST_EPOCH = 0
 
     X_train = np.asarray(X_train, dtype=DATA_TYPE)
@@ -252,14 +253,14 @@ def image_reconstruction():
         if epoch % CHECKPOINT == 0:
             pass # net.save_weights(f'output/checkpoint/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
 
-        if epoch % 5000 == 0:
+        if (epoch) % 5000 == 0:
             (f"\n\t\tDrawing at epoch {epoch}")
             predictions = net.predict(X_train)
             draw_predictions_scatter(X_train, epoch + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, predictions)
+            time.sleep(30) # To cool down the GPU. Overheating shuts down the system.
         
-        if epoch % TIME_CHECK == 0:
+        if (epoch + EPOCH_OFFSET) % TIME_CHECK == 0:
             epoch_end_time = time.time()
-            time.sleep(20) # To cool down the GPU. Overheating shuts down the system.
             print(f"\rElapsed time {epoch_end_time - epoch_start_time: .2f} seconds for {TIME_CHECK} iterations {LAST_EPOCH} - {epoch}")
             epoch_start_time = time.time()
             LAST_EPOCH = epoch

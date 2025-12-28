@@ -6,7 +6,7 @@ use crate::tensor::Tensor;
 use rand::rngs::StdRng; // For Seedable range
 use rand::Rng;
 use rand::SeedableRng; // For Seedable range
-use rand_distr::{Distribution, StandardNormal};
+use rand_distr::{Distribution, StandardNormal, Normal};
 
 pub trait Layer<T>
 where
@@ -36,7 +36,8 @@ where
 pub enum DistributionType {
     Xavier,
     Normal,
-    Simple
+    Uniform,
+    StandardNormal
 }
 
 impl<T> LinearLayer<T>
@@ -49,16 +50,20 @@ where
         distribution: &DistributionType,
     ) -> Vec<NeuralNetDataType> {
         let mut rng = StdRng::seed_from_u64(1610612741);
-        let mut rng = rand::rng();
+        //let mut rng = rand::rng();
 
         let limit =
             (6.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();
 
         let w_data: Vec<NeuralNetDataType> = (0..(input_size * output_size))
             .map(|_| match distribution {
-                DistributionType::Simple => rng.gen(),
+                DistributionType::Uniform => rng.random::<NeuralNetDataType>(),
                 DistributionType::Xavier => (rng.random::<NeuralNetDataType>() * 2.0 - 1.0) * limit,
                 DistributionType::Normal => {
+                    let normal = Normal::new(0.0, 1.0).unwrap();
+                    normal.sample(&mut rng) as NeuralNetDataType
+                }
+                DistributionType::StandardNormal => {
                     let val: f32 = StandardNormal.sample(&mut rng);
                     val as NeuralNetDataType
                 }

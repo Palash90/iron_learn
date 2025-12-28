@@ -6,9 +6,16 @@ from common import DATA_TYPE
 
 class LinearLayer:
     def __init__(self, inputSize, outputSize):
-        self.weights = np.random.randn(inputSize, outputSize, dtype=DATA_TYPE)
-        self.biases = np.random.randn(1, outputSize, dtype=DATA_TYPE) 
+
+        self.weights = np.random.randn(inputSize, outputSize, dtype=DATA_TYPE) # Can't find this distribution in Rust
         
+        limit = np.sqrt(6.0 / (inputSize + outputSize))
+        self.weights = np.random.uniform(low=-limit, high=limit, size=(inputSize, outputSize), dtype=DATA_TYPE) # To match Rust's uniform initialization
+
+        self.weights = np.random.randn(inputSize, outputSize, dtype=DATA_TYPE)
+
+        self.biases = np.ones((1, outputSize), dtype=DATA_TYPE)
+
     def forward(self, input):
         self.input = input
         self.output = self.input @ self.weights + self.biases 

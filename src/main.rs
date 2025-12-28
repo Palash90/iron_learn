@@ -3,6 +3,8 @@ use cublas_sys::*;
 use cust::prelude::Module;
 use cust::stream::Stream;
 use cust::stream::StreamFlags;
+use iron_learn::Layer;
+use iron_learn::Tensor;
 use iron_learn::init_gpu;
 use iron_learn::neural_network::DistributionType;
 use iron_learn::run_neural_net;
@@ -46,7 +48,7 @@ struct Args {
     #[arg(long, short, default_value = "model.json")]
     parameters_path: String,
 
-    #[arg(long, short='D', default_value = "Simple")]
+    #[arg(long, short='D', default_value = "Normal")]
     distribution: String,
 }
 
@@ -57,7 +59,8 @@ pub fn init() {
     let distribution = match args.distribution.as_str().to_uppercase().as_str() {
         "NORMAL" => DistributionType::Normal,
         "XAVIER" => DistributionType::Xavier,
-        "SIMPLE" => DistributionType::Simple,
+        "UNIFORM" => DistributionType::Uniform,
+        "STANDARDNORMAL" => DistributionType::StandardNormal,
         _ => DistributionType::Normal,
     };
 
@@ -170,6 +173,9 @@ fn main() {
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
     greet(ctx);
 
+    let p = iron_learn::neural_network::LinearLayer::<GpuTensor<f32>>::new(20, 1, "check_dist", &ctx.distribution).unwrap().get_parameters().unwrap().print_matrix();
+
+/*
     if ctx.gpu_enabled {
         println!("Running GPU-based training...\n");
         let _ = run_neural_net::<GpuTensor<f32>>();
@@ -178,5 +184,5 @@ fn main() {
         println!("Running CPU-based training...\n");
         let _ = run_neural_net::<CpuTensor<f32>>();
         println!("\n✓ All training tasks completed");
-    }
+    } */
 }
