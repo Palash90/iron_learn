@@ -226,22 +226,20 @@ def draw_predictions_scatter(co_ordinates, epoch, width, height, values):
     print(f"🖼️ Saved scatter plot: {file_name} successfully!")
 
 def image_reconstruction():
+    # Note to self: Don't change this function. It's working perfectly.
     X_train, Y_train, norm_factors = load_data_from_csv("../image_inputs/pixel_data_200.csv")
 
     IMAGE_WIDTH = norm_factors[0] + 1
     IMAGE_HEIGHT = norm_factors[1] + 1
     CHECKPOINT = 1000
-    EPOCHS = 10_000
-    LEARNING_RATE = 0.05
+    EPOCHS = 100_000
+    LEARNING_RATE = 0.01
     EPOCH_OFFSET = 0 
     RESUME_FILE = ''
     TIME_CHECK = 1000
     LAST_EPOCH = 0
 
     X_train = np.asarray(X_train, dtype=DATA_TYPE)
-    print(X_train.dtype)
-    # X_train = 2 * X_train - 1
-
     Y_train = np.asarray(Y_train, dtype=DATA_TYPE)
 
     draw_predictions_scatter(X_train, "ORIGINAL", IMAGE_WIDTH, IMAGE_HEIGHT, Y_train)
@@ -254,13 +252,14 @@ def image_reconstruction():
         if epoch % CHECKPOINT == 0:
             pass # net.save_weights(f'output/checkpoint/checkpoint_epoch_{epoch+EPOCH_OFFSET+1}.npz')
 
-        if epoch % 10000 == 0:
+        if epoch % 5000 == 0:
             (f"\n\t\tDrawing at epoch {epoch}")
             predictions = net.predict(X_train)
             draw_predictions_scatter(X_train, epoch + EPOCH_OFFSET, IMAGE_WIDTH, IMAGE_HEIGHT, predictions)
         
         if epoch % TIME_CHECK == 0:
             epoch_end_time = time.time()
+            time.sleep(20) # To cool down the GPU. Overheating shuts down the system.
             print(f"\rElapsed time {epoch_end_time - epoch_start_time: .2f} seconds for {TIME_CHECK} iterations {LAST_EPOCH} - {epoch}")
             epoch_start_time = time.time()
             LAST_EPOCH = epoch
@@ -268,7 +267,7 @@ def image_reconstruction():
     if X_train is not None:
         INPUT_FEATURES = X_train.shape[1] 
         OUTPUT_NODES = Y_train.shape[1]
-        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 8, tanh, tanh_prime)
+        net = build_neural_net(INPUT_FEATURES, OUTPUT_NODES, 50, tanh, tanh_prime)
         # net = build_siren_net(INPUT_FEATURES, OUTPUT_NODES, 50)
         
         if net.load_weights(RESUME_FILE):
@@ -279,6 +278,6 @@ def image_reconstruction():
         print(f"\n🚀 Starting training for {EPOCHS} epochs...")
         net.fit(X_train, Y_train, epochs=EPOCHS, epoch_offset=EPOCH_OFFSET, learning_rate=LEARNING_RATE, hook=epoch_hook)  
 
+
 if __name__ == "__main__":
     image_reconstruction()
-    # run(10000, 0.001, 'neural_network')

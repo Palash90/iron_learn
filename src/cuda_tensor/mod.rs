@@ -562,7 +562,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
             return Err(s);
         }
 
-        self._gpu_mul(rhs)
+        self._gpu_mul_cublas(rhs)
     }
 }
 

@@ -1,3 +1,4 @@
+use crate::MeanSquaredErrorLoss;
 // use crate::commons::add_bias_term;
 use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
@@ -13,7 +14,7 @@ use crate::DataDoublePrecision;
 use crate::GLOBAL_CONTEXT;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
 use std::time::Instant;
-
+use crate::commons::add_bias_term;
 use crate::neural_network::NeuralNetDataType;
 use crate::NeuralNet;
 use crate::NeuralNetBuilder;
@@ -179,12 +180,12 @@ where
     //let (x, x_mean, x_std) = normalize_features_mean_std(&x);
     //let (y, y_mean, y_std) = normalize_features_mean_std(&y);
 
-    // let x = add_bias_term(&x).unwrap();
+    let x_with_bias = add_bias_term(&x).unwrap();
 
-    let loss_function_instance = Box::new(BinaryCrossEntropy);
+    let loss_function_instance = Box::new(MeanSquaredErrorLoss);
     let input_length = xy.n;
 
-    // let input_length = input_length + 1; // To compensate for bias
+    let input_length = input_length + 1; // To compensate for bias
 
     let nn = define_neural_net::<T>(hidden_length, input_length);
 
@@ -214,16 +215,18 @@ where
         last_epoch = epoch;
 
         if epoch % monitor_interval == 0 {
-            let y_pred = nn.predict(&x).unwrap();
+            let y_pred = nn.predict(&x_with_bias).unwrap();
 
-            draw_image(epoch as i32, &x, &y_pred, 200, 200, name);
-            nn.save_model(&(name.to_owned() + "/" + weights_path));
+            if epoch % (10 * monitor_interval) == 0 {
+                draw_image(epoch as i32, &x, &y_pred, 200, 200, name);
+                nn.save_model(&(name.to_owned() + "/" + weights_path));
+            }
 
             //println!();
             //y_pred.print_matrix();
 
             // Rest for a few seconds before starting again
-            if sleep_time > 0 {
+            if sleep_time > 0 && epoch != 0 {
                 println!("Taking a nap");
                 thread::sleep(Duration::from_secs(sleep_time));
                 println!("Awake again");
@@ -233,7 +236,7 @@ where
 
     draw_image(-1, &x, &y, 200, 200, name);
 
-    let _ = nn.fit(&x, &y, e as usize, 0, l, false, monitor, monitor_interval);
+    let _ = nn.fit(&x_with_bias, &y, e as usize, 0, l, false, monitor, monitor_interval);
 
     //let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 

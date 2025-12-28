@@ -6,6 +6,7 @@ use crate::tensor::Tensor;
 use rand::rngs::StdRng; // For Seedable range
 use rand::SeedableRng; // For Seedable range
 use rand_distr::{Distribution, StandardNormal};
+use rand::Rng;
 
 pub trait Layer<T>
 where
@@ -43,11 +44,7 @@ where
             (6.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();
 
         let w_data: Vec<NeuralNetDataType> = (0..(input_size * output_size))
-            //.map(|_| (rng.random::<NeuralNetDataType>() * 2.0 - 1.0) * limit) // For Xavier
-            .map(|_| {
-                let val: NeuralNetDataType = StandardNormal.sample(&mut rng);
-                val as NeuralNetDataType
-            })
+            .map(|_| (rng.random::<NeuralNetDataType>() * 2.0 - 1.0) * limit) // For Xavier
             .collect();
 
         w_data
