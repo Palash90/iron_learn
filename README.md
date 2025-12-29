@@ -211,6 +211,23 @@ prediction.print_matrix();
 - Python: `python_scripts/` contains helper scripts, experiments and small neural-network examples used for prototyping and data preprocessing.
 - Data/Images: Example JSON metadata and image assets under `data/` and `image/` used by demos and scripts.
 
+## Network Output Sample
+In one of the POCs, I have been trying to visualize how effectively the library can prove the Universal Approximation Theorem. Following are few snaps from the training of a very complex funtion (an image of Simba).
+
+**The random noise the network started with**
+![Starting Random Noise](image/images/output0.png)
+
+**Reconstructed image after 500,000 epoch**
+![Intermediate Reconstruction](image/images/output500000.png)
+
+**Reconstructed image after 1,500,000 epochs**
+![Final Reconstruction](image/images/output1500000.png)
+
+**Original Image**
+![Original Image](image/images/original.png)
+
+I would have gone beyond this and targetted some more but was getting tired of waiting for the network to draw.
+
 ## Architecture
 
 ![Iron Learn System Architecture](iron_learn_arch.png)
