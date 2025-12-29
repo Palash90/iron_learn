@@ -35,7 +35,7 @@ struct Args {
     #[arg(long, short, default_value = "0.01")]
     lr: f64,
 
-    #[arg(long, short, default_value = "10000")]
+    #[arg(long, short, default_value = "10001")]
     epochs: u32,
 
     #[arg(long, short, default_value = "data/neural_net.json")]
