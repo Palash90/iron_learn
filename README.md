@@ -67,7 +67,56 @@ println!("Transpose of A:");
 t.print_matrix();
 ```
 
-## High-level Overview
+For detailed example, check out [Examples](#examples)
+
+## How to build and run
+
+Prerequisites:
+- Rust toolchain (stable or nightly depending on local setup): https://rustup.rs
+- For GPU builds: CUDA Toolkit and an NVIDIA GPU (driver + nvcc). If you don't plan to use GPU tensors, CPU-only build is fine.
+- Python 3.8+ for the scripts (optional). NumPy recommended for running `python_scripts`.
+
+The library has two modes - CPU and Cuda. Default is CPU, Cuda comes as an optional feature. If you have CUDA environment setup, you can use `--features=cuda` flag for building and running the code.
+
+Build the basic CPU based Rust library and examples:
+
+```bash
+cargo build --release
+```
+
+Run unit tests:
+
+```bash
+cargo test
+```
+
+Run the Rust demonstration runners (examples):
+
+```bash
+# This is to get a comprehensive documentation of all the CLI Flags
+cargo run -- -h
+```
+
+```bash
+# Run a neural network example
+cargo run 
+```
+
+If you want to enable CUDA-backed tensors, ensure your environment has CUDA installed and visible to the linker. Typical workflow is the same `cargo build --features=cuda` but the code will initialize GPU devices at runtime when `init_gpu()` or `init_context()` is invoked.
+
+Python scripts can be run directly (no extra files created here):
+
+```bash
+python python_scripts/forward_prop.py
+python python_scripts/k-means.py
+python anomaly_detection.py
+```
+
+`python_scripts/check_cuda.py` is a small utility to detect/validate CUDA availability from Python; useful for quick GPU checks.
+
+## Examples
+
+## High-level Overview of the components
 
 - Rust: Core `Tensor` abstraction implementing `Tensor`s, numeric abstractions, optimization (gradient descent), neural network primitives, and optional CUDA-backed tensor implementations.
 - CUDA: `kernels/` contains CUDA kernels used by the Rust `cuda_tensor` and `gpu_context` modules for accelerated matrix ops.
@@ -111,49 +160,10 @@ t.print_matrix();
 - Implements atomic-safe memory comparison, element-wise math device kernels (exp, sin, cos, sigmoid branch), vector arithmetic, clipping, tiled matrix multiplication (shared-memory, TILE_SIZE 16), transpose and column reductions. These kernels are used by `cuda_tensor` for operations like `mul`, `transpose`, `col_reduce` and elementwise transforms (sigmoid, ln, exp).
 
 **Python: `python_scripts/`**
-
 - `forward_prop.py`: Small educational implementation of a two-layer forward pass and prediction helper. Useful for checking activation shapes and expected behavior.
 - `nn.py`: Minimal vectorized helper functions demonstrating element-wise operations, weighted sum and simple neural network forward logic used for educational examples.
 - `anomaly_detection.py`: Implements Gaussian estimation and threshold selection (F1-based) for anomaly detection — a direct NumPy port of the typical ML course algorithms (estimate Gaussian and select threshold by F1 score).
 - `neural_net/` folder: Small Python builder, activation, layers and helpers used for experimentation and generating JSON `ModelData` artifacts that can be consumed by the Rust `read_file`/builder logic.
-
-## How to build and run
-
-Prerequisites:
-- Rust toolchain (stable or nightly depending on local setup): https://rustup.rs
-- For GPU builds: CUDA Toolkit and an NVIDIA GPU (driver + nvcc). If you don't plan to use GPU tensors, CPU-only build is fine.
-- Python 3.8+ for the scripts (optional). NumPy recommended for running `python_scripts`.
-
-Build the Rust library and examples:
-
-```bash
-cargo build --release
-```
-
-Run unit tests:
-
-```bash
-cargo test
-```
-
-Run the Rust demonstration runners (examples):
-
-```bash
-# This is to get a comprehensive documentation of all the CLI Flags
-cargo run -- -h
-```
-
-If you want to enable CUDA-backed tensors, ensure your environment has CUDA installed and visible to the linker. Typical workflow is the same `cargo build` but the code will initialize GPU devices at runtime when `init_gpu()` or `init_context()` is invoked.
-
-Python scripts can be run directly (no extra files created here):
-
-```bash
-python python_scripts/forward_prop.py
-python python_scripts/k-means.py
-python anomaly_detection.py
-```
-
-`python_scripts/check_cuda.py` is a small utility to detect/validate CUDA availability from Python; useful for quick GPU checks.
 
 ## Where to look for functionality you might extend or inspect
 
@@ -171,12 +181,10 @@ python anomaly_detection.py
 - CUDA kernels implement a tiled matrix multiply and common elementwise ops; the kernels use shared memory and boundary checks for correctness.
 
 ## Quick pointers for contributors
-
 - Run tests: `cargo test`
 - Format: `cargo fmt`
 - Lint: `cargo clippy` (may require installing `clippy` via rustup)
 - Keep Python examples and the Rust model importer (`read_file.rs`) in sync if you change JSON model formats.
-
 
 ## Quick Module Reference
 
@@ -232,7 +240,7 @@ _NB:_ The library does not yet support broadcasting. I will soon introduce broad
 - Example dataset: see `data/image.json` (fields: `m`, `n`, `m_test`, `x`, `y`, `x_test`, `y_test`) — JSON contains flattened row-major arrays for `x`/`y`.
 - Example model file: see `image/model.json` — follows `ModelData` schema described above. Use `read_file::deserialize_model()` to load models into `ModelData`, and `NeuralNetBuilder::build_from_model()` to restore a runtime `NeuralNet` from `ModelData`.
 
-## Next steps I can take
+## Next steps
 - Add Broadcasting support
-- Audit `python_scripts/neural_net` and produce instructions for generating compatible `ModelData` JSON files.
-
+- Axis wise reducer
+- Move to higher dimensions
