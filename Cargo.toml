@@ -1,6 +1,6 @@
 [package]
 name = "iron_learn"
-description = "High-performance pure Rust ML library with GPU-accelerated gradient descent. Supports tensors, complex numbers, linear/logistic regression, and CUDA optimization."
+description = "A simple Rust ML library with GPU-accelerated gradient descent. Supports tensors, complex numbers, linear/logistic regression, and CUDA optimization."
 version = "0.6.0"
 edition = "2021"
 authors = ["Palash Kanti Kundu (https://www.linkedin.com/in/palash90)"]
