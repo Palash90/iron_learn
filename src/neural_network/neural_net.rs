@@ -78,16 +78,16 @@ where
     {
         let lr_min = 1e-6;
 
-        let total_timeline = (epochs + epoch_offset) as NeuralNetDataType;
+        let total_timeline = epochs as NeuralNetDataType;
         let hook_interval = match epochs > hook_interval {
             true => hook_interval,
             false => epochs,
         };
 
         for i in epoch_offset..epochs {
-            let global_i = (i + epoch_offset) as NeuralNetDataType;
+            let global_i = i as NeuralNetDataType;
 
-            self.current_epoch = i + epoch_offset;
+            self.current_epoch = i;
 
             let cos_term = ((PI as NeuralNetDataType * global_i) / total_timeline).cos();
 
@@ -121,11 +121,11 @@ where
             T::synchronize();
 
             // Hook (Periodic Reporting)
-            if i == 0 || (i + epoch_offset) % hook_interval == 0 {
+            if i == 0 || i % hook_interval == 0 {
                 T::synchronize();
                 let err_val = err.unwrap().sum().unwrap().get_data()[0];
 
-                hook(i + epoch_offset, err_val, current_lr, self);
+                hook(i, err_val, current_lr, self);
             }
         }
 

@@ -245,7 +245,9 @@ where
         }
     };
 
-    draw_image(-1, &x, &y, 200, 200, name);
+    if !restore {
+        draw_image(-1, &x, &y, 200, 200, name);
+    }
 
     let _ = nn.fit(
         &x_with_bias,
