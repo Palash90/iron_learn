@@ -1,0 +1,90 @@
+{
+  "name": "neural_net",
+  "parameter_count": 28,
+  "layers": [
+    {
+      "layer_type": "Linear",
+      "name": "Input",
+      "index": 0,
+      "weights": [
+        -0.25325897,
+        1.7620869,
+        -0.3667266,
+        1.0479218,
+        -0.6272103,
+        0.1066087,
+        1.4657009,
+        -0.48519197
+      ],
+      "shape": [
+        2,
+        4
+      ]
+    },
+    {
+      "layer_type": "Tanh",
+      "name": "AL 1",
+      "index": 1,
+      "weights": [],
+      "shape": []
+    },
+    {
+      "layer_type": "Linear",
+      "name": "HL4",
+      "index": 2,
+      "weights": [
+        0.27138406,
+        -0.55921173,
+        1.6782632,
+        -0.25751713,
+        0.8238443,
+        1.4161302,
+        1.93961,
+        1.0384467,
+        -2.3585906,
+        1.3264002,
+        0.11331957,
+        0.51399237,
+        -0.23586692,
+        0.66815335,
+        2.652824,
+        -1.6338396
+      ],
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "layer_type": "Tanh",
+      "name": "AL5",
+      "index": 3,
+      "weights": [],
+      "shape": []
+    },
+    {
+      "layer_type": "Linear",
+      "name": "HL12",
+      "index": 4,
+      "weights": [
+        2.2454722,
+        3.1759157,
+        -2.9043257,
+        -1.0576901
+      ],
+      "shape": [
+        4,
+        1
+      ]
+    },
+    {
+      "layer_type": "Sigmoid",
+      "name": "Output",
+      "index": 5,
+      "weights": [],
+      "shape": []
+    }
+  ],
+  "epoch": 10000,
+  "saved_lr": 0.01
+}

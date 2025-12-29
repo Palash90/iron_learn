@@ -295,7 +295,7 @@ where
     let xor_layers = [
         (input, hl, LayerType::Tanh, "Input", "AL 1"),
         (hl, hl, LayerType::Tanh, "HL4", "AL5"),
-        (hl, 1, LayerType::Sigmoid, "HL12", "Output")
+        (hl, 1, LayerType::Sigmoid, "HL12", "Output"),
     ];
 
     for layer in xor_layers {
@@ -316,7 +316,7 @@ where
 
     for i in 0..y_data.len() {
         let x_co = (x_data[2 * i] * (width - 1) as f32).round() as u32;
-        let y_co = (x_data[2 * i + 1] * (height -1) as f32).round() as u32;
+        let y_co = (x_data[2 * i + 1] * (height - 1) as f32).round() as u32;
         let pixel = 255 - (y_data[i] * 255.0) as u8;
 
         image_data.push((x_co, y_co, pixel));

@@ -115,6 +115,95 @@ python anomaly_detection.py
 `python_scripts/check_cuda.py` is a small utility to detect/validate CUDA availability from Python; useful for quick GPU checks.
 
 ## Examples
+### Use GPU Tensor
+
+```rust
+use iron_learn::init_gpu; // Only available under cuda feature.
+
+use iron_learn::GpuTensor;
+use iron_learn::Tensor;
+use iron_learn::init_context;
+
+init_gpu();
+// Create 2x2 matrices
+let a: GpuTensor<f32> = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
+let b: GpuTensor<f32> = GpuTensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0]).unwrap();
+
+println!("Original A:");
+a.print_matrix();
+
+println!("Original B:");
+b.print_matrix();
+
+// Add tensors without move
+let sum = a.add(&b).unwrap();
+println!("Sum:");
+sum.print_matrix();
+
+// Subtract tensors without move
+let sum = a.sub(&b).unwrap();
+println!("Difference:");
+sum.print_matrix();
+
+// Multiply tensors (Matrix multiplication)
+let product = a.mul(&b).unwrap();
+println!("Product:");
+product.print_matrix();
+
+// Multiply tensors (Element wise multiplication)
+let product = a.multiply(&b).unwrap();
+println!("Hadamard Product:");
+product.print_matrix();
+
+// Divide tensors (Element wise division)
+let result = a.div(&b).unwrap();
+println!("Division:");
+result.print_matrix();
+
+// Transpose
+let t = a.t().unwrap();
+println!("Transpose of A:");
+t.print_matrix();
+```
+
+
+### Use Neural Network
+
+```rust
+use iron_learn::CpuTensor;
+use iron_learn::MeanSquaredErrorLoss;
+use iron_learn::NeuralNet;
+use iron_learn::NeuralNetBuilder;
+use iron_learn::neural_network::DistributionType;
+use iron_learn::neural_network::LayerType;
+use iron_learn::Tensor;
+
+let mut nn = NeuralNetBuilder::<CpuTensor<f32>>::new();
+    
+let x: CpuTensor<f32> = CpuTensor::new(vec![4, 2], vec![0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]).unwrap();
+let y: CpuTensor<f32> = CpuTensor::new(vec![4, 1], vec![0.0, 1.0, 1.0, 0.0]).unwrap();
+
+let monitor = |epoch: usize, err: f32, current_lr: f32, nn: &mut NeuralNet<CpuTensor<f32>>| {
+    println!("Processing epopch: {epoch}, error: {err}");
+};
+	
+nn.add_linear(2, 4, "Input", &DistributionType::Uniform);
+nn.add_activation(LayerType::Tanh, "Activation Layer");
+	
+nn.add_linear(4, 1, "Hidden", &DistributionType::Uniform);
+nn.add_activation(LayerType::Sigmoid, "Output");
+
+let loss_function_instance = Box::new(MeanSquaredErrorLoss);
+
+let mut net = nn.build(loss_function_instance, &"neural-net".to_string());    
+net.fit(&x, &y, 10000, 0, 0.01, false, monitor, 1000);
+	
+let prediction = net.predict(&x).unwrap();
+	
+println!("\nPredicted value");
+prediction.print_matrix();
+
+```
 
 ## High-level Overview of the components
 
