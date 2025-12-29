@@ -226,7 +226,7 @@ In one of the POCs, I have been trying to visualize how effectively the library 
 **Original Image**
 ![Original Image](image/images/original.png)
 
-I would have gone beyond this and targetted some more but was getting tired of waiting for the network to draw.
+I would have gone beyond this and targetted some more tricks but was getting tired of waiting for the network to draw.
 
 ## Architecture
 
