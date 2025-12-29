@@ -104,10 +104,9 @@ cargo run
 
 If you want to enable CUDA-backed tensors, ensure your environment has CUDA installed and visible to the linker. Typical workflow is the same `cargo build --features=cuda` but the code will initialize GPU devices at runtime when `init_gpu()` or `init_context()` is invoked.
 
-Python scripts can be run directly (no extra files created here):
+Python scripts can be run directly:
 
 ```bash
-python python_scripts/forward_prop.py
 python python_scripts/k-means.py
 python anomaly_detection.py
 ```
@@ -227,7 +226,7 @@ prediction.print_matrix();
     - `gpu_kernels.ptx` — Precompiled PTX shipped alongside the CUDA source.
 
 - `python_scripts/` — Python utilities and experiments
-    - Top-level scripts: `forward_prop.py`, `k-means.py`, `check_cuda.py`, `plot_graph.py`, etc.
+    - Top-level scripts: `k-means.py`, `check_cuda.py`, `plot_graph.py`, etc.
     - `neural_net/` — Small Python builder, activation, layers and helpers used for rapid prototyping and educational examples.
 
 - `data/`, `image/` — Example datasets, model JSONs and saved weights used by demos.
@@ -249,8 +248,6 @@ prediction.print_matrix();
 - Implements atomic-safe memory comparison, element-wise math device kernels (exp, sin, cos, sigmoid branch), vector arithmetic, clipping, tiled matrix multiplication (shared-memory, TILE_SIZE 16), transpose and column reductions. These kernels are used by `cuda_tensor` for operations like `mul`, `transpose`, `col_reduce` and elementwise transforms (sigmoid, ln, exp).
 
 **Python: `python_scripts/`**
-- `forward_prop.py`: Small educational implementation of a two-layer forward pass and prediction helper. Useful for checking activation shapes and expected behavior.
-- `nn.py`: Minimal vectorized helper functions demonstrating element-wise operations, weighted sum and simple neural network forward logic used for educational examples.
 - `anomaly_detection.py`: Implements Gaussian estimation and threshold selection (F1-based) for anomaly detection — a direct NumPy port of the typical ML course algorithms (estimate Gaussian and select threshold by F1 score).
 - `neural_net/` folder: Small Python builder, activation, layers and helpers used for experimentation and generating JSON `ModelData` artifacts that can be consumed by the Rust `read_file`/builder logic.
 
@@ -320,8 +317,6 @@ _NB:_ The library does not yet support broadcasting. I will soon introduce broad
     - `column_reduce(const float *inputMatrix, float *outputSums, int numRows, int numCols)` — column sums
 
 **Python scripts (where to look)**
-- `python_scripts/forward_prop.py` — small two-layer forward pass and prediction helper.
-- `python_scripts/nn.py` — tiny, educational neural-network helper functions (weighted_sum, vector ops).
 - `python_scripts/neural_net/*` — prototype Python-side neural net builder and helpers used for experiments and model JSON creation.
 - `anomaly_detection.py` — feature-wise Gaussian estimation and F1-based threshold selection (useful as a standalone script).
 
