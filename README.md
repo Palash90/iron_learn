@@ -1,6 +1,6 @@
 # Iron Learn
 
-A Rust machine learning library with GPU-accelerated optimization. Built for learning tensor operations, gradient-based algorithms, and numerical computing with an emphasis on type safety and correctness.
+A Rust machine learning library with optional GPU-accelerated optimization. Built for learning tensor operations, gradient-based algorithms, and numerical computing with an emphasis on type safety and correctness.
 
 ## Features
 
@@ -74,7 +74,7 @@ For detailed example, check out [Examples](#examples)
 Prerequisites:
 - Rust toolchain (stable or nightly depending on local setup): https://rustup.rs
 - For GPU builds: CUDA Toolkit and an NVIDIA GPU (driver + nvcc). If you don't plan to use GPU tensors, CPU-only build is fine.
-- Python 3.8+ for the scripts (optional). NumPy recommended for running `python_scripts`.
+- Python 3.8+ for the scripts (optional). `cupy` is needed for running `python_scripts`.
 
 The library has two modes - CPU and Cuda. Default is CPU, Cuda comes as an optional feature. If you have CUDA environment setup, you can use `--features=cuda` flag for building and running the code.
 

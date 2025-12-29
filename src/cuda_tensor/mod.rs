@@ -18,10 +18,10 @@ pub use mem_pool::CudaMemoryPool;
 mod cublas_handle;
 pub use cublas_handle::CublasHandle;
 use cust::launch;
+use cust::memory::DeviceCopy;
 use cust::prelude::DeviceBuffer;
 use cust::prelude::Function;
 use cust::stream::Stream;
-use cust::memory::DeviceCopy;
 
 #[derive(Clone, Copy, Debug)]
 enum OpType {

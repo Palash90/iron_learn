@@ -2,10 +2,8 @@ use clap::Parser;
 
 use iron_learn::neural_network::DistributionType;
 use iron_learn::run_neural_net;
-use iron_learn::{init_context, CpuTensor,  GLOBAL_CONTEXT};
+use iron_learn::{init_context, CpuTensor, GLOBAL_CONTEXT};
 
-#[cfg(feature = "cuda")]
-use iron_learn::GpuTensor;
 #[cfg(feature = "cuda")]
 use cublas_sys::*;
 #[cfg(feature = "cuda")]
@@ -17,13 +15,15 @@ use cust::stream::StreamFlags;
 #[cfg(feature = "cuda")]
 use iron_learn::init_gpu;
 #[cfg(feature = "cuda")]
+use iron_learn::GpuTensor;
+#[cfg(feature = "cuda")]
 use std::ptr;
 
 #[derive(Parser)]
 #[command(name = "Iron Learn")]
 #[command(name = "A Rust Machine Learning Library")]
 struct Args {
-    #[arg(long, short, default_value = "neural-net")]
+    #[arg(long, short, default_value = "image")]
     name: String,
 
     #[arg(long, short, default_value = "false")]

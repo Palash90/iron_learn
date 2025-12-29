@@ -229,7 +229,10 @@ where
             let y_pred = nn.predict(&x_with_bias).unwrap();
 
             if epoch % (monitor_interval) == 0 {
-                draw_image(epoch as i32, &x, &y_pred, 200, 200, name);
+                if name.contains(&"image") {
+                    draw_image(epoch as i32, &x, &y_pred, 200, 200, name);
+                }
+
                 nn.save_model(&weights_path);
             }
 
@@ -246,7 +249,9 @@ where
     };
 
     if !restore {
-        draw_image(-1, &x, &y, 200, 200, name);
+        if name.contains(&"image") {
+            draw_image(-1, &x, &y, 200, 200, name);
+        }
     }
 
     let _ = nn.fit(
