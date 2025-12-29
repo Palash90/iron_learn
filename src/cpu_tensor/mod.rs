@@ -1,54 +1,12 @@
-//! # Tensor Module - Linear Algebra Core
-//!
-//! Provides the foundational `Tensor` data structure and comprehensive operations for
-//! linear algebra computations essential to machine learning applications.
-//!
-//! ## Design Philosophy
-//!
-//! The tensor module is built around these key principles:
-//! - **Generic**: Works with all numeric types through the `Numeric` trait
-//! - **Safe**: Result-based error handling; no panics on invalid operations
-//! - **Flexible**: Both consuming and borrowing variants of operations
-//! - **Clear**: Extensive documentation and examples for all public APIs
-//!
-//! ## Data Representation
-//!
-//! Tensors are represented in **row-major order** for compatibility with standard
-//! mathematical libraries. Shape is defined as a vector of dimensions, supporting
-//! multi-dimensional arrays (though currently restricted to 2D matrices).
-//!
-//! ## Operation Modes
-//!
-//! Two patterns are provided for each operation:
-//! - **Consuming** (`+`, `-`, `*`): Take ownership, suitable for single-use computations
-//! - **Borrowing** (`add()`, `sub()`, `mul()`): Borrow references, enable reuse
-//!
-//! ## Performance Characteristics
-//!
-//! Operations use foundational algorithms appropriate for educational and small-scale use.
-//! GPU acceleration is available through the `gpu_regression` module for large-scale workloads.
-
 use crate::tensor::Tensor;
 mod display;
-// mod tensor_ops;
 
 use crate::numeric::{Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
 use std::ops::{Add, Mul, Neg, Sub};
 
-/// The `Tensor` structure is the cornerstone of this library, providing a comprehensive suite of mathematical operations
-/// for the manipulation of multidimensional data.
-///
-/// # Characteristics
-///
-/// - **Generic**: Type-agnostic through the `Numeric` trait; works with f64, f32, i32, i64, u32, u64, and Complex
-/// - **Row-Major Layout**: Data stored in row-major order for standard matrix conventions
-/// - **Type Safe**: All operations return `Result` types for explicit error handling
-/// - **Flexible API**: Both ownership-taking operators and borrowing methods available
-///
-/// # Limitations
-///
-/// Currently restricted to 2-dimensional matrices. N-dimensional support is planned for future releases.
+/// The `CpuTensor` structure is the backend implementaion of the `Tensor` trait. The implementation uses CPU for calcualations.
+/// Although, Auto Vectorization has been used whereever possible for parallel execeution.
 ///
 /// # Examples
 ///
@@ -330,7 +288,7 @@ impl<T: Numeric> CpuTensor<T> {
 impl<T: Numeric> Add for CpuTensor<T> {
     type Output = Result<Self, String>;
 
-    /// Implements the addition of two `Tensor` instances.
+    /// Implements the addition of two `CpuTensor` instances.
     ///
     /// This implementation of the `Add` trait enables the addition of two tensors with the same shape. The operation is element-wise, meaning each element in one tensor is added to the corresponding element in the other tensor.
     ///

@@ -20,6 +20,11 @@ pub struct CudaMemoryPool {
 }
 
 impl CudaMemoryPool {
+    /// Create and return a new `CudaMemoryPool` for the first CUDA device.
+    ///
+    /// The returned pool is initialized and primed for allocations. This is a
+    /// convenience constructor that configures platform-specific pool
+    /// properties and performs a small reserve/free to warm the pool.
     pub fn get_mem_pool() -> CudaMemoryPool {
         let device = Device::get_device(0).unwrap();
 
@@ -77,6 +82,11 @@ impl CudaMemoryPool {
         f(raw_handle)
     }
 
+    /// Allocate `size_in_bytes` from the CUDA memory pool and return a raw
+    /// `CUdeviceptr` device pointer on success.
+    ///
+    /// Returns an error boxed as `Box<dyn Error>` when the underlying CUDA
+    /// allocation fails.
     pub fn allocate(&self, size_in_bytes: usize) -> Result<CUdeviceptr, Box<dyn Error>> {
         let mut device_ptr: CUdeviceptr = 0;
         let byte_size = size_in_bytes;
@@ -99,6 +109,10 @@ impl CudaMemoryPool {
         })
     }
 
+    /// Free a device pointer previously allocated from this memory pool.
+    ///
+    /// Returns `Ok(())` on success or an error boxed as `Box<dyn Error>` if
+    /// the CUDA free operation fails.
     pub fn free(&self, device_ptr: CUdeviceptr) -> Result<(), Box<dyn Error>> {
         let result = unsafe { cuMemFreeAsync(device_ptr, std::ptr::null_mut()) };
 

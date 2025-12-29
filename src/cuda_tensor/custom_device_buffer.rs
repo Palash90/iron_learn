@@ -9,11 +9,19 @@ use crate::Numeric;
 use core::ffi::c_void;
 
 #[derive(Debug)]
+/// Owned wrapper around a CUDA `DeviceBuffer` allocated from the global
+/// CUDA memory pool.
+///
+/// The wrapper ensures memory is returned to the configured `CudaMemoryPool`
+/// when dropped. The generic `T` must implement `Numeric` and `DeviceCopy` so
+/// it can be safely used across the host/device boundary.
 pub struct CustomDeviceBuffer<T: Numeric + DeviceCopy> {
     pub device_buffer: DeviceBuffer<T>,
 }
 
 impl<T: Numeric + DeviceCopy> CustomDeviceBuffer<T> {
+    /// Return a `DevicePointer<T>` suitable for passing to CUDA kernels or
+    /// runtime APIs.
     pub fn as_device_ptr(&self) -> DevicePointer<T> {
         self.device_buffer.as_device_ptr()
     }
@@ -30,6 +38,12 @@ impl<T: Numeric + DeviceCopy> Drop for CustomDeviceBuffer<T> {
     }
 }
 
+/// Allocate a device buffer of `size` elements from the global CUDA memory
+/// pool and return a `CustomDeviceBuffer` that owns the allocation.
+///
+/// # Panics
+/// - If the global `GPU_CONTEXT` is not initialized or the memory pool is
+///   not set up.
 pub fn get_device_buffer<T: Numeric + DeviceCopy>(size: usize) -> CustomDeviceBuffer<T> {
     let pool = match &GPU_CONTEXT.get().expect("No GPU Context Set").pool {
         Some(p) => p,
@@ -50,6 +64,8 @@ pub fn get_device_buffer<T: Numeric + DeviceCopy>(size: usize) -> CustomDeviceBu
     CustomDeviceBuffer { device_buffer }
 }
 
+/// Allocate a device buffer and copy the provided `data` slice into device
+/// memory, returning a `CustomDeviceBuffer` owning the result.
 pub fn get_device_buffer_from_slice<T: Numeric + DeviceCopy>(data: &[T]) -> CustomDeviceBuffer<T> {
     let device_buffer = get_device_buffer::<T>(data.len());
     unsafe {

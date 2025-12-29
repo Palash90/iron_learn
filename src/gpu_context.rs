@@ -9,9 +9,20 @@ use cust::stream::Stream;
 use std::ptr;
 use std::sync::OnceLock;
 
+/// Global GPU context singleton used throughout the crate.
+///
+/// This `OnceLock` holds the process-wide `GpuContext` and should be
+/// initialized exactly once by calling `init_gpu(...)` prior to any GPU
+/// operations. Consumers may read from this static to access the CUDA
+/// `Module`, `Stream`, memory pool and cuBLAS handle.
 pub static GPU_CONTEXT: OnceLock<GpuContext> = OnceLock::new();
 
 #[derive(Debug)]
+/// Process-wide GPU context containing CUDA resources used by the crate.
+///
+/// `GpuContext` bundles optional CUDA constructs (context, loaded module,
+/// stream) and resource managers (memory pool and cuBLAS handle). Fields are
+/// public for consumer access through the `GPU_CONTEXT` singleton.
 pub struct GpuContext {
     pub context: Option<cust::context::Context>,
     pub module: Option<Module>,
@@ -21,6 +32,10 @@ pub struct GpuContext {
 }
 
 impl GpuContext {
+    /// Lookup a CUDA kernel/function by name from the loaded module.
+    ///
+    /// # Panics
+    /// - If the `Module` has not been loaded into this context.
     pub fn get_function(&self, fn_name: &str) -> Function<'_> {
         let module = self.module.as_ref().expect("Module not found");
 
@@ -33,6 +48,15 @@ impl GpuContext {
     }
 }
 
+/// Initialize the global GPU context singleton used by the crate.
+///
+/// - `context`: optionally provide an owned CUDA `Context`.
+/// - `module`: optionally provide a loaded CUDA `Module` containing kernels.
+/// - `stream`: optionally provide a CUDA `Stream` to use for kernel launches.
+/// - `cublas_handle`: optionally provide a raw cuBLAS handle (`cublasHandle_t`).
+///
+/// Calling this function sets the `GPU_CONTEXT` `OnceLock` once; subsequent
+/// calls will print a warning if initialization was already performed.
 pub fn init_gpu(
     context: Option<cust::context::Context>,
     module: Option<Module>,

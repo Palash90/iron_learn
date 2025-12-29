@@ -1,6 +1,35 @@
+//! # Tensor Module - Linear Algebra Core
+//!
+//! Provides the foundational `Tensor` data structure and comprehensive operations for
+//! linear algebra computations essential to machine learning applications.
+//!
+//! ## Design Philosophy
+//!
+//! The tensor module is built around these key principles:
+//! - **Generic**: Works with all numeric types through the `Numeric` trait
+//! - **Safe**: Result-based error handling; no panics on invalid operations
+//! - **Flexible**: Both consuming and borrowing variants of operations
+//! - **Clear**: Extensive documentation and examples for all public APIs
+//!
+//! ## Data Representation
+//!
+//! Tensors are represented in **row-major order** for compatibility with standard
+//! mathematical libraries. Shape is defined as a vector of dimensions, supporting
+//! multi-dimensional arrays (though currently restricted to 2D matrices).
+//!
+//! ## Operation Modes
+//!
+//! Two patterns are provided for each operation:
+//! - **Consuming** (`+`, `-`, `*`): Take ownership, suitable for single-use computations
+//! - **Borrowing** (`add()`, `sub()`, `mul()`): Borrow references, enable reuse
+//!
+//! ## Performance Characteristics
+//!
+//! Operations use foundational algorithms appropriate for educational and small-scale use.
+//! GPU acceleration is available through the `cuda` feature for large-scale workloads.
+
 use crate::Numeric;
 pub mod math;
-
 pub trait Tensor<T: Numeric>: Sized {
     fn print_matrix(&self) -> () {
         let data = self.get_data();

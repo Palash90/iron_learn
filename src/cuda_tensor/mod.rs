@@ -1,4 +1,19 @@
 #![cfg(feature = "cuda")]
+//! GPU-backed tensor implementation and CUDA helpers. Only available with `--features=cuda`
+//!
+//! This module provides a `GpuTensor<T>` implementation of the crate `Tensor`
+//! trait which stores data in CUDA device memory and exposes common
+//! tensor operations (element-wise ops, matrix multiply, reduction, etc.)
+//! implemented using CUDA kernels and cuBLAS where appropriate.
+//!
+//! Important notes for production use:
+//! - The global `GPU_CONTEXT` must be initialized before creating or using
+//!   any `GpuTensor` instances.
+//! - Many helpers launch device kernels and thus rely on correct stream and
+//!   kernel linkage; errors from kernel launches are surfaced as `Err(String)`
+//!   in fallible APIs.
+//! - Only tensors with up to 2 dimensions are currently supported for some
+//!   operations (e.g. transpose) — callers should validate shape expectations.
 use crate::cuda_tensor::custom_device_buffer::{
     get_device_buffer, get_device_buffer_from_slice, CustomDeviceBuffer,
 };
@@ -10,12 +25,14 @@ use cublas_sys::*;
 use cust::memory::bytemuck::Zeroable;
 use std::ops::{Add, Mul, Neg, Sub};
 
-//mod tensor_ops;
 use crate::Tensor;
 mod custom_device_buffer;
+/// A lightweight device memory pool to reduce allocation overhead.
 mod mem_pool;
+/// Public re-export of the CUDA memory pool manager.
 pub use mem_pool::CudaMemoryPool;
 mod cublas_handle;
+/// Public re-export for managing cuBLAS handles scoped to the GPU context.
 pub use cublas_handle::CublasHandle;
 use cust::launch;
 use cust::memory::DeviceCopy;
@@ -23,6 +40,11 @@ use cust::prelude::DeviceBuffer;
 use cust::prelude::Function;
 use cust::stream::Stream;
 
+/// Operation selector for element-wise device kernels.
+///
+/// This enum is passed to device kernels to select the requested element-wise
+/// operation (scale, exp, trig functions, activation functions, etc.). The
+/// numeric discriminants are matched in the CUDA kernels.
 #[derive(Clone, Copy, Debug)]
 enum OpType {
     EXP = 0,
@@ -36,6 +58,10 @@ enum OpType {
     LN = 8,
 }
 
+/// Selector for binary element-wise arithmetic kernels.
+///
+/// Used by the vector arithmetic kernel to select addition/subtraction/
+/// multiplication/division between two tensors.
 #[derive(Clone, Copy, Debug)]
 enum ArithmaticType {
     ADD = 1,
@@ -44,6 +70,13 @@ enum ArithmaticType {
     DIV = 4,
 }
 
+/// A tensor whose backing storage resides on a CUDA device.
+///
+/// `GpuTensor<T>` stores its shape as a `Vec<u32>` and owns a
+/// `CustomDeviceBuffer<T>` that contains the device memory. The generic `T`
+/// must implement `Numeric` and `DeviceCopy` so it can be moved between host
+/// and device memory. Most public operations return `Result<Self, String>` to
+/// surface errors coming from invalid shapes or CUDA/kernel failures.
 #[derive(Debug)]
 pub struct GpuTensor<T: Numeric + DeviceCopy> {
     shape: Vec<u32>,
@@ -51,46 +84,66 @@ pub struct GpuTensor<T: Numeric + DeviceCopy> {
 }
 
 impl<T: Numeric + Zeroable + DeviceCopy> Tensor<T> for GpuTensor<T> {
+    /// Create a new `GpuTensor` from host `data` and move it to device memory.
+    ///
+    /// Returns `Err(String)` when the provided data length does not match the
+    /// product of `shape` or if other allocation errors occur.
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         Self::_new(shape, data)
     }
 
+    /// Synchronously copy the tensor contents from device to host and return
+    /// them as a `Vec<T>`.
     fn get_data(&self) -> Vec<T> {
         self._data()
     }
 
+    /// Return the tensor shape as a slice of dimensions.
     fn get_shape(&self) -> &Vec<u32> {
         &self.shape
     }
 
+    /// Element-wise addition of two tensors. Returns an error on shape
+    /// mismatch.
     fn add(&self, rhs: &Self) -> Result<Self, String> {
         self._element_arithmatic(rhs, ArithmaticType::ADD)
     }
 
+    /// Element-wise subtraction. Returns an error on shape mismatch.
     fn sub(&self, rhs: &Self) -> Result<Self, String> {
         self._element_arithmatic(rhs, ArithmaticType::SUB)
     }
 
+    /// Element-wise multiplication (Hadamard product). Returns an error on
+    /// shape mismatch.
     fn multiply(&self, rhs: &Self) -> Result<Self, String> {
         self._element_arithmatic(rhs, ArithmaticType::MUL)
     }
 
+    /// Element-wise division. Returns an error on shape mismatch.
     fn div(&self, rhs: &Self) -> Result<Self, String> {
         self._element_arithmatic(rhs, ArithmaticType::DIV)
     }
 
+    /// Matrix multiplication. Validates dimensions and performs GPU-backed
+    /// multiply (cuBLAS is used when available).
     fn mul(&self, rhs: &Self) -> Result<Self, String> {
         self._mul(rhs)
     }
 
+    /// Transpose the tensor (only supported up to 2D). Returns a new
+    /// `GpuTensor` containing the transposed result.
     fn t(&self) -> Result<Self, String> {
         self._t()
     }
 
+    /// Scale each element by `scalar`.
     fn scale(&self, scalar: T) -> Result<Self, String> {
         self.element_op(OpType::SCALE, scalar)
     }
 
+    /// Synchronize the current CUDA stream and block until all device work
+    /// submitted to the global GPU context has completed.
     fn synchronize() {
         let _ = &(GPU_CONTEXT
             .get()
@@ -101,18 +154,23 @@ impl<T: Numeric + Zeroable + DeviceCopy> Tensor<T> for GpuTensor<T> {
         .synchronize();
     }
 
+    /// Create a tensor of zeros with the given `shape`.
     fn zeroes(shape: &Vec<u32>) -> Self {
         Self::_new_with_value(shape.to_vec(), T::zero()).unwrap()
     }
 
+    /// Create a tensor filled with ones with the given `shape`.
     fn ones(shape: &Vec<u32>) -> Self {
         Self::_new_with_value(shape.to_vec(), T::one()).unwrap()
     }
 
+    /// Clip tensor values to the closed interval [`min`, `max`].
     fn clip(&self, min: T, max: T) -> Result<Self, String> {
         self._clip(min, max)
     }
 
+    /// Sum all elements of the tensor and return a 1-element tensor
+    /// containing the total.
     fn sum(&self) -> Result<Self, String> {
         let data = self._column_sum().unwrap().get_data();
 

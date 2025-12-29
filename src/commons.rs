@@ -1,6 +1,10 @@
 use crate::tensor::Tensor;
 use crate::Numeric;
 
+/// Denormalize features using per-feature `mean` and `std` vectors.
+///
+/// Returns a new tensor where each feature column is scaled back to the
+/// original value range by computing `value * std[j] + mean[j]`.
 pub fn denormalize_features<T: Tensor<f64>>(
     normalized_data: &T,
     mean: &Vec<f64>,
@@ -25,6 +29,10 @@ pub fn denormalize_features<T: Tensor<f64>>(
     T::new(shape.clone(), denormalized_data).unwrap()
 }
 
+/// Normalize features using provided `mean` and `std` per feature.
+///
+/// For each element returns `(value - mean[j]) / std[j]` when `std[j] != 0`,
+/// otherwise `0.0` to avoid division-by-zero.
 pub fn normalize_features<T: Tensor<f64>>(data: &T, mean: &Vec<f64>, std: &Vec<f64>) -> T {
     let shape = data.get_shape();
     let m = shape[0] as usize;
@@ -50,6 +58,8 @@ pub fn normalize_features<T: Tensor<f64>>(data: &T, mean: &Vec<f64>, std: &Vec<f
     T::new(shape.clone(), normalized_data).unwrap()
 }
 
+/// Compute per-feature mean and standard deviation, and return the
+/// normalized tensor along with the `mean` and `std` vectors.
 pub fn normalize_features_mean_std<T: Tensor<f64>>(data: &T) -> (T, Vec<f64>, Vec<f64>) {
     let shape = data.get_shape();
     let m = shape[0] as usize;
@@ -87,6 +97,9 @@ pub fn normalize_features_mean_std<T: Tensor<f64>>(data: &T) -> (T, Vec<f64>, Ve
     (normalized_data, data_mean, data_std_dev)
 }
 
+/// Add a bias column of ones to the input tensor `x` and return the new
+/// tensor. The new tensor will have shape `[m, n+1]` where the first column
+/// contains ones.
 pub fn add_bias_term<T, U>(x: &T) -> Result<T, String>
 where
     T: Tensor<U>,

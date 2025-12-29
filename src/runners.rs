@@ -25,6 +25,11 @@ use std::time::Duration;
 
 use crate::neural_network::DistributionType;
 
+/// Run logistic regression using configuration from the global context.
+///
+/// The function reads data and runtime settings from `GLOBAL_CONTEXT`,
+/// trains a logistic model, evaluates on test data (if present), and
+/// prints summary metrics. Returns `Ok(())` on success or an error string.
 pub fn run_logistic<T>() -> Result<(), String>
 where
     T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
@@ -83,6 +88,11 @@ where
     Ok(())
 }
 
+/// Run linear regression using configuration from the global context.
+///
+/// The function loads data, performs normalization, trains a linear model,
+/// evaluates on test data (if present), and prints MSE and RMSE. Returns
+/// `Ok(())` on success or an error string.
 pub fn run_linear<T>() -> Result<(), String>
 where
     T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
@@ -153,6 +163,12 @@ where
     Ok(())
 }
 
+/// Train and evaluate a neural network using configuration from the global context.
+///
+/// This function builds a neural network according to global settings,
+/// loads optional saved weights, runs training with a monitoring callback,
+/// and prints predictions for non-image tasks. Returns `Ok(())` on success or
+/// an error string.
 pub fn run_neural_net<T>() -> Result<(), String>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,

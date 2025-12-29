@@ -3,6 +3,13 @@ use crate::tensor::Tensor;
 
 use crate::commons::add_bias_term;
 
+/// Perform a single gradient descent update step.
+///
+/// - `x`: input features (may include bias column if already added)
+/// - `y`: target outputs
+/// - `w`: current weights
+/// - `l`: learning rate
+/// - `logistic`: whether to use a logistic (sigmoid) activation
 pub fn gradient_descent<T>(x: &T, y: &T, w: &T, l: f64, logistic: bool) -> Result<T, String>
 where
     T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
@@ -25,6 +32,12 @@ where
     w.sub(&d)
 }
 
+/// Train a linear regression model using gradient descent.
+///
+/// - `x`, `y`: training data
+/// - `w`: initial weights (consumed)
+/// - `l`: learning rate
+/// - `e`: number of epochs
 pub fn linear_regression<T>(x: &T, y: &T, w: T, l: f64, e: u32) -> Result<T, String>
 where
     T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
@@ -38,6 +51,10 @@ where
     Ok(gradient_descent(&x_with_bias, y, &weight, l, false).unwrap())
 }
 
+/// Train a logistic regression model using gradient descent.
+///
+/// Same parameters as `linear_regression`, but applies a sigmoid
+/// activation during training.
 pub fn logistic_regression<T>(x: &T, y: &T, w: T, l: f64, e: u32) -> Result<T, String>
 where
     T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
@@ -52,6 +69,7 @@ where
     Ok(gradient_descent(&x_with_bias, y, &weight, l, true).unwrap())
 }
 
+/// Predict outputs for `x` using linear model weights `w`.
 pub fn predict_linear<T>(x: &T, w: &T) -> Result<T, String>
 where
     T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
@@ -59,6 +77,9 @@ where
     x.mul(w)
 }
 
+/// Predict binary labels for `x` using logistic model weights `w`.
+///
+/// Returns a tensor of predicted labels (0.0 or 1.0).
 pub fn predict_logistic<T>(x: &T, w: &T) -> Result<T, String>
 where
     T: Tensor<f64> + TensorMath<f64, MathOutput = T>,
