@@ -214,16 +214,16 @@ prediction.print_matrix();
 ## Network Output Sample
 In one of the POCs, I have been trying to visualize how effectively the library can prove the Universal Approximation Theorem. Following are few snaps from the training of a very complex funtion (an image of Simba).
 
-**The random noise the network started with**
+### The random noise the network started with
 ![Starting Random Noise](image/images/output0.png)
 
-**Reconstructed image after 500,000 epoch**
+### Reconstructed image after 500,000 epoch
 ![Intermediate Reconstruction](image/images/output500000.png)
 
-**Reconstructed image after 1,500,000 epochs**
+### Reconstructed image after 1,500,000 epochs
 ![Final Reconstruction](image/images/output1500000.png)
 
-**Original Image**
+### Original Image
 ![Original Image](image/images/original.png)
 
 I would have gone beyond this and targetted some more tricks but was getting tired of waiting for the network to draw.
