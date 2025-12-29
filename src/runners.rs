@@ -176,7 +176,7 @@ where
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone()).unwrap();
-    let x = x.scale(1.0 / 199.0).unwrap(); // Normalization
+    // let x = x.scale(1.0 / 199.0).unwrap(); // Normalization
     let y = T::new(vec![xy.m, 1], xy.y.clone()).unwrap();
 
     //let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
@@ -185,12 +185,12 @@ where
     //let (x, x_mean, x_std) = normalize_features_mean_std(&x);
     //let (y, y_mean, y_std) = normalize_features_mean_std(&y);
 
-    let x_with_bias = add_bias_term(&x).unwrap();
+    // let x_with_bias = add_bias_term(&x).unwrap(); // Bias Trick
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
     let input_length = xy.n;
 
-    let input_length = input_length + 1; // To compensate for bias
+    let input_length = input_length; //  + 1; // To compensate for bias
 
     let nn = define_neural_net::<T>(hidden_length, input_length, distribution);
 
@@ -226,7 +226,7 @@ where
         last_epoch = epoch;
 
         if epoch % monitor_interval == 0 {
-            let y_pred = nn.predict(&x_with_bias).unwrap();
+            let y_pred = nn.predict(&x).unwrap();
 
             if epoch % (monitor_interval) == 0 {
                 if name.contains(&"image") {
@@ -235,9 +235,6 @@ where
 
                 nn.save_model(&weights_path);
             }
-
-            //println!();
-            //y_pred.print_matrix();
 
             // Rest for a few seconds before starting again
             if sleep_time > 0 && epoch != 0 {
@@ -255,7 +252,7 @@ where
     }
 
     let _ = nn.fit(
-        &x_with_bias,
+        &x,
         &y,
         e as usize,
         epoch_offset,
@@ -265,18 +262,16 @@ where
         monitor_interval,
     );
 
-    //let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
+    if !name.contains(&"image") {
+        let predictions = nn.predict(&x).unwrap();
+        println!();
+        println!("Input:");
+        x.print_matrix();
 
-    //let x_test = normalize_features(&x_test, &x_mean, &x_std);
+        println!("Predictions:");
+        predictions.print_matrix();
+    }
 
-    //let x_test = add_bias_term(&x_test)?;
-
-    // let predictions = nn.predict(&x).unwrap();
-
-    //println!();
-    // predictions.print_matrix();
-
-    //let predictions = denormalize_features(&predictions, &y_mean, &y_std);
     Ok(())
 }
 
@@ -286,23 +281,24 @@ where
 {
     let mut nn = NeuralNetBuilder::<T>::new();
 
-    let layers = [
+    let _image_layers = [
         (input, hl, LayerType::Tanh, "Input", "AL 1"),
         (hl, hl, LayerType::Tanh, "HL1", "AL2"),
         (hl, 2 * hl, LayerType::Tanh, "HL2", "AL3"),
         (2 * hl, hl, LayerType::Tanh, "HL3", "AL4"),
         (hl, hl / 2, LayerType::Tanh, "HL4", "AL5"),
-        // (hl / 2, hl / 2, LayerType::Tanh, "HL5", "AL6"),
-        // (hl / 2, hl / 2, LayerType::Sin, "HL6", "AL7"),
-        //  (hl / 1, hl / 1, LayerType::Sin, "HL7", "AL8"),
-        //  (hl / 1, hl / 2, LayerType::Sin, "HL8", "AL9"),
-        //  (hl / 2, hl / 4, LayerType::Tanh, "HL9", "AL10"),
         (hl / 2, hl / 2, LayerType::Tanh, "HL10", "AL11"),
         (hl / 2, hl / 2, LayerType::Tanh, "HL11", "AL12"),
         (hl / 2, 1, LayerType::Sigmoid, "HL12", "Output"),
     ];
 
-    for layer in layers {
+    let xor_layers = [
+        (input, hl, LayerType::Tanh, "Input", "AL 1"),
+        (hl, hl, LayerType::Tanh, "HL4", "AL5"),
+        (hl, 1, LayerType::Sigmoid, "HL12", "Output")
+    ];
+
+    for layer in xor_layers {
         nn.add_linear(layer.0, layer.1, layer.3, distribution);
         nn.add_activation(layer.2, layer.4);
     }
@@ -319,13 +315,9 @@ where
     let y_data = y.get_data();
 
     for i in 0..y_data.len() {
-        let x_co = (x_data[2 * i] * 199.0_f32).round() as u32;
-        let y_co = (x_data[2 * i + 1] * 199.0_f32).round() as u32;
+        let x_co = (x_data[2 * i] * (width - 1) as f32).round() as u32;
+        let y_co = (x_data[2 * i + 1] * (height -1) as f32).round() as u32;
         let pixel = 255 - (y_data[i] * 255.0) as u8;
-
-        if y_data[i] > 0.5 {
-            //  println!("{}, {}, {}, {}", x_co, y_co, y_data[i], pixel);
-        }
 
         image_data.push((x_co, y_co, pixel));
     }

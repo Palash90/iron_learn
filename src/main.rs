@@ -23,7 +23,7 @@ use std::ptr;
 #[command(name = "Iron Learn")]
 #[command(name = "A Rust Machine Learning Library")]
 struct Args {
-    #[arg(long, short, default_value = "image")]
+    #[arg(long, short, default_value = "neural_net")]
     name: String,
 
     #[arg(long, short, default_value = "false")]
@@ -32,13 +32,13 @@ struct Args {
     #[arg(long, short, default_value = "false")]
     restore: bool,
 
-    #[arg(long, short, default_value = "0.001")]
+    #[arg(long, short, default_value = "0.01")]
     lr: f64,
 
     #[arg(long, short, default_value = "10000")]
     epochs: u32,
 
-    #[arg(long, short, default_value = "data/linear.json")]
+    #[arg(long, short, default_value = "data/neural_net.json")]
     data_file: String,
 
     #[arg(long, short, default_value = "false")]
@@ -50,7 +50,7 @@ struct Args {
     #[arg(long, short, default_value = "1000")]
     monitor_interval: usize,
 
-    #[arg(long, short, default_value = "30")]
+    #[arg(long, short, default_value = "0")]
     sleep_time: u64,
 
     #[arg(long, short, default_value = "model.json")]
