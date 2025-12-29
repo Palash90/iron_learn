@@ -1,6 +1,5 @@
 #[cfg(test)]
 mod tests {
-    use iron_learn::neural_network::DistributionType;
     use iron_learn::CpuTensor;
     use iron_learn::Tensor;
     #[test]

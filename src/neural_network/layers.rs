@@ -3,8 +3,6 @@ use crate::neural_network::{get_activations, LayerType};
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 
-use rand::rngs::StdRng; // For Seedable range
-use rand::SeedableRng; // For Seedable range
 use rand_distr::{Distribution, Normal, Uniform};
 
 pub trait Layer<T>
@@ -48,7 +46,6 @@ where
         output_size: u32,
         distribution: &DistributionType,
     ) -> Vec<NeuralNetDataType> {
-        let mut rng = StdRng::seed_from_u64(1610612741);
         let mut rng = rand::rng();
         let normal = Normal::new(0.0, 1.0).unwrap();
 
