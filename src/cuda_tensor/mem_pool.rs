@@ -1,3 +1,4 @@
+#![cfg(feature = "cuda")]
 use cust::prelude::*;
 use cust::sys::*;
 use std::error::Error;

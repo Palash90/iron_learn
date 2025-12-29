@@ -1,3 +1,4 @@
+#![cfg(feature = "cuda")]
 #[cfg(test)]
 mod activations_tests {
     use iron_learn::neural_network::{cos, sigmoid, sigmoid_prime, sin, tanh, tanh_prime};

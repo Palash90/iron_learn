@@ -339,7 +339,8 @@ fn draw_grid(points: Vec<(u32, u32, u8)>, epoch: i32, height: u32, width: u32, n
 
     let image_file = name.to_owned() + "/images/output" + &epoch.to_string() + ".png";
 
-    imgbuf.save(&image_file).unwrap();
-
-    println!("Image successfully rendered to {}", image_file);
+    match imgbuf.save(&image_file) {
+        Ok(_) => println!("Image successfully rendered to {}", image_file),
+        Err(e) => eprintln!("Error saving image {}: {}", image_file, e),
+    }
 }

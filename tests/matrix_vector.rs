@@ -54,8 +54,6 @@ pub fn test_mul_i32() {
 
     assert_eq!(3, (m1 * m2).unwrap().get_data()[0]);
 
-    let _context = cust::quick_init().unwrap();
-
     let m1 = CpuTensor::new(vec![2, 2], vec![1, 2, 3, 4]).unwrap();
     let m2 = CpuTensor::new(vec![2, 2], vec![5, 6, 7, 8]).unwrap();
     let result = CpuTensor::new(vec![2, 2], vec![19, 22, 43, 50]).unwrap();
@@ -188,7 +186,6 @@ pub fn test_mul_random_d() {
 
 #[test]
 pub fn test_mul_float() {
-    let _context = cust::quick_init().unwrap();
     let m1 = CpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
     let m2 = CpuTensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0]).unwrap();
     let result = CpuTensor::new(vec![2, 2], vec![19.0, 22.0, 43.0, 50.0]).unwrap();

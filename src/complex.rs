@@ -21,6 +21,7 @@
 
 use std::ops::{Add, Div, Mul, Sub};
 
+#[cfg(feature = "cuda")]
 use cust::DeviceCopy;
 
 use std::fmt;
@@ -48,7 +49,8 @@ use std::fmt;
 /// let sum = z1 + z2;                 // 4 + 6i
 /// let product = z1 * z2;             // -5 + 10i
 /// ```
-#[derive(Debug, PartialEq, Copy, Clone, DeviceCopy, PartialOrd)]
+#[derive(Debug, PartialEq, Copy, Clone, PartialOrd)]
+#[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Complex {
     real: f64,
     imaginary: f64,

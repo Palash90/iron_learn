@@ -1,3 +1,4 @@
+#![cfg(feature = "cuda")]
 #[cfg(test)]
 mod cuda_tests {
 

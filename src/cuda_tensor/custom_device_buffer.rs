@@ -1,22 +1,25 @@
+#![cfg(feature = "cuda")]
 use crate::GPU_CONTEXT;
 use cust::memory::{DeviceBuffer, DevicePointer};
+
+use cust::memory::DeviceCopy;
 
 use crate::Numeric;
 
 use core::ffi::c_void;
 
 #[derive(Debug)]
-pub struct CustomDeviceBuffer<T: Numeric> {
+pub struct CustomDeviceBuffer<T: Numeric + DeviceCopy> {
     pub device_buffer: DeviceBuffer<T>,
 }
 
-impl<T: Numeric> CustomDeviceBuffer<T> {
+impl<T: Numeric + DeviceCopy> CustomDeviceBuffer<T> {
     pub fn as_device_ptr(&self) -> DevicePointer<T> {
         self.device_buffer.as_device_ptr()
     }
 }
 
-impl<T: Numeric> Drop for CustomDeviceBuffer<T> {
+impl<T: Numeric + DeviceCopy> Drop for CustomDeviceBuffer<T> {
     fn drop(&mut self) {
         let pool = match &GPU_CONTEXT.get().expect("No GPU Context Set").pool {
             Some(p) => p,
@@ -27,7 +30,7 @@ impl<T: Numeric> Drop for CustomDeviceBuffer<T> {
     }
 }
 
-pub fn get_device_buffer<T: Numeric>(size: usize) -> CustomDeviceBuffer<T> {
+pub fn get_device_buffer<T: Numeric + DeviceCopy>(size: usize) -> CustomDeviceBuffer<T> {
     let pool = match &GPU_CONTEXT.get().expect("No GPU Context Set").pool {
         Some(p) => p,
         None => panic!("Cuda not initialized or Gpu Pool is not set up"),
@@ -47,7 +50,7 @@ pub fn get_device_buffer<T: Numeric>(size: usize) -> CustomDeviceBuffer<T> {
     CustomDeviceBuffer { device_buffer }
 }
 
-pub fn get_device_buffer_from_slice<T: Numeric>(data: &[T]) -> CustomDeviceBuffer<T> {
+pub fn get_device_buffer_from_slice<T: Numeric + DeviceCopy>(data: &[T]) -> CustomDeviceBuffer<T> {
     let device_buffer = get_device_buffer::<T>(data.len());
     unsafe {
         cust::sys::cuMemcpyHtoD_v2(

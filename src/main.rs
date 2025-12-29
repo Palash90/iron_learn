@@ -1,12 +1,22 @@
 use clap::Parser;
-use cublas_sys::*;
-use cust::prelude::Module;
-use cust::stream::Stream;
-use cust::stream::StreamFlags;
-use iron_learn::init_gpu;
+
 use iron_learn::neural_network::DistributionType;
 use iron_learn::run_neural_net;
-use iron_learn::{init_context, CpuTensor, GpuTensor, GLOBAL_CONTEXT};
+use iron_learn::{init_context, CpuTensor,  GLOBAL_CONTEXT};
+
+#[cfg(feature = "cuda")]
+use iron_learn::GpuTensor;
+#[cfg(feature = "cuda")]
+use cublas_sys::*;
+#[cfg(feature = "cuda")]
+use cust::prelude::Module;
+#[cfg(feature = "cuda")]
+use cust::stream::Stream;
+#[cfg(feature = "cuda")]
+use cust::stream::StreamFlags;
+#[cfg(feature = "cuda")]
+use iron_learn::init_gpu;
+#[cfg(feature = "cuda")]
 use std::ptr;
 
 #[derive(Parser)]
@@ -63,71 +73,95 @@ pub fn init() {
     };
 
     if gpu_enabled {
-        match cust::quick_init() {
-            Ok(context) => {
-                println!("✓ GPU initialization successful");
+        #[cfg(feature = "cuda")]
+        {
+            match cust::quick_init() {
+                Ok(context) => {
+                    println!("✓ GPU initialization successful");
 
-                let mut handle: cublasHandle_t = ptr::null_mut();
-                unsafe {
-                    let status = cublasCreate_v2(&mut handle);
-                    if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
-                        eprintln!("Failed to create cuBLAS handle");
-                        return;
-                    }
-                };
+                    let mut handle: cublasHandle_t = ptr::null_mut();
+                    unsafe {
+                        let status = cublasCreate_v2(&mut handle);
+                        if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
+                            eprintln!("Failed to create cuBLAS handle");
+                            return;
+                        }
+                    };
 
-                println!("✓ CUBLAS initialization successful");
+                    println!("✓ CUBLAS initialization successful");
 
-                let ptx = include_str!("../kernels/gpu_kernels.ptx");
-                let module =
-                    Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
+                    let ptx = include_str!("../kernels/gpu_kernels.ptx");
+                    let module =
+                        Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
 
-                let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
-                    Ok(s) => s,
-                    Err(e) => {
-                        eprintln!("Error creating stream: {}", e);
-                        return;
-                    }
-                };
+                    let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
+                        Ok(s) => s,
+                        Err(e) => {
+                            eprintln!("Error creating stream: {}", e);
+                            return;
+                        }
+                    };
 
-                init_context(
-                    "Iron Learn",
-                    5,
-                    args.data_file,
-                    args.lr,
-                    args.epochs,
-                    true,
-                    args.adjust_lr,
-                    args.internal_layers,
-                    args.parameters_path,
-                    args.monitor_interval,
-                    args.sleep_time,
-                    args.name,
-                    args.restore,
-                    distribution,
-                );
+                    init_context(
+                        "Iron Learn",
+                        5,
+                        args.data_file,
+                        args.lr,
+                        args.epochs,
+                        true,
+                        args.adjust_lr,
+                        args.internal_layers,
+                        args.parameters_path,
+                        args.monitor_interval,
+                        args.sleep_time,
+                        args.name,
+                        args.restore,
+                        distribution,
+                    );
 
-                init_gpu(Some(context), Some(module), Some(stream), Some(handle));
+                    init_gpu(Some(context), Some(module), Some(stream), Some(handle));
+                }
+                Err(e) => {
+                    eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
+                    init_context(
+                        "Iron Learn",
+                        5,
+                        args.data_file,
+                        args.lr,
+                        args.epochs,
+                        false,
+                        args.adjust_lr,
+                        args.internal_layers,
+                        args.parameters_path,
+                        args.monitor_interval,
+                        args.sleep_time,
+                        args.name,
+                        args.restore,
+                        distribution,
+                    );
+                }
             }
-            Err(e) => {
-                eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
-                init_context(
-                    "Iron Learn",
-                    5,
-                    args.data_file,
-                    args.lr,
-                    args.epochs,
-                    false,
-                    args.adjust_lr,
-                    args.internal_layers,
-                    args.parameters_path,
-                    args.monitor_interval,
-                    args.sleep_time,
-                    args.name,
-                    args.restore,
-                    distribution,
-                );
-            }
+        }
+
+        #[cfg(not(feature = "cuda"))]
+        {
+            eprintln!("⚠ GPU support not compiled. Using CPU mode.");
+            init_context(
+                "Iron Learn",
+                5,
+                args.data_file,
+                args.lr,
+                args.epochs,
+                false,
+                args.adjust_lr,
+                args.internal_layers,
+                args.parameters_path,
+                args.monitor_interval,
+                args.sleep_time,
+                args.name,
+                args.restore,
+                distribution,
+            );
         }
     } else {
         init_context(
@@ -170,14 +204,17 @@ fn main() {
 
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
     greet(ctx);
-
-    if ctx.gpu_enabled {
-        println!("Running GPU-based training...\n");
-        let _ = run_neural_net::<GpuTensor<f32>>();
-        println!("\n✓ All training tasks completed");
-    } else {
-        println!("Running CPU-based training...\n");
-        let _ = run_neural_net::<CpuTensor<f32>>();
-        println!("\n✓ All training tasks completed");
+    #[cfg(feature = "cuda")]
+    {
+        if ctx.gpu_enabled {
+            println!("Running GPU-based training...\n");
+            let _ = run_neural_net::<GpuTensor<f32>>();
+            println!("\n✓ All training tasks completed");
+            return;
+        }
     }
+
+    println!("Running CPU-based training...\n");
+    let _ = run_neural_net::<CpuTensor<f32>>();
+    println!("\n✓ All training tasks completed");
 }

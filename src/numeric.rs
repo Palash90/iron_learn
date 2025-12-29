@@ -20,17 +20,15 @@
 //! - Special values: `zero()` and `one()` methods to return zero and one of the implementing type.
 //! - Compatibility with custom types: Can be implemented for user-defined types like `Complex`.
 
-use cust::memory::DeviceCopy;
-
 use crate::complex::Complex;
 
 /// The `Numeric` trait defines a set of operations that numeric types must support.
 /// It includes basic arithmetic operations and the ability to return special values like zero and one.
 ///
 /// Types implementing `Numeric` can be used generically in contexts where arithmetic operations are required.
+
 pub trait Numeric:
     Copy
-    + DeviceCopy
     + std::ops::Add<Output = Self>
     + std::ops::Sub<Output = Self>
     + std::ops::Mul<Output = Self>
@@ -68,6 +66,7 @@ pub trait Numeric:
 pub trait SignedNumeric: Numeric + std::ops::Neg<Output = Self> {}
 
 // Implementations of the Numeric trait for various built-in numeric types.
+
 impl Numeric for i8 {
     fn zero() -> Self {
         0

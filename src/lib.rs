@@ -51,6 +51,8 @@ pub use crate::tensor::Tensor;
 // ============================================================================
 
 pub use crate::cpu_tensor::CpuTensor;
+
+#[cfg(feature = "cuda")]
 pub use crate::cuda_tensor::GpuTensor;
 
 // ============================================================================
@@ -58,6 +60,8 @@ pub use crate::cuda_tensor::GpuTensor;
 // ============================================================================
 
 pub use crate::contexts::{init_context, AppContext, GLOBAL_CONTEXT};
+
+#[cfg(feature = "cuda")]
 pub use crate::gpu_context::{init_gpu, GpuContext, GPU_CONTEXT};
 
 // ============================================================================

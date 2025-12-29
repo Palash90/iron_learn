@@ -1,3 +1,4 @@
+#![cfg(feature = "cuda")]
 use crate::cuda_tensor::custom_device_buffer::{
     get_device_buffer, get_device_buffer_from_slice, CustomDeviceBuffer,
 };
@@ -20,6 +21,7 @@ use cust::launch;
 use cust::prelude::DeviceBuffer;
 use cust::prelude::Function;
 use cust::stream::Stream;
+use cust::memory::DeviceCopy;
 
 #[derive(Clone, Copy, Debug)]
 enum OpType {
@@ -43,12 +45,12 @@ enum ArithmaticType {
 }
 
 #[derive(Debug)]
-pub struct GpuTensor<T: Numeric> {
+pub struct GpuTensor<T: Numeric + DeviceCopy> {
     shape: Vec<u32>,
     device_buffer: CustomDeviceBuffer<T>,
 }
 
-impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
+impl<T: Numeric + Zeroable + DeviceCopy> Tensor<T> for GpuTensor<T> {
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String> {
         Self::_new(shape, data)
     }
@@ -120,7 +122,7 @@ impl<T: Numeric + Zeroable> Tensor<T> for GpuTensor<T> {
     }
 }
 
-impl<T: Numeric + Zeroable> Add for GpuTensor<T> {
+impl<T: Numeric + Zeroable + DeviceCopy> Add for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn add(self, rhs: Self) -> Result<Self, String> {
@@ -128,7 +130,7 @@ impl<T: Numeric + Zeroable> Add for GpuTensor<T> {
     }
 }
 
-impl<T: Numeric + Zeroable> Sub for GpuTensor<T> {
+impl<T: Numeric + Zeroable + DeviceCopy> Sub for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn sub(self, rhs: Self) -> Result<Self, String> {
@@ -136,7 +138,7 @@ impl<T: Numeric + Zeroable> Sub for GpuTensor<T> {
     }
 }
 
-impl<T: Numeric + Zeroable> Mul for GpuTensor<T> {
+impl<T: Numeric + Zeroable + DeviceCopy> Mul for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn mul(self, rhs: Self) -> Result<Self, String> {
@@ -144,21 +146,21 @@ impl<T: Numeric + Zeroable> Mul for GpuTensor<T> {
     }
 }
 
-impl<T: SignedNumeric + Zeroable> Neg for GpuTensor<T> {
+impl<T: SignedNumeric + Zeroable + DeviceCopy> Neg for GpuTensor<T> {
     type Output = Result<Self, String>;
     fn neg(self) -> Result<Self, String> {
         self.element_op(OpType::SCALE, -T::one())
     }
 }
 
-impl<T: Numeric + Zeroable> PartialEq for GpuTensor<T> {
+impl<T: Numeric + Zeroable + DeviceCopy> PartialEq for GpuTensor<T> {
     fn eq(&self, other: &Self) -> bool {
         println!("Partial eq called");
         self._eq(other)
     }
 }
 
-impl<T: Numeric + Zeroable> GpuTensor<T> {
+impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
     fn _get_function(fn_name: &str) -> Function<'_> {
         let t = GPU_CONTEXT
             .get()
@@ -566,7 +568,7 @@ impl<T: Numeric + Zeroable> GpuTensor<T> {
 
 impl<T> TensorMath<T> for GpuTensor<T>
 where
-    T: Numeric + Zeroable,
+    T: Numeric + Zeroable + DeviceCopy,
 {
     type MathOutput = GpuTensor<T>;
 

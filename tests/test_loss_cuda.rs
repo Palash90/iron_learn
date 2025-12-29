@@ -1,3 +1,5 @@
+#![cfg(feature = "cuda")]
+
 #[cfg(test)]
 mod loss_tests {
     use iron_learn::neural_network::loss_functions::{

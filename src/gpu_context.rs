@@ -1,3 +1,5 @@
+#![cfg(feature = "cuda")]
+
 use crate::cuda_tensor::CublasHandle;
 use crate::cuda_tensor::CudaMemoryPool;
 use cublas_sys::cublasHandle_t;

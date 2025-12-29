@@ -1,3 +1,5 @@
+#![cfg(feature = "cuda")]
+
 use cublas_sys::*;
 #[derive(Debug)]
 pub struct CublasHandle {

@@ -1,3 +1,5 @@
+#![cfg(feature = "cuda")]
+
 #[cfg(test)]
 mod sum_tests {
     use iron_learn::GpuTensor;
