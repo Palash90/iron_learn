@@ -1,14 +1,12 @@
 [package]
 name = "iron_learn"
 description = "High-performance pure Rust ML library with GPU-accelerated gradient descent. Supports tensors, complex numbers, linear/logistic regression, and CUDA optimization."
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 authors = ["Palash Kanti Kundu (https://www.linkedin.com/in/palash90)"]
 readme = "README.md"
 repository = "https://github.com/Palash90/iron_learn"
 license = "MIT"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -23,5 +21,4 @@ colored = "3.0.0"
 image = "0.25.9"
 
 [features]
-# Enable CUDA/cuST usage (optional). Turn on with `--features cuda`.
 cuda = ["cust"]

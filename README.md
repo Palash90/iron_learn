@@ -4,7 +4,7 @@ A Rust machine learning library with GPU-accelerated optimization. Built for lea
 
 ## Features
 
-- **GPU-Accelerated Training**: CUDA kernels for Tensor operations
+- **GPU-Accelerated Training**: CUDA kernels for Tensor operations. Need to explicitly enable the feature. More on this later.
 - **Comprehensive Tensor Support**: Two-dimensional arrays with generic numeric types
 - **Complex Number Arithmetic**: Native support for complex-valued computations
 - **Zero-Copy Operations**: Borrowing methods for efficient computation reuse
@@ -17,23 +17,54 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-iron_learn = "0.5"
+iron_learn = "0.6"
 ```
 
-### Basic Usage
+### Basic Tensor Usage Example
 
 ```rust
+use iron_learn::CpuTensor;
 use iron_learn::Tensor;
 
 // Create 2x2 matrices
-let a = Tensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0])?;
-let b = Tensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0])?;
+let a: CpuTensor<f32> = CpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
+let b: CpuTensor<f32> = CpuTensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0]).unwrap();
+
+println!("Original A:");
+a.print_matrix();
+
+println!("Original B:");
+b.print_matrix();
 
 // Add tensors without move
-let sum = a.add(&b)?;
+let sum = a.add(&b).unwrap();
+println!("Sum:");
+sum.print_matrix();
 
-// Multiply tensors
-let product = a.mul(&b)?;
+// Subtract tensors without move
+let sum = a.sub(&b).unwrap();
+println!("Difference:");
+sum.print_matrix();
+
+// Multiply tensors (Matrix multiplication)
+let product = a.mul(&b).unwrap();
+println!("Product:");
+product.print_matrix();
+
+// Multiply tensors (Element wise multiplication)
+let product = a.multiply(&b).unwrap();
+println!("Hadamard Product:");
+product.print_matrix();
+
+// Divide tensors (Element wise division)
+let result = a.div(&b).unwrap();
+println!("Division:");
+result.print_matrix();
+
+// Transpose
+let t = a.t().unwrap();
+println!("Transpose of A:");
+t.print_matrix();
 ```
 
 ## High-level Overview
