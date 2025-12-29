@@ -211,67 +211,6 @@ prediction.print_matrix();
 - Python: `python_scripts/` contains helper scripts, experiments and small neural-network examples used for prototyping and data preprocessing.
 - Data/Images: Example JSON metadata and image assets under `data/` and `image/` used by demos and scripts.
 
-## Repository Structure (map to code)
-
-- `src/` — Rust library and binaries
-    - `tensor/` — Tensor trait and backend implementations (CPU/GPU implementations live in `cpu_tensor/` and `cuda_tensor/`).
-    - `neural_network/` — High-level NN builder, layers, activations and loss functions.
-    - `gradient_descent.rs` — CPU implementations of linear and logistic regression and helper routines (normalization, bias handling).
-    - `gpu_context.rs`, `cuda_tensor/` — GPU initialization and device-backed tensor types (CUDA interop, cublas wrappers, memory pools).
-    - `read_file.rs` — Helpers for loading JSON model/data artifacts.
-    - `runners.rs` — Small CLI-like routines for running `run_linear`, `run_logistic`, and `run_neural_net` examples.
-
-- `kernels/` — CUDA device code
-    - `gpu_kernels.cu` — Implementations for tiled matrix multiplication, elementwise ops, clipping, transpose and reductions.
-    - `gpu_kernels.ptx` — Precompiled PTX shipped alongside the CUDA source.
-
-- `python_scripts/` — Python utilities and experiments
-    - Top-level scripts: `k-means.py`, `check_cuda.py`, `plot_graph.py`, etc.
-    - `neural_net/` — Small Python builder, activation, layers and helpers used for rapid prototyping and educational examples.
-
-- `data/`, `image/` — Example datasets, model JSONs and saved weights used by demos.
-
-## What each major component does (details)
-
-**Rust: `src/`**
-
-- `tensor` (trait & implementations): Core abstraction exposing operations such as `add`, `mul`, `transpose`, elementwise math (`sin`, `cos`, `sigmoid`, etc.), and shape/data accessors. Backends implement `TensorMath` for mathematical functions.
-- `cpu_tensor/`: Pure CPU tensor implementation used for most algorithms and tests. Most of these are Auto-Vectorized for parallel computation support.
-- `cuda_tensor/`: CUDA-backed tensor implementation with device buffers and memory pooling. Integrates with `gpu_context` and uses kernels from `kernels/`.
-- `neural_network/`: Provides a `NeuralNetBuilder` and a runtime `NeuralNet` type. Layers implement a `Layer<T>` trait; `LinearLayer` handles weight matrices and updates while `ActivationLayer` applies elementwise activations (sigmoid/tanh/linear/sin). `loss_functions.rs` contains `MeanSquaredErrorLoss` and `BinaryCrossEntropy` used for backprop.
-- `gradient_descent.rs`: Implements `linear_regression`, `logistic_regression`, plus helper functions `predict_linear`, `predict_logistic`, and `gradient_descent` steps. Also contains `normalize_features` exposed from `commons`.
-- `gpu_context.rs` and `cuda_tensor/*`: Manage GPU initialization, cuBLAS/cuDNN handles (where applicable), custom device buffers, and a simple memory pool to reduce allocations when transferring data.
-- `runners.rs`: Provides convenience runners used by the CLI entrypoints (`main.rs`) to invoke example training runs.
-
-**CUDA: `kernels/gpu_kernels.cu`**
-
-- Implements atomic-safe memory comparison, element-wise math device kernels (exp, sin, cos, sigmoid branch), vector arithmetic, clipping, tiled matrix multiplication (shared-memory, TILE_SIZE 16), transpose and column reductions. These kernels are used by `cuda_tensor` for operations like `mul`, `transpose`, `col_reduce` and elementwise transforms (sigmoid, ln, exp).
-
-**Python: `python_scripts/`**
-- `anomaly_detection.py`: Implements Gaussian estimation and threshold selection (F1-based) for anomaly detection — a direct NumPy port of the typical ML course algorithms (estimate Gaussian and select threshold by F1 score).
-- `neural_net/` folder: Small Python builder, activation, layers and helpers used for experimentation and generating JSON `ModelData` artifacts that can be consumed by the Rust `read_file`/builder logic.
-
-## Where to look for functionality you might extend or inspect
-
-- Implement new layers / activations: `src/neural_network/` (add `Layer` impls and wire into `NeuralNetBuilder`).
-- Change tensor math: `src/tensor/` traits and `src/cpu_tensor` / `src/cuda_tensor` implementations.
-- Add GPU kernels: `kernels/gpu_kernels.cu` and regenerate PTX if required; then extend `cuda_tensor` to call new kernels.
-- Add CLI runners: `src/runners.rs` and `src/main.rs`.
-
-## Notes from code inspection (current state)
-
-- The Rust `NeuralNetBuilder` supports building from scratch or restoring `ModelData` (weights loaded from JSON). Layers expose `get_parameters()` for serialization.
-- `ActivationLayer` caches outputs; activations (sigmoid, tanh, sin, linear) are implemented in `activations.rs` using the `TensorMath` trait.
-- `LinearLayer` performs forward via `input.mul(&self.weights)` and backward by computing `weights_grad = input.T * error` then updating `self.weights = self.weights - lr * weights_grad`. Used a bias trick to avoid Broadcasting. Will soon add Broadcasting support.
-- `loss_functions.rs` includes stable BinaryCrossEntropy (clipping predictions to avoid log/divide-by-zero) and an MSE implementation.
-- CUDA kernels implement a tiled matrix multiply and common elementwise ops; the kernels use shared memory and boundary checks for correctness.
-
-## Quick pointers for contributors
-- Run tests: `cargo test`
-- Format: `cargo fmt`
-- Lint: `cargo clippy` (may require installing `clippy` via rustup)
-- Keep Python examples and the Rust model importer (`read_file.rs`) in sync if you change JSON model formats.
-
 ## Quick Module Reference
 
 **Tensor API**
@@ -323,6 +262,69 @@ _NB:_ The library does not yet support broadcasting. I will soon introduce broad
 **Data & Model JSONs**
 - Example dataset: see `data/image.json` (fields: `m`, `n`, `m_test`, `x`, `y`, `x_test`, `y_test`) — JSON contains flattened row-major arrays for `x`/`y`.
 - Example model file: see `image/model.json` — follows `ModelData` schema described above. Use `read_file::deserialize_model()` to load models into `ModelData`, and `NeuralNetBuilder::build_from_model()` to restore a runtime `NeuralNet` from `ModelData`.
+
+
+## Repository Structure
+
+- `src/` — Rust library and binaries
+    - `tensor/` — Tensor trait and backend implementations (CPU/GPU implementations live in `cpu_tensor/` and `cuda_tensor/`).
+    - `neural_network/` — High-level NN builder, layers, activations and loss functions.
+    - `gradient_descent.rs` — CPU implementations of linear and logistic regression and helper routines (normalization, bias handling).
+    - `gpu_context.rs`, `cuda_tensor/` — GPU initialization and device-backed tensor types (CUDA interop, cublas wrappers, memory pools).
+    - `read_file.rs` — Helpers for loading JSON model/data artifacts.
+    - `runners.rs` — Small CLI-like routines for running `run_linear`, `run_logistic`, and `run_neural_net` examples.
+
+- `kernels/` — CUDA device code
+    - `gpu_kernels.cu` — Implementations for tiled matrix multiplication, elementwise ops, clipping, transpose and reductions.
+    - `gpu_kernels.ptx` — Precompiled PTX shipped alongside the CUDA source.
+
+- `python_scripts/` — Python utilities and experiments
+    - Top-level scripts: `k-means.py`, `check_cuda.py`, `plot_graph.py`, etc.
+    - `neural_net/` — Small Python builder, activation, layers and helpers used for rapid prototyping and educational examples.
+
+- `data/`, `image/` — Example datasets, model JSONs and saved weights used by demos.
+
+## What each major component does
+
+**Rust: `src/`**
+
+- `tensor` (trait & implementations): Core abstraction exposing operations such as `add`, `mul`, `transpose`, elementwise math (`sin`, `cos`, `sigmoid`, etc.), and shape/data accessors. Backends implement `TensorMath` for mathematical functions.
+- `cpu_tensor/`: Pure CPU tensor implementation used for most algorithms and tests. Most of these are Auto-Vectorized for parallel computation support.
+- `cuda_tensor/`: CUDA-backed tensor implementation with device buffers and memory pooling. Integrates with `gpu_context` and uses kernels from `kernels/`.
+- `neural_network/`: Provides a `NeuralNetBuilder` and a runtime `NeuralNet` type. Layers implement a `Layer<T>` trait; `LinearLayer` handles weight matrices and updates while `ActivationLayer` applies elementwise activations (sigmoid/tanh/linear/sin). `loss_functions.rs` contains `MeanSquaredErrorLoss` and `BinaryCrossEntropy` used for backprop.
+- `gradient_descent.rs`: Implements `linear_regression`, `logistic_regression`, plus helper functions `predict_linear`, `predict_logistic`, and `gradient_descent` steps. Also contains `normalize_features` exposed from `commons`.
+- `gpu_context.rs` and `cuda_tensor/*`: Manage GPU initialization, cuBLAS/cuDNN handles (where applicable), custom device buffers, and a simple memory pool to reduce allocations when transferring data.
+- `runners.rs`: Provides convenience runners used by the CLI entrypoints (`main.rs`) to invoke example training runs.
+
+**CUDA: `kernels/gpu_kernels.cu`**
+
+- Implements atomic-safe memory comparison, element-wise math device kernels (exp, sin, cos, sigmoid branch), vector arithmetic, clipping, tiled matrix multiplication (shared-memory, TILE_SIZE 16), transpose and column reductions. These kernels are used by `cuda_tensor` for operations like `mul`, `transpose`, `col_reduce` and elementwise transforms (sigmoid, ln, exp).
+
+**Python: `python_scripts/`**
+- `anomaly_detection.py`: Implements Gaussian estimation and threshold selection (F1-based) for anomaly detection — a direct NumPy port of the typical ML course algorithms (estimate Gaussian and select threshold by F1 score).
+- `neural_net/` folder: Small Python builder, activation, layers and helpers used for experimentation and generating JSON `ModelData` artifacts that can be consumed by the Rust `read_file`/builder logic.
+
+## Where to look for functionality you might extend or inspect
+
+- Implement new layers / activations: `src/neural_network/` (add `Layer` impls and wire into `NeuralNetBuilder`).
+- Change tensor math: `src/tensor/` traits and `src/cpu_tensor` / `src/cuda_tensor` implementations.
+- Add GPU kernels: `kernels/gpu_kernels.cu` and regenerate PTX if required; then extend `cuda_tensor` to call new kernels.
+- Add CLI runners: `src/runners.rs` and `src/main.rs`.
+
+## Notes
+
+- The Rust `NeuralNetBuilder` supports building from scratch or restoring `ModelData` (weights loaded from JSON). Layers expose `get_parameters()` for serialization.
+- `ActivationLayer` caches outputs; activations (sigmoid, tanh, sin, linear) are implemented in `activations.rs` using the `TensorMath` trait.
+- `LinearLayer` performs forward via `input.mul(&self.weights)` and backward by computing `weights_grad = input.T * error` then updating `self.weights = self.weights - lr * weights_grad`. Used a bias trick to avoid Broadcasting. Will soon add Broadcasting support.
+- `loss_functions.rs` includes stable BinaryCrossEntropy (clipping predictions to avoid log/divide-by-zero) and an MSE implementation.
+- CUDA kernels implement a tiled matrix multiply and common elementwise ops; the kernels use shared memory and boundary checks for correctness.
+
+## Quick pointers for contributors
+- Run tests: `cargo test`
+- Format: `cargo fmt`
+- Lint: `cargo clippy` (may require installing `clippy` via rustup)
+- Keep Python examples and the Rust model importer (`read_file.rs`) in sync if you change JSON model formats.
+
 
 ## Next steps
 - Add Broadcasting support
