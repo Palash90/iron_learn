@@ -1,3 +1,12 @@
+mod read_file;
+mod types;
+
+use read_file::deserialize_data;
+use read_file::deserialize_data_double_precision;
+use read_file::deserialize_model;
+
+use types::DataDoublePrecision;
+
 use crate::MeanSquaredErrorLoss;
 // use crate::commons::add_bias_term;
 use crate::commons::denormalize_features;
@@ -5,12 +14,8 @@ use crate::commons::normalize_features_mean_std;
 use crate::neural_network::LayerType;
 use crate::neural_network::NeuralNetDataType;
 use crate::normalize_features;
-use crate::read_file::deserialize_data;
-use crate::read_file::deserialize_data_double_precision;
-use crate::read_file::deserialize_model;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
-use crate::DataDoublePrecision;
 use crate::NeuralNet;
 use crate::NeuralNetBuilder;
 use crate::GLOBAL_CONTEXT;
