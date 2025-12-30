@@ -21,9 +21,14 @@ Let's take a look on what the library can do. In one of the POCs with a ~99K par
 ### Reconstructed image after 500,000 epochs
 ![Intermediate Reconstruction](image/images/output500000.png)
 
+### Reconstructed image after 650,000 epochs
+![Intermediate Reconstruction](image/images/output650000.png)
+
 For comparison, Following is the original image fed to the network.
 ### Original Image
 ![Original Image](image/images/original.png)
+
+### Time lapse of regeneration step by step
 
 You can find all the regenerated images in `image/images`directory.
 
