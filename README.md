@@ -10,26 +10,22 @@ A Rust machine learning library with optional GPU-accelerated optimization. Buil
 - **Zero-Copy Operations**: Borrowing methods for efficient computation reuse
 
 ## Network Output Sample
-Let's take a look on what the library can do. In one of the POCs with a ~99K parameter model, I have tried the Universal Approximation Theorem to reconstruct an image. Following are few snaps from the training of a very complex funtion (an image of Simba).
+Let's take a look on what the library can do. In one of the POCs with a ~99K parameter vanilla neural network, I have tried the Universal Approximation Theorem to reconstruct an image. Following are few snaps from the training of a very complex funtion (an image of Simba).
 
 ### The random noise the network started with
 ![Starting Random Noise](image/images/output0.png)
-
-### Reconstructed image after 100,000 epoch
-![Intermediate Reconstruction](image/images/output100000.png)
 
 ### Reconstructed image after 200,000 epochs
 ![Intermediate Reconstruction](image/images/output200000.png)
 
 ### Reconstructed image after 250,000 epochs
-![Intermediate Reconstruction](image/images/output250000.png)
+![Intermediate Reconstruction](image/images/output355000.png)
 
 For comparison, Following is the original image fed to the network.
 ### Original Image
 ![Original Image](image/images/original.png)
 
-I would have gone beyond this and targetted some more tricks but was getting tired of waiting for the network to draw.
-
+You can find all the regenerated images in `image/images`directory.
 
 ## Quick Start
 
