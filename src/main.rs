@@ -1,10 +1,13 @@
-use iron_learn::init::init;
+use iron_learn::init::init_runtime;
 use iron_learn::run_neural_net;
 
 use iron_learn::CpuTensor;
 
+#[cfg(feature = "cuda")]
+use iron_learn::GpuTensor;
+
 fn main() {
-    init();
+    init_runtime();
     #[cfg(feature = "cuda")]
     {
         if ctx.gpu_enabled {

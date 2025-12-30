@@ -92,7 +92,7 @@ struct Args {
 /// ```text
 /// cargo run -- --name my_run --lr 0.01 --epochs 1000 --data-file data/neural_net.json
 /// ```
-pub fn init() {
+pub fn init_runtime() {
     let args = Args::parse();
     let gpu_enabled = !args.cpu;
 
