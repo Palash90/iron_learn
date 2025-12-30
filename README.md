@@ -18,8 +18,8 @@ Let's take a look on what the library can do. In one of the POCs with a ~99K par
 ### Reconstructed image after 200,000 epochs
 ![Intermediate Reconstruction](image/images/output250000.png)
 
-### Reconstructed image after 700,000 epochs
-![Intermediate Reconstruction](image/images/output700000.png)
+### Reconstructed image after 800,000 epochs
+![Intermediate Reconstruction](image/images/output800000.png)
 
 For comparison, Following is the original image fed to the network.
 ### Original Image
