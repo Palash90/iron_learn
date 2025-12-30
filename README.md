@@ -26,6 +26,7 @@ For comparison, Following is the original image fed to the network.
 ![Original Image](image/images/original.png)
 
 ### Time lapse of regeneration step by step
+![Time lapse of regeneration](image/images/timeline.gif)
 
 You can find all the regenerated images in `image/images`directory.
 
