@@ -16,10 +16,10 @@ Let's take a look on what the library can do. In one of the POCs with a ~99K par
 ![Starting Random Noise](image/images/output0.png)
 
 ### Reconstructed image after 200,000 epochs
-![Intermediate Reconstruction](image/images/output200000.png)
+![Intermediate Reconstruction](image/images/output250000.png)
 
-### Reconstructed image after 250,000 epochs
-![Intermediate Reconstruction](image/images/output355000.png)
+### Reconstructed image after 500,000 epochs
+![Intermediate Reconstruction](image/images/output500000.png)
 
 For comparison, Following is the original image fed to the network.
 ### Original Image
