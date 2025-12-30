@@ -1,4 +1,3 @@
-use iron_learn::GLOBAL_CONTEXT;
 use iron_learn::init::init_runtime;
 use iron_learn::run_neural_net;
 
@@ -9,9 +8,10 @@ use iron_learn::GpuTensor;
 
 fn main() {
     init_runtime();
-    
+
     #[cfg(feature = "cuda")]
     {
+        use iron_learn::GLOBAL_CONTEXT;
         let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
         if ctx.gpu_enabled {
             println!("Running GPU-based training...\n");

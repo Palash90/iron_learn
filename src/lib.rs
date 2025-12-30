@@ -7,11 +7,11 @@ mod complex;
 mod contexts;
 mod cpu_tensor;
 mod cuda_tensor;
+mod examples;
 mod gpu_context;
 mod gradient_descent;
 mod numeric;
 pub mod read_file;
-mod examples;
 use serde::{Deserialize, Serialize};
 pub mod neural_network;
 pub mod tensor;
@@ -52,7 +52,6 @@ pub struct DataDoublePrecision {
 /// Same shape and semantics as `Data`, but stores features and labels
 /// with `f64` precision for algorithms or tests that require higher
 /// numeric fidelity.
-
 pub use crate::complex::Complex;
 pub use crate::numeric::{Numeric, SignedNumeric};
 pub use crate::tensor::Tensor;

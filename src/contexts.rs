@@ -32,6 +32,14 @@ pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
 /// * `epochs` - Number of training iterations
 /// * `gpu_enabled` - Flag indicating whether GPU acceleration is available
 /// * `context` - CUDA context handle (None if GPU is not available)
+/// * `lr_adjust` - Flag indicating whether learning rate adjustment is enabled
+/// * `hidden_layer_length` - Number of hidden layers in the neural network
+/// * `weights_path` - Path to model weights file, the parameters file
+/// * `monitor_interval` - The interval on how many epochs, the monitor should be called for internal state monitoring
+/// * `sleep_time` - Sometimes the workload is high and CPU/GPU gets exhausted and machine generates a lot of heat, you may choose to let it cool down
+/// * `name` - Name of the model. A similarly named directory must exist from execution path
+/// * `restore` - Restore a network from model file.
+/// * `distribution` - Weight initialization distribution
 ///
 /// # Example
 ///
@@ -75,13 +83,21 @@ pub struct AppContext {
 ///
 /// # Arguments
 ///
-/// * `app_name` - Application identifier (static lifetime)
-/// * `version` - Version number for tracking
-/// * `data_path` - Path to JSON data file for loading datasets
-/// * `learning_rate` - Learning rate for gradient descent optimization
+/// * `app_name` - Application name/title
+/// * `version` - Application version number
+/// * `data_path` - Path to JSON data file
+/// * `learning_rate` - Gradient descent learning rate
 /// * `epochs` - Number of training iterations
-/// * `gpu_enabled` - Whether GPU acceleration is enabled
-/// * `context` - CUDA context handle (None for CPU-only mode)
+/// * `gpu_enabled` - Flag indicating whether GPU acceleration is available
+/// * `context` - CUDA context handle (None if GPU is not available)
+/// * `lr_adjust` - Flag indicating whether learning rate adjustment is enabled
+/// * `hidden_layer_length` - Number of hidden layers in the neural network
+/// * `weights_path` - Path to model weights file, the parameters file
+/// * `monitor_interval` - The interval on how many epochs, the monitor should be called for internal state monitoring
+/// * `sleep_time` - Sometimes the workload is high and CPU/GPU gets exhausted and machine generates a lot of heat, you may choose to let it cool down
+/// * `name` - Name of the model. A similarly named directory must exist from execution path
+/// * `restore` - Restore a network from model file.
+/// * `distribution` - Weight initialization distribution
 ///
 /// # Example
 ///
