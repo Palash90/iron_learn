@@ -1,6 +1,5 @@
 use crate::MeanSquaredErrorLoss;
 // use crate::commons::add_bias_term;
-use crate::commons::add_bias_term;
 use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
 use crate::neural_network::LayerType;

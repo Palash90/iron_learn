@@ -2,8 +2,6 @@
 use crate::init_gpu;
 use crate::AppContext;
 #[cfg(feature = "cuda")]
-use crate::GpuTensor;
-#[cfg(feature = "cuda")]
 use cublas_sys::*;
 #[cfg(feature = "cuda")]
 use cust::prelude::Module;
