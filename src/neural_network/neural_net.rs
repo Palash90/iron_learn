@@ -12,6 +12,12 @@ use std::fs::File;
 use std::io;
 use std::io::Write;
 
+/// Feed-forward neural network container.
+///
+/// Holds an ordered list of `Layer` trait objects, the configured loss
+/// function, and training metadata (parameter count, name/label, and
+/// learning state). Instances are used to `predict`, `fit`, and
+/// `save_model`.
 pub struct NeuralNet<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
@@ -48,11 +54,15 @@ where
             current_lr,
         }
     }
-
+    /// Append a layer to the network.
+    ///
+    /// The provided box must implement the `Layer` trait for the network's
+    /// tensor type `T`.
     pub fn add(&mut self, layer: Box<dyn Layer<T>>) {
         self.layers.push(layer);
     }
 
+    /// Run a forward pass and return the network output for `input`.
     pub fn predict(&mut self, input: &T) -> Result<T, String> {
         let mut output = input.add(&T::zeroes(input.get_shape())).unwrap();
 
@@ -132,7 +142,7 @@ where
         T::synchronize();
         Ok(())
     }
-
+    /// Serialize and write the model weights and metadata to `filepath`.
     pub fn save_model(&self, filepath: &str) {
         let mut model_storage = ModelData {
             name: self.name.clone(),

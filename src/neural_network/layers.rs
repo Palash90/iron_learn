@@ -5,6 +5,10 @@ use crate::tensor::Tensor;
 
 use rand_distr::{Distribution, Normal, Uniform};
 
+/// Trait representing a neural network layer.
+///
+/// Layers must implement forward and backward passes and optionally expose
+/// their parameters for inspection or serialization.
 pub trait Layer<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
@@ -19,6 +23,7 @@ where
     fn layer_type(&self) -> &LayerType;
 }
 
+/// Fully-connected linear layer holding weights and an optional input cache.
 pub struct LinearLayer<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
@@ -30,6 +35,7 @@ where
 }
 
 #[derive(Debug, Clone)]
+/// Weight initialization distribution selector.
 pub enum DistributionType {
     Xavier,
     Normal,
@@ -110,55 +116,25 @@ where
 
     fn forward(&mut self, input: &T) -> Result<T, String> {
         self.input_cache = Some(input.add(&T::zeroes(input.get_shape()))?);
-        // println!();
-        //  println!("Layer Name {}", self.name);
-        //   println!("Input");
-        //  input.print_matrix();
-        //  println!("Weights");
-        //    self.weights.print_matrix();
         let matmul = input.mul(&self.weights)?;
-        //   println!("Output");
-        //  matmul.print_matrix();
         Ok(matmul)
     }
 
     fn backward(&mut self, output_error: &T, lr: NeuralNetDataType) -> Result<T, String> {
         let input = self.input_cache.as_ref().ok_or("No forward pass cache!")?;
 
-        // println!();
-        // println!("Layer Name {}", self.name);
-        // println!("output_error");
-        // output_error.print_matrix();
-
-        //  println!("Weights Matrix");
-        // self.weights.print_matrix();
-
         // Calculate Input Error: error * weights.T
         let w_t = self.weights.t()?;
-        //  println!("Weights transpose Matrix");
-        //  w_t.print_matrix();
         let input_error = output_error.mul(&w_t)?;
-        //  println!("Input Error");
-        //  input_error.print_matrix();
 
-        //  println!("Input Matrix");
-        //  input.print_matrix();
         // Calculate Weights Gradient: input.T * error
         let input_t = input.t()?;
-        //  println!("Input transpose matrix");
-        //   input_t.print_matrix();
 
         let weights_grad = input_t.mul(output_error)?;
-        //  println!("Weights gradient");
-        //   weights_grad.print_matrix();
 
         // Update Parameters
         let w_step = weights_grad.scale(lr)?;
-        //  println!("W_step");
-        //  w_step.print_matrix();
         self.weights = self.weights.sub(&w_step)?;
-        //   println!("Updated weights");
-        //  self.weights.print_matrix();
 
         Ok(input_error)
     }
@@ -176,6 +152,7 @@ where
     }
 }
 
+/// Activation wrapper layer that applies element-wise activation functions.
 pub struct ActivationLayer<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,

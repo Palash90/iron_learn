@@ -8,6 +8,7 @@ use crate::NeuralNet;
 use crate::Tensor;
 use colored::Colorize;
 
+/// Builder type for constructing `NeuralNet` instances via a fluent API.
 pub struct NeuralNetBuilder<T>
 where
     T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T>,
@@ -22,7 +23,7 @@ where
     pub fn new() -> Self {
         Self { layers: Vec::new() }
     }
-
+    /// Add a new fully-connected linear layer to the builder.
     pub fn add_linear(
         &mut self,
         input_size: u32,
@@ -38,11 +39,12 @@ where
         }
     }
 
+    /// Add an activation layer to the builder.
     pub fn add_activation(&mut self, act: LayerType, name: &str) {
         let layer = ActivationLayer::new(name, act);
         self.layers.push(Box::new(layer));
     }
-
+    /// Finalize the builder and construct a `NeuralNet`.
     pub fn build(
         self,
         loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,

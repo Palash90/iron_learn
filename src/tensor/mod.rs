@@ -30,6 +30,11 @@
 
 use crate::Numeric;
 pub mod math;
+/// Core tensor trait exposing the minimal API required by the ML library.
+///
+/// Implementations (CPU/GPU) must provide construction, basic
+/// arithmetic, reductions and device synchronization primitives used by
+/// higher-level neural network components.
 pub trait Tensor<T: Numeric>: Sized {
     fn print_matrix(&self) -> () {
         let data = self.get_data();
@@ -49,53 +54,53 @@ pub trait Tensor<T: Numeric>: Sized {
     }
 
     /* Creation */
-    // Returns a Tensor with all zero values
+    /// Returns a Tensor with all zero values
     fn zeroes(shape: &Vec<u32>) -> Self;
 
-    // Returns a Tensor with all one values
+    /// Returns a Tensor with all one values
     fn ones(shape: &Vec<u32>) -> Self;
 
-    // Creates a new tensor with the provided shape and data
+    /// Creates a new tensor with the provided shape and data
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String>;
 
     /* Retrieval */
-    // Returns the shape of the Tensor
+    /// Returns the shape of the Tensor
     fn get_shape(&self) -> &Vec<u32>;
 
-    // Returns the data
+    /// Returns the data
     fn get_data(&self) -> Vec<T>;
 
     /* Device API */
-    // Synchronize with GPU, if running on GPU
+    /// Synchronize with GPU, if running on GPU
     fn synchronize();
 
     /* Matrix related operations */
-    // Adds two Tensors and returns a tensor
+    /// Adds two Tensors and returns a tensor
     fn add(&self, rhs: &Self) -> Result<Self, String>;
 
-    // Subtracts rhs from current tensor
+    /// Subtracts rhs from current tensor
     fn sub(&self, rhs: &Self) -> Result<Self, String>;
 
-    // Matrix multiplication
+    /// Matrix multiplication
     fn mul(&self, rhs: &Self) -> Result<Self, String>;
 
-    // Transpose a 2D matrix, only supported upto 2D
+    /// Transpose a 2D matrix, only supported upto 2D
     fn t(&self) -> Result<Self, String>;
 
-    // Hadamard product
+    /// Hadamard product
     fn multiply(&self, rhs: &Self) -> Result<Self, String>;
 
-    // Division
+    /// Division
     fn div(&self, rhs: &Self) -> Result<Self, String>;
 
-    // Element wise scaling
+    /// Element wise scaling
     fn scale(&self, scalar: T) -> Result<Self, String>;
 
-    // Clip values to min, max
+    /// Clip values to min, max
     fn clip(&self, min: T, max: T) -> Result<Self, String>;
 
     /* Reducers */
-    // Reduces rows column wise
+    /// Reduces rows column wise
     fn sum(&self) -> Result<Self, String> {
         let data = self.get_data();
         let total: T = data.iter().fold(T::zero(), |acc, &x| acc + x);

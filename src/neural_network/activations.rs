@@ -4,6 +4,7 @@ use crate::neural_network::NeuralNetDataType;
 use crate::tensor::math::TensorMath;
 use crate::{ActivationFn, Tensor};
 
+/// Enum describing available activation types used by `ActivationLayer`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LayerType {
     Sigmoid,
@@ -11,7 +12,7 @@ pub enum LayerType {
     Linear,
     Sin,
 }
-
+/// Return the activation function and its derivative for `layer`.
 pub fn get_activations<T>(layer: &LayerType) -> (ActivationFn<T>, ActivationFn<T>)
 where
     T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
@@ -27,6 +28,7 @@ where
     }
 }
 
+/// Element-wise sigmoid activation.
 pub fn sigmoid<T>(input: &T) -> Result<T, String>
 where
     T: TensorMath<NeuralNetDataType, MathOutput = T>,
@@ -34,6 +36,7 @@ where
     input.sigmoid()
 }
 
+/// Derivative of sigmoid; expects the activation output as input.
 pub fn sigmoid_prime<T>(output: &T) -> Result<T, String>
 where
     T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
@@ -44,6 +47,7 @@ where
     res
 }
 
+/// Element-wise hyperbolic tangent activation.
 pub fn tanh<T>(input: &T) -> Result<T, String>
 where
     T: TensorMath<NeuralNetDataType, MathOutput = T>,
@@ -51,6 +55,7 @@ where
     input.tanh()
 }
 
+/// Derivative of `tanh`, expects activation output as input.
 pub fn tanh_prime<T>(output: &T) -> Result<T, String>
 where
     T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
@@ -62,6 +67,7 @@ where
     ones.sub(&out_squared)
 }
 
+/// Element-wise sine activation.
 pub fn sin<T>(input: &T) -> Result<T, String>
 where
     T: TensorMath<NeuralNetDataType, MathOutput = T>,
@@ -69,6 +75,7 @@ where
     input.sin()
 }
 
+/// Element-wise cosine function (used as derivative for `sin`).
 pub fn cos<T>(output: &T) -> Result<T, String>
 where
     T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,

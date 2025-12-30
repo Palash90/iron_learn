@@ -4,6 +4,10 @@ use crate::Numeric;
 use crate::SignedNumeric;
 use crate::Tensor;
 
+/// Trait describing a loss function used for training and backpropagation.
+///
+/// Implementors must provide methods to compute the scalar loss tensor and
+/// the derivative (loss prime) used as the starting point for backprop.
 pub trait LossFunction<D, T>
 where
     D: Numeric,
@@ -16,6 +20,7 @@ where
     fn loss_prime(&self, actual: &T, predicted: &T) -> Result<T, String>;
 }
 
+/// Mean squared error loss implementation.
 pub struct MeanSquaredErrorLoss;
 
 impl<T: Tensor<D> + 'static, D> LossFunction<D, T> for MeanSquaredErrorLoss
@@ -39,6 +44,7 @@ where
     }
 }
 
+/// Binary cross-entropy loss implementation (stable variant with clipping).
 pub struct BinaryCrossEntropy;
 
 impl<T: Tensor<D> + 'static + TensorMath<D, MathOutput = T>, D> LossFunction<D, T>

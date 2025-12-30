@@ -22,7 +22,11 @@ pub struct LayerData {
     pub weights: Vec<NeuralNetDataType>,
     pub shape: Vec<u32>,
 }
-
+/// Metadata describing a single layer when serializing/restoring models.
+///
+/// Stores the layer type, name, index within the network, raw weight
+/// vector and its shape so layers can be reconstructed when loading a
+/// saved model.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ModelData {
     pub name: String,
@@ -36,7 +40,10 @@ pub struct ModelData {
 // Type Definitions
 // ============================================================================
 
+/// Numeric type used throughout the neural network implementation.
 pub type NeuralNetDataType = f32;
+
+/// Function pointer type for activation functions and their derivatives.
 pub type ActivationFn<T> = fn(&T) -> Result<T, String>;
 
 // ============================================================================
