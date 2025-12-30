@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+
 // ============================================================================
 // Internal Module Declarations
 // ============================================================================
@@ -60,6 +62,7 @@ pub use crate::cuda_tensor::GpuTensor;
 // ============================================================================
 
 pub use crate::contexts::{init_context, AppContext, GLOBAL_CONTEXT};
+pub mod init;
 
 #[cfg(feature = "cuda")]
 pub use crate::gpu_context::{init_gpu, GpuContext, GPU_CONTEXT};

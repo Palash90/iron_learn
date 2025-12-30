@@ -1,0 +1,204 @@
+#[cfg(feature = "cuda")]
+use crate::init_gpu;
+use crate::AppContext;
+#[cfg(feature = "cuda")]
+use crate::GpuTensor;
+#[cfg(feature = "cuda")]
+use cublas_sys::*;
+#[cfg(feature = "cuda")]
+use cust::prelude::Module;
+#[cfg(feature = "cuda")]
+use cust::stream::Stream;
+#[cfg(feature = "cuda")]
+use cust::stream::StreamFlags;
+#[cfg(feature = "cuda")]
+use std::ptr;
+
+use clap::Parser;
+
+use crate::neural_network::DistributionType;
+
+use crate::{init_context, GLOBAL_CONTEXT};
+
+#[derive(Parser)]
+#[command(name = "Iron Learn")]
+#[command(name = "A Rust Machine Learning Library")]
+struct Args {
+    #[arg(long, short, default_value = "neural_net")]
+    name: String,
+
+    #[arg(long, short, default_value = "false")]
+    cpu: bool,
+
+    #[arg(long, short, default_value = "false")]
+    restore: bool,
+
+    #[arg(long, short, default_value = "0.01")]
+    lr: f64,
+
+    #[arg(long, short, default_value = "10001")]
+    epochs: u32,
+
+    #[arg(long, short, default_value = "data/neural_net.json")]
+    data_file: String,
+
+    #[arg(long, short, default_value = "false")]
+    adjust_lr: bool,
+
+    #[arg(long, short, default_value = "4")]
+    internal_layers: u32,
+
+    #[arg(long, short, default_value = "1000")]
+    monitor_interval: usize,
+
+    #[arg(long, short, default_value = "0")]
+    sleep_time: u64,
+
+    #[arg(long, short, default_value = "model.json")]
+    parameters_path: String,
+
+    #[arg(long, short = 'D', default_value = "Normal")]
+    distribution: String,
+}
+
+pub fn init() {
+    let args = Args::parse();
+    let gpu_enabled = !args.cpu;
+
+    let distribution = match args.distribution.as_str().to_uppercase().as_str() {
+        "NORMAL" => DistributionType::Normal,
+        "XAVIER" => DistributionType::Xavier,
+        "UNIFORM" => DistributionType::Uniform,
+        "He" => DistributionType::He,
+        _ => DistributionType::Normal,
+    };
+
+    if gpu_enabled {
+        #[cfg(feature = "cuda")]
+        {
+            match cust::quick_init() {
+                Ok(context) => {
+                    println!("✓ GPU initialization successful");
+
+                    let mut handle: cublasHandle_t = ptr::null_mut();
+                    unsafe {
+                        let status = cublasCreate_v2(&mut handle);
+                        if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
+                            eprintln!("Failed to create cuBLAS handle");
+                            return;
+                        }
+                    };
+
+                    println!("✓ CUBLAS initialization successful");
+
+                    let ptx = include_str!("../kernels/gpu_kernels.ptx");
+                    let module =
+                        Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
+
+                    let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
+                        Ok(s) => s,
+                        Err(e) => {
+                            eprintln!("Error creating stream: {}", e);
+                            return;
+                        }
+                    };
+
+                    init_context(
+                        "Iron Learn",
+                        5,
+                        args.data_file,
+                        args.lr,
+                        args.epochs,
+                        true,
+                        args.adjust_lr,
+                        args.internal_layers,
+                        args.parameters_path,
+                        args.monitor_interval,
+                        args.sleep_time,
+                        args.name,
+                        args.restore,
+                        distribution,
+                    );
+
+                    init_gpu(Some(context), Some(module), Some(stream), Some(handle));
+                }
+                Err(e) => {
+                    eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
+                    init_context(
+                        "Iron Learn",
+                        5,
+                        args.data_file,
+                        args.lr,
+                        args.epochs,
+                        false,
+                        args.adjust_lr,
+                        args.internal_layers,
+                        args.parameters_path,
+                        args.monitor_interval,
+                        args.sleep_time,
+                        args.name,
+                        args.restore,
+                        distribution,
+                    );
+                }
+            }
+        }
+
+        #[cfg(not(feature = "cuda"))]
+        {
+            eprintln!("⚠ GPU support not compiled. Using CPU mode.");
+            init_context(
+                "Iron Learn",
+                5,
+                args.data_file,
+                args.lr,
+                args.epochs,
+                false,
+                args.adjust_lr,
+                args.internal_layers,
+                args.parameters_path,
+                args.monitor_interval,
+                args.sleep_time,
+                args.name,
+                args.restore,
+                distribution,
+            );
+        }
+    } else {
+        init_context(
+            "Iron Learn",
+            5,
+            args.data_file,
+            args.lr,
+            args.epochs,
+            false,
+            args.adjust_lr,
+            args.internal_layers,
+            args.parameters_path,
+            args.monitor_interval,
+            args.sleep_time,
+            args.name,
+            args.restore,
+            distribution,
+        );
+    }
+
+    let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
+    greet(ctx);
+}
+
+fn greet(ctx: &AppContext) {
+    println!("\n╔═══════════════════════════════════════╗");
+    println!("║ {} v{}", ctx.app_name, ctx.version);
+    println!("║ Name: {}", ctx.name);
+    println!("║ Mode: {}", if ctx.gpu_enabled { "GPU" } else { "CPU" });
+    println!("║ Learning Rate: {}", ctx.learning_rate);
+    println!("║ Learning Rate Adjustment: {}", ctx.lr_adjust);
+    println!("║ Epochs: {}", ctx.epochs);
+    println!("║ Hidden Layers: {}", ctx.hidden_layer_length);
+    println!("║ Data Path: {}", ctx.data_path);
+    println!("║ Model Path: {}", ctx.weights_path);
+    println!("║ Monitor Interval: {}", ctx.monitor_interval);
+    println!("║ Intermediate Sleep Time: {} seconds", ctx.sleep_time);
+    println!("╚═══════════════════════════════════════╝\n");
+}
