@@ -41,22 +41,7 @@ pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
 /// * `restore` - Restore a network from model file.
 /// * `distribution` - Weight initialization distribution
 ///
-/// # Example
-///
-/// ```rust,no_run
-/// use iron_learn::{init_context, GLOBAL_CONTEXT};
-/// use iron_learn::neural_network::DistributionType;
-///
-/// // Initialize at startup with full configuration
-/// init_context("MyApp", 1, "data.json".to_string(), 0.01, 10000, false, false, 4, "w".to_string(), 1000, 40, "".to_string(), false, DistributionType::Normal);
-///
-/// // Access anywhere in the application
-/// let ctx = GLOBAL_CONTEXT.get().unwrap();
-/// if ctx.gpu_enabled {
-///     println!("GPU acceleration available");
-/// }
-/// println!("Learning rate: {}", ctx.learning_rate);
-/// ```
+
 #[derive(Debug)]
 pub struct AppContext {
     pub app_name: &'static str,
@@ -99,30 +84,6 @@ pub struct AppContext {
 /// * `restore` - Restore a network from model file.
 /// * `distribution` - Weight initialization distribution
 ///
-/// # Example
-///
-/// ```rust,no_run
-/// use iron_learn::init_context;
-/// use iron_learn::neural_network::DistributionType;
-///
-/// // Initialize with full configuration
-/// init_context(
-///     "IronLearn",
-///     5,
-///     "data.json".to_string(),
-///     0.01,
-///     10000,
-///     false,
-///     false,
-///     4,
-///     "weights".to_string(),
-///     1000,
-///     30,
-///     "".to_string(),
-///     false,
-///     DistributionType::Normal
-/// );
-/// ```
 pub fn init_context(
     app_name: &'static str,
     version: u32,

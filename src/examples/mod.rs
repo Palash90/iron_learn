@@ -1,3 +1,5 @@
+mod contexts;
+pub mod init;
 mod read_file;
 mod types;
 
@@ -18,8 +20,8 @@ use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use crate::NeuralNet;
 use crate::NeuralNetBuilder;
-use crate::GLOBAL_CONTEXT;
 use crate::{linear_regression, logistic_regression, predict_linear, predict_logistic};
+use contexts::GLOBAL_CONTEXT;
 use std::time::Instant;
 
 use image::{ImageBuffer, Luma};

@@ -2,12 +2,17 @@
 
 use crate::cuda_tensor::CublasHandle;
 use crate::cuda_tensor::CudaMemoryPool;
+use cublas_sys::cublasCreate_v2;
 use cublas_sys::cublasHandle_t;
+use cublas_sys::cublasStatus_t;
+
 use cust::prelude::Function;
 use cust::prelude::Module;
 use cust::stream::Stream;
 use std::ptr;
 use std::sync::OnceLock;
+
+use cust::stream::StreamFlags;
 
 /// Global GPU context singleton used throughout the crate.
 ///
@@ -50,39 +55,52 @@ impl GpuContext {
 
 /// Initialize the global GPU context singleton used by the crate.
 ///
-/// - `context`: optionally provide an owned CUDA `Context`.
-/// - `module`: optionally provide a loaded CUDA `Module` containing kernels.
-/// - `stream`: optionally provide a CUDA `Stream` to use for kernel launches.
-/// - `cublas_handle`: optionally provide a raw cuBLAS handle (`cublasHandle_t`).
-///
 /// Calling this function sets the `GPU_CONTEXT` `OnceLock` once; subsequent
 /// calls will print a warning if initialization was already performed.
-pub fn init_gpu(
-    context: Option<cust::context::Context>,
-    module: Option<Module>,
-    stream: Option<Stream>,
-    cublas_handle: Option<cublasHandle_t>,
-) {
-    let pool = match context {
-        Some(_) => Some(CudaMemoryPool::get_mem_pool()),
-        None => None,
-    };
+pub fn init_gpu() -> Result<(), String> {
+    match cust::quick_init() {
+        Ok(context) => {
+            println!("✓ GPU initialization successful");
 
-    let handle = match cublas_handle {
-        Some(t) => t,
-        _ => ptr::null_mut(),
-    };
+            let mut handle: cublasHandle_t = ptr::null_mut();
+            unsafe {
+                let status = cublasCreate_v2(&mut handle);
+                if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
+                    return Err("Failed to create cuBLAS handle".to_string());
+                }
+            };
 
-    let ctx = GpuContext {
-        context,
-        module,
-        stream,
-        pool,
-        cublas_handle: CublasHandle { handle },
-    };
+            println!("✓ CUBLAS initialization successful");
 
-    match GPU_CONTEXT.set(ctx) {
-        Ok(_) => (),
-        Err(_) => eprintln!("GpuContext has already been initialized!"),
-    };
+            let ptx = include_str!("../kernels/gpu_kernels.ptx");
+            let module = Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
+
+            let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
+                Ok(s) => s,
+                Err(_) => {
+                    return Err("Error creating stream".to_string());
+                }
+            };
+
+            let pool = CudaMemoryPool::get_mem_pool();
+
+            let ctx = GpuContext {
+                context: Some(context),
+                module: Some(module),
+                stream: Some(stream),
+                pool: Some(pool),
+                cublas_handle: CublasHandle { handle },
+            };
+
+            match GPU_CONTEXT.set(ctx) {
+                Ok(_) => (),
+                Err(_) => eprintln!("GpuContext has already been initialized!"),
+            };
+        }
+        Err(e) => {
+            return Err(format!("Error: {}", e));
+        }
+    }
+
+    Ok(())
 }

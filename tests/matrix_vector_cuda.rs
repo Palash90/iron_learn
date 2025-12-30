@@ -6,87 +6,13 @@ mod cuda_tests {
     use iron_learn::GpuTensor;
     use iron_learn::Tensor;
 
-    use iron_learn::init_context;
     use iron_learn::init_gpu;
-
-    use cublas_sys::*;
-    use cust::prelude::Module;
-    use cust::stream::Stream;
-    use cust::stream::StreamFlags;
-    use std::ptr;
-
-    use iron_learn::neural_network::DistributionType;
 
     type TensorType = f32;
 
-    fn init() {
-        match cust::quick_init() {
-            Ok(context) => {
-                eprintln!("✓ GPU initialization successful");
-                let ptx = include_str!("../kernels/gpu_kernels.ptx");
-                let module =
-                    Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
-
-                let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
-                    Ok(s) => s,
-                    Err(e) => {
-                        eprintln!("Error creating stream: {}", e);
-                        return;
-                    }
-                };
-
-                let mut handle: cublasHandle_t = ptr::null_mut();
-                unsafe {
-                    let status = cublasCreate_v2(&mut handle);
-                    if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
-                        eprintln!("Failed to create cuBLAS handle");
-                        return;
-                    }
-                };
-
-                init_context(
-                    "Iron Learn",
-                    5,
-                    String::new(),
-                    0.0,
-                    0,
-                    true,
-                    false,
-                    2,
-                    "w".to_string(),
-                    0,
-                    0,
-                    "".to_string(),
-                    false,
-                    DistributionType::Normal,
-                );
-                init_gpu(Some(context), Some(module), Some(stream), Some(handle));
-            }
-            Err(e) => {
-                eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
-                init_context(
-                    "Iron Learn",
-                    5,
-                    "".to_string(),
-                    0.01,
-                    1,
-                    false,
-                    false,
-                    2,
-                    "w".to_string(),
-                    0,
-                    0,
-                    "".to_string(),
-                    false,
-                    DistributionType::Normal,
-                );
-            }
-        }
-    }
-
     #[test]
     pub fn test_cuda_add() {
-        init();
+        let _ = init_gpu();
 
         let m1 = GpuTensor::<TensorType>::new(vec![1], vec![1.0]).unwrap();
         let m2 = GpuTensor::new(vec![1], vec![3.0]).unwrap();
@@ -119,7 +45,7 @@ mod cuda_tests {
 
     #[test]
     pub fn test_cuda_mul_float() {
-        init();
+        let _ = init_gpu();
 
         let m1 = GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
         let m2 = GpuTensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0]).unwrap();
@@ -137,7 +63,7 @@ mod cuda_tests {
 
     #[test]
     pub fn test_cuda_hadamard_float() {
-        init();
+        let _ = init_gpu();
 
         let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
         let m2 = GpuTensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0]).unwrap();
@@ -151,7 +77,7 @@ mod cuda_tests {
 
     #[test]
     pub fn test_cuda_neg_float() {
-        init();
+        let _ = init_gpu();
 
         let m1 = GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
         let m2 = (-m1).unwrap();
@@ -174,7 +100,7 @@ mod cuda_tests {
 
     #[test]
     fn test_cuda_matmul_identity() {
-        init();
+        let _ = init_gpu();
 
         let a = GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0_f32, 2.0_f32, 3.0_f32, 4.0_f32])
             .unwrap();
@@ -188,7 +114,7 @@ mod cuda_tests {
 
     #[test]
     fn test_cuda_matmul_vector_dot_product() {
-        init();
+        let _ = init_gpu();
 
         // (1x3) * (3x1) = (1x1)
         let a = GpuTensor::<TensorType>::new(vec![1, 3], vec![1.0_f32, 2.0_f32, 3.0_f32]).unwrap();
@@ -202,7 +128,7 @@ mod cuda_tests {
 
     #[test]
     pub fn test_cuda_scale_float() {
-        init();
+        let _ = init_gpu();
 
         let m1 = GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
         let m2 = m1.scale(2.0).unwrap();
@@ -230,7 +156,7 @@ mod cuda_tests {
 
     #[test]
     pub fn test_cuda_element_op_float() {
-        init();
+        let _ = init_gpu();
 
         let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, -3.0, 4.0]).unwrap();
 
@@ -367,7 +293,7 @@ mod cuda_tests {
 
     #[test]
     pub fn test_cuda_transpose() {
-        init();
+        let _ = init_gpu();
 
         let m = GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
         let result = GpuTensor::new(vec![2, 2], vec![1.0, 3.0, 2.0, 4.0]).unwrap();

@@ -4,10 +4,9 @@
 
 mod commons;
 mod complex;
-mod contexts;
 mod cpu_tensor;
 mod cuda_tensor;
-mod examples;
+pub mod examples;
 mod gpu_context;
 mod gradient_descent;
 pub mod neural_network;
@@ -35,9 +34,6 @@ pub use crate::cuda_tensor::GpuTensor;
 // Context & GPU Re-exports
 // ============================================================================
 
-pub use crate::contexts::{init_context, AppContext, GLOBAL_CONTEXT};
-pub mod init;
-
 #[cfg(feature = "cuda")]
 pub use crate::gpu_context::{init_gpu, GpuContext, GPU_CONTEXT};
 
@@ -55,7 +51,6 @@ pub use crate::neural_network::{
 // ============================================================================
 
 pub use crate::commons::normalize_features;
-pub use crate::examples::{run_linear, run_logistic, run_neural_net};
 
 // ============================================================================
 // Gradient Descent Re-exports

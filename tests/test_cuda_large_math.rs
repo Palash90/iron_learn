@@ -6,16 +6,7 @@ mod tensor_math_large_tests {
     use iron_learn::GpuTensor;
     use iron_learn::Tensor;
 
-    use iron_learn::init_context;
     use iron_learn::init_gpu;
-
-    use cublas_sys::*;
-    use cust::prelude::Module;
-    use cust::stream::Stream;
-    use cust::stream::StreamFlags;
-    use std::ptr;
-
-    use iron_learn::neural_network::DistributionType;
 
     // Using the size that resulted in ~1 billion elements from your previous run
     const LARGE_M: u32 = 1000;
@@ -27,74 +18,9 @@ mod tensor_math_large_tests {
         GpuTensor::<f32>::new(shape, data).unwrap()
     }
 
-    fn init() {
-        match cust::quick_init() {
-            Ok(context) => {
-                eprintln!("✓ GPU initialization successful");
-                let ptx = include_str!("../kernels/gpu_kernels.ptx");
-                let module =
-                    Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
-
-                let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
-                    Ok(s) => s,
-                    Err(e) => {
-                        eprintln!("Error creating stream: {}", e);
-                        return;
-                    }
-                };
-
-                let mut handle: cublasHandle_t = ptr::null_mut();
-                unsafe {
-                    let status = cublasCreate_v2(&mut handle);
-                    if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
-                        eprintln!("Failed to create cuBLAS handle");
-                        return;
-                    }
-                };
-
-                init_context(
-                    "Iron Learn",
-                    5,
-                    String::new(),
-                    0.0,
-                    0,
-                    true,
-                    false,
-                    2,
-                    "w".to_string(),
-                    0,
-                    0,
-                    "".to_string(),
-                    false,
-                    DistributionType::Normal,
-                );
-                init_gpu(Some(context), Some(module), Some(stream), Some(handle));
-            }
-            Err(e) => {
-                eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
-                init_context(
-                    "Iron Learn",
-                    5,
-                    "".to_string(),
-                    0.01,
-                    1,
-                    false,
-                    false,
-                    2,
-                    "w".to_string(),
-                    0,
-                    0,
-                    "".to_string(),
-                    false,
-                    DistributionType::Normal,
-                );
-            }
-        }
-    }
-
     #[test]
     fn test_large_exp() {
-        init();
+        let _ = init_gpu();
         let t1 = new_gpu_tensor(vec![LARGE_M, LARGE_N], vec![0.0f32; TOTAL_ELEMENTS]);
 
         // TEST EXP
@@ -106,7 +32,7 @@ mod tensor_math_large_tests {
 
     #[test]
     fn test_large_sigmoid() {
-        init();
+        let _ = init_gpu();
         let t1 = new_gpu_tensor(vec![LARGE_M, LARGE_N], vec![0.0f32; TOTAL_ELEMENTS]);
 
         // TEST SIGMOID
@@ -118,7 +44,7 @@ mod tensor_math_large_tests {
 
     #[test]
     fn test_large_log_stability() {
-        init();
+        let _ = init_gpu();
         // GIVEN: e^1 (approx 2.71828)
         let e = std::f32::consts::E;
         let t1 = new_gpu_tensor(vec![LARGE_M, LARGE_N], vec![e; TOTAL_ELEMENTS]);
@@ -134,7 +60,7 @@ mod tensor_math_large_tests {
 
     #[test]
     fn test_large_tanh_range() {
-        init();
+        let _ = init_gpu();
         // GIVEN: Large positive and negative numbers
         let mut input_data = vec![0.0f32; TOTAL_ELEMENTS];
         input_data[0] = 100.0;
@@ -153,7 +79,7 @@ mod tensor_math_large_tests {
 
     #[test]
     fn test_trig_functions() {
-        init();
+        let _ = init_gpu();
         // GIVEN: PI / 2
         let pi_2 = std::f32::consts::FRAC_PI_2;
         let t1 = new_gpu_tensor(vec![100, 100], vec![pi_2; 10000]);
@@ -168,7 +94,7 @@ mod tensor_math_large_tests {
 
     #[test]
     fn test_large_log_and_ln() {
-        init();
+        let _ = init_gpu();
         let size = 10_000; // Testing at a manageable but large scale
         let total = size * size;
 
@@ -186,7 +112,7 @@ mod tensor_math_large_tests {
 
     #[test]
     fn test_large_tan_and_periodicity() {
-        init();
+        let _ = init_gpu();
         let total = 10_000;
 
         // tan(pi/4) = 1.0

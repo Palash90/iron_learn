@@ -1,22 +1,13 @@
 #[cfg(feature = "cuda")]
 use crate::init_gpu;
-use crate::AppContext;
-#[cfg(feature = "cuda")]
-use cublas_sys::*;
-#[cfg(feature = "cuda")]
-use cust::prelude::Module;
-#[cfg(feature = "cuda")]
-use cust::stream::Stream;
-#[cfg(feature = "cuda")]
-use cust::stream::StreamFlags;
-#[cfg(feature = "cuda")]
-use std::ptr;
 
 use clap::Parser;
 
 use crate::neural_network::DistributionType;
 
-use crate::{init_context, GLOBAL_CONTEXT};
+use super::contexts::init_context;
+use super::contexts::AppContext;
+use super::contexts::GLOBAL_CONTEXT;
 
 #[derive(Parser)]
 #[command(name = "Iron Learn")]
@@ -90,7 +81,7 @@ struct Args {
 /// ```text
 /// cargo run -- --name my_run --lr 0.01 --epochs 1000 --data-file data/neural_net.json
 /// ```
-pub fn init_runtime() {
+pub fn init_runtime() -> &'static AppContext {
     let args = Args::parse();
     let gpu_enabled = !args.cpu;
 
@@ -103,72 +94,49 @@ pub fn init_runtime() {
     };
 
     if gpu_enabled {
-        #[cfg(feature = "cuda")]
         {
-            match cust::quick_init() {
-                Ok(context) => {
-                    println!("✓ GPU initialization successful");
+            #[cfg(feature = "cuda")]
+            {
+                match init_gpu() {
+                    Ok(_) => {
+                        println!("✓ GPU initialization successful");
 
-                    let mut handle: cublasHandle_t = ptr::null_mut();
-                    unsafe {
-                        let status = cublasCreate_v2(&mut handle);
-                        if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
-                            eprintln!("Failed to create cuBLAS handle");
-                            return;
-                        }
-                    };
-
-                    println!("✓ CUBLAS initialization successful");
-
-                    let ptx = include_str!("../kernels/gpu_kernels.ptx");
-                    let module =
-                        Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
-
-                    let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
-                        Ok(s) => s,
-                        Err(e) => {
-                            eprintln!("Error creating stream: {}", e);
-                            return;
-                        }
-                    };
-
-                    init_context(
-                        "Iron Learn",
-                        5,
-                        args.data_file,
-                        args.lr,
-                        args.epochs,
-                        true,
-                        args.adjust_lr,
-                        args.internal_layers,
-                        args.parameters_path,
-                        args.monitor_interval,
-                        args.sleep_time,
-                        args.name,
-                        args.restore,
-                        distribution,
-                    );
-
-                    init_gpu(Some(context), Some(module), Some(stream), Some(handle));
-                }
-                Err(e) => {
-                    eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
-                    init_context(
-                        "Iron Learn",
-                        5,
-                        args.data_file,
-                        args.lr,
-                        args.epochs,
-                        false,
-                        args.adjust_lr,
-                        args.internal_layers,
-                        args.parameters_path,
-                        args.monitor_interval,
-                        args.sleep_time,
-                        args.name,
-                        args.restore,
-                        distribution,
-                    );
+                        init_context(
+                            "Iron Learn",
+                            6,
+                            args.data_file,
+                            args.lr,
+                            args.epochs,
+                            true,
+                            args.adjust_lr,
+                            args.internal_layers,
+                            args.parameters_path,
+                            args.monitor_interval,
+                            args.sleep_time,
+                            args.name,
+                            args.restore,
+                            distribution,
+                        );
+                    }
+                    Err(e) => {
+                        eprintln!("⚠ GPU initialization failed: {}", e);
+                        init_context(
+                            "Iron Learn",
+                            6,
+                            args.data_file,
+                            args.lr,
+                            args.epochs,
+                            false,
+                            args.adjust_lr,
+                            args.internal_layers,
+                            args.parameters_path,
+                            args.monitor_interval,
+                            args.sleep_time,
+                            args.name,
+                            args.restore,
+                            distribution,
+                        );
+                    }
                 }
             }
         }
@@ -178,7 +146,7 @@ pub fn init_runtime() {
             eprintln!("⚠ GPU support not compiled. Using CPU mode.");
             init_context(
                 "Iron Learn",
-                5,
+                6,
                 args.data_file,
                 args.lr,
                 args.epochs,
@@ -214,6 +182,7 @@ pub fn init_runtime() {
 
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");
     greet(ctx);
+    ctx
 }
 
 /// Print a concise, human-readable summary of the current application

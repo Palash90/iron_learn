@@ -5,80 +5,7 @@ mod tests {
     use iron_learn::GpuTensor;
     use iron_learn::Tensor;
 
-    use iron_learn::init_context;
     use iron_learn::init_gpu;
-
-    use cublas_sys::*;
-    use cust::prelude::Module;
-    use cust::stream::Stream;
-    use cust::stream::StreamFlags;
-    use iron_learn::neural_network::DistributionType;
-    use std::ptr;
-
-    fn init() {
-        match cust::quick_init() {
-            Ok(context) => {
-                eprintln!("✓ GPU initialization successful");
-                let ptx = include_str!("../kernels/gpu_kernels.ptx");
-                let module =
-                    Module::from_ptx(ptx, &[]).expect("CUDA module could not be initiated");
-
-                let stream = match Stream::new(StreamFlags::NON_BLOCKING, None) {
-                    Ok(s) => s,
-                    Err(e) => {
-                        eprintln!("Error creating stream: {}", e);
-                        return;
-                    }
-                };
-
-                let mut handle: cublasHandle_t = ptr::null_mut();
-                unsafe {
-                    let status = cublasCreate_v2(&mut handle);
-                    if status != cublasStatus_t::CUBLAS_STATUS_SUCCESS {
-                        eprintln!("Failed to create cuBLAS handle");
-                        return;
-                    }
-                };
-
-                init_context(
-                    "Iron Learn",
-                    5,
-                    String::new(),
-                    0.0,
-                    0,
-                    true,
-                    false,
-                    2,
-                    "w".to_string(),
-                    0,
-                    0,
-                    "".to_string(),
-                    false,
-                    DistributionType::Normal,
-                );
-                init_gpu(Some(context), Some(module), Some(stream), Some(handle));
-            }
-            Err(e) => {
-                eprintln!("⚠ GPU initialization failed: {}. Using CPU mode.", e);
-                init_context(
-                    "Iron Learn",
-                    5,
-                    "".to_string(),
-                    0.01,
-                    1,
-                    false,
-                    false,
-                    2,
-                    "w".to_string(),
-                    0,
-                    0,
-                    "".to_string(),
-                    false,
-                    DistributionType::Normal,
-                );
-            }
-        }
-    }
 
     // Helper to simplify tensor creation in tests
     fn new_gpu_tensor(shape: Vec<u32>, data: Vec<f32>) -> GpuTensor<f32> {
@@ -87,7 +14,7 @@ mod tests {
 
     #[test]
     fn test_div_happy_path() {
-        init();
+        let _ = init_gpu();
 
         // Verifies basic element-wise division and shape preservation
         let shape = vec![2, 2];
@@ -102,7 +29,7 @@ mod tests {
 
     #[test]
     fn test_div_shape_mismatch_error() {
-        init();
+        let _ = init_gpu();
 
         // Verifies that different ranks or dimensions trigger the error
         let t1 = new_gpu_tensor(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]);
@@ -118,7 +45,7 @@ mod tests {
 
     #[test]
     fn test_div_scalar_like_tensor() {
-        init();
+        let _ = init_gpu();
 
         // Verifies a 1x1 tensor (common edge case in linear algebra)
         let t1 = new_gpu_tensor(vec![1], vec![100.0]);
@@ -130,7 +57,7 @@ mod tests {
 
     #[test]
     fn test_cuda_div_precision_and_nan() {
-        init();
+        let _ = init_gpu();
 
         // Verifies behavior with floating point limits
         // Note: Assuming T is f32/f64 for this specific test
@@ -149,7 +76,7 @@ mod tests {
 
     #[test]
     fn test_cuda_div_by_zero() {
-        init();
+        let _ = init_gpu();
 
         let t1 = new_gpu_tensor(vec![2], vec![1.0, 1.0]);
         let t2 = new_gpu_tensor(vec![2], vec![0.0, f32::INFINITY]);
