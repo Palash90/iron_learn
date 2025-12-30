@@ -11,7 +11,7 @@ mod gpu_context;
 mod gradient_descent;
 mod numeric;
 pub mod read_file;
-mod runners;
+mod examples;
 use serde::{Deserialize, Serialize};
 pub mod neural_network;
 pub mod tensor;
@@ -90,7 +90,7 @@ pub use crate::neural_network::{
 // ============================================================================
 
 pub use crate::commons::normalize_features;
-pub use crate::runners::{run_linear, run_logistic, run_neural_net};
+pub use crate::examples::{run_linear, run_logistic, run_neural_net};
 
 // ============================================================================
 // Gradient Descent Re-exports
