@@ -25,6 +25,9 @@ For comparison, Following is the original image fed to the network.
 ### Original Image
 ![Original Image](image/images/original.png)
 
+### Reconstructed image at higher pixels (200 x 200 reconstructed at 512 x 512)
+![Reconstructed Higher Resolution Image](image/images/output-512-reconstruction.png)
+
 ### Time lapse of regeneration step by step
 ![Time lapse of regeneration](image/images/timeline.gif)
 

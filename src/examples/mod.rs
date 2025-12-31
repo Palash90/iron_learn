@@ -10,7 +10,7 @@ use read_file::deserialize_model;
 use types::DataDoublePrecision;
 
 use crate::MeanSquaredErrorLoss;
-// use crate::commons::add_bias_term;
+use crate::commons::add_bias_term;
 use crate::commons::denormalize_features;
 use crate::commons::normalize_features_mean_std;
 use crate::neural_network::LayerType;
@@ -198,16 +198,20 @@ where
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone()).unwrap();
-    // let x = x.scale(1.0 / 199.0).unwrap(); // Normalization
+    let x = x.scale(1.0 / 199.0).unwrap(); // Normalization
     let y = T::new(vec![xy.m, 1], xy.y.clone()).unwrap();
 
     //let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
-    //let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
+    let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
+    let x_test = x_test.scale(1.0 / 511.0).unwrap(); // Normalization
+
 
     //let (x, x_mean, x_std) = normalize_features_mean_std(&x);
     //let (y, y_mean, y_std) = normalize_features_mean_std(&y);
 
-    // let x_with_bias = add_bias_term(&x).unwrap(); // Bias Trick
+    let x_with_bias = add_bias_term(&x).unwrap(); // Bias Trick
+    let x_test_with_bias = add_bias_term(&x_test).unwrap(); // Bias Trick
+
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
     let input_length = xy.n;
@@ -273,6 +277,10 @@ where
         }
     }
 
+    let predictions = nn.predict(&x_test_with_bias).unwrap();
+    draw_image(-1, &x_test, &predictions, 512, 512, name);
+
+    /*
     let _ = nn.fit(
         &x,
         &y,
@@ -283,6 +291,7 @@ where
         monitor,
         monitor_interval,
     );
+     */
 
     if !name.contains(&"image") {
         let predictions = nn.predict(&x).unwrap();
