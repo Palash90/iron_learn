@@ -228,7 +228,7 @@ def draw_predictions_scatter(co_ordinates, epoch, width, height, values):
 
 def image_reconstruction():
     # Note to self: Don't change this function. It's working perfectly.
-    X_train, Y_train, norm_factors = load_data_from_csv("../image_inputs/pixel_data_200.csv")
+    X_train, Y_train, norm_factors = load_data_from_csv("../image_inputs/pixel_data_1024.csv")
 
     IMAGE_WIDTH = norm_factors[0] + 1
     IMAGE_HEIGHT = norm_factors[1] + 1
@@ -236,7 +236,7 @@ def image_reconstruction():
     EPOCHS = 2
     LEARNING_RATE = 0.0001
     EPOCH_OFFSET = 0 
-    RESUME_FILE = ''
+    RESUME_FILE = '../200_final_output/checkpoint/checkpoint_epoch_1290201.npz'
     TIME_CHECK = 500
     LAST_EPOCH = 0
 
@@ -277,9 +277,11 @@ def image_reconstruction():
              print("Starting training from scratch.")
 
         print(f"\n🚀 Starting training for {EPOCHS} epochs...")
-        net.fit(X_train, Y_train, epochs=EPOCHS, epoch_offset=EPOCH_OFFSET, learning_rate=LEARNING_RATE, hook=epoch_hook)
+        #net.fit(X_train, Y_train, epochs=EPOCHS, epoch_offset=EPOCH_OFFSET, learning_rate=LEARNING_RATE, hook=epoch_hook)
 
         output = net.predict(X_train)
+        draw_predictions_scatter(X_train, "FINAL", IMAGE_WIDTH, IMAGE_HEIGHT, output)
+
         data= {
             'x': X_train[:, 0].tolist(),
             'y': X_train[:, 1].tolist(),
