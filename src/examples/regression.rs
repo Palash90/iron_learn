@@ -11,6 +11,8 @@ use crate::{
     Tensor,
 };
 
+use crate::commons::add_bias_term;
+
 /// Run linear regression using configuration from the global context.
 ///
 /// The function loads data, performs normalization, trains a linear model,
@@ -61,6 +63,7 @@ where
     let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 
     let x_test = normalize_features(&x_test, &x_mean, &x_std);
+    let x_test = add_bias_term(&x_test)?;
 
     let predictions = predict_linear(&x_test, &w)?;
 

@@ -12,9 +12,18 @@ where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
     D: FloatingPoint + 'static,
 {
-    let _ = run_linear::<T, D>();
-    let _ = run_logistic::<T, D>();
-    let _ = run_neural_net::<T, D>();
+    match run_linear::<T, D>() {
+        Ok(_) => (),
+        Err(e) => eprintln!("Error: {}", e),
+    };
+    match run_logistic::<T, D>() {
+        Ok(_) => (),
+        Err(e) => eprintln!("Error: {}", e),
+    };
+    match run_neural_net::<T, D>() {
+        Ok(_) => (),
+        Err(e) => eprintln!("Error: {}", e),
+    };
 }
 
 fn main() {

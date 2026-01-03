@@ -3,6 +3,11 @@ use crate::{
     tensor::math::TensorMath, Tensor,
 };
 
+use std::io;
+use std::io::Write;
+
+/// Predict outputs for `x` using linear model weights `w`.
+
 /// Train a logistic regression model using gradient descent.
 ///
 /// Same parameters as `linear_regression`, but applies a sigmoid
@@ -15,7 +20,10 @@ where
     let x_with_bias = add_bias_term(x)?;
     let mut weight = w;
 
-    for _ in 0..(e - 1) {
+    for i in 0..(e - 1) {
+        print!("\rProcessing epoch: {i}/{e}");
+        io::stdout().flush().unwrap();
+
         weight = gradient_descent(&x_with_bias, y, &weight, l, true).unwrap();
     }
 

@@ -21,6 +21,9 @@ where
             return Result::Err(err);
         }
     };
+
+    println!("{:?}", data.x_test.len());
+
     Ok(data.clone())
 }
 
