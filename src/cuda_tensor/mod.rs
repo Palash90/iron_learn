@@ -626,8 +626,9 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
 
 impl<T> TensorMath<T> for GpuTensor<T>
 where
-    T: Numeric + Zeroable + DeviceCopy,
+    T: crate::nn::FloatingPoint + Zeroable + DeviceCopy,
 {
+    type MathOutputElem = T;
     type MathOutput = GpuTensor<T>;
 
     fn sigmoid(&self) -> Result<Self::MathOutput, String> {

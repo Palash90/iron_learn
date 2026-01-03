@@ -489,6 +489,7 @@ impl<T> TensorMath<T> for CpuTensor<T>
 where
     T: Numeric,
 {
+    type MathOutputElem = f32;
     type MathOutput = CpuTensor<f32>;
 
     fn sigmoid(&self) -> Result<Self::MathOutput, String> {

@@ -1,4 +1,5 @@
 use crate::{Numeric, Tensor};
+use crate::nn::FloatingPoint;
 
 /// Trait providing common element-wise mathematical operations for tensors.
 ///
@@ -6,9 +7,12 @@ use crate::{Numeric, Tensor};
 /// result type (for example `CpuTensor<f64>` or `GpuTensor<f32>`). Each
 /// operation returns a `Result` so implementations can surface errors from
 /// allocation or device/kernel failures.
-pub trait TensorMath<T: Numeric>: Tensor<T> +  Sized {
+pub trait TensorMath<T: Numeric>: Tensor<T> + Sized {
+    /// The element type of the resulting math tensor (must be floating point).
+    type MathOutputElem: FloatingPoint;
+
     /// The resulting tensor type returned by math operations.
-    type MathOutput;
+    type MathOutput: Tensor<Self::MathOutputElem>;
 
     /// Apply the sigmoid function element-wise and return the resulting tensor.
     fn sigmoid(&self) -> Result<Self::MathOutput, String>;
