@@ -1,4 +1,4 @@
-use crate::Numeric;
+use crate::{Numeric, Tensor};
 
 /// Trait providing common element-wise mathematical operations for tensors.
 ///
@@ -6,7 +6,7 @@ use crate::Numeric;
 /// result type (for example `CpuTensor<f64>` or `GpuTensor<f32>`). Each
 /// operation returns a `Result` so implementations can surface errors from
 /// allocation or device/kernel failures.
-pub trait TensorMath<T: Numeric>: Sized {
+pub trait TensorMath<T: Numeric>: Tensor<T> +  Sized {
     /// The resulting tensor type returned by math operations.
     type MathOutput;
 
