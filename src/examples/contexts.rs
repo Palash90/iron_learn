@@ -20,6 +20,7 @@ use crate::nn::DistributionType;
 /// Thread-safe access to the immutable application state initialized at startup.
 /// Use `GLOBAL_CONTEXT.get()` to access the context after initialization.
 pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
+use crate::examples::init::ExampleMode;
 
 /// Global application context with training configuration and GPU capabilities
 ///
@@ -58,6 +59,7 @@ pub struct AppContext {
     pub name: String,
     pub restore: bool,
     pub distribution: DistributionType,
+    pub example_mode: ExampleMode,
 }
 
 /// Initialize the global application context
@@ -99,6 +101,7 @@ pub fn init_context(
     name: String,
     restore: bool,
     distribution: DistributionType,
+    example_mode: ExampleMode
 ) {
     let ctx = AppContext {
         app_name,
@@ -115,6 +118,7 @@ pub fn init_context(
         name,
         restore,
         distribution,
+        example_mode
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

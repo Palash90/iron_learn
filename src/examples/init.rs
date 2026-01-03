@@ -8,6 +8,17 @@ use crate::nn::DistributionType;
 use super::contexts::init_context;
 use super::contexts::AppContext;
 use super::contexts::GLOBAL_CONTEXT;
+use clap::ValueEnum;
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+pub enum ExampleMode {
+    /// Linear Regression
+    Linear,
+    /// Logistic Regression 
+    Logistic,
+    /// Neural Network
+    NeuralNet,
+}
 
 #[derive(Parser)]
 #[command(name = "Iron Learn")]
@@ -18,6 +29,9 @@ struct Args {
 
     #[arg(long, short, default_value = "false")]
     cpu: bool,
+
+    #[arg(long, short='x', default_value = "linear")]
+    mode: ExampleMode,
 
     #[arg(long, short, default_value = "false")]
     restore: bool,
@@ -116,6 +130,7 @@ pub fn init_runtime() -> &'static AppContext {
                             args.name,
                             args.restore,
                             distribution,
+                            args.mode
                         );
                     }
                     Err(e) => {
@@ -135,6 +150,7 @@ pub fn init_runtime() -> &'static AppContext {
                             args.name,
                             args.restore,
                             distribution,
+                            args.mode
                         );
                     }
                 }
@@ -177,6 +193,7 @@ pub fn init_runtime() -> &'static AppContext {
             args.name,
             args.restore,
             distribution,
+            args.mode
         );
     }
 
