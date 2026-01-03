@@ -23,6 +23,7 @@ use std::ops::{Add, Div, Mul, Sub};
 
 #[cfg(feature = "cuda")]
 use cust::DeviceCopy;
+use serde::{Deserialize, Serialize};
 
 use std::fmt;
 
@@ -49,7 +50,7 @@ use std::fmt;
 /// let sum = z1 + z2;                 // 4 + 6i
 /// let product = z1 * z2;             // -5 + 10i
 /// ```
-#[derive(Debug, PartialEq, Copy, Clone, PartialOrd)]
+#[derive(Debug, PartialEq, Copy, Clone, PartialOrd, Serialize, Deserialize)]
 #[cfg_attr(feature = "cuda", derive(DeviceCopy))]
 pub struct Complex {
     real: f64,

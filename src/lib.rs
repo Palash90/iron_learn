@@ -5,11 +5,12 @@
 mod commons;
 mod complex;
 mod cpu_tensor;
+mod ml;
 
 pub mod examples;
 
 pub mod nn;
-mod numeric;
+pub mod numeric;
 pub mod one_hot;
 pub mod tensor;
 
@@ -41,6 +42,12 @@ pub use crate::cuda_tensor::GpuTensor;
 
 #[cfg(feature = "cuda")]
 pub use crate::gpu_context::{init_gpu, GpuContext, GPU_CONTEXT};
+
+// ============================================================================
+// Regression Re-exports
+// ============================================================================
+pub use crate::ml::linear_regression;
+pub use crate::ml::logistic_regression;
 
 // ============================================================================
 // Neural Network Re-exports

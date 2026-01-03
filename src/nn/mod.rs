@@ -47,11 +47,7 @@ pub type NeuralNetDataType = f32;
 /// Function pointer type for activation functions and their derivatives.
 pub type ActivationFn<T> = fn(&T) -> Result<T, String>;
 
-/// The `FloatingPoint` defines all the `SignedNumeric` types that can be signed like `f32` and `f64`.
-pub trait FloatingPoint: SignedNumeric {}
 
-impl FloatingPoint for f32 {}
-impl FloatingPoint for f64 {}
 // ============================================================================
 // Activation Functions
 // ============================================================================
@@ -65,8 +61,6 @@ pub use activations::*;
 
 mod layers;
 pub use layers::{ActivationLayer, DistributionType, Layer, LinearLayer};
-
-use crate::SignedNumeric;
 
 // ============================================================================
 // Core Neural Network

@@ -1,4 +1,4 @@
-use crate::nn::FloatingPoint;
+use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 

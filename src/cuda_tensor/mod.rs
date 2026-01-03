@@ -24,6 +24,7 @@ use core::ffi::c_void;
 use cublas_sys::*;
 use cust::memory::bytemuck::Zeroable;
 use std::ops::{Add, Mul, Neg, Sub};
+use crate::numeric::FloatingPoint;
 
 use crate::Tensor;
 mod custom_device_buffer;
@@ -649,7 +650,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
 
 impl<T> TensorMath<T> for GpuTensor<T>
 where
-    T: crate::nn::FloatingPoint + Zeroable + DeviceCopy,
+    T: FloatingPoint + Zeroable + DeviceCopy,
 {
     type MathOutputElem = T;
     type MathOutput = GpuTensor<T>;

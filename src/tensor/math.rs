@@ -1,4 +1,4 @@
-use crate::nn::FloatingPoint;
+use crate::numeric::FloatingPoint;
 use crate::{Numeric, Tensor};
 
 /// Trait providing common element-wise mathematical operations for tensors.

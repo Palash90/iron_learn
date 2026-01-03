@@ -1,3 +1,4 @@
+use crate::numeric::FloatingPoint;
 use crate::tensor::Tensor;
 use crate::Numeric;
 
@@ -5,15 +6,15 @@ use crate::Numeric;
 ///
 /// Returns a new tensor where each feature column is scaled back to the
 /// original value range by computing `value * std[j] + mean[j]`.
-pub fn denormalize_features<T: Tensor<f64>>(
-    normalized_data: &T,
-    mean: &Vec<f64>,
-    std: &Vec<f64>,
-) -> T {
+pub fn denormalize_features<T, D>(normalized_data: &T, mean: &Vec<D>, std: &Vec<D>) -> T
+where
+    T: Tensor<D>,
+    D: FloatingPoint,
+{
     let shape = normalized_data.get_shape();
     let m = shape[0] as usize;
     let n = shape[1] as usize;
-    let mut denormalized_data = vec![0.0; m * n];
+    let mut denormalized_data = vec![D::zero(); m * n];
     let data = normalized_data.get_data();
 
     for j in 0..n {
@@ -33,11 +34,15 @@ pub fn denormalize_features<T: Tensor<f64>>(
 ///
 /// For each element returns `(value - mean[j]) / std[j]` when `std[j] != 0`,
 /// otherwise `0.0` to avoid division-by-zero.
-pub fn normalize_features<T: Tensor<f64>>(data: &T, mean: &Vec<f64>, std: &Vec<f64>) -> T {
+pub fn normalize_features<T, D>(data: &T, mean: &Vec<D>, std: &Vec<D>) -> T
+where
+    T: Tensor<D>,
+    D: FloatingPoint,
+{
     let shape = data.get_shape();
     let m = shape[0] as usize;
     let n = shape[1] as usize;
-    let mut normalized_data = vec![0.0; m * n];
+    let mut normalized_data = vec![D::zero(); m * n];
 
     let data = data.get_data();
 
@@ -47,10 +52,10 @@ pub fn normalize_features<T: Tensor<f64>>(data: &T, mean: &Vec<f64>, std: &Vec<f
 
         for i in 0..m {
             let value = data[i * n + j];
-            normalized_data[i * n + j] = if std_dev != 0.0 {
+            normalized_data[i * n + j] = if std_dev != D::zero() {
                 (value - mean) / std_dev
             } else {
-                0.0
+                D::zero()
             };
         }
     }
@@ -60,32 +65,36 @@ pub fn normalize_features<T: Tensor<f64>>(data: &T, mean: &Vec<f64>, std: &Vec<f
 
 /// Compute per-feature mean and standard deviation, and return the
 /// normalized tensor along with the `mean` and `std` vectors.
-pub fn normalize_features_mean_std<T: Tensor<f64>>(data: &T) -> (T, Vec<f64>, Vec<f64>) {
+pub fn normalize_features_mean_std<T, D>(data: &T) -> (T, Vec<D>, Vec<D>)
+where
+    T: Tensor<D>,
+    D: FloatingPoint,
+{
     let shape = data.get_shape();
     let m = shape[0] as usize;
     let n = shape[1] as usize;
 
-    let mut data_mean = vec![0.0; n];
-    let mut data_std_dev = vec![0.0; n];
+    let mut data_mean = vec![D::zero(); n];
+    let mut data_std_dev = vec![D::zero(); n];
 
     // For each feature
     for j in 0..n {
-        let mut mean = 0.0;
-        let mut variance = 0.0;
+        let mut mean = D::zero();
+        let mut variance = D::zero();
         let data = data.get_data();
 
         // Calculate mean
         for i in 0..m {
-            mean += data[i * n + j];
+            mean = mean + data[i * n + j];
         }
-        mean /= m as f64;
+        mean = mean / D::from_u32(m as u32);
 
         // Calculate variance
         for i in 0..m {
             let diff = data[i * n + j] - mean;
-            variance += diff * diff;
+            variance = variance + diff * diff;
         }
-        variance /= m as f64;
+        variance = variance / D::from_u32(m as u32);
         let std_dev = variance.sqrt();
 
         data_mean[j] = mean;

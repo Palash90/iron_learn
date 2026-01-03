@@ -20,6 +20,8 @@
 //! - Special values: `zero()` and `one()` methods to return zero and one of the implementing type.
 //! - Compatibility with custom types: Can be implemented for user-defined types like `Complex`.
 
+use serde::{Deserialize, Serialize};
+
 use crate::complex::Complex;
 
 /// The `Numeric` trait defines a set of operations that numeric types must support.
@@ -37,6 +39,8 @@ pub trait Numeric:
     + std::fmt::Debug
     + std::cmp::PartialEq
     + std::cmp::PartialOrd
+    + for<'de> Deserialize<'de>
+    + Serialize
 {
     /// Returns the zero value of the type.
     fn zero() -> Self;
@@ -343,3 +347,27 @@ impl SignedNumeric for isize {}
 impl SignedNumeric for f64 {}
 impl SignedNumeric for f32 {}
 impl SignedNumeric for Complex {}
+
+/// The `FloatingPoint` defines all the `SignedNumeric` types that can be signed like `f32` and `f64`.
+pub trait FloatingPoint: SignedNumeric {
+    fn sqrt(&self) -> Self;
+    fn abs(&self) -> Self;
+}
+
+impl FloatingPoint for f32 {
+    fn sqrt(&self) -> Self {
+        f32::sqrt(*self)
+    }
+    fn abs(&self) -> Self {
+        f32::abs(*self)
+    }
+}
+
+impl FloatingPoint for f64 {
+    fn sqrt(&self) -> Self {
+        f64::sqrt(*self)
+    }
+    fn abs(&self) -> Self {
+        f64::abs(*self)
+    }
+}
