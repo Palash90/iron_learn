@@ -1,10 +1,9 @@
 use super::layers::*;
-use super::NeuralNetDataType;
 use crate::nn::LossFunction;
-use crate::numeric::Numeric;
+use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
-use std::f32::consts::PI;
+use std::f64::consts::PI;
 
 use crate::nn::LayerData;
 use crate::nn::ModelData;
@@ -18,31 +17,33 @@ use std::io::Write;
 /// function, and training metadata (parameter count, name/label, and
 /// learning state). Instances are used to `predict`, `fit`, and
 /// `save_model`.
-pub struct NeuralNet<T>
+pub struct NeuralNet<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
 {
-    pub layers: Vec<Box<dyn Layer<T>>>,
-    pub loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
+    pub layers: Vec<Box<dyn Layer<T, D>>>,
+    pub loss_fn: Box<dyn LossFunction<T, D>>,
     pub parameter_count: u64,
     pub label: String,
     pub name: String,
     current_epoch: usize,
-    current_lr: NeuralNetDataType,
+    current_lr: D,
 }
 
-impl<T> NeuralNet<T>
+impl<T, D> NeuralNet<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
 {
     pub fn new(
-        layers: Vec<Box<dyn Layer<T>>>,
-        loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
+        layers: Vec<Box<dyn Layer<T, D>>>,
+        loss_fn: Box<dyn LossFunction<T, D>>,
         param_count: u64,
         label: String,
         name: String,
         current_epoch: usize,
-        current_lr: NeuralNetDataType,
+        current_lr: D,
     ) -> Self {
         Self {
             layers,
@@ -58,7 +59,7 @@ where
     ///
     /// The provided box must implement the `Layer` trait for the network's
     /// tensor type `T`.
-    pub fn add(&mut self, layer: Box<dyn Layer<T>>) {
+    pub fn add(&mut self, layer: Box<dyn Layer<T, D>>) {
         self.layers.push(layer);
     }
 
@@ -78,32 +79,32 @@ where
         y_train: &T,
         epochs: usize,
         epoch_offset: usize,
-        base_lr: NeuralNetDataType,
+        base_lr: D,
         lr_adjustment: bool,
         mut hook: F,
         hook_interval: usize,
     ) -> Result<(), String>
     where
-        F: FnMut(usize, NeuralNetDataType, NeuralNetDataType, &mut Self),
+        F: FnMut(usize, D, D, &mut Self),
     {
-        let lr_min = 1e-6;
+        let lr_min = D::from_f64(1e-6);
 
-        let total_timeline = epochs as NeuralNetDataType;
+        let total_timeline = D::from_u32(epochs as u32);
         let hook_interval = match epochs > hook_interval {
             true => hook_interval,
             false => epochs,
         };
 
         for i in epoch_offset..epochs {
-            let global_i = i as NeuralNetDataType;
+            let global_i = D::from_u32(i as u32);
 
             self.current_epoch = i;
 
-            let cos_term = ((PI as NeuralNetDataType * global_i) / total_timeline).cos();
+            let cos_term = ((D::from_f64(PI) * global_i) / total_timeline).cos();
 
-            let decay_factor = 0.5 * (1.0 + cos_term);
+            let decay_factor = D::from_f64(0.5) * (D::one() + cos_term);
             let current_lr = match lr_adjustment {
-                true => lr_min + (base_lr.f32() - lr_min) * decay_factor,
+                true => lr_min + (base_lr - lr_min) * decay_factor,
                 false => base_lr,
             };
 
@@ -155,7 +156,7 @@ where
         for (i, layer) in self.layers.iter().enumerate() {
             let (w, s) = match layer.get_parameters() {
                 Some(wt) => (wt.get_data().to_vec(), wt.get_shape().to_vec()),
-                None => (Vec::<NeuralNetDataType>::new(), Vec::<u32>::new()),
+                None => (Vec::<D>::new(), Vec::<u32>::new()),
             };
 
             let layer_info = LayerData {

@@ -16,11 +16,15 @@ pub use neural_net::NeuralNet;
 use serde::Deserialize;
 use serde::Serialize;
 #[derive(Debug, Serialize, Deserialize)]
-pub struct LayerData {
+#[serde(bound = "")]
+pub struct LayerData<D>
+where
+    D: FloatingPoint,
+{
     pub layer_type: LayerType,
     pub name: String,
     pub index: usize,
-    pub weights: Vec<NeuralNetDataType>,
+    pub weights: Vec<D>,
     pub shape: Vec<u32>,
 }
 /// Metadata describing a single layer when serializing/restoring models.
@@ -29,20 +33,21 @@ pub struct LayerData {
 /// vector and its shape so layers can be reconstructed when loading a
 /// saved model.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ModelData {
+#[serde(bound = "")]
+pub struct ModelData<D>
+where
+    D: FloatingPoint,
+{
     pub name: String,
     pub parameter_count: u64,
-    pub layers: Vec<LayerData>,
+    pub layers: Vec<LayerData<D>>,
     pub epoch: usize,
-    pub saved_lr: NeuralNetDataType,
+    pub saved_lr: D,
 }
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
-
-/// Numeric type used throughout the neural network implementation.
-pub type NeuralNetDataType = f32;
 
 /// Function pointer type for activation functions and their derivatives.
 pub type ActivationFn<T> = fn(&T) -> Result<T, String>;
@@ -60,6 +65,8 @@ pub use activations::*;
 
 mod layers;
 pub use layers::{ActivationLayer, DistributionType, Layer, LinearLayer};
+
+use crate::numeric::FloatingPoint;
 
 // ============================================================================
 // Core Neural Network

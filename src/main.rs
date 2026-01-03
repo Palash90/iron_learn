@@ -10,11 +10,11 @@ use iron_learn::GpuTensor;
 fn run_ml<T, D>()
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: FloatingPoint,
+    D: FloatingPoint + 'static,
 {
-    let _ =run_linear::<T, D>();
+    let _ = run_linear::<T, D>();
     let _ = run_logistic::<T, D>();
-    //let _ = run_neural_net::<T, D>();
+    let _ = run_neural_net::<T, D>();
 }
 
 fn main() {

@@ -1,14 +1,13 @@
-use crate::nn::NeuralNetDataType;
+use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
 use crate::Numeric;
-use crate::SignedNumeric;
 use crate::Tensor;
 
 /// Trait describing a loss function used for training and backpropagation.
 ///
 /// Implementors must provide methods to compute the scalar loss tensor and
 /// the derivative (loss prime) used as the starting point for backprop.
-pub trait LossFunction<D, T>
+pub trait LossFunction<T, D>
 where
     D: Numeric,
     T: Tensor<D>,
@@ -23,9 +22,10 @@ where
 /// Mean squared error loss implementation.
 pub struct MeanSquaredErrorLoss;
 
-impl<T: Tensor<D> + 'static, D> LossFunction<D, T> for MeanSquaredErrorLoss
+impl<T: Tensor<D> + 'static, D> LossFunction<T, D> for MeanSquaredErrorLoss
 where
     D: Numeric,
+    T: Tensor<D>,
 {
     fn loss(&self, actual: &T, predicted: &T) -> Result<T, String> {
         let error_diff = predicted.sub(actual).unwrap();
@@ -47,18 +47,19 @@ where
 /// Binary cross-entropy loss implementation (stable variant with clipping).
 pub struct BinaryCrossEntropy;
 
-impl<T: Tensor<D> + 'static + TensorMath<D, MathOutput = T>, D> LossFunction<D, T>
+impl<T: Tensor<D> + 'static + TensorMath<D, MathOutput = T>, D> LossFunction<T, D>
     for BinaryCrossEntropy
 where
-    D: SignedNumeric + From<NeuralNetDataType>,
+    D: FloatingPoint,
+    T: Tensor<D>,
 {
     fn loss(&self, y_true: &T, y_pred: &T) -> Result<T, String> {
         let shape = y_true.get_shape();
         let ones = T::ones(shape);
 
         // 1. Safety: Clip predictions to prevent ln(0) or ln(1-1)
-        let epsilon = D::from(1e-7 as NeuralNetDataType);
-        let one_minus_epsilon = D::from(1.0 - 1e-7 as NeuralNetDataType);
+        let epsilon = D::from_f64(1e-7);
+        let one_minus_epsilon = D::from_f64(1.0 - 1e-7);
         let clipped_pred = y_pred.clip(epsilon, one_minus_epsilon).unwrap();
 
         // 2. Term 1: y * ln(y_hat)
@@ -88,8 +89,8 @@ where
         let ones = T::ones(shape);
 
         // 1. Setup constants
-        let epsilon = D::from(1e-12 as NeuralNetDataType);
-        let one_minus_epsilon = D::from((1.0 - 1e-12) as NeuralNetDataType);
+        let epsilon = D::from_f64(1e-12);
+        let one_minus_epsilon = D::from_f64(1.0 - 1e-12);
 
         // 2. Stability: Clip y_pred just like the Python version
         // This prevents division by zero in the denominator later
@@ -103,7 +104,7 @@ where
         let mut result = numerator.div(&denominator).unwrap();
 
         // 4. Normalization: Divide by y.size to get the mean gradient
-        let size = D::from(shape.iter().product::<u32>() as NeuralNetDataType);
+        let size = D::from_u32(shape.iter().product::<u32>());
         result = result.scale(D::one() / size).unwrap();
 
         Ok(result)

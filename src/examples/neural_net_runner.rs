@@ -2,7 +2,7 @@ use crate::examples::contexts::GLOBAL_CONTEXT;
 use crate::examples::read_file::deserialize_data;
 use crate::examples::read_file::deserialize_model;
 use crate::nn::LayerType;
-use crate::nn::NeuralNetDataType;
+use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use crate::NeuralNet;
@@ -25,14 +25,16 @@ use crate::MeanSquaredErrorLoss;
 /// loads optional saved weights, runs training with a monitoring callback,
 /// and prints predictions for non-image tasks. Returns `Ok(())` on success or
 /// an error string.
-pub fn run_neural_net<T>() -> Result<(), String>
+pub fn run_neural_net<T, D>() -> Result<(), String>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint + 'static,
 {
     let lr = GLOBAL_CONTEXT
         .get()
         .ok_or("GLOBAL_CONTEXT not initialized")?
-        .learning_rate as NeuralNetDataType;
+        .learning_rate;
+    let lr = D::from_f64(lr);
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
     let hidden_length = GLOBAL_CONTEXT.get().unwrap().hidden_layer_length;
@@ -57,12 +59,12 @@ where
 
     let input_length = input_length; //  + 1; // To compensate for bias
 
-    let nn = define_neural_net::<T>(hidden_length, input_length, distribution);
+    let nn = define_neural_net::<T, D>(hidden_length, input_length, distribution);
 
     let weights_path = name.to_owned() + "/" + &weights_path;
 
     let (l, epoch_offset, mut nn) = match !weights_path.is_empty() {
-        true => match deserialize_model(&weights_path) {
+        true => match deserialize_model::<D>(&weights_path) {
             Some(model) => match restore {
                 true => (
                     model.saved_lr.clone(),
@@ -79,10 +81,7 @@ where
     let mut start_time = Instant::now();
     let mut last_epoch = 0;
 
-    let monitor = |epoch: usize,
-                   err: NeuralNetDataType,
-                   current_lr: NeuralNetDataType,
-                   nn: &mut NeuralNet<T>| {
+    let monitor = |epoch: usize, err: D, current_lr: D, nn: &mut NeuralNet<T, D>| {
         let elapsed = start_time.elapsed();
         start_time = Instant::now();
 
@@ -143,11 +142,16 @@ where
     Ok(())
 }
 
-fn define_neural_net<T>(hl: u32, input: u32, distribution: &DistributionType) -> NeuralNetBuilder<T>
+fn define_neural_net<T, D>(
+    hl: u32,
+    input: u32,
+    distribution: &DistributionType,
+) -> NeuralNetBuilder<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint + 'static,
 {
-    let mut nn = NeuralNetBuilder::<T>::new();
+    let mut nn = NeuralNetBuilder::<T, D>::new();
 
     let _image_layers = [
         (input, hl, LayerType::Tanh, "Input", "AL 1"),
@@ -173,9 +177,10 @@ where
     nn
 }
 
-fn draw_image<T>(epoch: i32, x_test: &T, y: &T, height: u32, width: u32, name: &String)
+fn draw_image<T, D>(epoch: i32, x_test: &T, y: &T, height: u32, width: u32, name: &String)
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint + 'static,
 {
     let mut image_data: Vec<(u32, u32, u8)> = vec![];
 
@@ -183,9 +188,9 @@ where
     let y_data = y.get_data();
 
     for i in 0..y_data.len() {
-        let x_co = (x_data[2 * i] * (width - 1) as f32).round() as u32;
-        let y_co = (x_data[2 * i + 1] * (height - 1) as f32).round() as u32;
-        let pixel = 255 - (y_data[i] * 255.0) as u8;
+        let x_co = (x_data[2 * i].f64() * (width - 1) as f64).round() as u32;
+        let y_co = (x_data[2 * i + 1].f64() * (height - 1) as f64).round() as u32;
+        let pixel = 255 - (y_data[i].f64() * 255.0) as u8;
 
         image_data.push((x_co, y_co, pixel));
     }

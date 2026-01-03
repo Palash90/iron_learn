@@ -1,5 +1,5 @@
-use super::NeuralNetDataType;
 use crate::nn::{get_activations, LayerType};
+use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 
@@ -9,13 +9,13 @@ use rand_distr::{Distribution, Normal, Uniform};
 ///
 /// Layers must implement forward and backward passes and optionally expose
 /// their parameters for inspection or serialization.
-pub trait Layer<T>
+pub trait Layer<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
 {
     fn forward(&mut self, input: &T) -> Result<T, String>;
-    fn backward(&mut self, output_error: &T, learning_rate: NeuralNetDataType)
-        -> Result<T, String>;
+    fn backward(&mut self, output_error: &T, learning_rate: D) -> Result<T, String>;
     fn get_parameters(&self) -> Option<T> {
         None
     }
@@ -24,14 +24,17 @@ where
 }
 
 /// Fully-connected linear layer holding weights and an optional input cache.
-pub struct LinearLayer<T>
+pub struct LinearLayer<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
 {
     weights: T,
     input_cache: Option<T>,
     name: String,
+
     layer_type: LayerType,
+    _marker: std::marker::PhantomData<D>,
 }
 
 #[derive(Debug, Clone)]
@@ -43,35 +46,35 @@ pub enum DistributionType {
     He,
 }
 
-impl<T> LinearLayer<T>
+impl<T, D> LinearLayer<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
 {
     fn _initialize_weights(
         input_size: u32,
         output_size: u32,
         distribution: &DistributionType,
-    ) -> Vec<NeuralNetDataType> {
+    ) -> Vec<D> {
         let mut rng = rand::rng();
         let normal = Normal::new(0.0, 1.0).unwrap();
 
         let limit =
-            (2.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();
-        let xavier = Normal::new(0.0, limit).unwrap();
+            (D::from_f64(2.0) / (D::from_u32(input_size) + D::from_u32(output_size))).sqrt();
+        let xavier = Normal::new(0.0, limit.f64()).unwrap();
 
-        let uniform_limit =
-            (6.0 / (input_size as NeuralNetDataType + output_size as NeuralNetDataType)).sqrt();
+        let uniform_limit = (6.0 / (input_size as f64 + output_size as f64)).sqrt();
         let uniform = Uniform::new(-uniform_limit, uniform_limit).unwrap();
 
-        let he_limit = (2.0 / (input_size as NeuralNetDataType)).sqrt();
+        let he_limit = (2.0 / (input_size as f64)).sqrt();
         let he = Normal::new(0.0, he_limit).unwrap();
 
-        let w_data: Vec<NeuralNetDataType> = (0..(input_size * output_size))
+        let w_data: Vec<D> = (0..(input_size * output_size))
             .map(|_| match distribution {
-                DistributionType::Uniform => uniform.sample(&mut rng) as NeuralNetDataType,
-                DistributionType::Xavier => xavier.sample(&mut rng) as NeuralNetDataType,
-                DistributionType::Normal => normal.sample(&mut rng) as NeuralNetDataType,
-                DistributionType::He => he.sample(&mut rng) as NeuralNetDataType,
+                DistributionType::Uniform => D::from_f64(uniform.sample(&mut rng)),
+                DistributionType::Xavier => D::from_f64(xavier.sample(&mut rng)),
+                DistributionType::Normal => D::from_f64(normal.sample(&mut rng)),
+                DistributionType::He => D::from_f64(he.sample(&mut rng)),
             })
             .collect();
 
@@ -93,6 +96,7 @@ where
             input_cache: None,
             name: name.to_string(),
             layer_type: LayerType::Linear,
+            _marker: std::marker::PhantomData,
         })
     }
 
@@ -102,13 +106,15 @@ where
             input_cache: None,
             name: name.to_string(),
             layer_type: LayerType::Linear,
+            _marker: std::marker::PhantomData,
         }
     }
 }
 
-impl<T> Layer<T> for LinearLayer<T>
+impl<T, D> Layer<T, D> for LinearLayer<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
 {
     fn name(&self) -> &str {
         &self.name
@@ -120,7 +126,7 @@ where
         Ok(matmul)
     }
 
-    fn backward(&mut self, output_error: &T, lr: NeuralNetDataType) -> Result<T, String> {
+    fn backward(&mut self, output_error: &T, lr: D) -> Result<T, String> {
         let input = self.input_cache.as_ref().ok_or("No forward pass cache!")?;
 
         // Calculate Input Error: error * weights.T
@@ -153,18 +159,21 @@ where
 }
 
 /// Activation wrapper layer that applies element-wise activation functions.
-pub struct ActivationLayer<T>
+pub struct ActivationLayer<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
 {
     layer_type: LayerType,
     output_cache: Option<T>,
     name: String,
+    _marker: std::marker::PhantomData<D>,
 }
 
-impl<T> ActivationLayer<T>
+impl<T, D> ActivationLayer<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
 {
     /// Now takes two function pointers as input
     pub fn new(name: &str, layer_type: LayerType) -> Self {
@@ -172,13 +181,15 @@ where
             output_cache: None,
             name: name.to_string(),
             layer_type,
+            _marker: std::marker::PhantomData,
         }
     }
 }
 
-impl<T> Layer<T> for ActivationLayer<T>
+impl<T, D> Layer<T, D> for ActivationLayer<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
 {
     fn name(&self) -> &str {
         &self.name
@@ -194,7 +205,7 @@ where
         Ok(output)
     }
 
-    fn backward(&mut self, output_error: &T, _lr: NeuralNetDataType) -> Result<T, String> {
+    fn backward(&mut self, output_error: &T, _lr: D) -> Result<T, String> {
         let out = self
             .output_cache
             .as_ref()

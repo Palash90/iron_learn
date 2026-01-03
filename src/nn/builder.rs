@@ -2,23 +2,25 @@ use super::layers::*;
 use crate::nn::LayerType;
 use crate::nn::LossFunction;
 use crate::nn::ModelData;
-use crate::nn::NeuralNetDataType;
+use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
 use crate::NeuralNet;
 use crate::Tensor;
 use colored::Colorize;
 
 /// Builder type for constructing `NeuralNet` instances via a fluent API.
-pub struct NeuralNetBuilder<T>
+pub struct NeuralNetBuilder<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T>,
+    T: Tensor<D> + TensorMath<D, MathOutput = T>,
+    D: FloatingPoint,
 {
-    layers: Vec<Box<dyn Layer<T>>>,
+    layers: Vec<Box<dyn Layer<T, D>>>,
 }
 
-impl<T> NeuralNetBuilder<T>
+impl<T, D> NeuralNetBuilder<T, D>
 where
-    T: Tensor<NeuralNetDataType> + TensorMath<NeuralNetDataType, MathOutput = T> + 'static,
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint + 'static,
 {
     pub fn new() -> Self {
         Self { layers: Vec::new() }
@@ -45,11 +47,7 @@ where
         self.layers.push(Box::new(layer));
     }
     /// Finalize the builder and construct a `NeuralNet`.
-    pub fn build(
-        self,
-        loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
-        name: &String,
-    ) -> NeuralNet<T> {
+    pub fn build(self, loss_fn: Box<dyn LossFunction<T, D>>, name: &String) -> NeuralNet<T, D> {
         println!("Building Network:");
         let mut parameter_count = 0;
 
@@ -95,16 +93,16 @@ where
             label,
             name.to_string(),
             0,
-            0.0,
+            D::zero(),
         )
     }
 
     pub fn build_from_model(
-        model: ModelData,
-        loss_fn: Box<dyn LossFunction<NeuralNetDataType, T>>,
-    ) -> NeuralNet<T> {
+        model: ModelData<D>,
+        loss_fn: Box<dyn LossFunction<T, D>>,
+    ) -> NeuralNet<T, D> {
         println!("Restoring Model: {}", model.name.bold().green());
-        let mut layers: Vec<Box<dyn Layer<T>>> = Vec::new();
+        let mut layers: Vec<Box<dyn Layer<T, D>>> = Vec::new();
 
         for layer_data in model.layers {
             match layer_data.layer_type {

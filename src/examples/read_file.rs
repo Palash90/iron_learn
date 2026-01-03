@@ -27,7 +27,10 @@ where
 /// Attempt to read and parse a saved `ModelData` JSON file.
 ///
 /// Returns `Some(ModelData)` on success or `None` if reading/parsing fails.
-pub fn deserialize_model(data_path: &str) -> Option<ModelData> {
+pub fn deserialize_model<D>(data_path: &str) -> Option<ModelData<D>>
+where
+    D: FloatingPoint,
+{
     let contents = match fs::read_to_string(&data_path) {
         Ok(c) => c,
         Err(_) => {
@@ -36,7 +39,7 @@ pub fn deserialize_model(data_path: &str) -> Option<ModelData> {
         }
     };
 
-    let data: ModelData = match serde_json::from_str(&contents) {
+    let data: ModelData<D> = match serde_json::from_str(&contents) {
         Ok(d) => d,
         Err(err) => {
             eprintln!("Failed to parse Model data: {}", err);

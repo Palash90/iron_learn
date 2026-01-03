@@ -392,6 +392,7 @@ impl SignedNumeric for Complex {}
 pub trait FloatingPoint: SignedNumeric {
     fn sqrt(&self) -> Self;
     fn abs(&self) -> Self;
+    fn cos(&self) -> Self;
 }
 
 impl FloatingPoint for f32 {
@@ -401,6 +402,9 @@ impl FloatingPoint for f32 {
     fn abs(&self) -> Self {
         f32::abs(*self)
     }
+    fn cos(&self) -> Self {
+        f32::cos(*self)
+    }
 }
 
 impl FloatingPoint for f64 {
@@ -409,5 +413,8 @@ impl FloatingPoint for f64 {
     }
     fn abs(&self) -> Self {
         f64::abs(*self)
+    }
+    fn cos(&self) -> Self {
+        f64::cos(*self)
     }
 }
