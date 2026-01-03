@@ -393,6 +393,12 @@ pub trait FloatingPoint: SignedNumeric {
     fn sqrt(&self) -> Self;
     fn abs(&self) -> Self;
     fn cos(&self) -> Self;
+    fn sin(&self) -> Self;
+    fn tan(&self) -> Self;
+    fn tanh(&self) -> Self;
+    fn exp(&self) -> Self;
+    fn ln(&self) -> Self;
+    fn log10(&self) -> Self;
 }
 
 impl FloatingPoint for f32 {
@@ -405,6 +411,30 @@ impl FloatingPoint for f32 {
     fn cos(&self) -> Self {
         f32::cos(*self)
     }
+
+    fn sin(&self) -> Self {
+        f32::sin(*self)
+    }
+
+    fn tan(&self) -> Self {
+        f32::tan(*self)
+    }
+
+    fn tanh(&self) -> Self {
+        f32::tanh(*self)
+    }
+
+    fn exp(&self) -> Self {
+        f32::exp(*self)
+    }
+
+    fn ln(&self) -> Self {
+        f32::ln(*self)
+    }
+
+    fn log10(&self) -> Self {
+        f32::log10(*self)
+    }
 }
 
 impl FloatingPoint for f64 {
@@ -416,5 +446,29 @@ impl FloatingPoint for f64 {
     }
     fn cos(&self) -> Self {
         f64::cos(*self)
+    }
+
+    fn sin(&self) -> Self {
+        f64::sin(*self)
+    }
+
+    fn tan(&self) -> Self {
+        f64::tan(*self)
+    }
+
+    fn tanh(&self) -> Self {
+        f64::tanh(*self)
+    }
+
+    fn exp(&self) -> Self {
+        f64::exp(*self)
+    }
+
+    fn ln(&self) -> Self {
+        f64::ln(*self)
+    }
+
+    fn log10(&self) -> Self {
+        f64::log10(*self)
     }
 }

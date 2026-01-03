@@ -122,7 +122,7 @@ fn sigmoid(x: TensorType) -> TensorType {
 
 #[test]
 pub fn fn_test() {
-    let m1 = CpuTensor::new(vec![1, 2], vec![1, 2]).unwrap();
+    let m1 = CpuTensor::new(vec![1, 2], vec![1.0, 2.0]).unwrap();
 
     let result =
         CpuTensor::new(vec![1, 2], vec![TensorType::sin(1.0), TensorType::sin(2.0)]).unwrap();

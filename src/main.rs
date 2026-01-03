@@ -31,18 +31,19 @@ where
 
 fn main() {
     let ctx = iron_learn::examples::init::init_runtime();
+    type DataType = f32;
 
     #[cfg(feature = "cuda")]
     {
         if ctx.gpu_enabled {
             println!("Running GPU-based training...\n");
-            let _ = run_ml::<GpuTensor<f32>, f32>(ctx.example_mode);
+            let _ = run_ml::<GpuTensor<DataType>, DataType>(ctx.example_mode);
             println!("\n✓ All training tasks completed");
             return;
         }
     }
 
     println!("Running CPU-based training...\n");
-    let _ = run_ml::<CpuTensor<f32>, f32>(ctx.example_mode);
+    let _ = run_ml::<CpuTensor<DataType>, DataType>(ctx.example_mode);
     println!("\n✓ All training tasks completed");
 }

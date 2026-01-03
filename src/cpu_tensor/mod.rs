@@ -1,7 +1,7 @@
 use crate::tensor::Tensor;
 mod display;
 
-use crate::numeric::{Numeric, SignedNumeric};
+use crate::numeric::{FloatingPoint, Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
 use std::ops::{Add, Mul, Neg, Sub};
 
@@ -44,26 +44,36 @@ enum OpType {
 
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
 impl<T: Numeric> CpuTensor<T> {
-    fn _sigmoid(t: f32) -> f32 {
+    fn _sigmoid(t: T) -> T
+    where
+        T: FloatingPoint,
+    {
         // Numerically stable sigmoid implementation
         // Avoids overflow for large positive/negative values
-        if t >= 0.0 {
-            1.0 / (1.0 + (-t).exp())
+        if t.f32() >= 0.0 {
+            T::one() / (T::one() + (-t).exp())
         } else {
-            t.exp() / (1.0 + t.exp())
+            t.exp() / (T::one() + t.exp())
         }
     }
 
-    fn element_op(&self, op_type: OpType) -> CpuTensor<f32> {
+    fn element_op(&self, op_type: OpType) -> CpuTensor<T>
+    where
+        T: FloatingPoint,
+    {
         let result = match op_type {
-            OpType::EXP => self.data.iter().map(|t| f32::exp(t.f32())).collect(),
-            OpType::COS => self.data.iter().map(|t| f32::cos(t.f32())).collect(),
-            OpType::SIN => self.data.iter().map(|t| f32::sin(t.f32())).collect(),
-            OpType::TAN => self.data.iter().map(|t| f32::tan(t.f32())).collect(),
-            OpType::TANH => self.data.iter().map(|t| f32::tanh(t.f32())).collect(),
-            OpType::SIGMOID => self.data.iter().map(|t| Self::_sigmoid(t.f32())).collect(),
-            OpType::LOG => self.data.iter().map(|t| f32::log10(t.f32())).collect(),
-            OpType::LN => self.data.iter().map(|t| f32::ln(t.f32())).collect(),
+            OpType::EXP => self.data.iter().map(|t| T::exp(t)).collect(),
+            OpType::COS => self.data.iter().map(|t| T::cos(t)).collect(),
+            OpType::SIN => self.data.iter().map(|t| T::sin(t)).collect(),
+            OpType::TAN => self.data.iter().map(|t| T::tan(t)).collect(),
+            OpType::TANH => self.data.iter().map(|t| T::tanh(t)).collect(),
+            OpType::SIGMOID => self
+                .data
+                .iter()
+                .map(|t| Self::_sigmoid(t.clone()))
+                .collect(),
+            OpType::LOG => self.data.iter().map(|t| T::log10(t)).collect(),
+            OpType::LN => self.data.iter().map(|t| T::ln(t)).collect(),
         };
 
         CpuTensor::new(self.shape.clone(), result).unwrap()
@@ -487,10 +497,10 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
 
 impl<T> TensorMath<T> for CpuTensor<T>
 where
-    T: Numeric,
+    T: FloatingPoint,
 {
-    type MathOutputElem = f32;
-    type MathOutput = CpuTensor<f32>;
+    type MathOutputElem = T;
+    type MathOutput = CpuTensor<T>;
 
     fn sigmoid(&self) -> Result<Self::MathOutput, String> {
         Ok(self.element_op(OpType::SIGMOID))
