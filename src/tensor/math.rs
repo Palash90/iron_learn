@@ -7,7 +7,7 @@ use crate::{Numeric, Tensor};
 /// result type (for example `CpuTensor<f64>` or `GpuTensor<f32>`). Each
 /// operation returns a `Result` so implementations can surface errors from
 /// allocation or device/kernel failures.
-pub trait TensorMath<T: Numeric>: Tensor<T> + Sized {
+pub trait TensorMath<T: FloatingPoint>: Tensor<T> + Sized {
     /// The element type of the resulting math tensor (must be floating point).
     type MathOutputElem: FloatingPoint;
 
