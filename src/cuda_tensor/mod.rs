@@ -48,7 +48,6 @@ use cust::stream::Stream;
 #[derive(Clone, Copy, Debug)]
 enum OpType {
     EXP = 0,
-    SCALE = 1,
     SIN = 2,
     COS = 3,
     TAN = 4,
@@ -139,7 +138,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> Tensor<T> for GpuTensor<T> {
 
     /// Scale each element by `scalar`.
     fn scale(&self, scalar: T) -> Result<Self, String> {
-        self.element_op(OpType::SCALE, scalar)
+        self._s(scalar)
     }
 
     /// Synchronize the current CUDA stream and block until all device work
@@ -207,7 +206,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> Mul for GpuTensor<T> {
 impl<T: SignedNumeric + Zeroable + DeviceCopy> Neg for GpuTensor<T> {
     type Output = Result<Self, String>;
     fn neg(self) -> Result<Self, String> {
-        self.element_op(OpType::SCALE, -T::one())
+        self._s(-T::one())
     }
 }
 
@@ -265,7 +264,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
         return true;
     }
 
-    fn element_op(&self, op_type: OpType, scale: T) -> Result<Self, String> {
+    fn element_op(&self, op_type: OpType) -> Result<Self, String> {
         let total_elements: u32 = self.shape.iter().product();
         let threads_per_block = 1024; // Use a typical 1D block size
         let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
@@ -282,6 +281,30 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
                 result.as_device_ptr(),
                 total_elements as i32,
                 op_type as i32,
+                1.0_f32
+            ));
+        };
+
+        Ok(Self::_with_device_buffer(self.shape.clone(), result))
+    }
+
+    fn _s(&self, scale: T) -> Result<Self, String> {
+        let total_elements: u32 = self.shape.iter().product();
+        let threads_per_block = 1024; // Use a typical 1D block size
+        let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
+
+        let result = self._get_initialized_buffer(total_elements as usize);
+
+        let stream = Self::_get_stream();
+
+        let operation = Self::_get_function("element_op");
+
+        unsafe {
+            let _ = launch!(operation<<<grid_1d, threads_per_block, 0, stream>>>(
+                self.device_buffer.as_device_ptr(),
+                result.as_device_ptr(),
+                total_elements as i32,
+                1 as i32,
                 scale
             ));
         };
@@ -632,34 +655,34 @@ where
     type MathOutput = GpuTensor<T>;
 
     fn sigmoid(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::SIGMOID, T::zero())
+        self.element_op(OpType::SIGMOID)
     }
 
     fn log(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::LOG, T::zero())
+        self.element_op(OpType::LOG)
     }
 
     fn ln(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::LN, T::zero())
+        self.element_op(OpType::LN)
     }
 
     fn sin(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::SIN, T::zero())
+        self.element_op(OpType::SIN)
     }
 
     fn cos(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::COS, T::zero())
+        self.element_op(OpType::COS)
     }
 
     fn tan(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::TAN, T::zero())
+        self.element_op(OpType::TAN)
     }
 
     fn tanh(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::TANH, T::zero())
+        self.element_op(OpType::TANH)
     }
 
     fn exp(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::EXP, T::zero())
+        self.element_op(OpType::EXP)
     }
 }
