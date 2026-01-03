@@ -1,6 +1,8 @@
+use std::fmt::DebugSet;
+
 use serde::{Deserialize, Serialize};
 
-use crate::nn::NeuralNetDataType;
+use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
 use crate::{ActivationFn, Tensor};
 
@@ -13,9 +15,10 @@ pub enum LayerType {
     Sin,
 }
 /// Return the activation function and its derivative for `layer`.
-pub fn get_activations<T>(layer: &LayerType) -> (ActivationFn<T>, ActivationFn<T>)
+pub fn get_activations<T, D>(layer: &LayerType) -> (ActivationFn<T>, ActivationFn<T>)
 where
-    T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
+    T: TensorMath<D, MathOutput = T> + Tensor<D>,
+    D: FloatingPoint,
 {
     match layer {
         LayerType::Sigmoid => (sigmoid, sigmoid_prime),
@@ -29,17 +32,19 @@ where
 }
 
 /// Element-wise sigmoid activation.
-pub fn sigmoid<T>(input: &T) -> Result<T, String>
+pub fn sigmoid<T, D>(input: &T) -> Result<T, String>
 where
-    T: TensorMath<NeuralNetDataType, MathOutput = T>,
+    T: TensorMath<D, MathOutput = T>,
+    D: FloatingPoint,
 {
     input.sigmoid()
 }
 
 /// Derivative of sigmoid; expects the activation output as input.
-pub fn sigmoid_prime<T>(output: &T) -> Result<T, String>
+pub fn sigmoid_prime<T, D>(output: &T) -> Result<T, String>
 where
-    T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
+    T: TensorMath<D, MathOutput = T> + Tensor<D>,
+    D: FloatingPoint,
 {
     let one_minus_out = T::ones(&output.get_shape()).sub(output)?;
     let res = output.multiply(&one_minus_out);
@@ -48,17 +53,19 @@ where
 }
 
 /// Element-wise hyperbolic tangent activation.
-pub fn tanh<T>(input: &T) -> Result<T, String>
+pub fn tanh<T, D>(input: &T) -> Result<T, String>
 where
-    T: TensorMath<NeuralNetDataType, MathOutput = T>,
+    T: TensorMath<D, MathOutput = T>,
+    D: FloatingPoint,
 {
     input.tanh()
 }
 
 /// Derivative of `tanh`, expects activation output as input.
-pub fn tanh_prime<T>(output: &T) -> Result<T, String>
+pub fn tanh_prime<T, D>(output: &T) -> Result<T, String>
 where
-    T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
+    T: TensorMath<D, MathOutput = T> + Tensor<D>,
+    D: FloatingPoint,
 {
     let out_squared = output.multiply(output)?;
 
@@ -68,17 +75,19 @@ where
 }
 
 /// Element-wise sine activation.
-pub fn sin<T>(input: &T) -> Result<T, String>
+pub fn sin<T, D>(input: &T) -> Result<T, String>
 where
-    T: TensorMath<NeuralNetDataType, MathOutput = T>,
+    T: TensorMath<D, MathOutput = T>,
+    D: FloatingPoint,
 {
     input.sin()
 }
 
 /// Element-wise cosine function (used as derivative for `sin`).
-pub fn cos<T>(output: &T) -> Result<T, String>
+pub fn cos<T, D>(output: &T) -> Result<T, String>
 where
-    T: TensorMath<NeuralNetDataType, MathOutput = T> + Tensor<NeuralNetDataType>,
+    T: TensorMath<D, MathOutput = T> + Tensor<D>,
+    D: FloatingPoint,
 {
     output.cos()
 }
