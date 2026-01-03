@@ -6,8 +6,8 @@ mod types;
 use read_file::deserialize_data;
 use read_file::deserialize_model;
 
-use crate::MeanSquaredErrorLoss;
 use crate::commons::add_bias_term;
+use crate::MeanSquaredErrorLoss;
 
 use crate::nn::LayerType;
 use crate::nn::NeuralNetDataType;
@@ -125,7 +125,6 @@ where
     let predictions = nn.predict(&x).unwrap();
     draw_image(-1, &x_test, &predictions, 512, 512, name);
 
-    
     let _ = nn.fit(
         &x,
         &y,
@@ -136,7 +135,6 @@ where
         monitor,
         monitor_interval,
     );
-     
 
     if !name.contains(&"image") {
         let predictions = nn.predict(&x).unwrap();

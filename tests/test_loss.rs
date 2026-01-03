@@ -1,8 +1,6 @@
 #[cfg(test)]
 mod loss_tests {
-    use iron_learn::nn::loss_functions::{
-        BinaryCrossEntropy, LossFunction, MeanSquaredErrorLoss,
-    };
+    use iron_learn::nn::loss_functions::{BinaryCrossEntropy, LossFunction, MeanSquaredErrorLoss};
     use iron_learn::CpuTensor;
     use iron_learn::Tensor;
 

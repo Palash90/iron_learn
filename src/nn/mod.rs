@@ -3,8 +3,8 @@
 // ============================================================================
 
 pub mod builder;
-pub mod loss_functions;
 pub mod gradient_descent;
+pub mod loss_functions;
 
 // ============================================================================
 // Core Types

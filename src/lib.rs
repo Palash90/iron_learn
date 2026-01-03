@@ -10,6 +10,7 @@ pub mod examples;
 
 pub mod nn;
 mod numeric;
+pub mod one_hot;
 pub mod tensor;
 
 #[cfg(feature = "cuda")]
