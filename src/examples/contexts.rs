@@ -13,7 +13,7 @@
 
 use std::{sync::OnceLock, u32};
 
-use crate::neural_network::DistributionType;
+use crate::nn::DistributionType;
 
 /// Global singleton instance of application context
 ///

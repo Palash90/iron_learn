@@ -3,7 +3,7 @@ use crate::init_gpu;
 
 use clap::Parser;
 
-use crate::neural_network::DistributionType;
+use crate::nn::DistributionType;
 
 use super::contexts::init_context;
 use super::contexts::AppContext;

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::neural_network::NeuralNetDataType;
+use crate::nn::NeuralNetDataType;
 use crate::tensor::math::TensorMath;
 use crate::{ActivationFn, Tensor};
 

@@ -1,8 +1,8 @@
 use super::layers::*;
-use crate::neural_network::LayerType;
-use crate::neural_network::LossFunction;
-use crate::neural_network::ModelData;
-use crate::neural_network::NeuralNetDataType;
+use crate::nn::LayerType;
+use crate::nn::LossFunction;
+use crate::nn::ModelData;
+use crate::nn::NeuralNetDataType;
 use crate::tensor::math::TensorMath;
 use crate::NeuralNet;
 use crate::Tensor;

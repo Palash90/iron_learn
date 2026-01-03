@@ -1,4 +1,4 @@
-use crate::neural_network::NeuralNetDataType;
+use crate::nn::NeuralNetDataType;
 use crate::tensor::math::TensorMath;
 use crate::Numeric;
 use crate::SignedNumeric;

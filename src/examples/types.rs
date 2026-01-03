@@ -1,4 +1,4 @@
-use crate::neural_network::NeuralNetDataType;
+use crate::nn::NeuralNetDataType;
 use serde::{Deserialize, Serialize};
 
 /// Dataset container for single-precision (f32) examples.

@@ -1,5 +1,5 @@
 use super::NeuralNetDataType;
-use crate::neural_network::{get_activations, LayerType};
+use crate::nn::{get_activations, LayerType};
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 

@@ -1,13 +1,13 @@
 use super::layers::*;
 use super::NeuralNetDataType;
-use crate::neural_network::LossFunction;
+use crate::nn::LossFunction;
 use crate::numeric::Numeric;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use std::f32::consts::PI;
 
-use crate::neural_network::LayerData;
-use crate::neural_network::ModelData;
+use crate::nn::LayerData;
+use crate::nn::ModelData;
 use std::fs::File;
 use std::io;
 use std::io::Write;

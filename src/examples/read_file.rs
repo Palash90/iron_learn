@@ -1,7 +1,7 @@
 use std::fs;
 
 use super::types::{Data, DataDoublePrecision};
-use crate::neural_network::ModelData;
+use crate::nn::ModelData;
 
 /// Read and parse a dataset JSON file into a `Data` structure.
 ///
