@@ -8,7 +8,7 @@ use crate::Tensor;
 pub fn predict_linear<T, D>(x: &T, w: &T) -> Result<T, String>
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T>,
-    D: FloatingPoint
+    D: FloatingPoint,
 {
     x.mul(w)
 }
@@ -22,7 +22,7 @@ where
 pub fn linear_regression<T, D>(x: &T, y: &T, w: T, l: D, e: u32) -> Result<T, String>
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T>,
-    D: FloatingPoint
+    D: FloatingPoint,
 {
     let x_with_bias = add_bias_term(x)?;
     let mut weight = w;

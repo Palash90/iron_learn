@@ -19,7 +19,7 @@ use crate::{
 pub fn run_linear<T, D>() -> Result<(), String>
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T>,
-    D: FloatingPoint + From<f64>,
+    D: FloatingPoint,
 {
     let l = GLOBAL_CONTEXT
         .get()
@@ -66,7 +66,7 @@ where
 
     let predictions = denormalize_features(&predictions, &y_mean, &y_std);
 
-    let mut total_squared_error =D::zero();
+    let mut total_squared_error = D::zero();
     let total = xy.m_test as usize;
     let predictions_data = predictions.get_data();
     let y_test_data = y_test.get_data();
@@ -95,7 +95,7 @@ where
 pub fn run_logistic<T, D>() -> Result<(), String>
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T>,
-    D: FloatingPoint + From<f64>,
+    D: FloatingPoint,
 {
     let l = GLOBAL_CONTEXT
         .get()

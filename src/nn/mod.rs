@@ -47,7 +47,6 @@ pub type NeuralNetDataType = f32;
 /// Function pointer type for activation functions and their derivatives.
 pub type ActivationFn<T> = fn(&T) -> Result<T, String>;
 
-
 // ============================================================================
 // Activation Functions
 // ============================================================================

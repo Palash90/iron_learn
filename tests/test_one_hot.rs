@@ -6,9 +6,9 @@ mod tests {
     };
 
     #[cfg(feature = "cuda")]
-    use iron_learn::GpuTensor;
-#[cfg(feature = "cuda")]
     use iron_learn::init_gpu;
+    #[cfg(feature = "cuda")]
+    use iron_learn::GpuTensor;
 
     // Assuming these are your two implementations
 

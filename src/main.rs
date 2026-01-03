@@ -1,18 +1,21 @@
 use iron_learn::examples::{run_linear, run_logistic, run_neural_net};
 
+use iron_learn::numeric::FloatingPoint;
 use iron_learn::tensor::math::TensorMath;
 use iron_learn::{CpuTensor, Tensor};
-use iron_learn::numeric::FloatingPoint;
 
 #[cfg(feature = "cuda")]
 use iron_learn::GpuTensor;
+use rand::rand_core::le;
 
 fn run_ml<T, D>()
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
     D: FloatingPoint,
 {
-   
+    let _ =run_linear::<T, D>();
+    let _ = run_logistic::<T, D>();
+    //let _ = run_neural_net::<T, D>();
 }
 
 fn main() {

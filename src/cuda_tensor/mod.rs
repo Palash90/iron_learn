@@ -17,6 +17,7 @@
 use crate::cuda_tensor::custom_device_buffer::{
     get_device_buffer, get_device_buffer_from_slice, CustomDeviceBuffer,
 };
+use crate::numeric::FloatingPoint;
 use crate::numeric::{Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
 use crate::GPU_CONTEXT;
@@ -24,7 +25,6 @@ use core::ffi::c_void;
 use cublas_sys::*;
 use cust::memory::bytemuck::Zeroable;
 use std::ops::{Add, Mul, Neg, Sub};
-use crate::numeric::FloatingPoint;
 
 use crate::Tensor;
 mod custom_device_buffer;

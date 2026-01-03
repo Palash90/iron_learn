@@ -16,7 +16,6 @@ use std::time::Duration;
 
 use crate::nn::DistributionType;
 
-
 use crate::commons::add_bias_term;
 use crate::MeanSquaredErrorLoss;
 
