@@ -175,6 +175,7 @@ pub fn init_runtime() -> &'static AppContext {
                 args.name,
                 args.restore,
                 distribution,
+                args.mode
             );
         }
     } else {
