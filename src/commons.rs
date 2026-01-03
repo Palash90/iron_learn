@@ -77,21 +77,22 @@ where
     let mut data_mean = vec![D::zero(); n];
     let mut data_std_dev = vec![D::zero(); n];
 
+    let data_vec = data.get_data();
+
     // For each feature
     for j in 0..n {
         let mut mean = D::zero();
         let mut variance = D::zero();
-        let data = data.get_data();
 
         // Calculate mean
         for i in 0..m {
-            mean = mean + data[i * n + j];
+            mean = mean + data_vec[i * n + j];
         }
         mean = mean / D::from_u32(m as u32);
 
         // Calculate variance
         for i in 0..m {
-            let diff = data[i * n + j] - mean;
+            let diff = data_vec[i * n + j] - mean;
             variance = variance + diff * diff;
         }
         variance = variance / D::from_u32(m as u32);
