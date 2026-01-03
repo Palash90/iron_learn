@@ -6,7 +6,6 @@ use iron_learn::{CpuTensor, Tensor};
 
 #[cfg(feature = "cuda")]
 use iron_learn::GpuTensor;
-use rand::rand_core::le;
 
 fn run_ml<T, D>()
 where

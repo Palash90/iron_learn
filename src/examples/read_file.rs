@@ -45,20 +45,3 @@ pub fn deserialize_model(data_path: &str) -> Option<ModelData> {
     };
     Some(data)
 }
-
-/// Read and parse a dataset JSON file into a `DataDoublePrecision` structure.
-pub fn deserialize_data_double_precision<D>(data_path: &str) -> Result<Data<D>, serde_json::Error>
-where
-    D: FloatingPoint,
-{
-    let contents =
-        fs::read_to_string(&data_path).expect(&format!("Failed to read data from {}", data_path));
-    let data: Data<D> = match serde_json::from_str(&contents) {
-        Ok(d) => d,
-        Err(err) => {
-            eprintln!("Failed to parse JSON data: {}", err);
-            return Result::Err(err);
-        }
-    };
-    Ok(data.clone())
-}
