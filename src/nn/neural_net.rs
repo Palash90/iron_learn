@@ -7,11 +7,11 @@ use std::f64::consts::PI;
 
 use crate::nn::LayerData;
 use crate::nn::ModelData;
+use std::fs;
 use std::fs::File;
 use std::io;
 use std::io::Write;
 use std::path::Path;
- use std::fs;
 
 /// Feed-forward neural network container.
 ///
@@ -146,7 +146,7 @@ where
         Ok(())
     }
     /// Serialize and write the model weights and metadata to `filepath`.
-    pub fn save_model(&self, filepath: &str){
+    pub fn save_model(&self, filepath: &str) {
         let mut model_storage = ModelData {
             name: self.name.clone(),
             parameter_count: self.parameter_count,
@@ -184,6 +184,5 @@ where
         let _ = file.write_all(json_data.as_bytes());
 
         println!("Model successfully saved to {}", filepath);
-
     }
 }

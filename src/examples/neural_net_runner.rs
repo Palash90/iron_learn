@@ -19,6 +19,8 @@ use crate::nn::DistributionType;
 
 use crate::commons::add_bias_term;
 use crate::MeanSquaredErrorLoss;
+use std::fs;
+use std::path::Path;
 
 /// Train and evaluate a neural network using configuration from the global context.
 ///
@@ -56,6 +58,17 @@ where
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
 
+    let x = match example {
+        ExampleMode::ImageNeuralNet => {
+            let pixel = (xy.m as f64).sqrt() as u32 - 1;
+
+            println!("Image size: {}", pixel);
+
+            x.scale(D::one() / (D::from_u32(pixel)))?
+        }
+        _ => x,
+    };
+
     let x_test = match example {
         ExampleMode::ImageNeuralNet => T::new(vec![xy.m, xy.n], xy.x.clone())?,
         _ => T::new(vec![xy.m_test, xy.n], xy.x_test.clone()).unwrap(),
@@ -78,9 +91,12 @@ where
         _ => add_bias_term(&x).unwrap(),
     };
 
-    let loss_function_instance = Box::new(MeanSquaredErrorLoss);
+    let x_test = match example {
+        ExampleMode::XorNeuralNet => x_test,
+        _ => add_bias_term(&x_test).unwrap(),
+    };
 
-    let nn = define_neural_net::<T, D>(hidden_length, input_length, distribution);
+    let loss_function_instance = Box::new(MeanSquaredErrorLoss);
 
     let (l, epoch_offset, mut nn) = match !weights_path.is_empty() && restore {
         true => match deserialize_model::<D>(&weights_path) {
@@ -89,9 +105,19 @@ where
                 model.epoch.clone(),
                 NeuralNetBuilder::build_from_model(model, loss_function_instance),
             ),
-            None => (lr, 0, nn.build(loss_function_instance, name)),
+            None => (
+                lr,
+                0,
+                define_neural_net::<T, D>(hidden_length, input_length, distribution)
+                    .build(loss_function_instance, name),
+            ),
         },
-        false => (lr, 0, nn.build(loss_function_instance, name)),
+        false => (
+            lr,
+            0,
+            define_neural_net::<T, D>(hidden_length, input_length, distribution)
+                .build(loss_function_instance, name),
+        ),
     };
 
     let mut start_time = Instant::now();
@@ -110,9 +136,8 @@ where
 
             if epoch % (monitor_interval) == 0 {
                 if example == ExampleMode::ImageNeuralNet {
-                    draw_image(epoch as i32, &x, &y_pred, 200, 200, name);
-                } else {
-                    y_pred.print_matrix();
+                    let pixel = (xy.m as f64).sqrt() as u32;
+                    draw_image(epoch as i32, &x, &y_pred, pixel, pixel, name);
                 }
 
                 nn.save_model(&weights_path);
@@ -127,23 +152,6 @@ where
         }
     };
 
-    if !restore {
-        if name.contains(&"image") {
-            draw_image(-1, &x, &y, 200, 200, name);
-        }
-    }
-
-    let predictions = nn.predict(&x_test).unwrap();
-
-    if example == ExampleMode::ImageNeuralNet {
-        draw_image(-1, &x_test, &predictions, 512, 512, name);
-    } else {
-        let error = predictions.sub(&y_test)?;
-        let error = error.sum()?;
-        println!("Test Error:");
-        error.print_matrix();
-    }
-
     if !predict_only {
         let _ = nn.fit(
             &x,
@@ -155,6 +163,27 @@ where
             monitor,
             monitor_interval,
         );
+    } else {
+        println!("Skipped Fitting as in Predict Only Mode");
+    }
+
+    let predictions = nn.predict(&x_test).unwrap();
+
+    if example == ExampleMode::ImageNeuralNet {
+        let pixel = (xy.m as f64).sqrt() as u32;
+        draw_image(-1, &x_test, &predictions, pixel, pixel, name);
+    } else {
+        let error = predictions.sub(&y_test).unwrap();
+        let error = error.sum().unwrap();
+        println!("Test Error:");
+        error.print_matrix();
+
+        println!("X Test:");
+        x_test.print_matrix();
+        println!("Y Test:");
+        y_test.print_matrix();
+        println!("Predictions:");
+        predictions.print_matrix();
     }
 
     Ok(())
@@ -169,7 +198,6 @@ where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
     D: FloatingPoint + 'static,
 {
-    println!("Input {input}, Hidden {hl}");
     let mut nn = NeuralNetBuilder::<T, D>::new();
 
     let _image_layers = [
@@ -207,8 +235,8 @@ where
     let y_data = y.get_data();
 
     for i in 0..y_data.len() {
-        let x_co = (x_data[2 * i].f64() * (width - 1) as f64).round() as u32;
-        let y_co = (x_data[2 * i + 1].f64() * (height - 1) as f64).round() as u32;
+        let x_co = (x_data[2 * i].f64() as f64).round() as u32;
+        let y_co = (x_data[2 * i + 1].f64() as f64).round() as u32;
         let pixel = 255 - (y_data[i].f64() * 255.0) as u8;
 
         image_data.push((x_co, y_co, pixel));
@@ -227,6 +255,11 @@ fn draw_grid(points: Vec<(u32, u32, u8)>, epoch: i32, height: u32, width: u32, n
     }
 
     let image_file = name.to_owned() + "/images/output" + &epoch.to_string() + ".png";
+
+    let path = Path::new(&image_file);
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent).unwrap(); // Creates all directories if they don't exist
+    }
 
     match imgbuf.save(&image_file) {
         Ok(_) => println!("Image successfully rendered to {}", image_file),

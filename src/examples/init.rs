@@ -14,7 +14,7 @@ use clap::ValueEnum;
 pub enum ExampleMode {
     /// Linear Regression
     Linear,
-    /// Logistic Regression 
+    /// Logistic Regression
     Logistic,
     /// Neural Network - Generic
     NeuralNet,
@@ -34,7 +34,7 @@ struct Args {
     #[arg(long, short, default_value = "false")]
     cpu: bool,
 
-    #[arg(long, short='x', default_value = "linear")]
+    #[arg(long, short = 'x', default_value = "linear")]
     mode: ExampleMode,
 
     #[arg(long, short, default_value = "false")]
@@ -138,7 +138,7 @@ pub fn init_runtime() -> &'static AppContext {
                             args.restore,
                             distribution,
                             args.mode,
-                            args.predict_only
+                            args.predict_only,
                         );
                     }
                     Err(e) => {
@@ -159,7 +159,7 @@ pub fn init_runtime() -> &'static AppContext {
                             args.restore,
                             distribution,
                             args.mode,
-                            args.predict_only
+                            args.predict_only,
                         );
                     }
                 }
@@ -185,7 +185,7 @@ pub fn init_runtime() -> &'static AppContext {
                 args.restore,
                 distribution,
                 args.mode,
-                args.predict_only
+                args.predict_only,
             );
         }
     } else {
@@ -205,7 +205,7 @@ pub fn init_runtime() -> &'static AppContext {
             args.restore,
             distribution,
             args.mode,
-            args.predict_only
+            args.predict_only,
         );
     }
 
