@@ -31,7 +31,7 @@ impl CudaMemoryPool {
         // Create a memory pool for the device
         let mut pool = std::ptr::null_mut();
         let pool_props = CUmemPoolProps {
-            allocType: cust::sys::CUmemAllocationType::CU_MEM_ALLOCATION_TYPE_PINNED,
+            allocType: cust::sys::CUmemAllocationType::CU_MEM_ALLOCATION_TYPE_MAX,
             handleTypes: cust::sys::CUmemAllocationHandleType::CU_MEM_HANDLE_TYPE_NONE,
             location: cust::sys::CUmemLocation {
                 type_: cust::sys::CUmemLocationType_enum::CU_MEM_LOCATION_TYPE_DEVICE,
@@ -41,11 +41,18 @@ impl CudaMemoryPool {
             reserved: [0u8; 64],
         };
 
-        unsafe { cuMemPoolCreate(&mut pool, &pool_props) };
-
-        let reserve_size: usize = 2048 * 1024 * 1024;
-        let mut reserve_ptr: CUdeviceptr = 0;
         unsafe {
+            cuMemPoolCreate(&mut pool, &pool_props);
+            let release_threshold: u64 = 2048 * 1024 * 1024; // 2 GB
+            cuMemPoolSetAttribute(
+                pool,
+                CUmemPool_attribute_enum::CU_MEMPOOL_ATTR_RELEASE_THRESHOLD,
+                &release_threshold as *const _ as *mut std::ffi::c_void,
+            );
+
+            let reserve_size: usize = 3072 * 1024 * 1024;
+            let mut reserve_ptr: CUdeviceptr = 0;
+
             // This is often a synchronous call initially, but it gets the memory from the driver
             // and makes it available to the pool.
             cuMemAllocFromPoolAsync(

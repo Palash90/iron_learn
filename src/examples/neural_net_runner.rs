@@ -176,7 +176,12 @@ where
             .iter()
             .map(|x| (x.f64() * 255.0) as u8)
             .collect();
-        let coordinates = x_test.get_data().clone().iter().map(|x| x.f64() as u32).collect();
+        let coordinates = x_test
+            .get_data()
+            .clone()
+            .iter()
+            .map(|x| x.f64() as u32)
+            .collect();
 
         draw_image(-1, &coordinates, &pixels, size, size, name);
     } else {

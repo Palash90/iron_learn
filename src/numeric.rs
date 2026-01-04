@@ -436,7 +436,7 @@ impl FloatingPoint for f32 {
     fn log10(&self) -> Self {
         f32::log10(*self)
     }
-    
+
     fn round(&self) -> Self {
         f32::round(*self)
     }
@@ -476,7 +476,7 @@ impl FloatingPoint for f64 {
     fn log10(&self) -> Self {
         f64::log10(*self)
     }
-    
+
     fn round(&self) -> Self {
         f64::round(*self)
     }
