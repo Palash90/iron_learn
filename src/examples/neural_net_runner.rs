@@ -1,4 +1,5 @@
 use crate::examples::contexts::GLOBAL_CONTEXT;
+use crate::examples::init::ExampleMode;
 use crate::examples::read_file::deserialize_data;
 use crate::examples::read_file::deserialize_model;
 use crate::nn::LayerType;
@@ -45,23 +46,41 @@ where
     let restore = GLOBAL_CONTEXT.get().unwrap().restore;
     let lr_adjustment = GLOBAL_CONTEXT.get().unwrap().lr_adjust;
     let distribution = &GLOBAL_CONTEXT.get().unwrap().distribution;
+    let predict_only = GLOBAL_CONTEXT.get().unwrap().predict_only;
+    let example = GLOBAL_CONTEXT.get().unwrap().example_mode;
+    let weights_path = name.to_owned() + "/" + &weights_path;
 
     let xy =
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
-    let x = T::new(vec![xy.m, xy.n], xy.x.clone()).unwrap();
-    let y = T::new(vec![xy.m, 1], xy.y.clone()).unwrap();
-    let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
-    let y_test = T::new(vec![xy.m_test, xy.n], xy.y_test.clone())?;
+    let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
+    let y = T::new(vec![xy.m, 1], xy.y.clone())?;
 
-    let loss_function_instance = Box::new(MeanSquaredErrorLoss);
+    let x_test = match example {
+        ExampleMode::ImageNeuralNet => T::new(vec![xy.m, xy.n], xy.x.clone())?,
+        _ => T::new(vec![xy.m_test, xy.n], xy.x_test.clone()).unwrap(),
+    };
+
+    let y_test = match example {
+        ExampleMode::ImageNeuralNet => T::new(vec![xy.m, 1], xy.y.clone())?,
+        _ => T::new(vec![xy.m_test, 1], xy.y_test.clone())?,
+    };
+
     let input_length = xy.n;
 
-    let input_length = input_length; //  + 1; // To compensate for bias
+    let input_length = match example {
+        ExampleMode::XorNeuralNet => input_length,
+        _ => input_length + 1,
+    };
+
+    let x = match example {
+        ExampleMode::XorNeuralNet => x,
+        _ => add_bias_term(&x).unwrap(),
+    };
+
+    let loss_function_instance = Box::new(MeanSquaredErrorLoss);
 
     let nn = define_neural_net::<T, D>(hidden_length, input_length, distribution);
-
-    let weights_path = name.to_owned() + "/" + &weights_path;
 
     let (l, epoch_offset, mut nn) = match !weights_path.is_empty() {
         true => match deserialize_model::<D>(&weights_path) {
@@ -118,16 +137,18 @@ where
     let predictions = nn.predict(&x).unwrap();
     draw_image(-1, &x_test, &predictions, 512, 512, name);
 
-    let _ = nn.fit(
-        &x,
-        &y,
-        e as usize,
-        epoch_offset,
-        l,
-        lr_adjustment,
-        monitor,
-        monitor_interval,
-    );
+    if !predict_only {
+        let _ = nn.fit(
+            &x,
+            &y,
+            e as usize,
+            epoch_offset,
+            l,
+            lr_adjustment,
+            monitor,
+            monitor_interval,
+        );
+    }
 
     if !name.contains(&"image") {
         let predictions = nn.predict(&x).unwrap();
@@ -151,6 +172,7 @@ where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
     D: FloatingPoint + 'static,
 {
+    println!("Input {input}, Hidden {hl}");
     let mut nn = NeuralNetBuilder::<T, D>::new();
 
     let _image_layers = [

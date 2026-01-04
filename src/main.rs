@@ -22,7 +22,7 @@ where
             Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
         },
-        ExampleMode::NeuralNet => match run_neural_net::<T, D>() {
+        _ => match run_neural_net::<T, D>() {
             Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
         },

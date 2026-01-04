@@ -60,6 +60,7 @@ pub struct AppContext {
     pub restore: bool,
     pub distribution: DistributionType,
     pub example_mode: ExampleMode,
+    pub predict_only:bool
 }
 
 /// Initialize the global application context
@@ -101,7 +102,8 @@ pub fn init_context(
     name: String,
     restore: bool,
     distribution: DistributionType,
-    example_mode: ExampleMode
+    example_mode: ExampleMode,
+    predict_only:bool
 ) {
     let ctx = AppContext {
         app_name,
@@ -118,7 +120,8 @@ pub fn init_context(
         name,
         restore,
         distribution,
-        example_mode
+        example_mode,
+        predict_only
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

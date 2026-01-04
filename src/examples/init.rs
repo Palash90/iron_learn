@@ -16,8 +16,12 @@ pub enum ExampleMode {
     Linear,
     /// Logistic Regression 
     Logistic,
-    /// Neural Network
+    /// Neural Network - Generic
     NeuralNet,
+    /// Neural Network - XOR
+    XorNeuralNet,
+    /// Neural Network - Image
+    ImageNeuralNet,
 }
 
 #[derive(Parser)]
@@ -62,6 +66,9 @@ struct Args {
 
     #[arg(long, short = 'D', default_value = "Normal")]
     distribution: String,
+
+    #[arg(long, default_value = "false")]
+    predict_only: bool,
 }
 
 /// Initialize the application runtime and global context.
@@ -130,7 +137,8 @@ pub fn init_runtime() -> &'static AppContext {
                             args.name,
                             args.restore,
                             distribution,
-                            args.mode
+                            args.mode,
+                            args.predict_only
                         );
                     }
                     Err(e) => {
@@ -150,7 +158,8 @@ pub fn init_runtime() -> &'static AppContext {
                             args.name,
                             args.restore,
                             distribution,
-                            args.mode
+                            args.mode,
+                            args.predict_only
                         );
                     }
                 }
@@ -175,7 +184,8 @@ pub fn init_runtime() -> &'static AppContext {
                 args.name,
                 args.restore,
                 distribution,
-                args.mode
+                args.mode,
+                args.predict_only
             );
         }
     } else {
@@ -194,7 +204,8 @@ pub fn init_runtime() -> &'static AppContext {
             args.name,
             args.restore,
             distribution,
-            args.mode
+            args.mode,
+            args.predict_only
         );
     }
 
