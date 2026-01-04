@@ -51,13 +51,31 @@ where
     let predict_only = GLOBAL_CONTEXT.get().unwrap().predict_only;
     let example = GLOBAL_CONTEXT.get().unwrap().example_mode;
     let weights_path = name.to_owned() + "/" + &weights_path;
+    let resize = GLOBAL_CONTEXT.get().unwrap().resize;
 
     let xy =
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
-    let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
+
+    let x_test = match example {
+        ExampleMode::ImageNeuralNet => match resize {
+            0 => T::new(vec![xy.m, xy.n], xy.x.clone())?,
+            n_pixels => {
+                println!("Creating canvas for {n_pixels} x {n_pixels} pixels");
+                let mut coords = vec![];
+                for i in 0..n_pixels {
+                    for j in 0..n_pixels {
+                        coords.push(D::from_u32(j));
+                        coords.push(D::from_u32(i));
+                    }
+                }
+                T::new(vec![n_pixels * n_pixels, xy.n], coords)?
+            }
+        },
+        _ => T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?,
+    };
 
     let y_test = match example {
         ExampleMode::ImageNeuralNet => T::new(vec![xy.m, 1], xy.y.clone())?,
@@ -150,7 +168,7 @@ where
     let predictions = nn.predict(&x_test_with_bias).unwrap();
 
     if example == ExampleMode::ImageNeuralNet {
-        let size = (xy.m as f64).sqrt() as u32;
+        let size = (x_test_with_bias.get_shape()[0] as f64).sqrt() as u32;
 
         let pixels = predictions
             .get_data()
@@ -158,7 +176,7 @@ where
             .iter()
             .map(|x| (x.f64() * 255.0) as u8)
             .collect();
-        let coordinates = xy.x.clone().iter().map(|x| x.f64() as u32).collect();
+        let coordinates = x_test.get_data().clone().iter().map(|x| x.f64() as u32).collect();
 
         draw_image(-1, &coordinates, &pixels, size, size, name);
     } else {
@@ -185,10 +203,12 @@ where
 {
     let (x_normalized, x_test_normalized) = match mode {
         ExampleMode::ImageNeuralNet => {
-            let size = (x.get_shape()[0] as f64).sqrt() as u32;
+            let x_size = (x.get_shape()[0] as f64).sqrt() as u32;
+            let x_norm = x.scale(D::one() / D::from_u32(x_size))?;
 
-            let x_norm = x.scale(D::one() / D::from_u32(size))?;
+            let size = (x_test.get_shape()[0] as f64).sqrt() as u32;
             let x_test_norm = x_test.scale(D::one() / D::from_u32(size))?;
+
             (x_norm, x_test_norm)
         }
         _ => (
@@ -199,10 +219,7 @@ where
 
     let x_with_bias = add_bias_term(&x_normalized)?;
 
-    let x_test_with_bias = match mode {
-        ExampleMode::ImageNeuralNet => add_bias_term(&x_normalized)?,
-        _ => add_bias_term(&x_test_normalized)?,
-    };
+    let x_test_with_bias = add_bias_term(&x_test_normalized)?;
 
     let input_length = x.get_shape()[1] + 1;
 
@@ -252,6 +269,7 @@ fn draw_image(
     width: u32,
     name: &String,
 ) {
+    println!("Drawing {height} x {width} images");
     let mut image_data: Vec<(u32, u32, u8)> = vec![];
 
     for i in 0..y_data.len() {
@@ -260,7 +278,6 @@ fn draw_image(
         let pixel = 255 - y_data[i];
 
         image_data.push((x_co, y_co, pixel));
-
     }
 
     draw_grid(image_data, epoch, height, width, name);

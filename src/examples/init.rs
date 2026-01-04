@@ -69,6 +69,9 @@ struct Args {
 
     #[arg(long, default_value = "false")]
     predict_only: bool,
+
+    #[arg(long, default_value = "0")]
+    resize: u32,
 }
 
 /// Initialize the application runtime and global context.
@@ -139,6 +142,7 @@ pub fn init_runtime() -> &'static AppContext {
                             distribution,
                             args.mode,
                             args.predict_only,
+                            args.resize,
                         );
                     }
                     Err(e) => {
@@ -160,6 +164,7 @@ pub fn init_runtime() -> &'static AppContext {
                             distribution,
                             args.mode,
                             args.predict_only,
+                            args.resize,
                         );
                     }
                 }
@@ -186,6 +191,7 @@ pub fn init_runtime() -> &'static AppContext {
                 distribution,
                 args.mode,
                 args.predict_only,
+                args.resize,
             );
         }
     } else {
@@ -206,6 +212,7 @@ pub fn init_runtime() -> &'static AppContext {
             distribution,
             args.mode,
             args.predict_only,
+            args.resize,
         );
     }
 
