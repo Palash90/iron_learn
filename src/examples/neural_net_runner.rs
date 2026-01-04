@@ -254,9 +254,6 @@ fn draw_image(
 ) {
     let mut image_data: Vec<(u32, u32, u8)> = vec![];
 
-    println!("{:?}", x_data);
-    println!("{:?}", y_data);
-
     for i in 0..y_data.len() {
         let x_co = x_data[2 * i];
         let y_co = x_data[2 * i + 1];
@@ -264,7 +261,6 @@ fn draw_image(
 
         image_data.push((x_co, y_co, pixel));
 
-        println!("[{}, {}, {}]", x_co, y_co, pixel);
     }
 
     draw_grid(image_data, epoch, height, width, name);
