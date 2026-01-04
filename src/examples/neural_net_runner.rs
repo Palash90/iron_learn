@@ -58,7 +58,7 @@ where
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
     let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
-    
+
     let y_test = match example {
         ExampleMode::ImageNeuralNet => T::new(vec![xy.m, 1], xy.y.clone())?,
         _ => T::new(vec![xy.m_test, 1], xy.y_test.clone())?,
@@ -183,14 +183,29 @@ where
     T: Tensor<D>,
     D: FloatingPoint,
 {
-    let x_with_bias = add_bias_term(x)?;
+    let (x_normalized, x_test_normalized) = match mode {
+        ExampleMode::ImageNeuralNet => {
+            let size = (x.get_shape()[0] as f64).sqrt() as u32;
+
+            let x_norm = x.scale(D::one() / D::from_u32(size))?;
+            let x_test_norm = x_test.scale(D::one() / D::from_u32(size))?;
+            (x_norm, x_test_norm)
+        }
+        _ => (
+            T::zeroes(x.get_shape()).add(x)?,
+            T::zeroes(x_test.get_shape()).add(x_test)?,
+        ),
+    };
+
+    let x_with_bias = add_bias_term(&x_normalized)?;
 
     let x_test_with_bias = match mode {
-        ExampleMode::ImageNeuralNet => add_bias_term(x)?,
-        _ => add_bias_term(x_test)?,
+        ExampleMode::ImageNeuralNet => add_bias_term(&x_normalized)?,
+        _ => add_bias_term(&x_test_normalized)?,
     };
 
     let input_length = x.get_shape()[1] + 1;
+
     Ok((x_with_bias, input_length, x_test_with_bias))
 }
 
