@@ -113,7 +113,7 @@ where
                         .get_data()
                         .clone()
                         .iter()
-                        .map(|x| x.f64() as u32)
+                        .map(|x| (x.f64() * 255.0) as u8)
                         .collect();
                     let coordinates = xy.x.clone().iter().map(|x| x.f64() as u32).collect();
 
@@ -156,7 +156,7 @@ where
             .get_data()
             .clone()
             .iter()
-            .map(|x| x.f64() as u32)
+            .map(|x| (x.f64() * 255.0) as u8)
             .collect();
         let coordinates = xy.x.clone().iter().map(|x| x.f64() as u32).collect();
 
@@ -247,7 +247,7 @@ where
 fn draw_image(
     epoch: i32,
     x_data: &Vec<u32>,
-    y_data: &Vec<u32>,
+    y_data: &Vec<u8>,
     height: u32,
     width: u32,
     name: &String,
@@ -258,9 +258,9 @@ fn draw_image(
     println!("{:?}", y_data);
 
     for i in 0..y_data.len() {
-        let x_co = x_data[2 * i] as u32;
-        let y_co = x_data[2 * i + 1] as u32;
-        let pixel = 255 - (y_data[i] * 255) as u8;
+        let x_co = x_data[2 * i];
+        let y_co = x_data[2 * i + 1];
+        let pixel = 255 - y_data[i];
 
         image_data.push((x_co, y_co, pixel));
 
