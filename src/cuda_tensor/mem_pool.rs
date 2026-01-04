@@ -31,7 +31,7 @@ impl CudaMemoryPool {
         // Create a memory pool for the device
         let mut pool = std::ptr::null_mut();
         let pool_props = CUmemPoolProps {
-            allocType: cust::sys::CUmemAllocationType::CU_MEM_ALLOCATION_TYPE_MAX,
+            allocType: cust::sys::CUmemAllocationType::CU_MEM_ALLOCATION_TYPE_PINNED,
             handleTypes: cust::sys::CUmemAllocationHandleType::CU_MEM_HANDLE_TYPE_NONE,
             location: cust::sys::CUmemLocation {
                 type_: cust::sys::CUmemLocationType_enum::CU_MEM_LOCATION_TYPE_DEVICE,
