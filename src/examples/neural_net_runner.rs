@@ -144,7 +144,6 @@ where
         error.print_matrix();
     }
 
-
     if !predict_only {
         let _ = nn.fit(
             &x,

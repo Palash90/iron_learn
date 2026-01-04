@@ -10,6 +10,8 @@ use crate::nn::ModelData;
 use std::fs::File;
 use std::io;
 use std::io::Write;
+use std::path::Path;
+ use std::fs;
 
 /// Feed-forward neural network container.
 ///
@@ -144,7 +146,7 @@ where
         Ok(())
     }
     /// Serialize and write the model weights and metadata to `filepath`.
-    pub fn save_model(&self, filepath: &str) {
+    pub fn save_model(&self, filepath: &str){
         let mut model_storage = ModelData {
             name: self.name.clone(),
             parameter_count: self.parameter_count,
@@ -173,9 +175,15 @@ where
         let json_data = serde_json::to_string_pretty(&model_storage)
             .expect("Failed to serialize model weights");
 
+        let path = Path::new(filepath);
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent).unwrap(); // Creates all directories if they don't exist
+        }
+
         let mut file = File::create(filepath).unwrap();
         let _ = file.write_all(json_data.as_bytes());
 
         println!("Model successfully saved to {}", filepath);
+
     }
 }
