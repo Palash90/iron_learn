@@ -82,16 +82,13 @@ where
 
     let nn = define_neural_net::<T, D>(hidden_length, input_length, distribution);
 
-    let (l, epoch_offset, mut nn) = match !weights_path.is_empty() {
+    let (l, epoch_offset, mut nn) = match !weights_path.is_empty() && restore {
         true => match deserialize_model::<D>(&weights_path) {
-            Some(model) => match restore {
-                true => (
-                    model.saved_lr.clone(),
-                    model.epoch.clone(),
-                    NeuralNetBuilder::build_from_model(model, loss_function_instance),
-                ),
-                false => (lr, 0, nn.build(loss_function_instance, name)),
-            },
+            Some(model) => (
+                model.saved_lr.clone(),
+                model.epoch.clone(),
+                NeuralNetBuilder::build_from_model(model, loss_function_instance),
+            ),
             None => (lr, 0, nn.build(loss_function_instance, name)),
         },
         false => (lr, 0, nn.build(loss_function_instance, name)),
@@ -112,8 +109,10 @@ where
             let y_pred = nn.predict(&x).unwrap();
 
             if epoch % (monitor_interval) == 0 {
-                if name.contains(&"image") {
+                if example == ExampleMode::ImageNeuralNet {
                     draw_image(epoch as i32, &x, &y_pred, 200, 200, name);
+                } else {
+                    y_pred.print_matrix();
                 }
 
                 nn.save_model(&weights_path);
@@ -134,8 +133,17 @@ where
         }
     }
 
-    let predictions = nn.predict(&x).unwrap();
-    draw_image(-1, &x_test, &predictions, 512, 512, name);
+    let predictions = nn.predict(&x_test).unwrap();
+
+    if example == ExampleMode::ImageNeuralNet {
+        draw_image(-1, &x_test, &predictions, 512, 512, name);
+    } else {
+        let error = predictions.sub(&y_test)?;
+        let error = error.sum()?;
+        println!("Test Error:");
+        error.print_matrix();
+    }
+
 
     if !predict_only {
         let _ = nn.fit(
@@ -148,16 +156,6 @@ where
             monitor,
             monitor_interval,
         );
-    }
-
-    if !name.contains(&"image") {
-        let predictions = nn.predict(&x).unwrap();
-        println!();
-        println!("Input:");
-        x.print_matrix();
-
-        println!("Predictions:");
-        predictions.print_matrix();
     }
 
     Ok(())
