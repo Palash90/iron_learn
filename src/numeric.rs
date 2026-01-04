@@ -390,6 +390,7 @@ impl SignedNumeric for Complex {}
 
 /// The `FloatingPoint` defines all the `SignedNumeric` types that can be signed like `f32` and `f64`.
 pub trait FloatingPoint: SignedNumeric {
+    fn round(&self) -> Self;
     fn sqrt(&self) -> Self;
     fn abs(&self) -> Self;
     fn cos(&self) -> Self;
@@ -435,6 +436,10 @@ impl FloatingPoint for f32 {
     fn log10(&self) -> Self {
         f32::log10(*self)
     }
+    
+    fn round(&self) -> Self {
+        f32::round(*self)
+    }
 }
 
 impl FloatingPoint for f64 {
@@ -470,5 +475,9 @@ impl FloatingPoint for f64 {
 
     fn log10(&self) -> Self {
         f64::log10(*self)
+    }
+    
+    fn round(&self) -> Self {
+        f64::round(*self)
     }
 }

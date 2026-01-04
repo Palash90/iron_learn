@@ -57,44 +57,11 @@ where
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
+    let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
+    let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
 
-    let x = match example {
-        ExampleMode::ImageNeuralNet => {
-            let pixel = (xy.m as f64).sqrt() as u32 - 1;
-
-            println!("Image size: {}", pixel);
-
-            x.scale(D::one() / (D::from_u32(pixel)))?
-        }
-        _ => x,
-    };
-
-    let x_test = match example {
-        ExampleMode::ImageNeuralNet => T::new(vec![xy.m, xy.n], xy.x.clone())?,
-        _ => T::new(vec![xy.m_test, xy.n], xy.x_test.clone()).unwrap(),
-    };
-
-    let y_test = match example {
-        ExampleMode::ImageNeuralNet => T::new(vec![xy.m, 1], xy.y.clone())?,
-        _ => T::new(vec![xy.m_test, 1], xy.y_test.clone())?,
-    };
-
-    let input_length = xy.n;
-
-    let input_length = match example {
-        ExampleMode::XorNeuralNet => input_length,
-        _ => input_length + 1,
-    };
-
-    let x = match example {
-        ExampleMode::XorNeuralNet => x,
-        _ => add_bias_term(&x).unwrap(),
-    };
-
-    let x_test = match example {
-        ExampleMode::XorNeuralNet => x_test,
-        _ => add_bias_term(&x_test).unwrap(),
-    };
+    let (x_with_bias, input_length, x_test_with_bias) =
+        prepare_network_input(&x, &x_test, example)?;
 
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
 
@@ -132,12 +99,21 @@ where
         last_epoch = epoch;
 
         if epoch % monitor_interval == 0 {
-            let y_pred = nn.predict(&x).unwrap();
+            let y_pred = nn.predict(&x_with_bias).unwrap();
 
             if epoch % (monitor_interval) == 0 {
                 if example == ExampleMode::ImageNeuralNet {
-                    let pixel = (xy.m as f64).sqrt() as u32;
-                    draw_image(epoch as i32, &x, &y_pred, pixel, pixel, name);
+                    let size = (xy.m as f64).sqrt() as u32;
+
+                    let pixels = y_pred
+                        .get_data()
+                        .clone()
+                        .iter()
+                        .map(|x| x.f64() as u32)
+                        .collect();
+                    let coordinates = xy.x.clone().iter().map(|x| x.f64() as u32).collect();
+
+                    draw_image(epoch as i32, &coordinates, &pixels, size, size, name);
                 }
 
                 nn.save_model(&weights_path);
@@ -154,7 +130,7 @@ where
 
     if !predict_only {
         let _ = nn.fit(
-            &x,
+            &x_with_bias,
             &y,
             e as usize,
             epoch_offset,
@@ -167,11 +143,20 @@ where
         println!("Skipped Fitting as in Predict Only Mode");
     }
 
-    let predictions = nn.predict(&x_test).unwrap();
+    let predictions = nn.predict(&x_test_with_bias).unwrap();
 
     if example == ExampleMode::ImageNeuralNet {
-        let pixel = (xy.m as f64).sqrt() as u32;
-        draw_image(-1, &x_test, &predictions, pixel, pixel, name);
+        let size = (xy.m as f64).sqrt() as u32;
+
+        let pixels = predictions
+            .get_data()
+            .clone()
+            .iter()
+            .map(|x| x.f64() as u32)
+            .collect();
+        let coordinates = xy.x.clone().iter().map(|x| x.f64() as u32).collect();
+
+        draw_image(-1, &coordinates, &pixels, size, size, name);
     } else {
         let error = predictions.sub(&y_test).unwrap();
         let error = error.sum().unwrap();
@@ -187,6 +172,17 @@ where
     }
 
     Ok(())
+}
+
+fn prepare_network_input<T, D>(x: &T, x_test: &T, mode: ExampleMode) -> Result<(T, u32, T), String>
+where
+    T: Tensor<D>,
+    D: FloatingPoint,
+{
+    let x_with_bias = add_bias_term(x)?;
+    let x_test_with_bias = add_bias_term(x_test)?;
+    let input_length = x.get_shape()[1] + 1;
+    Ok((x_with_bias, input_length, x_test_with_bias))
 }
 
 fn define_neural_net<T, D>(
@@ -224,22 +220,27 @@ where
     nn
 }
 
-fn draw_image<T, D>(epoch: i32, x_test: &T, y: &T, height: u32, width: u32, name: &String)
-where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: FloatingPoint + 'static,
-{
+fn draw_image(
+    epoch: i32,
+    x_data: &Vec<u32>,
+    y_data: &Vec<u32>,
+    height: u32,
+    width: u32,
+    name: &String,
+) {
     let mut image_data: Vec<(u32, u32, u8)> = vec![];
 
-    let x_data = x_test.get_data();
-    let y_data = y.get_data();
+    println!("{:?}", x_data);
+    println!("{:?}", y_data);
 
     for i in 0..y_data.len() {
-        let x_co = (x_data[2 * i].f64() as f64).round() as u32;
-        let y_co = (x_data[2 * i + 1].f64() as f64).round() as u32;
-        let pixel = 255 - (y_data[i].f64() * 255.0) as u8;
+        let x_co = x_data[2 * i] as u32;
+        let y_co = x_data[2 * i + 1] as u32;
+        let pixel = 255 - (y_data[i] * 255) as u8;
 
         image_data.push((x_co, y_co, pixel));
+
+        println!("[{}, {}, {}]", x_co, y_co, pixel);
     }
 
     draw_grid(image_data, epoch, height, width, name);
