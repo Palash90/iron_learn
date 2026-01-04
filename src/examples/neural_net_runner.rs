@@ -58,7 +58,11 @@ where
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
     let x_test = T::new(vec![xy.m_test, xy.n], xy.x_test.clone())?;
-    let y_test = T::new(vec![xy.m_test, 1], xy.y_test.clone())?;
+    
+    let y_test = match example {
+        ExampleMode::ImageNeuralNet => T::new(vec![xy.m, 1], xy.y.clone())?,
+        _ => T::new(vec![xy.m_test, 1], xy.y_test.clone())?,
+    };
 
     let (x_with_bias, input_length, x_test_with_bias) =
         prepare_network_input(&x, &x_test, example)?;
@@ -180,7 +184,12 @@ where
     D: FloatingPoint,
 {
     let x_with_bias = add_bias_term(x)?;
-    let x_test_with_bias = add_bias_term(x_test)?;
+
+    let x_test_with_bias = match mode {
+        ExampleMode::ImageNeuralNet => add_bias_term(x)?,
+        _ => add_bias_term(x_test)?,
+    };
+
     let input_length = x.get_shape()[1] + 1;
     Ok((x_with_bias, input_length, x_test_with_bias))
 }
