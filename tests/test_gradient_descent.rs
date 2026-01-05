@@ -34,7 +34,7 @@ mod tests {
 
     #[test]
     fn test_gradient_descent_logistic_activation() -> Result<(), Box<dyn std::error::Error>> {
-        let x = get_cpu_tensor(vec![1, 1], vec![0.0])?;
+        let x = get_cpu_tensor(vec![1, 1], vec![1.0])?;
         let y = get_cpu_tensor(vec![1, 1], vec![1.0])?;
         let w = get_cpu_tensor(vec![1, 1], vec![0.0])?;
 
