@@ -5,7 +5,7 @@
 pub mod commons;
 mod complex;
 mod cpu_tensor;
-mod ml;
+mod regression;
 
 pub mod examples;
 
@@ -46,8 +46,8 @@ pub use crate::gpu_context::{init_gpu, GpuContext, GPU_CONTEXT};
 // ============================================================================
 // Regression Re-exports
 // ============================================================================
-pub use crate::ml::linear_regression;
-pub use crate::ml::logistic_regression;
+pub use crate::regression::linear_regression;
+pub use crate::regression::logistic_regression;
 
 // ============================================================================
 // Neural Network Re-exports
@@ -68,4 +68,4 @@ pub use crate::commons::normalize_features;
 // Gradient Descent Re-exports
 // ============================================================================
 
-pub use crate::nn::gradient_descent;
+pub use crate::regression::gradient_descent;

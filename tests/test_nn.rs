@@ -12,18 +12,46 @@ mod tests {
         let hl = 4;
         let input = 2;
         let loss = Box::new(MeanSquaredErrorLoss);
-        let distribution = &DistributionType::Xavier;
 
         let mut nn = NeuralNetBuilder::<CpuTensor<f32>, f32>::new();
 
         let layers = [
-            (input, hl, LayerType::Tanh, "Input", "AL 1"),
-            (hl, hl, LayerType::Tanh, "HL1", "AL2"),
-            (hl, 1, LayerType::Sigmoid, "HL2", "Output"),
+            (
+                input,
+                hl,
+                LayerType::Tanh,
+                "Input",
+                "AL 1",
+                &DistributionType::Normal,
+            ),
+            (
+                hl,
+                hl,
+                LayerType::Tanh,
+                "HL1",
+                "AL2",
+                &DistributionType::Xavier,
+            ),
+            (
+                hl,
+                hl,
+                LayerType::Tanh,
+                "HL1",
+                "AL2",
+                &DistributionType::He,
+            ),
+            (
+                hl,
+                1,
+                LayerType::Sigmoid,
+                "HL2",
+                "Output",
+                &DistributionType::Uniform,
+            ),
         ];
 
         for layer in layers {
-            nn.add_linear(layer.0, layer.1, layer.3, distribution);
+            nn.add_linear(layer.0, layer.1, layer.3, layer.5);
             nn.add_activation(layer.2, layer.4);
         }
         nn.build(loss, &"TestNet".to_string())
@@ -39,9 +67,10 @@ mod tests {
 
         let mut monitor_captured = vec![];
 
-        let monitor = |epoch: usize, err: f32, lr: f32, nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
-            monitor_captured.push((epoch, err, lr));
-        };
+        let monitor =
+            |epoch: usize, err: f32, lr: f32, _nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
+                monitor_captured.push((epoch, err, lr));
+            };
 
         let result = net.fit(&input, &target, 5, 0, 1.0, false, monitor, 1);
 
