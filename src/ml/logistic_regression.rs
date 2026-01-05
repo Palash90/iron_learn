@@ -40,7 +40,7 @@ where
 {
     let x_with_bias = add_bias_term(x)?;
 
-    let z = x_with_bias.mul(w)?;
+    let z = x_with_bias.matmul(w)?;
 
     let probabilities = z.sigmoid()?;
 

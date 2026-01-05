@@ -12,7 +12,7 @@ where
     T: Tensor<D> + TensorMath<D, MathOutput = T>,
     D: FloatingPoint,
 {
-    x.mul(w)
+    x.matmul(w)
 }
 
 /// Train a linear regression model using gradient descent.

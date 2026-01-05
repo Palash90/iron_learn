@@ -16,7 +16,7 @@ where
 {
     let data_size = *(x.get_shape().first().ok_or("X must have a shape").unwrap());
 
-    let lines = x.mul(w)?;
+    let lines = x.matmul(w)?;
 
     let prediction = match logistic {
         true => lines.sigmoid(),
@@ -25,7 +25,7 @@ where
 
     let loss = prediction.sub(y)?;
 
-    let gradient_raw = x.t()?.mul(&loss)?;
+    let gradient_raw = x.t()?.matmul(&loss)?;
 
     let d = gradient_raw.scale(l / D::from_u32(data_size))?;
 
