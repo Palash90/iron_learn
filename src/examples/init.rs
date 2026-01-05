@@ -24,6 +24,8 @@ pub enum ExampleMode {
     ImageNeuralNet,
     /// Bigram Generator
     Bigram,
+    /// Trigram Generator
+    Trigram
 }
 
 #[derive(Parser)]

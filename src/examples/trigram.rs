@@ -15,7 +15,7 @@ use crate::Tensor;
 use crate::examples::contexts::GLOBAL_CONTEXT;
 use crate::examples::read_file::deserialize_model;
 
-pub fn run_bigram_generator<T, D>() -> Result<(), String>
+pub fn run_trigram_generator<T, D>() -> Result<(), String>
 where
     T: crate::tensor::Tensor<D> + crate::tensor::math::TensorMath<D, MathOutput = T> + 'static,
     D: crate::numeric::FloatingPoint + 'static,
@@ -74,15 +74,16 @@ where
     let mut targets = Vec::new();
 
     for name in names {
-        let full_name = format!(".{}.", name);
+        let full_name = format!("..{}..", name);
         let chars_vec: Vec<char> = full_name.chars().collect();
-        for window in chars_vec.windows(2) {
+        for window in chars_vec.windows(3) {
             let ix1 = stoi[&window[0]];
             let ix2 = stoi[&window[1]];
 
             // Create One-Hot for Input
             let mut oh = vec![D::zero(); vocab_size as usize];
             oh[ix1] = D::one();
+            oh[ix2 + vocab_size as usize] = D::one();
             inputs.extend(oh);
 
             // Target (Simplified: one-hot for MSE)
@@ -92,8 +93,8 @@ where
         }
     }
 
-    let num_samples = (inputs.len() as u32) / vocab_size;
-    let x_train = T::new(vec![num_samples, vocab_size], inputs)?;
+    let num_samples = (inputs.len() as u32) / (vocab_size * 2);
+    let x_train = T::new(vec![num_samples, vocab_size * 2], inputs)?;
     let y_train = T::new(vec![num_samples, vocab_size], targets)?;
 
     let loss_function_instance = Box::new(BinaryCrossEntropy);
@@ -143,28 +144,32 @@ where
 
     println!("\nGenerated Names:");
     for _ in 0..10 {
-        let mut current_char = '.';
+        let mut context = ('.', '.');
         let mut name = String::new();
 
         loop {
-            let mut input_vec = vec![D::zero(); vocab_size as usize];
-            input_vec[stoi[&current_char]] = D::one();
-            let input_tensor = T::new(vec![1, vocab_size], input_vec)?;
+            let mut input_vec = vec![D::zero(); (vocab_size * 2) as usize];
+            input_vec[stoi[&context.0]] = D::one();
+            input_vec[stoi[&context.1] + vocab_size as usize] = D::one();
 
+            let input_tensor = T::new(vec![1, vocab_size * 2], input_vec)?;
             let preds = nn.predict(&input_tensor)?;
             let data = preds.get_data();
 
             // --- Weighted Random Sampling ---
             // 1. Convert logits/scores to positive weights (exponentiation)
-            let temparature =0.4;
-            let mut weights: Vec<f64> = data.iter().map(|val| (val.f64()/temparature).exp()).collect();
+            let temparature = 0.4;
+            let mut weights: Vec<f64> = data
+                .iter()
+                .map(|val| (val.f64() / temparature).exp())
+                .collect();
 
             if name.len() > 4 {
-    weights[0] *= 2.0; // Double the chance of ending
-}
-if name.len() > 6 {
-    weights[0] *= 10.0; // Force an end
-}
+                weights[0] *= 2.0; // Double the chance of ending
+            }
+            if name.len() > 6 {
+                weights[0] *= 10.0; // Force an end
+            }
 
             let total_weight: f64 = weights.iter().sum();
 
@@ -175,7 +180,7 @@ if name.len() > 6 {
                 .as_nanos() as f64;
             let random_point = (rng_seed % 1000.0 / 1000.0) * total_weight;
 
-            // 3. Selection (Roulette Wheel)
+            let mut next_ix = 0;
             let mut cumulative_weight = 0.0;
             let mut next_ix = 0;
             for (i, &w) in weights.iter().enumerate() {
@@ -186,15 +191,18 @@ if name.len() > 6 {
                 }
             }
 
-            current_char = itos[&next_ix];
-            if current_char == '.' {
+            let next_char = itos[&next_ix];
+            if next_char == '.' {
                 if name.len() < 3 {
                     continue;
                 } else {
                     break;
                 }
             }
-            name.push(current_char);
+
+            name.push(next_char);
+
+            context = (context.1, next_char);
 
             if name.len() > 20 {
                 break;
@@ -217,8 +225,10 @@ where
 {
     let mut nn = NeuralNetBuilder::<T, D>::new();
 
+    let input_size = input * 2;
+
     let layers = [
-        (input, hl, LayerType::Tanh, "Input", "AL 1"),
+        (input_size, hl, LayerType::Tanh, "Input", "AL 1"),
         (hl, hl, LayerType::Tanh, "HL1", "AL2"),
         (hl, 2 * hl, LayerType::Tanh, "HL2", "AL3"),
         (2 * hl, hl, LayerType::Tanh, "HL3", "AL4"),
