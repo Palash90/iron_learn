@@ -81,7 +81,7 @@ where
             let ix2 = stoi[&window[1]];
 
             // Create One-Hot for Input
-            let mut oh = vec![D::zero(); vocab_size as usize];
+            let mut oh = vec![D::zero(); (vocab_size * 2) as usize];
             oh[ix1] = D::one();
             oh[ix2 + vocab_size as usize] = D::one();
             inputs.extend(oh);
@@ -180,7 +180,6 @@ where
                 .as_nanos() as f64;
             let random_point = (rng_seed % 1000.0 / 1000.0) * total_weight;
 
-            let mut next_ix = 0;
             let mut cumulative_weight = 0.0;
             let mut next_ix = 0;
             for (i, &w) in weights.iter().enumerate() {
