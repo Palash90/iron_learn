@@ -1,4 +1,3 @@
-mod display;
 use crate::numeric::{FloatingPoint, Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
 use crate::Tensor;
