@@ -1,10 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use iron_learn::CpuTensor;
-    use iron_learn::Tensor;
     use iron_learn::linear_regression::linear_regression;
     use iron_learn::linear_regression::predict_linear;
-
+    use iron_learn::CpuTensor;
+    use iron_learn::Tensor;
 
     fn get_cpu_tensor(shape: Vec<u32>, data: Vec<f32>) -> CpuTensor<f32> {
         CpuTensor::new(shape, data).unwrap()
@@ -12,8 +11,6 @@ mod tests {
 
     #[test]
     fn test_predict_linear_multi_dim() {
-        // X is 2x2, W is 2x1 -> Output should be 2x1
-        // [[1, 2], [3, 4]] * [[0.5], [1.0]] = [[2.5], [5.5]]
         let x = get_cpu_tensor(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]);
         let w = get_cpu_tensor(vec![2, 1], vec![0.5, 1.0]);
 
@@ -55,7 +52,6 @@ mod tests {
 
     #[test]
     fn test_linear_regression_mismatched_y() {
-        // X has 2 samples, Y has 3 samples. This should fail.
         let x = get_cpu_tensor(vec![2, 1], vec![1.0, 2.0]);
         let y = get_cpu_tensor(vec![3, 1], vec![2.0, 4.0, 6.0]);
         let w = get_cpu_tensor(vec![2, 1], vec![0.0, 0.0]);

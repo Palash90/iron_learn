@@ -59,6 +59,7 @@ pub fn test_mul_i32() {
     let result = CpuTensor::new(vec![2, 2], vec![19, 22, 43, 50]).unwrap();
 
     assert_eq!(result, (m1 * m2).unwrap());
+    assert_eq!(result.get_shape(), &vec![2, 2]);
 }
 
 #[test]

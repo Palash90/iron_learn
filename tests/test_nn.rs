@@ -32,14 +32,7 @@ mod tests {
                 "AL2",
                 &DistributionType::Xavier,
             ),
-            (
-                hl,
-                hl,
-                LayerType::Tanh,
-                "HL1",
-                "AL2",
-                &DistributionType::He,
-            ),
+            (hl, hl, LayerType::Tanh, "HL1", "AL2", &DistributionType::He),
             (
                 hl,
                 1,

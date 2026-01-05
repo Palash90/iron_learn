@@ -11,6 +11,28 @@ mod cuda_tests {
     type TensorType = f32;
 
     #[test]
+    pub fn test_cuda_zeroes() {
+        let _ = init_gpu();
+
+        let m1 = GpuTensor::<TensorType>::new(vec![1], vec![1.0]).unwrap();
+        let m2 = GpuTensor::zeroes(&vec![1]);
+        let result = GpuTensor::new(vec![1], vec![1.0]).unwrap();
+        let m3 = (m1 + m2).unwrap();
+
+        println!("Result");
+        m3.print_matrix();
+
+        let m2 = GpuTensor::zeroes(&vec![1]);
+        let m3 = (m3 - m2).unwrap();
+
+        println!("Result");
+        m3.print_matrix();
+
+        assert_eq!(result, m3);
+        assert_eq!(m3.get_shape(), &vec![1]);
+    }
+
+    #[test]
     pub fn test_cuda_add() {
         let _ = init_gpu();
 
