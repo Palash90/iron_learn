@@ -122,7 +122,7 @@ where
 
     fn forward(&mut self, input: &T) -> Result<T, String> {
         self.input_cache = Some(input.add(&T::zeroes(input.get_shape()))?);
-        let matmul = input.mul(&self.weights)?;
+        let matmul = input.matmul(&self.weights)?;
         Ok(matmul)
     }
 
@@ -131,12 +131,12 @@ where
 
         // Calculate Input Error: error * weights.T
         let w_t = self.weights.t()?;
-        let input_error = output_error.mul(&w_t)?;
+        let input_error = output_error.matmul(&w_t)?;
 
         // Calculate Weights Gradient: input.T * error
         let input_t = input.t()?;
 
-        let weights_grad = input_t.mul(output_error)?;
+        let weights_grad = input_t.matmul(output_error)?;
 
         // Update Parameters
         let w_step = weights_grad.scale(lr)?;
@@ -217,7 +217,7 @@ where
         // Note: Many derivatives (like sigmoid/tanh) use the output 'y' rather than input 'x'
         let prime = (activation_prime)(out)?;
 
-        prime.matmul(output_error)
+        prime.mul(output_error)
     }
 
     fn layer_type(&self) -> &LayerType {
