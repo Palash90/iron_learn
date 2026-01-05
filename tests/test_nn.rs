@@ -1,0 +1,83 @@
+#[cfg(test)]
+mod tests {
+    use iron_learn::nn::DistributionType;
+    use iron_learn::nn::LayerType;
+    use iron_learn::Tensor;
+    use iron_learn::{CpuTensor, MeanSquaredErrorLoss, NeuralNet, NeuralNetBuilder};
+    use std::fs;
+    use tempfile::tempdir;
+
+    // A helper function to create a network for testing
+    fn setup_test_net() -> NeuralNet<CpuTensor<f32>, f32> {
+        let hl = 4;
+        let input = 2;
+        let loss = Box::new(MeanSquaredErrorLoss);
+        let distribution = &DistributionType::Xavier;
+
+        let mut nn = NeuralNetBuilder::<CpuTensor<f32>, f32>::new();
+
+        let layers = [
+            (input, hl, LayerType::Tanh, "Input", "AL 1"),
+            (hl, hl, LayerType::Tanh, "HL1", "AL2"),
+            (hl, 1, LayerType::Sigmoid, "HL2", "Output"),
+        ];
+
+        for layer in layers {
+            nn.add_linear(layer.0, layer.1, layer.3, distribution);
+            nn.add_activation(layer.2, layer.4);
+        }
+        nn.build(loss, &"TestNet".to_string())
+    }
+
+    #[test]
+    fn test_fit() {
+        let mut net = setup_test_net();
+
+        let input =
+            CpuTensor::new(vec![4, 2], vec![0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]).unwrap();
+        let target = CpuTensor::new(vec![4, 1], vec![0.0, 1.0, 1.0, 0.0]).unwrap();
+
+        let mut monitor_captured = vec![];
+
+        let monitor = |epoch: usize, err: f32, lr: f32, nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
+            monitor_captured.push((epoch, err, lr));
+        };
+
+        let result = net.fit(&input, &target, 5, 0, 1.0, false, monitor, 1);
+
+        assert!(result.is_ok());
+        assert_eq!(monitor_captured.len(), 5);
+        assert_eq!(monitor_captured.iter().all(|a| a.2 == 1.0), true);
+    }
+
+    #[test]
+    fn test_predict_flow() {
+        let mut net = setup_test_net();
+
+        let input =
+            CpuTensor::new(vec![4, 2], vec![0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]).unwrap();
+
+        let result = net.predict(&input);
+
+        assert!(result.is_ok());
+        // Verify output shape matches expectations
+    }
+
+    #[test]
+    fn test_save_model_io() {
+        let net = setup_test_net();
+        let dir = tempdir().unwrap();
+        let file_path = dir.path().join("subdir/model.json");
+        let path_str = file_path.to_str().unwrap();
+
+        net.save_model(path_str);
+
+        // Check if file exists and is not empty
+        let metadata = fs::metadata(path_str).unwrap();
+        assert!(metadata.len() > 0);
+
+        // Verify content contains the model name
+        let content = fs::read_to_string(path_str).unwrap();
+        assert!(content.contains(&net.name));
+    }
+}

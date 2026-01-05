@@ -259,6 +259,8 @@ where
         (hl, 1, LayerType::Sigmoid, "HL12", "Output"),
     ];
 
+    
+
     for layer in xor_layers {
         nn.add_linear(layer.0, layer.1, layer.3, distribution);
         nn.add_activation(layer.2, layer.4);

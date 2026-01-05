@@ -119,6 +119,7 @@ where
 
             let mut output = x_train.add(&T::zeroes(x_train.get_shape())).unwrap();
             for layer in &mut self.layers {
+                println!("Forwarding through layer: {} = ", layer.name());
                 output = layer.forward(&output).unwrap();
             }
             T::synchronize();
