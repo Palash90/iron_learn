@@ -29,6 +29,27 @@ where
     }
 }
 
+/// Element-wise ReLU activation: f(x) = max(0, x)
+pub fn relu<T, D>(input: &T) -> Result<T, String>
+where
+    T: TensorMath<D, MathOutput = T> + Tensor<D>,
+    D: FloatingPoint,
+{
+    // Simply sets all values less than 0 to 0
+    input.max(D::zero())
+}
+
+/// Derivative of ReLU; expects the original input (or the activation output)
+/// f'(x) = 1 if x > 0, else 0
+pub fn relu_prime<T, D>(input: &T) -> Result<T, String>
+where
+    T: TensorMath<D, MathOutput = T> + Tensor<D>,
+    D: FloatingPoint,
+{
+    // Create a mask where values > 0 are 1.0, and others are 0.0
+    input.greater_than_zero_mask()
+}
+
 /// Element-wise sigmoid activation.
 pub fn sigmoid<T, D>(input: &T) -> Result<T, String>
 where
