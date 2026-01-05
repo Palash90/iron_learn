@@ -199,7 +199,7 @@ fn test_matmul_identity() {
     let identity =
         CpuTensor::<f32>::new(vec![2, 2], vec![1.0_f32, 0.0_f32, 0.0_f32, 1.0_f32]).unwrap();
 
-    let result = a.mul(&identity).unwrap();
+    let result = a.matmul(&identity).unwrap();
     assert_eq!(result.get_data(), a.get_data());
 }
 
@@ -209,7 +209,7 @@ fn test_matmul_vector_dot_product() {
     let a = CpuTensor::new(vec![1, 3], vec![1.0_f32, 2.0_f32, 3.0_f32]).unwrap();
     let b = CpuTensor::<f32>::new(vec![3, 1], vec![4.0_f32, 5.0_f32, 6.0_f32]).unwrap();
 
-    let result = a.mul(&b).unwrap();
+    let result = a.matmul(&b).unwrap();
     // 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32
     assert_eq!(result.get_data(), vec![32.0_f32]);
     assert_eq!(result.get_shape(), &vec![1, 1]);

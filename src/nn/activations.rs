@@ -45,7 +45,7 @@ where
     D: FloatingPoint,
 {
     let one_minus_out = T::ones(&output.get_shape()).sub(output)?;
-    let res = output.multiply(&one_minus_out);
+    let res = output.mul(&one_minus_out);
 
     res
 }
@@ -65,7 +65,7 @@ where
     T: TensorMath<D, MathOutput = T> + Tensor<D>,
     D: FloatingPoint,
 {
-    let out_squared = output.multiply(output)?;
+    let out_squared = output.mul(output)?;
 
     let ones = T::ones(&output.get_shape());
 

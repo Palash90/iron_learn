@@ -116,8 +116,8 @@ impl<T: Numeric + Zeroable + DeviceCopy> Tensor<T> for GpuTensor<T> {
 
     /// Element-wise multiplication (Hadamard product). Returns an error on
     /// shape mismatch.
-    fn multiply(&self, rhs: &Self) -> Result<Self, String> {
-        self._element_arithmatic(rhs, ArithmaticType::MUL)
+    fn matmul(&self, rhs: &Self) -> Result<Self, String> {
+        self._mul(rhs)
     }
 
     /// Element-wise division. Returns an error on shape mismatch.
@@ -128,7 +128,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> Tensor<T> for GpuTensor<T> {
     /// Matrix multiplication. Validates dimensions and performs GPU-backed
     /// multiply (cuBLAS is used when available).
     fn mul(&self, rhs: &Self) -> Result<Self, String> {
-        self._mul(rhs)
+        self._element_arithmatic(rhs, ArithmaticType::MUL)
     }
 
     /// Transpose the tensor (only supported up to 2D). Returns a new

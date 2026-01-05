@@ -464,7 +464,7 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
     /// Wires to the internal multiplication logic.
     fn mul(&self, rhs: &Self) -> Result<Self, String> {
         // The implementation _mul performs matrix multiplication
-        self._mul(rhs)
+        self.hadamard(rhs)
     }
 
     /// Transpose a 2D matrix.
@@ -475,8 +475,8 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
 
     /// Hadamard product (element-wise multiplication).
     /// Wires to the internal Hadamard product logic.
-    fn multiply(&self, rhs: &Self) -> Result<Self, String> {
-        self.hadamard(rhs)
+    fn matmul(&self, rhs: &Self) -> Result<Self, String> {
+        self._mul(rhs)
     }
 
     /// Element-wise division

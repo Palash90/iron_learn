@@ -217,7 +217,7 @@ where
         // Note: Many derivatives (like sigmoid/tanh) use the output 'y' rather than input 'x'
         let prime = (activation_prime)(out)?;
 
-        prime.multiply(output_error)
+        prime.matmul(output_error)
     }
 
     fn layer_type(&self) -> &LayerType {

@@ -38,3 +38,4 @@ pub trait TensorMath<T: FloatingPoint>: Tensor<T> + Sized {
     /// Compute the exponential (e^x) element-wise.
     fn exp(&self) -> Result<Self::MathOutput, String>;
 }
+

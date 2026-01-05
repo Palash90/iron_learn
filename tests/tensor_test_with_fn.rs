@@ -48,12 +48,12 @@ pub fn add_i32() {
 }
 
 #[test]
-pub fn mul() {
+pub fn matmul() {
     let m1 = CpuTensor::new(vec![1, 2], vec![1, 2]).unwrap();
     let m2 = CpuTensor::new(vec![2, 1], vec![3, 4]).unwrap();
     let result = CpuTensor::new(vec![1, 1], vec![11]).unwrap();
 
-    assert_eq!(result, m1.mul(&m2).unwrap());
+    assert_eq!(result, m1.matmul(&m2).unwrap());
 }
 
 #[test]

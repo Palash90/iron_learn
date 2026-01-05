@@ -81,14 +81,14 @@ pub trait Tensor<T: Numeric>: Sized {
     /// Subtracts rhs from current tensor
     fn sub(&self, rhs: &Self) -> Result<Self, String>;
 
-    /// Matrix multiplication
+    /// Element wise multiplication
     fn mul(&self, rhs: &Self) -> Result<Self, String>;
 
     /// Transpose a 2D matrix, only supported upto 2D
     fn t(&self) -> Result<Self, String>;
 
-    /// Hadamard product
-    fn multiply(&self, rhs: &Self) -> Result<Self, String>;
+    /// Matrix multiplication
+    fn matmul(&self, rhs: &Self) -> Result<Self, String>;
 
     /// Division
     fn div(&self, rhs: &Self) -> Result<Self, String>;

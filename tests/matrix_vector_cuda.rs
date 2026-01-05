@@ -67,7 +67,7 @@ mod cuda_tests {
 
         let m1 = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, 3.0, 4.0]).unwrap();
         let m2 = GpuTensor::new(vec![2, 2], vec![5.0, 6.0, 7.0, 8.0]).unwrap();
-        let m3 = m1.multiply(&m2).unwrap();
+        let m3 = m1.matmul(&m2).unwrap();
         let result = GpuTensor::new(vec![2, 2], vec![5.0, 12.0, 21.0, 32.0]).unwrap();
 
         println!("Result");
@@ -108,7 +108,7 @@ mod cuda_tests {
             GpuTensor::<TensorType>::new(vec![2, 2], vec![1.0_f32, 0.0_f32, 0.0_f32, 1.0_f32])
                 .unwrap();
 
-        let result = a.mul(&identity).unwrap();
+        let result = a.matmul(&identity).unwrap();
         assert_eq!(result.get_data(), a.get_data());
     }
 
@@ -120,7 +120,7 @@ mod cuda_tests {
         let a = GpuTensor::<TensorType>::new(vec![1, 3], vec![1.0_f32, 2.0_f32, 3.0_f32]).unwrap();
         let b = GpuTensor::<TensorType>::new(vec![3, 1], vec![4.0_f32, 5.0_f32, 6.0_f32]).unwrap();
 
-        let result = a.mul(&b).unwrap();
+        let result = a.matmul(&b).unwrap();
         // 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32
         assert_eq!(result.get_data(), vec![32.0_f32]);
         assert_eq!(result.get_shape(), &vec![1, 1]);

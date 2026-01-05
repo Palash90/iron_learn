@@ -29,7 +29,7 @@ where
 {
     fn loss(&self, actual: &T, predicted: &T) -> Result<T, String> {
         let error_diff = predicted.sub(actual).unwrap();
-        let sq_err = error_diff.multiply(&error_diff).unwrap();
+        let sq_err = error_diff.mul(&error_diff).unwrap();
 
         let length = sq_err.get_shape().iter().product();
 
@@ -65,7 +65,7 @@ where
         // 2. Term 1: y * ln(y_hat)
         let ln_pred = clipped_pred.ln().unwrap();
 
-        let term1 = y_true.multiply(&ln_pred).unwrap();
+        let term1 = y_true.mul(&ln_pred).unwrap();
 
         // 3. Term 2: (1 - y) * ln(1 - y_hat)
         let one_minus_y = ones.sub(y_true).unwrap();
@@ -74,7 +74,7 @@ where
 
         let ln_one_minus_pred = one_minus_pred.ln().unwrap();
 
-        let term2 = one_minus_y.multiply(&ln_one_minus_pred).unwrap();
+        let term2 = one_minus_y.mul(&ln_one_minus_pred).unwrap();
 
         // 4. Combine: -mean(term1 + term2)
         let combined = term1.add(&term2).unwrap();
@@ -99,7 +99,7 @@ where
         // 3. Calculate: (clipped_pred - y_true) / [clipped_pred * (1 - clipped_pred)]
         let numerator = clipped_pred.sub(y_true).unwrap();
         let one_minus_pred = ones.sub(&clipped_pred).unwrap();
-        let denominator = clipped_pred.multiply(&one_minus_pred).unwrap();
+        let denominator = clipped_pred.mul(&one_minus_pred).unwrap();
 
         let mut result = numerator.div(&denominator).unwrap();
 

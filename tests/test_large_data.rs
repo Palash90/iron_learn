@@ -46,7 +46,7 @@ mod tests {
         let t1 = new_cpu_tensor(vec![size as u32], data1);
         let t2 = new_cpu_tensor(vec![size as u32], data2);
 
-        let result = t1.multiply(&t2).unwrap();
+        let result = t1.mul(&t2).unwrap();
         let data = result.get_data();
 
         println!(
@@ -125,7 +125,7 @@ mod tests {
     }
 
     #[test]
-    fn test_matmul_large_gpu_data() {
+    fn test_matmul_large_cpu_data() {
         let rows_a = 999;
         let inner_k = 999;
         let cols_b = 999;
@@ -139,7 +139,7 @@ mod tests {
         let t1 = new_cpu_tensor(vec![rows_a as u32, inner_k as u32], data1);
         let t2 = new_cpu_tensor(vec![inner_k as u32, cols_b as u32], data2);
 
-        let result = t1.mul(&t2).expect("GPU Matmul failed");
+        let result = t1.matmul(&t2).expect("GPU Matmul failed");
         let result_data = result.get_data();
 
         assert_eq!(result.get_shape(), &vec![rows_a as u32, cols_b as u32]);
