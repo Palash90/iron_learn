@@ -32,8 +32,8 @@ where
         print!("\rProcessing epoch: {i}/{e}");
         io::stdout().flush().unwrap();
 
-        weight = gradient_descent(&x_with_bias, y, &weight, l, false).unwrap();
+        weight = gradient_descent(&x_with_bias, y, &weight, l, false)?;
     }
 
-    Ok(gradient_descent(&x_with_bias, y, &weight, l, false).unwrap())
+    Ok(gradient_descent(&x_with_bias, y, &weight, l, false)?)
 }

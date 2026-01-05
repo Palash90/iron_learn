@@ -14,7 +14,7 @@ where
     D: FloatingPoint,
     T: Tensor<D> + TensorMath<D, MathOutput = T>,
 {
-    let data_size = *(x.get_shape().first().ok_or("X must have a shape").unwrap());
+    let data_size = *(x.get_shape().first().ok_or("X must have a shape")?);
 
     let lines = x.matmul(w)?;
 
