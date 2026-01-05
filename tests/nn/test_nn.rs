@@ -73,6 +73,29 @@ mod tests {
     }
 
     #[test]
+    fn test_fit_cos_annealing() {
+        let mut net = setup_test_net();
+
+        let input =
+            CpuTensor::new(vec![4, 2], vec![0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]).unwrap();
+        let target = CpuTensor::new(vec![4, 1], vec![0.0, 1.0, 1.0, 0.0]).unwrap();
+
+        let mut monitor_captured = vec![];
+
+        let monitor =
+            |epoch: usize, err: f32, lr: f32, _nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
+                monitor_captured.push((epoch, err, lr));
+            };
+
+        let result = net.fit(&input, &target, 5, 0, 1.0, true, monitor, 1);
+
+        assert!(result.is_ok());
+        assert_eq!(monitor_captured.len(), 5);
+        assert_eq!(monitor_captured.iter().all(|a| a.2 == 1.0), false);
+        assert!(monitor_captured[0].2 > monitor_captured[4].2);
+    }
+
+    #[test]
     fn test_predict_flow() {
         let mut net = setup_test_net();
 
