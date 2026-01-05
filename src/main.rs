@@ -1,5 +1,5 @@
 use iron_learn::examples::init::ExampleMode;
-use iron_learn::examples::{run_linear, run_logistic, run_neural_net};
+use iron_learn::examples::{run_bigram_generator, run_linear, run_logistic, run_neural_net};
 
 use iron_learn::numeric::FloatingPoint;
 use iron_learn::tensor::math::TensorMath;
@@ -19,6 +19,10 @@ where
             Err(e) => eprintln!("Error: {}", e),
         },
         ExampleMode::Logistic => match run_logistic::<T, D>() {
+            Ok(_) => (),
+            Err(e) => eprintln!("Error: {}", e),
+        },
+        ExampleMode::Bigram => match run_bigram_generator::<T, D>() {
             Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
         },

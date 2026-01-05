@@ -22,6 +22,8 @@ pub enum ExampleMode {
     XorNeuralNet,
     /// Neural Network - Image
     ImageNeuralNet,
+    /// Bigram Generator
+    Bigram,
 }
 
 #[derive(Parser)]
