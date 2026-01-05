@@ -2,7 +2,7 @@
 // Internal Module Declarations
 // ============================================================================
 
-mod commons;
+pub mod commons;
 mod complex;
 mod cpu_tensor;
 mod ml;

@@ -1,6 +1,6 @@
 # Iron Learn
 
-A Rust machine learning library with optional GPU-accelerated optimization. Built for learning tensor operations, gradient-based algorithms, and numerical computing with an emphasis on type safety and correctness.
+A minimalistic Rust machine learning library with optional GPU-accelerated optimization. Built for learning tensor operations, gradient-based algorithms, and numerical computing with an emphasis on type safety and correctness.
 
 ## Features
 

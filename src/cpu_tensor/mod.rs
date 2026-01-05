@@ -1,8 +1,7 @@
-use crate::tensor::Tensor;
 mod display;
-
 use crate::numeric::{FloatingPoint, Numeric, SignedNumeric};
 use crate::tensor::math::TensorMath;
+use crate::Tensor;
 use std::ops::{Add, Mul, Neg, Sub};
 
 /// The `CpuTensor` structure is the backend implementaion of the `Tensor` trait. The implementation uses CPU for calcualations.

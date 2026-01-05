@@ -41,7 +41,7 @@ pub fn add_i16() {
 }
 
 #[test]
-#[ignore]
+#[ignore = "Need to build multi-dimensional tensor"]
 pub fn add_i32() {
     let m1 = CpuTensor::new(vec![1, 2, 2], vec![1, 2, 3, 4]).unwrap();
     let m2 = CpuTensor::new(vec![1, 2, 2], vec![5, 6, 7, 8]).unwrap();
