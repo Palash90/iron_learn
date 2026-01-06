@@ -1,6 +1,6 @@
 # Iron Learn
 
-![License](https://img.shields.io/github/license/palash90/iron_learn)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/palash90/iron_learn/rust.yml)
 [![codecov](https://codecov.io/gh/Palash90/iron_learn/graph/badge.svg?token=A95Y5Y3PRI)](https://codecov.io/gh/Palash90/iron_learn)
 ![Docs](https://docs.rs/iron_learn/badge.svg)
