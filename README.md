@@ -1,6 +1,11 @@
 # Iron Learn
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/palash90/iron_learn/rust.yml) ![Coverage](link)![Docs](https://docs.rs/iron_learn/badge.svg) ![License](link) ![Rust Version](link)![Crates.io](https://img.shields.io/crates/v/iron_learn)
+![License](https://img.shields.io/github/license/palash90/iron_learn)
+![Build Status](https://img.shields.io/github/actions/workflow/status/palash90/iron_learn/rust.yml)
+![Coverage](link)
+![Docs](https://docs.rs/iron_learn/badge.svg)
+![Rust Stable](https://img.shields.io/badge/rust-stable-blue)
+![Crates.io](https://img.shields.io/crates/v/iron_learn)
 
 A minimalistic Rust machine learning library with optional GPU-accelerated optimization. Built for learning tensor operations, gradient-based algorithms, and numerical computing with an emphasis on type safety and correctness.
 
