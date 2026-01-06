@@ -16,37 +16,10 @@ A minimalistic Rust machine learning library with optional GPU-accelerated optim
 - **Complex Number Arithmetic**: Native support for complex-valued computations
 - **Zero-Copy Operations**: Borrowing methods for efficient computation reuse
 
-## Network Output Sample
+## Examples
+Before we deep dive into the nitty-gritties of the library, let's have a look on few of the examples the neural network presented:
 
-Let's take a look on what the library can do. In one of the POCs with a ~99K parameter vanilla neural network, I have tried the Universal Approximation Theorem to reconstruct an image. Following are few snaps from the training of a very complex funtion (an image of Simba).
-
-### The random noise the network started with
-
-![Starting Random Noise](image/images/output0.png)
-
-### Reconstructed image after 200,000 epochs
-
-![Intermediate Reconstruction](image/images/output250000.png)
-
-### Reconstructed image after 800,000 epochs
-
-![Intermediate Reconstruction](image/images/output800000.png)
-
-For comparison, Following is the original image fed to the network.
-
-### Original Image
-
-![Original Image](image/images/original.png)
-
-### Reconstructed image at higher pixels (200 x 200 reconstructed at 512 x 512)
-
-![Reconstructed Higher Resolution Image](image/images/output-512-reconstruction.png)
-
-### Time lapse of regeneration step by step
-
-![Time lapse of regeneration](image/images/timeline.gif)
-
-You can find all the regenerated images in `image/images`directory.
+1. [Image Reconstruction](Image Reconstruction)
 
 ## Quick Start
 
@@ -85,13 +58,13 @@ let sum = a.sub(&b).unwrap();
 println!("Difference:");
 sum.print_matrix();
 
-// Multiply tensors (Matrix multiplication)
+// Multiply tensors (Element wise multiplication)
 let product = a.mul(&b).unwrap();
 println!("Product:");
 product.print_matrix();
 
-// Multiply tensors (Element wise multiplication)
-let product = a.multiply(&b).unwrap();
+// Multiply tensors  (Matrix multiplication)
+let product = a.matmul(&b).unwrap();
 println!("Hadamard Product:");
 product.print_matrix();
 
@@ -243,6 +216,39 @@ println!("\nPredicted value");
 prediction.print_matrix();
 
 ```
+
+## Image Reconstruction
+
+In one of the POCs with a ~99K parameter vanilla neural network, I have tried the Universal Approximation Theorem to reconstruct an image. Following are few snaps from the training of a very complex funtion (an image of Simba).
+
+### The random noise the network started with
+
+![Starting Random Noise](image/images/output0.png)
+
+### Reconstructed image after 200,000 epochs
+
+![Intermediate Reconstruction](image/images/output250000.png)
+
+### Reconstructed image after 800,000 epochs
+
+![Intermediate Reconstruction](image/images/output800000.png)
+
+For comparison, Following is the original image fed to the network.
+
+### Original Image
+
+![Original Image](image/images/original.png)
+
+### Reconstructed image at higher pixels (200 x 200 reconstructed at 512 x 512)
+
+![Reconstructed Higher Resolution Image](image/images/output-512-reconstruction.png)
+
+### Time lapse of regeneration step by step
+
+![Time lapse of regeneration](image/images/timeline.gif)
+
+You can find all the regenerated images in `image/images`directory.
+
 
 ## High-level Overview of the components
 
