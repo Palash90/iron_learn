@@ -1,5 +1,5 @@
-use iron_learn::examples::init::ExampleMode;
 use iron_learn::examples::trigram::run_trigram_generator;
+use iron_learn::examples::types::ExampleMode;
 use iron_learn::examples::{run_bigram_generator, run_linear, run_logistic, run_neural_net};
 
 use iron_learn::numeric::FloatingPoint;

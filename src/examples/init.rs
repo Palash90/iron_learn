@@ -3,80 +3,10 @@ use crate::init_gpu;
 
 use clap::Parser;
 
-use crate::nn::DistributionType;
-
 use super::contexts::init_context;
 use super::contexts::AppContext;
 use super::contexts::GLOBAL_CONTEXT;
-use clap::ValueEnum;
-
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
-pub enum ExampleMode {
-    /// Linear Regression
-    Linear,
-    /// Logistic Regression
-    Logistic,
-    /// Neural Network - Generic
-    NeuralNet,
-    /// Neural Network - XOR
-    XorNeuralNet,
-    /// Neural Network - Image
-    ImageNeuralNet,
-    /// Bigram Generator
-    Bigram,
-    /// Trigram Generator
-    Trigram,
-}
-
-#[derive(Parser)]
-#[command(name = "Iron Learn")]
-#[command(name = "A Rust Machine Learning Library")]
-struct Args {
-    #[arg(long, short, default_value = "neural_net")]
-    name: String,
-
-    #[arg(long, short, default_value = "false")]
-    cpu: bool,
-
-    #[arg(long, short = 'x', default_value = "linear")]
-    mode: ExampleMode,
-
-    #[arg(long, short, default_value = "false")]
-    restore: bool,
-
-    #[arg(long, short, default_value = "0.01")]
-    lr: f64,
-
-    #[arg(long, short, default_value = "10001")]
-    epochs: u32,
-
-    #[arg(long, short, default_value = "data/neural_net.json")]
-    data_file: String,
-
-    #[arg(long, short, default_value = "false")]
-    adjust_lr: bool,
-
-    #[arg(long, short, default_value = "4")]
-    internal_layers: u32,
-
-    #[arg(long, short, default_value = "1000")]
-    monitor_interval: usize,
-
-    #[arg(long, short, default_value = "0")]
-    sleep_time: u64,
-
-    #[arg(long, short, default_value = "model.json")]
-    parameters_path: String,
-
-    #[arg(long, short = 'D', default_value = "Normal")]
-    distribution: String,
-
-    #[arg(long, default_value = "false")]
-    predict_only: bool,
-
-    #[arg(long, default_value = "0")]
-    resize: u32,
-}
+use crate::examples::types::IronLearnArgs;
 
 /// Initialize the application runtime and global context.
 ///
@@ -110,16 +40,8 @@ struct Args {
 /// cargo run -- --name my_run --lr 0.01 --epochs 1000 --data-file data/neural_net.json
 /// ```
 pub fn init_runtime() -> &'static AppContext {
-    let args = Args::parse();
+    let args = IronLearnArgs::parse();
     let gpu_enabled = !args.cpu;
-
-    let distribution = match args.distribution.as_str().to_uppercase().as_str() {
-        "NORMAL" => DistributionType::Normal,
-        "XAVIER" => DistributionType::Xavier,
-        "UNIFORM" => DistributionType::Uniform,
-        "HE" => DistributionType::He,
-        _ => DistributionType::Normal,
-    };
 
     if gpu_enabled {
         {
@@ -129,47 +51,11 @@ pub fn init_runtime() -> &'static AppContext {
                     Ok(_) => {
                         println!("✓ GPU initialization successful");
 
-                        init_context(
-                            "Iron Learn",
-                            6,
-                            args.data_file,
-                            args.lr,
-                            args.epochs,
-                            true,
-                            args.adjust_lr,
-                            args.internal_layers,
-                            args.parameters_path,
-                            args.monitor_interval,
-                            args.sleep_time,
-                            args.name,
-                            args.restore,
-                            distribution,
-                            args.mode,
-                            args.predict_only,
-                            args.resize,
-                        );
+                        init_context("Iron Learn", 6, true, args);
                     }
                     Err(e) => {
                         eprintln!("⚠ GPU initialization failed: {}", e);
-                        init_context(
-                            "Iron Learn",
-                            6,
-                            args.data_file,
-                            args.lr,
-                            args.epochs,
-                            false,
-                            args.adjust_lr,
-                            args.internal_layers,
-                            args.parameters_path,
-                            args.monitor_interval,
-                            args.sleep_time,
-                            args.name,
-                            args.restore,
-                            distribution,
-                            args.mode,
-                            args.predict_only,
-                            args.resize,
-                        );
+                        init_context("Iron Learn", 6, false, args);
                     }
                 }
             }
@@ -178,46 +64,10 @@ pub fn init_runtime() -> &'static AppContext {
         #[cfg(not(feature = "cuda"))]
         {
             eprintln!("⚠ GPU support not compiled. Using CPU mode.");
-            init_context(
-                "Iron Learn",
-                6,
-                args.data_file,
-                args.lr,
-                args.epochs,
-                false,
-                args.adjust_lr,
-                args.internal_layers,
-                args.parameters_path,
-                args.monitor_interval,
-                args.sleep_time,
-                args.name,
-                args.restore,
-                distribution,
-                args.mode,
-                args.predict_only,
-                args.resize,
-            );
+            init_context("Iron Learn", 6, false, args);
         }
     } else {
-        init_context(
-            "Iron Learn",
-            5,
-            args.data_file,
-            args.lr,
-            args.epochs,
-            false,
-            args.adjust_lr,
-            args.internal_layers,
-            args.parameters_path,
-            args.monitor_interval,
-            args.sleep_time,
-            args.name,
-            args.restore,
-            distribution,
-            args.mode,
-            args.predict_only,
-            args.resize,
-        );
+        init_context("Iron Learn", 6, gpu_enabled, args);
     }
 
     let ctx = GLOBAL_CONTEXT.get().expect("Context not initialized");

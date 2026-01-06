@@ -1,4 +1,6 @@
 use crate::numeric::FloatingPoint;
+use clap::Parser;
+use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 
 /// Dataset container for single-precision (f32) examples.
@@ -19,4 +21,71 @@ where
     pub m_test: u32,
     pub x_test: Vec<D>,
     pub y_test: Vec<D>,
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Debug)]
+pub enum ExampleMode {
+    /// Linear Regression
+    Linear,
+    /// Logistic Regression
+    Logistic,
+    /// Neural Network - Generic
+    NeuralNet,
+    /// Neural Network - XOR
+    XorNeuralNet,
+    /// Neural Network - Image
+    ImageNeuralNet,
+    /// Bigram Generator
+    Bigram,
+    /// Trigram Generator
+    Trigram,
+}
+#[derive(Parser)]
+#[command(name = "Iron Learn")]
+#[command(name = "A Rust Machine Learning Library")]
+pub struct IronLearnArgs {
+    #[arg(long, short, default_value = "neural_net")]
+    pub name: String,
+
+    #[arg(long, short, default_value = "false")]
+    pub cpu: bool,
+
+    #[arg(long, short = 'x', default_value = "linear")]
+    pub mode: ExampleMode,
+
+    #[arg(long, short, default_value = "false")]
+    pub restore: bool,
+
+    #[arg(long, short, default_value = "0.01")]
+    pub lr: f64,
+
+    #[arg(long, short, default_value = "10001")]
+    pub epochs: u32,
+
+    #[arg(long, short, default_value = "data/neural_net.json")]
+    pub data_file: String,
+
+    #[arg(long, short, default_value = "false")]
+    pub adjust_lr: bool,
+
+    #[arg(long, short, default_value = "4")]
+    pub internal_layers: u32,
+
+    #[arg(long, short, default_value = "1000")]
+    pub monitor_interval: usize,
+
+    #[arg(long, short, default_value = "0")]
+    pub sleep_time: u64,
+
+    #[arg(long, short, default_value = "model.json")]
+    pub parameters_path: String,
+
+    #[arg(long, short = 'D', default_value = "Normal")]
+    pub distribution: String,
+
+    #[arg(long, default_value = "false")]
+    pub predict_only: bool,
+
+    #[arg(long, default_value = "0")]
+    pub resize: u32,
 }

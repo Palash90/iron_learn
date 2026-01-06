@@ -20,7 +20,8 @@ use crate::nn::DistributionType;
 /// Thread-safe access to the immutable application state initialized at startup.
 /// Use `GLOBAL_CONTEXT.get()` to access the context after initialization.
 pub static GLOBAL_CONTEXT: OnceLock<AppContext> = OnceLock::new();
-use crate::examples::init::ExampleMode;
+use crate::examples::types::ExampleMode;
+use crate::examples::types::IronLearnArgs;
 
 /// Global application context with training configuration and GPU capabilities
 ///
@@ -88,43 +89,33 @@ pub struct AppContext {
 /// * `restore` - Restore a network from model file.
 /// * `distribution` - Weight initialization distribution
 ///
-pub fn init_context(
-    app_name: &'static str,
-    version: u32,
-    data_path: String,
-    learning_rate: f64,
-    epochs: u32,
-    gpu_enabled: bool,
-    lr_adjust: bool,
-    hidden_layer_length: u32,
-    weights_path: String,
-    monitor_interval: usize,
-    sleep_time: u64,
-    name: String,
-    restore: bool,
-    distribution: DistributionType,
-    example_mode: ExampleMode,
-    predict_only: bool,
-    resize: u32,
-) {
+pub fn init_context(app_name: &'static str, version: u32, gpu_enabled: bool, args: IronLearnArgs) {
+    let distribution = match args.distribution.as_str().to_uppercase().as_str() {
+        "NORMAL" => DistributionType::Normal,
+        "XAVIER" => DistributionType::Xavier,
+        "UNIFORM" => DistributionType::Uniform,
+        "HE" => DistributionType::He,
+        _ => DistributionType::Normal,
+    };
+
     let ctx = AppContext {
         app_name,
         version,
-        data_path,
-        learning_rate,
-        epochs,
+        data_path: args.data_file,
+        learning_rate: args.lr,
+        epochs: args.epochs,
         gpu_enabled,
-        lr_adjust,
-        hidden_layer_length,
-        weights_path,
-        monitor_interval,
-        sleep_time,
-        name,
-        restore,
+        lr_adjust: args.adjust_lr,
+        hidden_layer_length: args.internal_layers,
+        weights_path: args.parameters_path,
+        monitor_interval: args.monitor_interval,
+        sleep_time: args.sleep_time,
+        name: args.name,
+        restore: args.restore,
         distribution,
-        example_mode,
-        predict_only,
-        resize,
+        example_mode: args.mode,
+        predict_only: args.predict_only,
+        resize: args.resize,
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

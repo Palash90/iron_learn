@@ -2,7 +2,7 @@ mod contexts;
 pub mod init;
 mod read_file;
 mod regression;
-mod types;
+pub mod types;
 
 pub mod bigram;
 mod neural_net_runner;

@@ -1,7 +1,7 @@
 use crate::examples::contexts::GLOBAL_CONTEXT;
-use crate::examples::init::ExampleMode;
 use crate::examples::read_file::deserialize_data;
 use crate::examples::read_file::deserialize_model;
+use crate::examples::types::ExampleMode;
 use crate::nn::LayerType;
 use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
