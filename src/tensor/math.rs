@@ -39,10 +39,7 @@ pub trait TensorMath<T: FloatingPoint>: Tensor<T> + Sized {
     fn exp(&self) -> Result<Self::MathOutput, String>;
 
     /// Compute the maximum element-wise.
-    fn max(&self, threshold: T) -> Result<Self::MathOutput, String>;
-
-    /// Compute the minimum element-wise.
-    fn min(&self, threshold: T) -> Result<Self::MathOutput, String>;
+    fn relu(&self) -> Result<Self::MathOutput, String>;
 
     /// Compute the mask element-wise.
     fn greater_than_zero_mask(&self) -> Result<Self::MathOutput, String>;

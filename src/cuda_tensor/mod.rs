@@ -56,9 +56,8 @@ enum OpType {
     SIGMOID = 6,
     LOG = 7,
     LN = 8,
-    MAX =9,
-    MIN = 10,
-    GREATER_THAN_ZERO_MASK = 11
+    GreaterThanZeroMask = 9,
+    ReLU = 10,
 }
 
 /// Selector for binary element-wise arithmetic kernels.
@@ -690,15 +689,11 @@ where
         self.element_op(OpType::EXP)
     }
 
-    fn max(&self, threshold: T) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::MAX)
-    }
-
-    fn min(&self, threshold: T) -> Result<Self::MathOutput, String> {   
-          self.element_op(OpType::MIN)
+    fn relu(&self) -> Result<Self::MathOutput, String> {
+        self.element_op(OpType::ReLU)
     }
 
     fn greater_than_zero_mask(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::GREATER_THAN_ZERO_MASK)
+        self.element_op(OpType::GreaterThanZeroMask)
     }
 }

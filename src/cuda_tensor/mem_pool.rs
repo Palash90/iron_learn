@@ -163,3 +163,13 @@ impl Drop for CudaMemoryPool {
         }
     }
 }
+
+#[test]
+fn test_drop_logic_isolation() {
+    use crate::init_gpu;
+    {
+        let _ = init_gpu();
+        let local_pool = CudaMemoryPool::get_mem_pool();
+        drop(local_pool);
+    }
+}

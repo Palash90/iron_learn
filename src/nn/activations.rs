@@ -11,6 +11,7 @@ pub enum LayerType {
     Tanh,
     Linear,
     Sin,
+    ReLU,
 }
 /// Return the activation function and its derivative for `layer`.
 pub fn get_activations<T, D>(layer: &LayerType) -> (ActivationFn<T>, ActivationFn<T>)
@@ -26,6 +27,7 @@ where
             |x: &T| Ok(T::zeroes(x.get_shape()).add(x).unwrap()),
             |x: &T| Ok(T::ones(x.get_shape())),
         ),
+        LayerType::ReLU => (relu, relu_prime),
     }
 }
 
@@ -35,8 +37,7 @@ where
     T: TensorMath<D, MathOutput = T> + Tensor<D>,
     D: FloatingPoint,
 {
-    // Simply sets all values less than 0 to 0
-    input.max(D::zero())
+    input.relu()
 }
 
 /// Derivative of ReLU; expects the original input (or the activation output)
@@ -46,7 +47,6 @@ where
     T: TensorMath<D, MathOutput = T> + Tensor<D>,
     D: FloatingPoint,
 {
-    // Create a mask where values > 0 are 1.0, and others are 0.0
     input.greater_than_zero_mask()
 }
 

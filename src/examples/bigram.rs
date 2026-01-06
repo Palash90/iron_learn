@@ -156,15 +156,18 @@ where
 
             // --- Weighted Random Sampling ---
             // 1. Convert logits/scores to positive weights (exponentiation)
-            let temparature =0.4;
-            let mut weights: Vec<f64> = data.iter().map(|val| (val.f64()/temparature).exp()).collect();
+            let temparature = 0.4;
+            let mut weights: Vec<f64> = data
+                .iter()
+                .map(|val| (val.f64() / temparature).exp())
+                .collect();
 
             if name.len() > 4 {
-    weights[0] *= 2.0; // Double the chance of ending
-}
-if name.len() > 6 {
-    weights[0] *= 10.0; // Force an end
-}
+                weights[0] *= 2.0; // Double the chance of ending
+            }
+            if name.len() > 6 {
+                weights[0] *= 10.0; // Force an end
+            }
 
             let total_weight: f64 = weights.iter().sum();
 

@@ -38,9 +38,8 @@ enum OpType {
     SIGMOID = 6,
     LOG = 7,
     LN = 8,
-    MAX =9,
-    MIN = 10,
-    GREATER_THAN_ZERO_MASK = 11
+    GreaterThanZeroMask = 9,
+    ReLU = 10,
 }
 
 // This is the actual implementation of all the operations. This is here to avoid the documentation comment clutter.
@@ -75,9 +74,12 @@ impl<T: Numeric> CpuTensor<T> {
                 .collect(),
             OpType::LOG => self.data.iter().map(|t| T::log10(t)).collect(),
             OpType::LN => self.data.iter().map(|t| T::ln(t)).collect(),
-            OpType::MAX => self.data.iter().map(|t| T::max(t)).collect(),
-            OpType::MIN => self.data.iter().map(|t| T::min(t)).collect(),
-            OpType::GREATER_THAN_ZERO_MASK => self
+            OpType::ReLU => self
+                .data
+                .iter()
+                .map(|t| if t.f32() > 0.0 { t.clone() } else { T::zero() })
+                .collect(),
+            OpType::GreaterThanZeroMask => self
                 .data
                 .iter()
                 .map(|t| if t.f32() > 0.0 { T::one() } else { T::zero() })
@@ -542,15 +544,11 @@ where
         Ok(self.element_op(OpType::EXP))
     }
 
-    fn max(&self, threshold: T) -> Result<Self::MathOutput, String> {
-        Ok(self.element_op(OpType::MAX))
-    }
-
-    fn min(&self, threshold: T) -> Result<Self::MathOutput, String> {
-        Ok(self.element_op(OpType::MIN))
+    fn relu(&self) -> Result<Self::MathOutput, String> {
+        Ok(self.element_op(OpType::ReLU))
     }
 
     fn greater_than_zero_mask(&self) -> Result<Self::MathOutput, String> {
-        Ok(self.element_op(OpType::GREATER_THAN_ZERO_MASK))
+        Ok(self.element_op(OpType::GreaterThanZeroMask))
     }
 }

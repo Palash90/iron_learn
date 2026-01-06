@@ -400,6 +400,20 @@ pub trait FloatingPoint: SignedNumeric {
     fn exp(&self) -> Self;
     fn ln(&self) -> Self;
     fn log10(&self) -> Self;
+    fn max(&self, other: &Self) -> Self {
+        if self > other {
+            *self
+        } else {
+            *other
+        }
+    }
+    fn min(&self, other: &Self) -> Self {
+        if self < other {
+            *self
+        } else {
+            *other
+        }
+    }
 }
 
 impl FloatingPoint for f32 {

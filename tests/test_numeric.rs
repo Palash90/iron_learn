@@ -98,3 +98,88 @@ mod exhaustive_tests {
         test_neg(Complex::new(1.0, 2.0), Complex::new(-1.0, -2.0));
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use iron_learn::Complex;
+    use iron_learn::Numeric;
+
+    /// Macro to generate tests for standard Numeric types
+    macro_rules! test_numeric_impl {
+        ($t:ty, $name:ident, $is_float:expr) => {
+            #[test]
+            fn $name() {
+                let val: $t = <$t as Numeric>::one();
+                let zero: $t = <$t as Numeric>::zero();
+
+                // Test zero and one
+                assert_eq!(val, 1 as $t);
+                assert_eq!(zero, 0 as $t);
+
+                // Test f32/f64 conversions
+                assert_eq!(val.f32(), 1.0_f32);
+                assert_eq!(val.f64(), 1.0_f64);
+
+                // Test from_u32 and from_f64
+                // We use 10 to avoid overflow panics in try_into blocks
+                assert_eq!(<$t as Numeric>::from_u32(10), 10 as $t);
+                assert_eq!(<$t as Numeric>::from_f64(10.0), 10 as $t);
+            }
+        };
+    }
+
+    // Call the macro for every integer and float type implemented in the file
+    test_numeric_impl!(i8, test_i8, false);
+    test_numeric_impl!(i16, test_i16, false);
+    test_numeric_impl!(i32, test_i32, false);
+    test_numeric_impl!(i64, test_i64, false);
+    test_numeric_impl!(i128, test_i128, false);
+    test_numeric_impl!(isize, test_isize, false);
+    test_numeric_impl!(u8, test_u8, false);
+    test_numeric_impl!(u16, test_u16, false);
+    test_numeric_impl!(u32, test_u32, false);
+    test_numeric_impl!(u64, test_u64, false);
+    test_numeric_impl!(u128, test_u128, false);
+    test_numeric_impl!(usize, test_usize, false);
+    test_numeric_impl!(f32, test_f32, true);
+    test_numeric_impl!(f64, test_f64, true);
+
+    #[test]
+    fn test_complex_numeric() {
+        let _c = Complex::new(5.0, 0.0);
+        assert_eq!(Complex::zero(), Complex::new(0.0, 0.0));
+        assert_eq!(Complex::one(), Complex::new(1.0, 0.0));
+        assert_eq!(Complex::from_u32(10), Complex::new(10.0, 0.0));
+        assert_eq!(Complex::from_f64(10.5), Complex::new(10.5, 0.0));
+    }
+
+    #[test]
+    #[should_panic(expected = "InvalidOperation")]
+    fn test_complex_f32_panic() {
+        Complex::one().f32(); // Hits the panic line in Complex impl
+    }
+
+    #[test]
+    #[should_panic(expected = "InvalidOperation")]
+    fn test_complex_f64_panic() {
+        Complex::one().f64(); // Hits the panic line in Complex impl
+    }
+
+    #[test]
+    fn test_floating_point_ops() {
+        let val: f64 = 4.0;
+        assert_eq!(val.sqrt(), 2.0);
+        assert_eq!(val.abs(), 4.0);
+        assert_eq!(val.max(10.0), 10.0);
+        assert_eq!(val.min(1.0), 1.0);
+        // Add more ops as needed to hit all trait methods
+        let _ = val.sin();
+        let _ = val.cos();
+        let _ = val.tan();
+        let _ = val.tanh();
+        let _ = val.exp();
+        let _ = val.ln();
+        let _ = val.log10();
+        let _ = val.round();
+    }
+}

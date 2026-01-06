@@ -311,6 +311,22 @@ mod cuda_tests {
         result.print_matrix();
         m2.print_matrix();
         assert_eq!(result, m2);
+
+        let m2 = m1.relu().unwrap();
+        let result = GpuTensor::new(vec![2, 2], vec![1.0, 2.0, 0.0, 4.0]).unwrap();
+
+        println!("ReLU check");
+        result.print_matrix();
+        m2.print_matrix();
+        assert_eq!(result, m2);
+
+        let m2 = m1.greater_than_zero_mask().unwrap();
+        let result = GpuTensor::new(vec![2, 2], vec![1.0, 1.0, 0.0, 1.0]).unwrap();
+
+        println!("ReLU Prime check");
+        result.print_matrix();
+        m2.print_matrix();
+        assert_eq!(result, m2);
     }
 
     #[test]

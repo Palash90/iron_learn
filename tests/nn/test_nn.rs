@@ -19,7 +19,7 @@ mod tests {
             (
                 input,
                 hl,
-                LayerType::Tanh,
+                LayerType::ReLU,
                 "Input",
                 "AL 1",
                 &DistributionType::Normal,

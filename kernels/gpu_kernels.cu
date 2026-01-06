@@ -101,6 +101,18 @@ extern "C" __global__ void element_op(const float *s, float *r, int n, int op, f
         case 8:
             r[idx] = logf(s[idx]);
             break;
+        case 9:
+            if (s[idx] >= 0.0f)
+                r[idx] = 1.0;
+            else
+                r[idx] = 0.0;
+            break;
+        case 10:
+            if (s[idx] >= 0.0f)
+                r[idx] = s[idx];
+            else
+                r[idx] = 0.0;
+            break;
         default:
             break;
         }

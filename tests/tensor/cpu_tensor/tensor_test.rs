@@ -163,7 +163,6 @@ pub fn fn_test() {
 
     let epsilon = 1e-6;
 
-    // Assuming your CpuTensor has a way to access the data slice
     let left_data = result.get_data();
     let right_data = r.get_data();
 
@@ -179,4 +178,15 @@ pub fn fn_test() {
             diff
         );
     }
+}
+
+#[test]
+fn relu_and_prime_test() {
+    let m2 = CpuTensor::new(vec![1, 2], vec![1.0, -2.0]).unwrap();
+
+    let result = CpuTensor::new(vec![1, 2], vec![1.0, 0.0]).unwrap();
+    assert_eq!(result, CpuTensor::relu(&m2).unwrap());
+
+    let result = CpuTensor::new(vec![1, 2], vec![1.0, 0.0]).unwrap();
+    assert_eq!(result, CpuTensor::greater_than_zero_mask(&m2).unwrap());
 }

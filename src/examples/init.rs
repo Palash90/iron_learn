@@ -25,7 +25,7 @@ pub enum ExampleMode {
     /// Bigram Generator
     Bigram,
     /// Trigram Generator
-    Trigram
+    Trigram,
 }
 
 #[derive(Parser)]
