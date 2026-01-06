@@ -1,4 +1,4 @@
-# Iron Learn
+# Iron Learn 🧠⚙️
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/palash90/iron_learn/rust.yml)
