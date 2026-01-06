@@ -130,7 +130,6 @@ impl Add for Complex {
     /// let sum = a + b;
     /// assert_eq!(sum, Complex::new(4.0, 6.0));
     /// ```
-
     fn add(self, rhs: Self) -> Self {
         Self {
             real: self.real + rhs.real,
@@ -273,6 +272,6 @@ impl std::ops::Neg for Complex {
     /// assert_eq!(negated, Complex::new(-1.0, -2.0));
     /// ```
     fn neg(self) -> Self::Output {
-        Complex::new(self.real * -1.0, self.imaginary * -1.0)
+        Complex::new(-self.real, -self.imaginary)
     }
 }

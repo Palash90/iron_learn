@@ -36,7 +36,7 @@ pub mod math;
 /// arithmetic, reductions and device synchronization primitives used by
 /// higher-level neural network components.
 pub trait Tensor<T: Numeric>: Sized {
-    fn print_matrix(&self) -> () {
+    fn print_matrix(&self) {
         let data = self.get_data();
 
         let rows = self.get_shape()[0] as usize;

@@ -28,7 +28,6 @@ use crate::complex::Complex;
 /// It includes basic arithmetic operations and the ability to return special values like zero and one.
 ///
 /// Types implementing `Numeric` can be used generically in contexts where arithmetic operations are required.
-
 pub trait Numeric:
     Copy
     + std::ops::Add<Output = Self>
@@ -201,7 +200,7 @@ impl Numeric for u8 {
         *self as f32
     }
     fn from_u32(value: u32) -> Self {
-        (value as u32).try_into().unwrap()
+        (value).try_into().unwrap()
     }
     fn from_f64(value: f64) -> Self {
         value as u8
@@ -242,7 +241,7 @@ impl Numeric for u32 {
         *self as f32
     }
     fn from_u32(value: u32) -> Self {
-        value as u32
+        value
     }
     fn from_f64(value: f64) -> Self {
         value as u32
@@ -320,7 +319,7 @@ impl Numeric for f32 {
         *self as f64
     }
     fn f32(&self) -> f32 {
-        *self as f32
+        *self
     }
     fn from_u32(value: u32) -> Self {
         value as f32
@@ -337,7 +336,7 @@ impl Numeric for f64 {
         1.0
     }
     fn f64(&self) -> f64 {
-        *self as f64
+        *self
     }
     fn f32(&self) -> f32 {
         *self as f32
@@ -346,7 +345,7 @@ impl Numeric for f64 {
         value as f64
     }
     fn from_f64(value: f64) -> Self {
-        value as f64
+        value
     }
 }
 

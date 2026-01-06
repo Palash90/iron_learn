@@ -6,7 +6,7 @@ use crate::Numeric;
 ///
 /// Returns a new tensor where each feature column is scaled back to the
 /// original value range by computing `value * std[j] + mean[j]`.
-pub fn denormalize_features<T, D>(normalized_data: &T, mean: &Vec<D>, std: &Vec<D>) -> T
+pub fn denormalize_features<T, D>(normalized_data: &T, mean: &[D], std: &[D]) -> T
 where
     T: Tensor<D>,
     D: FloatingPoint,
@@ -34,7 +34,7 @@ where
 ///
 /// For each element returns `(value - mean[j]) / std[j]` when `std[j] != 0`,
 /// otherwise `0.0` to avoid division-by-zero.
-pub fn normalize_features<T, D>(data: &T, mean: &Vec<D>, std: &Vec<D>) -> T
+pub fn normalize_features<T, D>(data: &T, mean: &[D], std: &[D]) -> T
 where
     T: Tensor<D>,
     D: FloatingPoint,

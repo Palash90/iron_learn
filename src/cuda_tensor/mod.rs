@@ -1,4 +1,3 @@
-#![cfg(feature = "cuda")]
 //! GPU-backed tensor implementation and CUDA helpers. Only available with `--features=cuda`
 //!
 //! This module provides a `GpuTensor<T>` implementation of the crate `Tensor`
@@ -235,7 +234,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
             .expect("No GPU Context Set")
             .stream
             .as_ref()
-            .expect(&format!("Stream not found"))
+            .expect("Stream not found")
     }
 
     fn _get_cublas_handle() -> cublasHandle_t {
@@ -264,13 +263,13 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
                 return false;
             }
         }
-        return true;
+        true
     }
 
     fn element_op(&self, op_type: OpType) -> Result<Self, String> {
         let total_elements: u32 = self.shape.iter().product();
         let threads_per_block = 1024; // Use a typical 1D block size
-        let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
+        let grid_1d = total_elements.div_ceil(threads_per_block);
 
         let result = self._get_initialized_buffer(total_elements as usize);
 
@@ -294,7 +293,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
     fn _s(&self, scale: T) -> Result<Self, String> {
         let total_elements: u32 = self.shape.iter().product();
         let threads_per_block = 1024; // Use a typical 1D block size
-        let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
+        let grid_1d = total_elements.div_ceil(threads_per_block);
 
         let result = self._get_initialized_buffer(total_elements as usize);
 
@@ -307,7 +306,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
                 self.device_buffer.as_device_ptr(),
                 result.as_device_ptr(),
                 total_elements as i32,
-                1 as i32,
+                1_i32,
                 scale
             ));
         };
@@ -318,7 +317,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
     fn _clip(&self, min: T, max: T) -> Result<Self, String> {
         let total_elements: u32 = self.shape.iter().product();
         let threads_per_block = 1024; // Use a typical 1D block size
-        let grid_1d = (total_elements + threads_per_block - 1) / threads_per_block;
+        let grid_1d = total_elements.div_ceil(threads_per_block);
 
         let result = self._get_initialized_buffer(total_elements as usize);
 

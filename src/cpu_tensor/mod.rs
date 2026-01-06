@@ -30,14 +30,14 @@ pub struct CpuTensor<T: Numeric> {
 impl<T> CpuTensor<T> where T: Numeric {}
 
 enum OpType {
-    EXP = 0,
-    SIN = 2,
-    COS = 3,
-    TAN = 4,
-    TANH = 5,
-    SIGMOID = 6,
-    LOG = 7,
-    LN = 8,
+    Exp = 0,
+    Sin = 2,
+    Cos = 3,
+    Tan = 4,
+    Tanh = 5,
+    Sigmoid = 6,
+    Log = 7,
+    Ln = 8,
     GreaterThanZeroMask = 9,
     ReLU = 10,
 }
@@ -62,18 +62,18 @@ impl<T: Numeric> CpuTensor<T> {
         T: FloatingPoint,
     {
         let result = match op_type {
-            OpType::EXP => self.data.iter().map(|t| T::exp(t)).collect(),
-            OpType::COS => self.data.iter().map(|t| T::cos(t)).collect(),
-            OpType::SIN => self.data.iter().map(|t| T::sin(t)).collect(),
-            OpType::TAN => self.data.iter().map(|t| T::tan(t)).collect(),
-            OpType::TANH => self.data.iter().map(|t| T::tanh(t)).collect(),
-            OpType::SIGMOID => self
+            OpType::Exp => self.data.iter().map(|t| T::exp(t)).collect(),
+            OpType::Cos => self.data.iter().map(|t| T::cos(t)).collect(),
+            OpType::Sin => self.data.iter().map(|t| T::sin(t)).collect(),
+            OpType::Tan => self.data.iter().map(|t| T::tan(t)).collect(),
+            OpType::Tanh => self.data.iter().map(|t| T::tanh(t)).collect(),
+            OpType::Sigmoid => self
                 .data
                 .iter()
                 .map(|t| Self::_sigmoid(t.clone()))
                 .collect(),
-            OpType::LOG => self.data.iter().map(|t| T::log10(t)).collect(),
-            OpType::LN => self.data.iter().map(|t| T::ln(t)).collect(),
+            OpType::Log => self.data.iter().map(|t| T::log10(t)).collect(),
+            OpType::Ln => self.data.iter().map(|t| T::ln(t)).collect(),
             OpType::ReLU => self
                 .data
                 .iter()
@@ -513,35 +513,35 @@ where
     type MathOutput = CpuTensor<T>;
 
     fn sigmoid(&self) -> Result<Self::MathOutput, String> {
-        Ok(self.element_op(OpType::SIGMOID))
+        Ok(self.element_op(OpType::Sigmoid))
     }
 
     fn log(&self) -> Result<Self::MathOutput, String> {
-        Ok(self.element_op(OpType::LOG))
+        Ok(self.element_op(OpType::Log))
     }
 
     fn ln(&self) -> Result<Self::MathOutput, String> {
-        Ok(self.element_op(OpType::LN))
+        Ok(self.element_op(OpType::Ln))
     }
 
     fn sin(&self) -> Result<Self::MathOutput, String> {
-        Ok(self.element_op(OpType::SIN))
+        Ok(self.element_op(OpType::Sin))
     }
 
     fn cos(&self) -> Result<Self::MathOutput, String> {
-        Ok(self.element_op(OpType::COS))
+        Ok(self.element_op(OpType::Cos))
     }
 
     fn tan(&self) -> Result<Self::MathOutput, String> {
-        Ok(self.element_op(OpType::TAN))
+        Ok(self.element_op(OpType::Tan))
     }
 
     fn tanh(&self) -> Result<Self::MathOutput, String> {
-        Ok(self.element_op(OpType::TANH))
+        Ok(self.element_op(OpType::Tanh))
     }
 
     fn exp(&self) -> Result<Self::MathOutput, String> {
-        Ok(self.element_op(OpType::EXP))
+        Ok(self.element_op(OpType::Exp))
     }
 
     fn relu(&self) -> Result<Self::MathOutput, String> {

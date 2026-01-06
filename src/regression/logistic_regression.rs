@@ -7,7 +7,6 @@ use std::io;
 use std::io::Write;
 
 /// Predict outputs for `x` using linear model weights `w`.
-
 /// Train a logistic regression model using gradient descent.
 ///
 /// Same parameters as `linear_regression`, but applies a sigmoid
