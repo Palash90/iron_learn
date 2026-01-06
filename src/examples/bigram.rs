@@ -1,4 +1,4 @@
-use crate::nn::loss_functions::BinaryCrossEntropy;
+use crate::nn::loss_functions::CategoricalCrossEntropy;
 use crate::nn::{DistributionType, LayerType};
 use crate::NeuralNetBuilder;
 use std::collections::{HashMap, HashSet};
@@ -100,7 +100,7 @@ where
     let x_train = T::new(vec![num_samples, vocab_size], inputs)?;
     let y_train = T::new(vec![num_samples, vocab_size], targets)?;
 
-    let loss_function_instance = Box::new(BinaryCrossEntropy);
+    let loss_function_instance = Box::new(CategoricalCrossEntropy);
 
     let (l, epoch_offset, mut nn) = match !weights_path.is_empty() && restore {
         true => match deserialize_model::<D>(&weights_path) {
@@ -131,7 +131,7 @@ where
         lr_adjustment,
     };
     let monitor = |epoch, loss, _, nn: &mut NeuralNet<T, D>| {
-        println!("\tEpoch {epoch}: Loss (BCE) = {loss:.8}");
+        println!("\tEpoch {epoch}: Loss (CCE) = {loss:.8}");
         nn.save_model(&weights_path);
 
         if sleep_time > 0 && epoch != 0 {
@@ -224,14 +224,14 @@ where
     let mut nn = NeuralNetBuilder::<T, D>::new();
 
     let layers = [
-        (input, hl, LayerType::Tanh, "Input", "AL 1"),
-        (hl, hl, LayerType::Tanh, "HL1", "AL2"),
-        (hl, 2 * hl, LayerType::Tanh, "HL2", "AL3"),
-        (2 * hl, hl, LayerType::Tanh, "HL3", "AL4"),
-        (hl, hl / 2, LayerType::Tanh, "HL4", "AL5"),
-        (hl / 2, hl / 2, LayerType::Tanh, "HL10", "AL11"),
-        (hl / 2, hl / 2, LayerType::Tanh, "HL11", "AL12"),
-        (hl / 2, input, LayerType::Sigmoid, "HL12", "Output"),
+        (input, hl, LayerType::ReLU, "Bigram Matrix", "AL 1"),
+        (hl, hl, LayerType::ReLU, "HL1", "AL2"),
+        // (hl, 2 * hl, LayerType::ReLU, "HL2", "AL3"),
+        // (2 * hl, hl, LayerType::ReLU, "HL3", "AL4"),
+        // (hl, hl / 2, LayerType::ReLU, "HL4", "AL5"),
+        //  (hl / 2, hl / 2, LayerType::ReLU, "HL10", "AL11"),
+        //  (hl / 2, hl / 2, LayerType::ReLU, "HL11", "AL12"),
+        (hl, input, LayerType::Softmax, "HL12", "Output"),
     ];
 
     for layer in layers {

@@ -12,6 +12,7 @@ pub enum LayerType {
     Linear,
     Sin,
     ReLU,
+    Softmax,
 }
 /// Return the activation function and its derivative for `layer`.
 pub fn get_activations<T, D>(layer: &LayerType) -> (ActivationFn<T>, ActivationFn<T>)
@@ -28,6 +29,7 @@ where
             |x: &T| Ok(T::ones(x.get_shape())),
         ),
         LayerType::ReLU => (relu, relu_prime),
+        LayerType::Softmax => (softmax, softmax_prime),
     }
 }
 
@@ -115,21 +117,36 @@ where
     T: TensorMath<D, MathOutput = T> + Tensor<D>,
     D: FloatingPoint,
 {
+    // 1. Get the raw data and shape
     let data = input.get_data();
-    let max_val = data.iter().fold(D::neg_infinity(), |a, &b| if a > b { a } else { b });
+    let shape = input.get_shape();
+    let rows = shape[0] as usize;
+    let cols = shape[1] as usize;
 
-    let max_val = T::ones(input.get_shape()).scale(max_val)?;
+    let mut result_data = Vec::with_capacity(data.len());
 
-    let stabilized = input.sub(&max_val)?;
+    // 2. Process each row (sample) independently to handle batches
+    for r in 0..rows {
+        let row_slice = &data[r * cols..(r + 1) * cols];
 
-    let exp = stabilized.exp()?;
-    let sum = exp.sum()?;
-    let sum = sum.get_data()[0];
-    
-    if sum == D::zero() {
-        return Err("Softmax sum resulted in zero".to_string());
+        // Find max in row for numerical stability: exp(x - max)
+        let max_val = row_slice
+            .iter()
+            .fold(D::neg_infinity(), |a, &b| if a > b { a } else { b });
+
+        // Calculate exp and sum for the row
+        let mut row_exp: Vec<D> = row_slice.iter().map(|&x| (x - max_val).exp()).collect();
+
+        let row_sum: D = row_exp.iter().fold(D::zero(), |a, &b| a + b);
+
+        // Normalize row
+        for val in row_exp.iter_mut() {
+            *val = *val / row_sum;
+        }
+        result_data.extend(row_exp);
     }
-    exp.scale(D::one() / sum)
+
+    T::new(shape.to_vec(), result_data)
 }
 
 /// Identity derivative for Softmax when paired with Cross-Entropy
