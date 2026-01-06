@@ -12,8 +12,9 @@ pub fn deserialize_data<D>(data_path: &str) -> Result<Data<D>, serde_json::Error
 where
     D: FloatingPoint,
 {
-    let contents =
-        fs::read_to_string(&data_path).expect(&format!("Failed to read data from {}", data_path));
+    let contents = fs::read_to_string(data_path)
+        .unwrap_or_else(|_| panic!("Failed to read data from {}", data_path));
+
     let data: Data<D> = match serde_json::from_str(&contents) {
         Ok(d) => d,
         Err(err) => {
@@ -34,7 +35,7 @@ pub fn deserialize_model<D>(data_path: &str) -> Option<ModelData<D>>
 where
     D: FloatingPoint,
 {
-    let contents = match fs::read_to_string(&data_path) {
+    let contents = match fs::read_to_string(data_path) {
         Ok(c) => c,
         Err(_) => {
             eprintln!("{}", &format!("Failed to read data from {}", data_path));

@@ -31,7 +31,7 @@ where
     let name = &GLOBAL_CONTEXT.get().unwrap().name;
     let distribution = &GLOBAL_CONTEXT.get().unwrap().distribution;
     let weights_path = &GLOBAL_CONTEXT.get().unwrap().weights_path;
-    let weights_path = name.to_owned() + "/" + &weights_path;
+    let weights_path = name.to_owned() + "/" + weights_path;
     let lr_adjustment = GLOBAL_CONTEXT.get().unwrap().lr_adjust;
     let restore = GLOBAL_CONTEXT.get().unwrap().restore;
 
@@ -101,8 +101,8 @@ where
     let (l, epoch_offset, mut nn) = match !weights_path.is_empty() && restore {
         true => match deserialize_model::<D>(&weights_path) {
             Some(model) => (
-                model.saved_lr.clone(),
-                model.epoch.clone(),
+                model.saved_lr,
+                model.epoch,
                 NeuralNetBuilder::build_from_model(model, loss_function_instance),
             ),
             None => (

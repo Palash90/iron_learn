@@ -11,7 +11,7 @@
 //! The context is initialized once at application startup and remains immutable
 //! throughout the program lifetime using `OnceLock` for thread-safe access.
 
-use std::{sync::OnceLock, u32};
+use std::sync::OnceLock;
 
 use crate::nn::DistributionType;
 

@@ -33,11 +33,11 @@ where
     let xy =
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
-    print!("\nLinear Regression\n");
-    print!("Number of examples (m): {}\n", xy.m);
-    print!("Number of features (n): {}\n", xy.n);
-    print!("Total X values length: {}\n", xy.x.len());
-    print!("Total Y values length: {}\n", xy.y.len());
+    println!("\nLinear Regression");
+    println!("Number of examples (m): {}", xy.m);
+    println!("Number of features (n): {}", xy.n);
+    println!("Total X values length: {}", xy.x.len());
+    println!("Total Y values length: {}", xy.y.len());
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;
@@ -108,13 +108,13 @@ where
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
     let xy: Data<D> =
-        deserialize_data(&data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
+        deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
 
-    print!("\nLogistic Regression\n");
-    print!("Number of examples (m): {}\n", xy.m);
-    print!("Number of features (n): {}\n", xy.n);
-    print!("Total X values length: {}\n", xy.x.len());
-    print!("Total Y values length: {}\n", xy.y.len());
+    println!("\nLogistic Regression");
+    println!("Number of examples (m): {}", xy.m);
+    println!("Number of features (n): {}", xy.n);
+    println!("Total X values length: {}", xy.x.len());
+    println!("Total Y values length: {}", xy.y.len());
 
     let x = T::new(vec![xy.m, xy.n], xy.x.clone())?;
     let y = T::new(vec![xy.m, 1], xy.y.clone())?;

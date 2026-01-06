@@ -63,22 +63,27 @@ impl<T: Numeric> CpuTensor<T> {
     {
         let result = match op_type {
             OpType::Exp => self.data.iter().map(|t| T::exp(t)).collect(),
+
             OpType::Cos => self.data.iter().map(|t| T::cos(t)).collect(),
+
             OpType::Sin => self.data.iter().map(|t| T::sin(t)).collect(),
+
             OpType::Tan => self.data.iter().map(|t| T::tan(t)).collect(),
+
             OpType::Tanh => self.data.iter().map(|t| T::tanh(t)).collect(),
-            OpType::Sigmoid => self
-                .data
-                .iter()
-                .map(|t| Self::_sigmoid(t.clone()))
-                .collect(),
+
+            OpType::Sigmoid => self.data.iter().map(|t| Self::_sigmoid(*t)).collect(),
+
             OpType::Log => self.data.iter().map(|t| T::log10(t)).collect(),
+
             OpType::Ln => self.data.iter().map(|t| T::ln(t)).collect(),
+
             OpType::ReLU => self
                 .data
                 .iter()
-                .map(|t| if t.f32() > 0.0 { t.clone() } else { T::zero() })
+                .map(|t| if t.f32() > 0.0 { *t } else { T::zero() })
                 .collect(),
+
             OpType::GreaterThanZeroMask => self
                 .data
                 .iter()

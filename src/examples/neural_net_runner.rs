@@ -50,7 +50,7 @@ where
     let distribution = &GLOBAL_CONTEXT.get().unwrap().distribution;
     let predict_only = GLOBAL_CONTEXT.get().unwrap().predict_only;
     let example = GLOBAL_CONTEXT.get().unwrap().example_mode;
-    let weights_path = name.to_owned() + "/" + &weights_path;
+    let weights_path = name.to_owned() + "/" + weights_path;
     let resize = GLOBAL_CONTEXT.get().unwrap().resize;
 
     let xy =
@@ -90,8 +90,8 @@ where
     let (l, epoch_offset, mut nn) = match !weights_path.is_empty() && restore {
         true => match deserialize_model::<D>(&weights_path) {
             Some(model) => (
-                model.saved_lr.clone(),
-                model.epoch.clone(),
+                model.saved_lr,
+                model.epoch,
                 NeuralNetBuilder::build_from_model(model, loss_function_instance),
             ),
             None => (

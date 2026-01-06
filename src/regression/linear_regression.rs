@@ -35,5 +35,5 @@ where
         weight = gradient_descent(&x_with_bias, y, &weight, l, false)?;
     }
 
-    Ok(gradient_descent(&x_with_bias, y, &weight, l, false)?)
+    gradient_descent(&x_with_bias, y, &weight, l, false)
 }

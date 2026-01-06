@@ -117,7 +117,7 @@ pub fn init_runtime() -> &'static AppContext {
         "NORMAL" => DistributionType::Normal,
         "XAVIER" => DistributionType::Xavier,
         "UNIFORM" => DistributionType::Uniform,
-        "He" => DistributionType::He,
+        "HE" => DistributionType::He,
         _ => DistributionType::Normal,
     };
 
