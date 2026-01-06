@@ -55,10 +55,10 @@ pub trait Tensor<T: Numeric>: Sized {
 
     /* Creation */
     /// Returns a Tensor with all zero values
-    fn zeroes(shape: &Vec<u32>) -> Self;
+    fn zeroes(shape: &[u32]) -> Self;
 
     /// Returns a Tensor with all one values
-    fn ones(shape: &Vec<u32>) -> Self;
+    fn ones(shape: &[u32]) -> Self;
 
     /// Creates a new tensor with the provided shape and data
     fn new(shape: Vec<u32>, data: Vec<T>) -> Result<Self, String>;

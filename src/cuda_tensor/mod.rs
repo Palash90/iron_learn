@@ -156,12 +156,12 @@ impl<T: Numeric + Zeroable + DeviceCopy> Tensor<T> for GpuTensor<T> {
     }
 
     /// Create a tensor of zeros with the given `shape`.
-    fn zeroes(shape: &Vec<u32>) -> Self {
+    fn zeroes(shape: &[u32]) -> Self {
         Self::_new_with_value(shape.to_vec(), T::zero()).unwrap()
     }
 
     /// Create a tensor filled with ones with the given `shape`.
-    fn ones(shape: &Vec<u32>) -> Self {
+    fn ones(shape: &[u32]) -> Self {
         Self::_new_with_value(shape.to_vec(), T::one()).unwrap()
     }
 

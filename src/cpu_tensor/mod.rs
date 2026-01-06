@@ -435,14 +435,14 @@ impl<T: Numeric> Tensor<T> for CpuTensor<T> {
         Self::_new(shape, data)
     }
 
-    fn zeroes(shape: &Vec<u32>) -> Self {
+    fn zeroes(shape: &[u32]) -> Self {
         let data = vec![T::zero(); shape.iter().product::<u32>() as usize];
-        Self::_new(shape.clone(), data).unwrap()
+        Self::_new(shape.to_vec(), data).unwrap()
     }
 
-    fn ones(shape: &Vec<u32>) -> Self {
+    fn ones(shape: &[u32]) -> Self {
         let data = vec![T::one(); shape.iter().product::<u32>() as usize];
-        Self::_new(shape.clone(), data).unwrap()
+        Self::_new(shape.to_vec(), data).unwrap()
     }
 
     /* Retrieval */
