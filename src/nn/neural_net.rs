@@ -13,6 +13,9 @@ use std::io;
 use std::io::Write;
 use std::path::Path;
 
+use crate::nn::types::TrainingConfig;
+use crate::nn::types::TrainingHook;
+
 /// Feed-forward neural network container.
 ///
 /// Holds an ordered list of `Layer` trait objects, the configured loss
@@ -79,25 +82,21 @@ where
         &mut self,
         x_train: &T,
         y_train: &T,
-        epochs: usize,
-        epoch_offset: usize,
-        base_lr: D,
-        lr_adjustment: bool,
-        mut hook: F,
-        hook_interval: usize,
+        config: TrainingConfig<D>,
+        mut hook_config: TrainingHook<F, Self, D>,
     ) -> Result<(), String>
     where
         F: FnMut(usize, D, D, &mut Self),
     {
         let lr_min = D::from_f64(1e-6);
 
-        let total_timeline = D::from_u32(epochs as u32);
-        let hook_interval = match epochs > hook_interval {
-            true => hook_interval,
-            false => epochs,
+        let total_timeline = D::from_u32(config.epochs as u32);
+        let hook_interval = match config.epochs > hook_config.interval {
+            true => hook_config.interval,
+            false => config.epochs,
         };
 
-        for i in epoch_offset..epochs {
+        for i in config.epoch_offset..config.epochs {
             let global_i = D::from_u32(i as u32);
 
             self.current_epoch = i;
@@ -105,15 +104,16 @@ where
             let cos_term = ((D::from_f64(PI) * global_i) / total_timeline).cos();
 
             let decay_factor = D::from_f64(0.5) * (D::one() + cos_term);
-            let current_lr = match lr_adjustment {
-                true => lr_min + (base_lr - lr_min) * decay_factor,
-                false => base_lr,
+            let current_lr = match config.lr_adjustment {
+                true => lr_min + (config.base_lr - lr_min) * decay_factor,
+                false => config.base_lr,
             };
 
             self.current_lr = current_lr;
 
             print!(
-                "\rProcessing epoch: {}/{epochs}, adjust lr set to {lr_adjustment}, current lr: {current_lr}", self.current_epoch
+                "\rProcessing epoch: {}/{}, adjust lr set to {}, current lr: {current_lr}",
+                self.current_epoch, config.epochs, config.lr_adjustment
             );
             io::stdout().flush().unwrap();
 
@@ -138,13 +138,14 @@ where
                 T::synchronize();
                 let err_val = err.unwrap().sum().unwrap().get_data()[0];
 
-                hook(i, err_val, current_lr, self);
+                (hook_config.callback)(i, err_val, current_lr, self);
             }
         }
 
         T::synchronize();
         Ok(())
     }
+
     /// Serialize and write the model weights and metadata to `filepath`.
     pub fn save_model(&self, filepath: &str) {
         let mut model_storage = ModelData {

@@ -14,6 +14,9 @@ use crate::Tensor;
 
 use crate::examples::contexts::GLOBAL_CONTEXT;
 use crate::examples::read_file::deserialize_model;
+use crate::nn::types::TrainingConfig;
+use crate::nn::types::TrainingHook;
+use crate::NeuralNet;
 
 pub fn run_trigram_generator<T, D>() -> Result<(), String>
 where
@@ -121,26 +124,26 @@ where
         ),
     };
 
-    // 4. Training (Small number of epochs for demo)
-    nn.fit(
-        &x_train,
-        &y_train,
-        e as usize,
+    let config = TrainingConfig {
+        epochs: e as usize,
         epoch_offset,
-        l,
+        base_lr: l,
         lr_adjustment,
-        |epoch, loss, _, nn| {
-            println!("\tEpoch {epoch}: Loss (BCE) = {loss:.8}");
-            nn.save_model(&weights_path);
+    };
 
-            if sleep_time > 0 && epoch != 0 {
-                println!("Taking a nap");
-                thread::sleep(Duration::from_secs(5));
-                println!("Awake again");
-            }
-        },
-        1000,
-    )?;
+    let monitor = |epoch, loss, _, nn: &mut NeuralNet<T, D>| {
+        println!("\tEpoch {epoch}: Loss (BCE) = {loss:.8}");
+        nn.save_model(&weights_path);
+
+        if sleep_time > 0 && epoch != 0 {
+            println!("Taking a nap");
+            thread::sleep(Duration::from_secs(5));
+            println!("Awake again");
+        }
+    };
+    let hook_config = TrainingHook::new(1000, monitor);
+
+    nn.fit(&x_train, &y_train, config, hook_config)?;
 
     println!("\nGenerated Names:");
     for _ in 0..10 {

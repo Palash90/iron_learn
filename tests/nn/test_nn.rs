@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod tests {
+    use iron_learn::nn::types::TrainingConfig;
+    use iron_learn::nn::types::TrainingHook;
     use iron_learn::nn::DistributionType;
     use iron_learn::nn::LayerType;
     use iron_learn::Tensor;
@@ -65,7 +67,16 @@ mod tests {
                 monitor_captured.push((epoch, err, lr));
             };
 
-        let result = net.fit(&input, &target, 5, 0, 1.0, false, monitor, 1);
+        let config = TrainingConfig {
+            epochs: 5,
+            epoch_offset: 0,
+            base_lr: 1.0,
+            lr_adjustment: false,
+        };
+
+        let hook_config = TrainingHook::new(1, monitor);
+
+        let result = net.fit(&input, &target, config, hook_config);
 
         assert!(result.is_ok());
         assert_eq!(monitor_captured.len(), 5);
@@ -87,7 +98,16 @@ mod tests {
                 monitor_captured.push((epoch, err, lr));
             };
 
-        let result = net.fit(&input, &target, 5, 0, 1.0, true, monitor, 1);
+        let config = TrainingConfig {
+            epochs: 5,
+            epoch_offset: 0,
+            base_lr: 1.0,
+            lr_adjustment: true,
+        };
+
+        let hook_config = TrainingHook::new(1, monitor);
+
+        let result = net.fit(&input, &target, config, hook_config);
 
         assert!(result.is_ok());
         assert_eq!(monitor_captured.len(), 5);

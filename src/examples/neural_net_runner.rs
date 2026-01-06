@@ -22,6 +22,9 @@ use crate::MeanSquaredErrorLoss;
 use std::fs;
 use std::path::Path;
 
+use crate::nn::types::TrainingConfig;
+use crate::nn::types::TrainingHook;
+
 /// Train and evaluate a neural network using configuration from the global context.
 ///
 /// This function builds a neural network according to global settings,
@@ -152,16 +155,16 @@ where
     };
 
     if !predict_only {
-        let _ = nn.fit(
-            &x_with_bias,
-            &y,
-            e as usize,
+        let config = TrainingConfig {
+            epochs: e as usize,
             epoch_offset,
-            l,
+            base_lr: l,
             lr_adjustment,
-            monitor,
-            monitor_interval,
-        );
+        };
+
+        let hook_config = TrainingHook::new(monitor_interval, monitor);
+
+        let _ = nn.fit(&x_with_bias, &y, config, hook_config);
     } else {
         println!("Skipped Fitting as in Predict Only Mode");
     }

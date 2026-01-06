@@ -46,13 +46,13 @@ fn main() {
     {
         if ctx.gpu_enabled {
             println!("Running GPU-based training...\n");
-            let _ = run_ml::<GpuTensor<DataType>, DataType>(ctx.example_mode);
+            run_ml::<GpuTensor<DataType>, DataType>(ctx.example_mode);
             println!("\n✓ All training tasks completed");
             return;
         }
     }
 
     println!("Running CPU-based training...\n");
-    let _ = run_ml::<CpuTensor<DataType>, DataType>(ctx.example_mode);
+    run_ml::<CpuTensor<DataType>, DataType>(ctx.example_mode);
     println!("\n✓ All training tasks completed");
 }

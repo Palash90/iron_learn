@@ -72,3 +72,5 @@ use crate::numeric::FloatingPoint;
 // ============================================================================
 
 mod neural_net;
+
+pub mod types;
