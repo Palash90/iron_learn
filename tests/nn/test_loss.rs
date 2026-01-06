@@ -60,6 +60,7 @@ mod loss_tests {
         assert!((g[0] + 0.55555556).abs() < 1e-6, "grad0 {}", g[0]);
         assert!((g[1] - 0.55555556).abs() < 1e-6, "grad1 {}", g[1]);
     }
+    
     #[test]
     fn test_cce_loss_and_prime_gpu() {
         let cce = CategoricalCrossEntropy;

@@ -108,3 +108,35 @@ where
 {
     output.cos()
 }
+
+/// Aggregating activation: f(x_i) = exp(x_i) / sum(exp(x_j))
+pub fn softmax<T, D>(input: &T) -> Result<T, String>
+where
+    T: TensorMath<D, MathOutput = T> + Tensor<D>,
+    D: FloatingPoint,
+{
+    let data = input.get_data();
+    let max_val = data.iter().fold(D::neg_infinity(), |a, &b| if a > b { a } else { b });
+
+    let max_val = T::ones(input.get_shape()).scale(max_val)?;
+
+    let stabilized = input.sub(&max_val)?;
+
+    let exp = stabilized.exp()?;
+    let sum = exp.sum()?;
+    let sum = sum.get_data()[0];
+    
+    if sum == D::zero() {
+        return Err("Softmax sum resulted in zero".to_string());
+    }
+    exp.scale(D::one() / sum)
+}
+
+/// Identity derivative for Softmax when paired with Cross-Entropy
+pub fn softmax_prime<T, D>(output: &T) -> Result<T, String>
+where
+    T: TensorMath<D, MathOutput = T> + Tensor<D>,
+    D: FloatingPoint,
+{
+    Ok(T::ones(output.get_shape()))
+}

@@ -413,6 +413,7 @@ pub trait FloatingPoint: SignedNumeric {
             *other
         }
     }
+    fn neg_infinity() -> Self;
 }
 
 impl FloatingPoint for f32 {
@@ -453,6 +454,10 @@ impl FloatingPoint for f32 {
     fn round(&self) -> Self {
         f32::round(*self)
     }
+    
+    fn neg_infinity() -> Self {
+        f32::NEG_INFINITY
+    }
 }
 
 impl FloatingPoint for f64 {
@@ -492,5 +497,9 @@ impl FloatingPoint for f64 {
 
     fn round(&self) -> Self {
         f64::round(*self)
+    }
+    
+    fn neg_infinity() -> Self {
+        f64::NEG_INFINITY
     }
 }
