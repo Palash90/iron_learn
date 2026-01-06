@@ -127,13 +127,13 @@ where
                 if example == ExampleMode::ImageNeuralNet {
                     let size = (xy.m as f64).sqrt() as u32;
 
-                    let pixels = y_pred
+                    let pixels: Vec<u8>= y_pred
                         .get_data()
                         .clone()
                         .iter()
                         .map(|x| (x.f64() * 255.0) as u8)
                         .collect();
-                    let coordinates = xy.x.clone().iter().map(|x| x.f64() as u32).collect();
+                    let coordinates: Vec<u32> = xy.x.clone().iter().map(|x| x.f64() as u32).collect();
 
                     draw_image(epoch as i32, &coordinates, &pixels, size, size, name);
                 }
@@ -170,13 +170,13 @@ where
     if example == ExampleMode::ImageNeuralNet {
         let size = (x_test_with_bias.get_shape()[0] as f64).sqrt() as u32;
 
-        let pixels = predictions
+        let pixels: Vec<u8> = predictions
             .get_data()
             .clone()
             .iter()
             .map(|x| (x.f64() * 255.0) as u8)
             .collect();
-        let coordinates = x_test
+        let coordinates: Vec<u32> = x_test
             .get_data()
             .clone()
             .iter()
@@ -268,8 +268,8 @@ where
 
 fn draw_image(
     epoch: i32,
-    x_data: &Vec<u32>,
-    y_data: &Vec<u8>,
+    x_data: &[u32],
+    y_data: &[u8],
     height: u32,
     width: u32,
     name: &String,
