@@ -42,6 +42,9 @@ jobs:
           cargo build --verbose
           cargo test --verbose
       
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+      
       - name: Generate Code Coverage
         run: cargo llvm-cov --workspace --lcov --output-path lcov.info
 
