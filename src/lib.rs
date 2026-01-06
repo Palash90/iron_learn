@@ -1,3 +1,11 @@
+// Test suites for all readme examples
+#![doc = include_str!("../README.md")]
+
+pub mod examples_tests {
+    #[doc = include_str!("tensor/README.md")]
+    pub struct TensorReadme;
+}
+
 // ============================================================================
 // Internal Module Declarations
 // ============================================================================

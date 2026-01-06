@@ -17,6 +17,7 @@ A minimalistic Rust machine learning library with optional GPU-accelerated optim
 - **Zero-Copy Operations**: Borrowing methods for efficient computation reuse
 
 ## Network Output
+
 Before we deep dive into the nitty-gritties of the library, let's have a look on few of the examples the neural network presented:
 
 1. [Image Reconstruction](#image-reconstruction)
@@ -65,7 +66,7 @@ product.print_matrix();
 
 // Multiply tensors  (Matrix multiplication)
 let product = a.matmul(&b).unwrap();
-println!("Hadamard Product:");
+println!("Dot Product:");
 product.print_matrix();
 
 // Divide tensors (Element wise division)
@@ -131,11 +132,11 @@ python anomaly_detection.py
 ### Use GPU Tensor
 
 ```rust
-use iron_learn::init_gpu; // Only available under cuda feature.
+#![cfg(feature = "cuda")]
+pub use crate::gpu_context::{init_gpu, GpuContext, GPU_CONTEXT}; // Only available under cuda feature.
 
 use iron_learn::GpuTensor;
 use iron_learn::Tensor;
-use iron_learn::init_context;
 
 init_gpu();
 // Create 2x2 matrices
@@ -158,14 +159,14 @@ let sum = a.sub(&b).unwrap();
 println!("Difference:");
 sum.print_matrix();
 
-// Multiply tensors (Matrix multiplication)
+// Multiply tensors (Element wise multiplication)
 let product = a.mul(&b).unwrap();
 println!("Product:");
 product.print_matrix();
 
-// Multiply tensors (Element wise multiplication)
-let product = a.multiply(&b).unwrap();
-println!("Hadamard Product:");
+// Multiply tensors (Matrix multiplication)
+let product = a.matmul(&b).unwrap();
+println!("Dot Product:");
 product.print_matrix();
 
 // Divide tensors (Element wise division)
@@ -186,35 +187,52 @@ use iron_learn::CpuTensor;
 use iron_learn::MeanSquaredErrorLoss;
 use iron_learn::NeuralNet;
 use iron_learn::NeuralNetBuilder;
-use iron_learn::neural_network::DistributionType;
-use iron_learn::neural_network::LayerType;
+use iron_learn::nn::DistributionType;
+use iron_learn::nn::LayerType;
 use iron_learn::Tensor;
+use iron_learn::nn::types::TrainingConfig;
+use iron_learn::nn::types::TrainingHook;
 
-let mut nn = NeuralNetBuilder::<CpuTensor<f32>>::new();
+fn main() {
+    let mut nn = NeuralNetBuilder::<CpuTensor<f32>, f32>::new();
 
-let x: CpuTensor<f32> = CpuTensor::new(vec![4, 2], vec![0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]).unwrap();
-let y: CpuTensor<f32> = CpuTensor::new(vec![4, 1], vec![0.0, 1.0, 1.0, 0.0]).unwrap();
+    let x: CpuTensor<f32> = CpuTensor::new(vec![4, 2], vec![0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]).unwrap();
+    let y: CpuTensor<f32> = CpuTensor::new(vec![4, 1], vec![0.0, 1.0, 1.0, 0.0]).unwrap();
 
-let monitor = |epoch: usize, err: f32, current_lr: f32, nn: &mut NeuralNet<CpuTensor<f32>>| {
-    println!("Processing epopch: {epoch}, error: {err}");
-};
+    let monitor = |epoch: usize, err: f32, current_lr: f32, nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
+        println!("Processing epopch: {epoch}, error: {err}");
+    };
 
-nn.add_linear(2, 4, "Input", &DistributionType::Uniform);
-nn.add_activation(LayerType::Tanh, "Activation Layer");
+    nn.add_linear(2, 4, "Input", &DistributionType::Uniform);
+    nn.add_activation(LayerType::Tanh, "Activation Layer");
 
-nn.add_linear(4, 1, "Hidden", &DistributionType::Uniform);
-nn.add_activation(LayerType::Sigmoid, "Output");
+    nn.add_linear(4, 1, "Hidden", &DistributionType::Uniform);
+    nn.add_activation(LayerType::Sigmoid, "Output");
 
-let loss_function_instance = Box::new(MeanSquaredErrorLoss);
+    let loss_function_instance = Box::new(MeanSquaredErrorLoss);
 
-let mut net = nn.build(loss_function_instance, &"neural-net".to_string());
-net.fit(&x, &y, 10000, 0, 0.01, false, monitor, 1000);
+    let mut net = nn.build(loss_function_instance, &"neural-net".to_string());
 
-let prediction = net.predict(&x).unwrap();
+    let config = TrainingConfig {
+                epochs: 5,
+                epoch_offset: 0,
+                base_lr: 1.0,
+                lr_adjustment: false,
+            };
 
-println!("\nPredicted value");
-prediction.print_matrix();
+    let monitor = |epoch: usize, err: f32, lr: f32, _nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
+                    println!("Processing epopch: {epoch}, error: {err}");
+                };
 
+    let hook_config = TrainingHook::new(1, monitor);
+
+    net.fit(&x, &y, config, hook_config);
+
+    let prediction = net.predict(&x).unwrap();
+
+    println!("\nPredicted value");
+    prediction.print_matrix();
+}
 ```
 
 ## Image Reconstruction
@@ -248,7 +266,6 @@ For comparison, Following is the original image fed to the network.
 ![Time lapse of regeneration](image/images/timeline.gif)
 
 You can find all the regenerated images in [image/images](image/images) directory.
-
 
 ## High-level Overview of the components
 
