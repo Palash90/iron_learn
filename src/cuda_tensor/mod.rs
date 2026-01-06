@@ -47,14 +47,14 @@ use cust::stream::Stream;
 /// numeric discriminants are matched in the CUDA kernels.
 #[derive(Clone, Copy, Debug)]
 enum OpType {
-    EXP = 0,
-    SIN = 2,
-    COS = 3,
-    TAN = 4,
-    TANH = 5,
-    SIGMOID = 6,
-    LOG = 7,
-    LN = 8,
+    Exp = 0,
+    Sin = 2,
+    Cos = 3,
+    Tan = 4,
+    Tanh = 5,
+    Sigmoid = 6,
+    Log = 7,
+    Ln = 8,
     GreaterThanZeroMask = 9,
     ReLU = 10,
 }
@@ -65,10 +65,10 @@ enum OpType {
 /// multiplication/division between two tensors.
 #[derive(Clone, Copy, Debug)]
 enum ArithmaticType {
-    ADD = 1,
-    SUB = 2,
-    MUL = 3,
-    DIV = 4,
+    Add = 1,
+    Sub = 2,
+    Mul = 3,
+    Div = 4,
 }
 
 /// A tensor whose backing storage resides on a CUDA device.
@@ -107,12 +107,12 @@ impl<T: Numeric + Zeroable + DeviceCopy> Tensor<T> for GpuTensor<T> {
     /// Element-wise addition of two tensors. Returns an error on shape
     /// mismatch.
     fn add(&self, rhs: &Self) -> Result<Self, String> {
-        self._element_arithmatic(rhs, ArithmaticType::ADD)
+        self._element_arithmatic(rhs, ArithmaticType::Add)
     }
 
     /// Element-wise subtraction. Returns an error on shape mismatch.
     fn sub(&self, rhs: &Self) -> Result<Self, String> {
-        self._element_arithmatic(rhs, ArithmaticType::SUB)
+        self._element_arithmatic(rhs, ArithmaticType::Sub)
     }
 
     /// Element-wise multiplication (Hadamard product). Returns an error on
@@ -123,13 +123,13 @@ impl<T: Numeric + Zeroable + DeviceCopy> Tensor<T> for GpuTensor<T> {
 
     /// Element-wise division. Returns an error on shape mismatch.
     fn div(&self, rhs: &Self) -> Result<Self, String> {
-        self._element_arithmatic(rhs, ArithmaticType::DIV)
+        self._element_arithmatic(rhs, ArithmaticType::Div)
     }
 
     /// Matrix multiplication. Validates dimensions and performs GPU-backed
     /// multiply (cuBLAS is used when available).
     fn mul(&self, rhs: &Self) -> Result<Self, String> {
-        self._element_arithmatic(rhs, ArithmaticType::MUL)
+        self._element_arithmatic(rhs, ArithmaticType::Mul)
     }
 
     /// Transpose the tensor (only supported up to 2D). Returns a new
@@ -185,7 +185,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> Add for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn add(self, rhs: Self) -> Result<Self, String> {
-        self._element_arithmatic(&rhs, ArithmaticType::ADD)
+        self._element_arithmatic(&rhs, ArithmaticType::Add)
     }
 }
 
@@ -193,7 +193,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> Sub for GpuTensor<T> {
     type Output = Result<Self, String>;
 
     fn sub(self, rhs: Self) -> Result<Self, String> {
-        self._element_arithmatic(&rhs, ArithmaticType::SUB)
+        self._element_arithmatic(&rhs, ArithmaticType::Sub)
     }
 }
 
@@ -371,8 +371,8 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
         let m = self.shape[0] as i32;
         let n = self.shape[1] as i32;
 
-        let grid_x = (n as u32 + BLOCK_DIM_X - 1) / BLOCK_DIM_X;
-        let grid_y = (m as u32 + BLOCK_DIM_Y - 1) / BLOCK_DIM_Y;
+        let grid_x = (n as u32).div_ceil(BLOCK_DIM_X);
+        let grid_y = (m as u32).div_ceil(BLOCK_DIM_Y);
 
         let stream = Self::_get_stream();
 
@@ -392,7 +392,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
     fn _data(&self) -> Vec<T> {
         let total_elements = self.shape.iter().product::<u32>() as usize;
 
-        let mut data = vec![T::zero(); (total_elements) as usize];
+        let mut data = vec![T::zero(); total_elements];
 
         unsafe {
             cust::sys::cuMemcpyDtoH_v2(
@@ -422,7 +422,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
         let total_size_u32 = total_elements as u32;
         let threads_per_block = 1024;
 
-        let grid_1d = (total_size_u32 + threads_per_block - 1) / threads_per_block;
+        let grid_1d = total_size_u32.div_ceil(threads_per_block);
 
         let stream = Self::_get_stream();
         unsafe {
@@ -456,7 +456,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
         // 3. Grid Setup: One thread per column
         // Your kernel uses: int col = blockIdx.x * blockDim.x + threadIdx.x;
         let threads_per_block = 256;
-        let grid_size = (num_cols + threads_per_block - 1) / threads_per_block;
+        let grid_size = num_cols.div_ceil(threads_per_block);
 
         let stream = Self::_get_stream();
 
@@ -504,7 +504,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
         let buffer = get_device_buffer(size);
 
         let threads_per_block = 1024;
-        let grid_1d = (size as u32 + threads_per_block - 1) / threads_per_block;
+        let grid_1d = (size as u32).div_ceil(threads_per_block);
         let stream = Self::_get_stream();
         let operation = Self::_get_function("fill_value");
 
@@ -547,7 +547,7 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
         let device_buffer = get_device_buffer::<T>(size);
 
         let threads_per_block = 1024; // Use a typical 1D block size
-        let grid_1d = (size as u32 + threads_per_block - 1) / threads_per_block;
+        let grid_1d = (size as u32).div_ceil(threads_per_block);
 
         let stream = Self::_get_stream();
 
@@ -576,8 +576,8 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
         let block_dim = 16;
 
         // Calculate grid size using ceiling division
-        let grid_x = (rhs.shape[1] + block_dim - 1) / block_dim;
-        let grid_y = (self.shape[0] + block_dim - 1) / block_dim;
+        let grid_x = rhs.shape[1].div_ceil(block_dim);
+        let grid_y = self.shape[0].div_ceil(block_dim);
 
         let total_elements = (self.shape[0] * rhs.shape[1]) as usize;
 
@@ -657,35 +657,35 @@ where
     type MathOutput = GpuTensor<T>;
 
     fn sigmoid(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::SIGMOID)
+        self.element_op(OpType::Sigmoid)
     }
 
     fn log(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::LOG)
+        self.element_op(OpType::Log)
     }
 
     fn ln(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::LN)
+        self.element_op(OpType::Ln)
     }
 
     fn sin(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::SIN)
+        self.element_op(OpType::Sin)
     }
 
     fn cos(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::COS)
+        self.element_op(OpType::Cos)
     }
 
     fn tan(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::TAN)
+        self.element_op(OpType::Tan)
     }
 
     fn tanh(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::TANH)
+        self.element_op(OpType::Tanh)
     }
 
     fn exp(&self) -> Result<Self::MathOutput, String> {
-        self.element_op(OpType::EXP)
+        self.element_op(OpType::Exp)
     }
 
     fn relu(&self) -> Result<Self::MathOutput, String> {
