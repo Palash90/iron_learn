@@ -127,13 +127,14 @@ where
                 if example == ExampleMode::ImageNeuralNet {
                     let size = (xy.m as f64).sqrt() as u32;
 
-                    let pixels: Vec<u8>= y_pred
+                    let pixels: Vec<u8> = y_pred
                         .get_data()
                         .clone()
                         .iter()
                         .map(|x| (x.f64() * 255.0) as u8)
                         .collect();
-                    let coordinates: Vec<u32> = xy.x.clone().iter().map(|x| x.f64() as u32).collect();
+                    let coordinates: Vec<u32> =
+                        xy.x.clone().iter().map(|x| x.f64() as u32).collect();
 
                     draw_image(epoch as i32, &coordinates, &pixels, size, size, name);
                 }
@@ -266,14 +267,7 @@ where
     nn
 }
 
-fn draw_image(
-    epoch: i32,
-    x_data: &[u32],
-    y_data: &[u8],
-    height: u32,
-    width: u32,
-    name: &String,
-) {
+fn draw_image(epoch: i32, x_data: &[u32], y_data: &[u8], height: u32, width: u32, name: &String) {
     println!("Drawing {height} x {width} images");
     let mut image_data: Vec<(u32, u32, u8)> = vec![];
 

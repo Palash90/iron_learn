@@ -17,6 +17,16 @@ where
     layers: Vec<Box<dyn Layer<T, D>>>,
 }
 
+impl<T, D> Default for NeuralNetBuilder<T, D>
+where
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint + 'static,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T, D> NeuralNetBuilder<T, D>
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
