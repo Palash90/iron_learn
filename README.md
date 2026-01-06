@@ -19,7 +19,7 @@ A minimalistic Rust machine learning library with optional GPU-accelerated optim
 ## Examples
 Before we deep dive into the nitty-gritties of the library, let's have a look on few of the examples the neural network presented:
 
-1. [Image Reconstruction](Image Reconstruction)
+1. [Image Reconstruction](#image-reconstruction)
 
 ## Quick Start
 
@@ -247,7 +247,7 @@ For comparison, Following is the original image fed to the network.
 
 ![Time lapse of regeneration](image/images/timeline.gif)
 
-You can find all the regenerated images in `image/images`directory.
+You can find all the regenerated images in [image/images](image/images) directory.
 
 
 ## High-level Overview of the components
