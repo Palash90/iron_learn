@@ -16,7 +16,7 @@ A minimalistic Rust machine learning library with optional GPU-accelerated optim
 - **Complex Number Arithmetic**: Native support for complex-valued computations
 - **Zero-Copy Operations**: Borrowing methods for efficient computation reuse
 
-## Examples
+## Network Output
 Before we deep dive into the nitty-gritties of the library, let's have a look on few of the examples the neural network presented:
 
 1. [Image Reconstruction](#image-reconstruction)
