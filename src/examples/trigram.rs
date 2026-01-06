@@ -17,6 +17,7 @@ use crate::examples::read_file::deserialize_model;
 use crate::nn::types::TrainingConfig;
 use crate::nn::types::TrainingHook;
 use crate::NeuralNet;
+use std::time::Instant;
 
 pub fn run_trigram_generator<T, D>() -> Result<(), String>
 where
@@ -77,11 +78,12 @@ where
     let mut targets = Vec::new();
 
     for name in names {
-        let full_name = format!("..{}..", name);
+        let full_name = format!("..{}.", name);
         let chars_vec: Vec<char> = full_name.chars().collect();
         for window in chars_vec.windows(3) {
             let ix1 = stoi[&window[0]];
             let ix2 = stoi[&window[1]];
+            let ix3 = stoi[&window[2]];
 
             // Create One-Hot for Input
             let mut oh = vec![D::zero(); (vocab_size * 2) as usize];
@@ -91,7 +93,7 @@ where
 
             // Target (Simplified: one-hot for MSE)
             let mut target_oh = vec![D::zero(); vocab_size as usize];
-            target_oh[ix2] = D::one();
+            target_oh[ix3] = D::one();
             targets.extend(target_oh);
         }
     }
@@ -131,8 +133,19 @@ where
         lr_adjustment,
     };
 
-    let monitor = |epoch, loss, _, nn: &mut NeuralNet<T, D>| {
-        println!("\tEpoch {epoch}: Loss (CCE) = {loss:.8}");
+    let mut start_time = Instant::now();
+    let mut last_epoch = 0;
+
+    let monitor = |epoch, loss: D, _, nn: &mut NeuralNet<T, D>| {
+        let elapsed = start_time.elapsed();
+        start_time = Instant::now();
+
+        if loss.f64().is_nan() {
+            panic!("Hit NaN");
+        }
+
+        println!("\tEpoch {epoch}: Loss (CCE) = {loss:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
+        last_epoch = epoch;
         nn.save_model(&weights_path);
 
         if sleep_time > 0 && epoch != 0 {
@@ -146,7 +159,7 @@ where
     nn.fit(&x_train, &y_train, config, hook_config)?;
 
     println!("\nGenerated Names:");
-    for _ in 0..10 {
+    for _ in 0..20 {
         let mut context = ('.', '.');
         let mut name = String::new();
 
@@ -161,7 +174,7 @@ where
 
             // --- Weighted Random Sampling ---
             // 1. Convert logits/scores to positive weights (exponentiation)
-            let temparature = 0.8;
+            let temparature = 0.4;
             let mut weights: Vec<f64> = data
                 .iter()
                 .map(|val| (val.f64() / temparature).exp())
@@ -181,7 +194,7 @@ where
                 .duration_since(std::time::UNIX_EPOCH)
                 .unwrap()
                 .as_nanos() as f64;
-            let random_point = (rng_seed % 1000.0 / 1000.0) * total_weight;
+            let random_point = (rng_seed % 1_000_000.0 / 1_000_000.0) * total_weight;
 
             let mut cumulative_weight = 0.0;
             let mut next_ix = 0;
@@ -232,12 +245,12 @@ where
     let layers = [
         (input_size, hl, LayerType::ReLU, "Input", "AL 1"),
         (hl, hl, LayerType::ReLU, "HL1", "AL2"),
-        //  (hl, 2 * hl, LayerType::ReLU, "HL2", "AL3"),
-        //  (2 * hl, hl, LayerType::ReLU, "HL3", "AL4"),
-        //  (hl, hl / 2, LayerType::ReLU, "HL4", "AL5"),
-        //  (hl / 2, hl / 2, LayerType::ReLU, "HL10", "AL11"),
+        //    (hl, 2 * hl, LayerType::ReLU, "HL2", "AL3"),
+        //    (2 * hl, hl, LayerType::ReLU, "HL3", "AL4"),
+        (hl, hl / 2, LayerType::ReLU, "HL4", "AL5"),
+        (hl / 2, hl / 4, LayerType::ReLU, "HL10", "AL11"),
         //  (hl / 2, hl / 2, LayerType::ReLU, "HL11", "AL12"),
-        (hl, input, LayerType::Softmax, "HL12", "Output"),
+        (hl / 4, input, LayerType::Softmax, "HL12", "Output"),
     ];
 
     for layer in layers {
