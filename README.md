@@ -2,7 +2,7 @@
 
 ![License](https://img.shields.io/github/license/palash90/iron_learn)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/palash90/iron_learn/rust.yml)
-![Coverage](link)
+[![codecov](https://codecov.io/gh/Palash90/iron_learn/graph/badge.svg?token=A95Y5Y3PRI)](https://codecov.io/gh/Palash90/iron_learn)
 ![Docs](https://docs.rs/iron_learn/badge.svg)
 ![Rust Stable](https://img.shields.io/badge/rust-stable-blue)
 ![Crates.io](https://img.shields.io/crates/v/iron_learn)
