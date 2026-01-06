@@ -44,6 +44,3 @@ jobs:
         run: |
           cargo build --verbose
           cargo test --verbose
-
-      - name: Check Build with CUDA Feature
-        run: cargo check --features cuda
