@@ -183,25 +183,27 @@ t.print_matrix();
 ### Use Neural Network
 
 ```rust
+use iron_learn::nn::types::TrainingConfig;
+use iron_learn::nn::types::TrainingHook;
+use iron_learn::nn::DistributionType;
+use iron_learn::nn::LayerType;
 use iron_learn::CpuTensor;
 use iron_learn::MeanSquaredErrorLoss;
 use iron_learn::NeuralNet;
 use iron_learn::NeuralNetBuilder;
-use iron_learn::nn::DistributionType;
-use iron_learn::nn::LayerType;
 use iron_learn::Tensor;
-use iron_learn::nn::types::TrainingConfig;
-use iron_learn::nn::types::TrainingHook;
 
 fn main() {
     let mut nn = NeuralNetBuilder::<CpuTensor<f32>, f32>::new();
 
-    let x: CpuTensor<f32> = CpuTensor::new(vec![4, 2], vec![0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]).unwrap();
+    let x: CpuTensor<f32> =
+        CpuTensor::new(vec![4, 2], vec![0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]).unwrap();
     let y: CpuTensor<f32> = CpuTensor::new(vec![4, 1], vec![0.0, 1.0, 1.0, 0.0]).unwrap();
 
-    let monitor = |epoch: usize, err: f32, current_lr: f32, nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
-        println!("Processing epopch: {epoch}, error: {err}");
-    };
+    let monitor =
+        |epoch: usize, err: f32, current_lr: f32, nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
+            println!("Processing epopch: {epoch}, error: {err}");
+        };
 
     nn.add_linear(2, 4, "Input", &DistributionType::Uniform);
     nn.add_activation(LayerType::Tanh, "Activation Layer");
@@ -214,15 +216,15 @@ fn main() {
     let mut net = nn.build(loss_function_instance, &"neural-net".to_string());
 
     let config = TrainingConfig {
-                epochs: 5,
-                epoch_offset: 0,
-                base_lr: 1.0,
-                lr_adjustment: false,
-            };
+        epochs: 5,
+        epoch_offset: 0,
+        base_lr: 1.0,
+        lr_adjustment: false,
+    };
 
     let monitor = |epoch: usize, err: f32, lr: f32, _nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
-                    println!("Processing epopch: {epoch}, error: {err}");
-                };
+        println!("Processing epopch: {epoch}, error: {err}");
+    };
 
     let hook_config = TrainingHook::new(1, monitor);
 
