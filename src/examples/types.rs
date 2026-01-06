@@ -39,7 +39,10 @@ pub enum ExampleMode {
     Bigram,
     /// Trigram Generator
     Trigram,
+    /// Five Gram Generator
+    FiveGram,
 }
+
 #[derive(Parser)]
 #[command(name = "Iron Learn")]
 #[command(name = "A Rust Machine Learning Library")]
@@ -88,4 +91,7 @@ pub struct IronLearnArgs {
 
     #[arg(long, default_value = "0")]
     pub resize: u32,
+
+    #[arg(long, short, default_value = "0")]
+    pub temparature: f64    
 }

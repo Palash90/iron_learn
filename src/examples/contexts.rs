@@ -63,6 +63,7 @@ pub struct AppContext {
     pub example_mode: ExampleMode,
     pub predict_only: bool,
     pub resize: u32,
+    pub temparature: f64
 }
 
 /// Initialize the global application context
@@ -116,6 +117,7 @@ pub fn init_context(app_name: &'static str, version: u32, gpu_enabled: bool, arg
         example_mode: args.mode,
         predict_only: args.predict_only,
         resize: args.resize,
+        temparature: args.temparature
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

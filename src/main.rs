@@ -1,4 +1,5 @@
 use iron_learn::examples::trigram::run_trigram_generator;
+use iron_learn::examples::five_gram::run_five_gram_generator;
 use iron_learn::examples::types::ExampleMode;
 use iron_learn::examples::{run_bigram_generator, run_linear, run_logistic, run_neural_net};
 
@@ -28,6 +29,10 @@ where
             Err(e) => eprintln!("Error: {}", e),
         },
         ExampleMode::Trigram => match run_trigram_generator::<T, D>() {
+            Ok(_) => (),
+            Err(e) => eprintln!("Error: {}", e),
+        },
+         ExampleMode::FiveGram => match run_five_gram_generator::<T, D>() {
             Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
         },
