@@ -120,10 +120,10 @@ where
 
         last_epoch = epoch;
 
-        if epoch % monitor_interval == 0 {
+        if epoch.is_multiple_of(monitor_interval) {
             let y_pred = nn.predict(&x_with_bias).unwrap();
 
-            if epoch % (monitor_interval) == 0 {
+            if epoch.is_multiple_of(monitor_interval) {
                 if example == ExampleMode::ImageNeuralNet {
                     let size = (xy.m as f64).sqrt() as u32;
 
