@@ -65,10 +65,8 @@ where
     T: TensorMath<D, MathOutput = T> + Tensor<D>,
     D: FloatingPoint,
 {
-    let one_minus_out = T::ones(&output.get_shape()).sub(output)?;
-    let res = output.mul(&one_minus_out);
-
-    res
+    let one_minus_out = T::ones(output.get_shape()).sub(output)?;
+    output.mul(&one_minus_out)
 }
 
 /// Element-wise hyperbolic tangent activation.
@@ -88,7 +86,7 @@ where
 {
     let out_squared = output.mul(output)?;
 
-    let ones = T::ones(&output.get_shape());
+    let ones = T::ones(output.get_shape());
 
     ones.sub(&out_squared)
 }

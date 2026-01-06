@@ -86,7 +86,7 @@ where
         name: &str,
         distribution: &DistributionType,
     ) -> Result<Self, String> {
-        let w_data = Self::_initialize_weights(input_size, output_size, &distribution);
+        let w_data = Self::_initialize_weights(input_size, output_size, distribution);
 
         let weights = T::new(vec![input_size, output_size], w_data).unwrap();
         //let weights = add_bias_term(&weights).unwrap();

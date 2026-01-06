@@ -119,7 +119,7 @@ impl Numeric for i32 {
         *self as f32
     }
     fn from_u32(value: u32) -> Self {
-        (value as u32).try_into().unwrap()
+        value.try_into().unwrap()
     }
     fn from_f64(value: f64) -> Self {
         value as i32
