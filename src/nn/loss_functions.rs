@@ -110,3 +110,41 @@ where
         Ok(result)
     }
 }
+
+pub struct CategoricalCrossEntropy;
+
+impl<T: Tensor<D> + 'static + TensorMath<D, MathOutput = T>, D> LossFunction<T, D>
+    for CategoricalCrossEntropy
+where
+    D: FloatingPoint,
+    T: Tensor<D>,
+{
+    fn loss(&self, y_true: &T, y_pred: &T) -> Result<T, String> {
+        // 1. Safety: Clip to prevent ln(0)
+        let epsilon = D::from_f64(1e-12);
+        let clipped_pred = y_pred.clip(epsilon, D::one()).unwrap();
+
+        // 2. Cross Entropy: -sum(y_true * ln(y_pred))
+        let ln_pred = clipped_pred.ln().unwrap();
+        let product = y_true.mul(&ln_pred).unwrap();
+
+        let negative_one = -D::one();
+        product.scale(negative_one).unwrap().sum()
+    }
+
+    fn loss_prime(&self, y_true: &T, y_pred: &T) -> Result<T, String> {
+        // Here is the "Miracle" shortcut.
+        // For Softmax + CCE, the derivative w.r.t the LOGITS is simply (y_pred - y_true).
+        // To keep your architecture clean, we return (y_pred - y_true) here,
+        // and we will make the Softmax layer's backward pass an "Identity" (return 1.0).
+
+        let shape = y_true.get_shape();
+        let mut result = y_pred.sub(y_true).unwrap();
+
+        // Normalization: Divide by batch size (rows) to get the mean gradient
+        let batch_size = D::from_u32(shape[0]);
+        result = result.scale(D::one() / batch_size).unwrap();
+
+        Ok(result)
+    }
+}
