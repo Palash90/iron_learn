@@ -22,9 +22,9 @@ mod tests {
         let num_classes = 3;
 
         let encoded: U =
-            one_hot_encode(&labels, num_classes).expect("Encoding failed in super test");
+            one_hot_encode(&labels, num_classes, 1).expect("Encoding failed in super test");
 
-        let decoded = one_hot_decode(&encoded).expect("Decoding failed in super test");
+        let decoded = one_hot_decode(&encoded, 1).expect("Decoding failed in super test");
 
         assert_eq!(
             labels,
@@ -38,7 +38,7 @@ mod tests {
 
         // 3. Test Out of Bounds Handling
         let bad_labels = vec![5];
-        let bad_res: Result<U, String> = one_hot_encode(&bad_labels, 3);
+        let bad_res: Result<U, String> = one_hot_encode(&bad_labels, 3, 1);
         assert!(
             bad_res.is_err(),
             "Should have failed on out-of-bounds label"
@@ -46,7 +46,7 @@ mod tests {
 
         // 4. Test Single Class Case
         let single_labels = vec![0, 0];
-        let single_encoded: U = one_hot_encode(&single_labels, 1).unwrap();
+        let single_encoded: U = one_hot_encode(&single_labels, 1, 1).unwrap();
         assert_eq!(single_encoded.get_data(), vec![1.0, 1.0]);
     }
 

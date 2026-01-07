@@ -19,6 +19,8 @@ use crate::nn::types::TrainingHook;
 use crate::NeuralNet;
 use std::time::Instant;
 
+use colored::*;
+
 pub fn run_trigram_generator<T, D>() -> Result<(), String>
 where
     T: crate::tensor::Tensor<D> + crate::tensor::math::TensorMath<D, MathOutput = T> + 'static,
@@ -39,14 +41,14 @@ where
     let lr_adjustment = GLOBAL_CONTEXT.get().unwrap().lr_adjust;
     let restore = GLOBAL_CONTEXT.get().unwrap().restore;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
+    let predict_only = GLOBAL_CONTEXT.get().unwrap().predict_only;
+    let resize = GLOBAL_CONTEXT.get().unwrap().resize;
+    let temparature = GLOBAL_CONTEXT.get().unwrap().temparature;
 
     let file = File::open(data_path).expect("File could not be opened");
     let reader = BufReader::new(file);
 
-    // Collect lines into a Vec<String>, handling possible I/O errors
-    let lines: Result<Vec<String>, io::Error> = reader
-        .lines() // Iterator over Result<String, io::Error>
-        .collect();
+    let lines: Result<Vec<String>, io::Error> = reader.lines().collect();
 
     let lines = match lines {
         Ok(lines) => lines,
@@ -56,9 +58,11 @@ where
         }
     };
 
+    let mut generation_set = HashSet::new();
+    let names_set: HashSet<String> = lines.clone().into_iter().collect();
+
     let names = lines;
 
-    // 1. Build Vocabulary
     let mut chars: Vec<char> = names
         .iter()
         .flat_map(|s| s.chars())
@@ -66,7 +70,7 @@ where
         .into_iter()
         .collect();
     chars.sort();
-    chars.insert(0, '.'); // Start/End token
+    chars.insert(0, '.');
 
     println!("Vocabulary Size: {}, {:?}", chars.len(), chars);
 
@@ -74,7 +78,6 @@ where
     let itos: HashMap<usize, char> = chars.iter().enumerate().map(|(i, &c)| (i, c)).collect();
     let vocab_size = chars.len() as u32;
 
-    // 2. Create Training Data (Bigrams)
     let mut inputs = Vec::new();
     let mut targets = Vec::new();
 
@@ -157,10 +160,15 @@ where
     };
     let hook_config = TrainingHook::new(1000, monitor);
 
-    nn.fit(&x_train, &y_train, config, hook_config)?;
+    if !predict_only {
+        nn.fit(&x_train, &y_train, config, hook_config)?;
+    } else {
+        println!("Skipping training...");
+    }
 
     println!("\nGenerated Names:");
-    for _ in 0..20 {
+    let mut fresh_count = 0;
+    for i in 0..resize {
         let mut context = ('.', '.');
         let mut name = String::new();
 
@@ -173,24 +181,20 @@ where
             let preds = nn.predict(&input_tensor)?;
             let data = preds.get_data();
 
-            // --- Weighted Random Sampling ---
-            // 1. Convert logits/scores to positive weights (exponentiation)
-            let temparature = 0.4;
             let mut weights: Vec<f64> = data
                 .iter()
                 .map(|val| (val.f64() / temparature).exp())
                 .collect();
 
             if name.len() > 4 {
-                weights[0] *= 2.0; // Double the chance of ending
+                weights[0] *= 2.0;
             }
             if name.len() > 6 {
-                weights[0] *= 10.0; // Force an end
+                weights[0] *= 10.0;
             }
 
             let total_weight: f64 = weights.iter().sum();
 
-            // 2. Generate a pseudo-random point
             let rng_seed = std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
                 .unwrap()
@@ -224,7 +228,42 @@ where
                 break;
             }
         }
-        println!("> {}", name);
+
+        let name = name.trim().to_string();
+        let is_original = names_set.contains(&name);
+        let is_duplicate = generation_set.contains(&name);
+        generation_set.insert(name.clone());
+
+        let status_symbol = if is_original {
+            "✗".red()
+        } else if is_duplicate {
+            "!".yellow()
+        } else {
+            "✓".green()
+        };
+
+        let status_text = if is_original {
+            "OLD".red()
+        } else if is_duplicate {
+            "DUP".yellow()
+        } else {
+            "NEW".green()
+        };
+
+        if !is_original {
+            fresh_count += 1;
+        }
+
+        let originality_pct = (fresh_count as f64 * 100.0) / ((i + 1) as f64);
+        let originality_pct = format!("{:.2}%", originality_pct);
+
+        println!(
+            "{} '{:<15}' {:>10} | Innovation Rate: {}",
+            status_symbol,
+            name.bright_white(),
+            status_text,
+            originality_pct.cyan()
+        );
     }
 
     Ok(())

@@ -88,8 +88,8 @@ where
         }
     }
 
-    let x_train = one_hot_encode(&inputs, vocab_size)?;
-    let y_train = one_hot_encode(&targets, vocab_size)?;
+    let x_train = one_hot_encode(&inputs, vocab_size, 1)?;
+    let y_train = one_hot_encode(&targets, vocab_size, 1)?;
 
     let loss_function_instance = Box::new(CategoricalCrossEntropy);
 
