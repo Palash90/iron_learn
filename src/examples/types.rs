@@ -93,5 +93,5 @@ pub struct IronLearnArgs {
     pub resize: u32,
 
     #[arg(long, short, default_value = "0")]
-    pub temparature: f64    
+    pub temparature: f64,
 }

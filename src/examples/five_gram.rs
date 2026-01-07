@@ -166,8 +166,6 @@ where
                 let preds = nn.predict(&input_tensor).unwrap();
                 let data = preds.get_data();
 
-                // --- Weighted Random Sampling ---
-                // 1. Convert logits/scores to positive weights (exponentiation)
                 let mut weights: Vec<f64> = data
                     .iter()
                     .map(|val| (val.f64() / temparature).exp())
@@ -182,7 +180,6 @@ where
 
                 let total_weight: f64 = weights.iter().sum();
 
-                // 2. Generate a pseudo-random point
                 let rng_seed = std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)
                     .unwrap()
@@ -225,7 +222,6 @@ where
                 continue;
             }
 
-
             let status_symbol = if is_fresh { "✓".green() } else { "✗".red() };
             let status_text = if is_fresh { "NEW".green() } else { "OLD".red() };
 
@@ -262,7 +258,7 @@ where
         println!("\tEpoch {epoch}: Loss (CCE) = {loss:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
         last_epoch = epoch;
         nn.save_model(format!("{}_epoch_{}.json", &weights_path, &epoch.to_string()).as_str());
-        generate_names(nn, 10, 0);
+        //generate_names(nn, 10, 0);
 
         if sleep_time > 0 && epoch != 0 {
             println!("Taking a nap");
