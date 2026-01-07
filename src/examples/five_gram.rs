@@ -16,6 +16,7 @@ use crate::examples::contexts::GLOBAL_CONTEXT;
 use crate::examples::read_file::deserialize_model;
 use crate::nn::types::TrainingConfig;
 use crate::nn::types::TrainingHook;
+use crate::one_hot::one_hot_encode;
 use crate::NeuralNet;
 use std::time::Instant;
 
@@ -89,30 +90,16 @@ where
         let full_name = format!("....{}.", name);
         let chars_vec: Vec<char> = full_name.chars().collect();
         for window in chars_vec.windows(5) {
-            let ix1 = stoi[&window[0]];
-            let ix2 = stoi[&window[1]];
-            let ix3 = stoi[&window[2]];
-            let ix4 = stoi[&window[3]];
-            let ix5 = stoi[&window[4]];
-
-            // Create One-Hot for Input
-            let mut oh = vec![D::zero(); (vocab_size * 4) as usize];
-            oh[ix1] = D::one();
-            oh[ix2 + vocab_size as usize] = D::one();
-            oh[ix3 + ((vocab_size * 2) as usize)] = D::one();
-            oh[ix4 + ((vocab_size * 3) as usize)] = D::one();
-            inputs.extend(oh);
-
-            // Target (Simplified: one-hot for MSE)
-            let mut target_oh = vec![D::zero(); vocab_size as usize];
-            target_oh[ix5] = D::one();
-            targets.extend(target_oh);
+            inputs.push(stoi[&window[0]] as u32);
+            inputs.push(stoi[&window[1]] as u32);
+            inputs.push(stoi[&window[2]] as u32);
+            inputs.push(stoi[&window[3]] as u32);
+            targets.push(stoi[&window[4]] as u32);
         }
     }
 
-    let num_samples = (inputs.len() as u32) / (vocab_size * 4);
-    let x_train = T::new(vec![num_samples, vocab_size * 4], inputs)?;
-    let y_train = T::new(vec![num_samples, vocab_size], targets)?;
+    let x_train = one_hot_encode(&inputs, vocab_size * 4)?;
+    let y_train = one_hot_encode(&targets, vocab_size * 4)?;
 
     let loss_function_instance = Box::new(CategoricalCrossEntropy);
 

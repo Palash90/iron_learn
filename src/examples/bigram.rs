@@ -1,5 +1,6 @@
 use crate::nn::loss_functions::CategoricalCrossEntropy;
 use crate::nn::{DistributionType, LayerType};
+use crate::one_hot::one_hot_encode;
 use crate::NeuralNetBuilder;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
@@ -82,24 +83,13 @@ where
         let full_name = format!(".{}.", name);
         let chars_vec: Vec<char> = full_name.chars().collect();
         for window in chars_vec.windows(2) {
-            let ix1 = stoi[&window[0]];
-            let ix2 = stoi[&window[1]];
-
-            // Create One-Hot for Input
-            let mut oh = vec![D::zero(); vocab_size as usize];
-            oh[ix1] = D::one();
-            inputs.extend(oh);
-
-            // Target (Simplified: one-hot for MSE)
-            let mut target_oh = vec![D::zero(); vocab_size as usize];
-            target_oh[ix2] = D::one();
-            targets.extend(target_oh);
+            inputs.push(stoi[&window[0]] as u32);
+            targets.push(stoi[&window[1]] as u32);
         }
     }
 
-    let num_samples = (inputs.len() as u32) / vocab_size;
-    let x_train = T::new(vec![num_samples, vocab_size], inputs)?;
-    let y_train = T::new(vec![num_samples, vocab_size], targets)?;
+    let x_train = one_hot_encode(&inputs, vocab_size)?;
+    let y_train = one_hot_encode(&targets, vocab_size)?;
 
     let loss_function_instance = Box::new(CategoricalCrossEntropy);
 
