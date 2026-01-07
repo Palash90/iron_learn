@@ -38,8 +38,9 @@ where
     let weights_path = "model_outputs/".to_owned() + &name.to_owned() + "/" + weights_path;
     let lr_adjustment = GLOBAL_CONTEXT.get().unwrap().lr_adjust;
     let restore = GLOBAL_CONTEXT.get().unwrap().restore;
+    let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let file = File::open("data/names.txt").expect("File could not be opened");
+    let file = File::open(data_path).expect("File could not be opened");
     let reader = BufReader::new(file);
 
     // Collect lines into a Vec<String>, handling possible I/O errors

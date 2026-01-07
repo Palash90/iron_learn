@@ -43,8 +43,9 @@ where
     let predict_only = GLOBAL_CONTEXT.get().unwrap().predict_only;
     let resize = GLOBAL_CONTEXT.get().unwrap().resize;
     let temparature = GLOBAL_CONTEXT.get().unwrap().temparature;
+    let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
 
-    let file = File::open("data/names.txt").expect("File could not be opened");
+    let file = File::open(data_path).expect("File could not be opened");
     let reader = BufReader::new(file);
 
     // Collect lines into a Vec<String>, handling possible I/O errors
