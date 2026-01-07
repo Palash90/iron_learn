@@ -90,7 +90,7 @@ pub struct IronLearnArgs {
     pub predict_only: bool,
 
     #[arg(long, default_value = "0")]
-    pub resize: u32,
+    pub reproduce: u32,
 
     #[arg(long, short, default_value = "0")]
     pub temparature: f64,

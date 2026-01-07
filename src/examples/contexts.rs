@@ -116,7 +116,7 @@ pub fn init_context(app_name: &'static str, version: u32, gpu_enabled: bool, arg
         distribution,
         example_mode: args.mode,
         predict_only: args.predict_only,
-        resize: args.resize,
+        resize: args.reproduce,
         temparature: args.temparature,
     };
     match GLOBAL_CONTEXT.set(ctx) {
