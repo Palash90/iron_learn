@@ -1,5 +1,3 @@
-#![cfg(feature = "cuda")]
-
 #[cfg(test)]
 mod loss_tests {
     use iron_learn::nn::loss_functions::{
@@ -54,8 +52,8 @@ mod loss_tests {
             .loss_prime(&y_true, &y_pred)
             .expect("BCE loss_prime failed");
         let g = grad.get_data();
-        assert!((g[0] + 0.55555556).abs() < 1e-6);
-        assert!((g[1] - 0.55555556).abs() < 1e-6);
+        assert!((g[0] + 0.555_555_6).abs() < 1e-6);
+        assert!((g[1] - 0.555_555_6).abs() < 1e-6);
     }
 
     #[test]
@@ -84,7 +82,7 @@ mod loss_tests {
             .expect("CCE loss_prime failed");
         let g = grad.get_data();
 
-        let expected_grads = vec![-0.15, 0.1, 0.05, 0.05, 0.15, -0.2];
+        let expected_grads = [-0.15, 0.1, 0.05, 0.05, 0.15, -0.2];
 
         for i in 0..g.len() {
             assert!(

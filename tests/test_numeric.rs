@@ -5,7 +5,7 @@ mod exhaustive_tests {
     use iron_learn::SignedNumeric;
 
     /// 1. Generic Axiom Testing
-    /// Verifies that any type T implementing Numeric follows basic mathematical identities.
+    #[allow(clippy::eq_op)]
     fn verify_numeric_identities<T: Numeric>(val: T) {
         // Identity: x + 0 = x
         assert_eq!(val + T::zero(), val, "Addition identity failed for {}", val);

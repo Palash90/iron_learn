@@ -1,4 +1,3 @@
-#![cfg(feature = "cuda")]
 #[cfg(test)]
 mod cuda_tests {
 
@@ -15,14 +14,14 @@ mod cuda_tests {
         let _ = init_gpu();
 
         let m1 = GpuTensor::<TensorType>::new(vec![1], vec![1.0]).unwrap();
-        let m2 = GpuTensor::zeroes(&vec![1]);
+        let m2 = GpuTensor::zeroes(&[1]);
         let result = GpuTensor::new(vec![1], vec![1.0]).unwrap();
         let m3 = (m1 + m2).unwrap();
 
         println!("Result");
         m3.print_matrix();
 
-        let m2 = GpuTensor::zeroes(&vec![1]);
+        let m2 = GpuTensor::zeroes(&[1]);
         let m3 = (m3 - m2).unwrap();
 
         println!("Result");

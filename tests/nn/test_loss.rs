@@ -57,8 +57,8 @@ mod loss_tests {
 
         let g = grad.get_data();
         // As calculated: numerator [-0.1, 0.1], denom [0.09,0.09] => [-1.111111,1.111111]/2
-        assert!((g[0] + 0.55555556).abs() < 1e-6, "grad0 {}", g[0]);
-        assert!((g[1] - 0.55555556).abs() < 1e-6, "grad1 {}", g[1]);
+        assert!((g[0] + 0.555_555_6).abs() < 1e-6, "grad0 {}", g[0]);
+        assert!((g[1] - 0.555_555_6).abs() < 1e-6, "grad1 {}", g[1]);
     }
 
     #[test]
@@ -85,7 +85,7 @@ mod loss_tests {
             .expect("CCE loss_prime failed");
         let g = grad.get_data();
 
-        let expected_grads = vec![-0.15, 0.1, 0.05, 0.05, 0.15, -0.2];
+        let expected_grads = [-0.15, 0.1, 0.05, 0.05, 0.15, -0.2];
 
         for i in 0..g.len() {
             assert!(

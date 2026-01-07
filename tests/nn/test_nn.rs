@@ -80,7 +80,7 @@ mod tests {
 
         assert!(result.is_ok());
         assert_eq!(monitor_captured.len(), 5);
-        assert_eq!(monitor_captured.iter().all(|a| a.2 == 1.0), true);
+        assert!(monitor_captured.iter().all(|a| a.2 == 1.0));
     }
 
     #[test]
@@ -111,7 +111,7 @@ mod tests {
 
         assert!(result.is_ok());
         assert_eq!(monitor_captured.len(), 5);
-        assert_eq!(monitor_captured.iter().all(|a| a.2 == 1.0), false);
+        assert!(!monitor_captured.iter().all(|a| a.2 == 1.0));
         assert!(monitor_captured[0].2 > monitor_captured[4].2);
     }
 

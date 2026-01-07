@@ -1,5 +1,3 @@
-#![cfg(feature = "cuda")]
-
 #[cfg(test)]
 mod tensor_math_large_tests {
     use iron_learn::tensor::math::TensorMath;

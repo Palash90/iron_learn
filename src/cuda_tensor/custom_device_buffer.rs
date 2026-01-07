@@ -72,7 +72,7 @@ pub fn get_device_buffer_from_slice<T: Numeric + DeviceCopy>(data: &[T]) -> Cust
         cust::sys::cuMemcpyHtoD_v2(
             device_buffer.as_device_ptr().as_raw(),
             data.as_ptr() as *const c_void,
-            data.len() * size_of::<T>(),
+            size_of_val(data),
         )
     };
     device_buffer

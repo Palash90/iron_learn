@@ -1,5 +1,3 @@
-#![cfg(feature = "cuda")]
-
 #[cfg(test)]
 mod tests {
     use iron_learn::GpuTensor;

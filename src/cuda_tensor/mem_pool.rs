@@ -133,33 +133,27 @@ impl CudaMemoryPool {
 
 impl Drop for CudaMemoryPool {
     fn drop(&mut self) {
-        match Arc::try_unwrap(Arc::clone(&self.pool)) {
-            Ok(mutex) => {
-                match mutex.into_inner() {
-                    Ok(unsafe_handle_wrapper) => {
-                        let pool_handle = unsafe_handle_wrapper.0;
-                        if !pool_handle.is_null() {
-                            let result = unsafe { cuMemPoolDestroy(pool_handle) };
-                            if result == CUresult::CUDA_SUCCESS {
-                                println!(
-                                    "Successfully destroyed CUDA Memory Pool: {:?}",
-                                    pool_handle
-                                );
-                            } else {
-                                eprintln!(
-                                    "WARNING: Failed to destroy CUDA Memory Pool. CUDA Error: {:?}",
-                                    result
-                                );
-                            }
+        if let Ok(mutex) = Arc::try_unwrap(Arc::clone(&self.pool)) {
+            match mutex.into_inner() {
+                Ok(unsafe_handle_wrapper) => {
+                    let pool_handle = unsafe_handle_wrapper.0;
+                    if !pool_handle.is_null() {
+                        let result = unsafe { cuMemPoolDestroy(pool_handle) };
+                        if result == CUresult::CUDA_SUCCESS {
+                            println!("Successfully destroyed CUDA Memory Pool: {:?}", pool_handle);
+                        } else {
+                            eprintln!(
+                                "WARNING: Failed to destroy CUDA Memory Pool. CUDA Error: {:?}",
+                                result
+                            );
                         }
                     }
-                    Err(_) => {
-                        // This case should ideally not happen during normal program termination
-                        eprintln!("WARNING: Mutex was poisoned during GpuMemoryPool cleanup. Resource may be leaked.");
-                    }
+                }
+                Err(_) => {
+                    // This case should ideally not happen during normal program termination
+                    eprintln!("WARNING: Mutex was poisoned during GpuMemoryPool cleanup. Resource may be leaked.");
                 }
             }
-            Err(_) => {}
         }
     }
 }
