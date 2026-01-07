@@ -136,10 +136,11 @@ where
     let mut last_epoch = 0;
 
     let mut generate_names = |nn: &mut NeuralNet<T, D>, num: usize, sleep: u64| {
-        println!("\nGenerated Names:");
+        println!("\nGenerating {num} Names:");
         let mut fresh_count = 0;
+        let mut i = 0;
 
-        for i in 0..num {
+        while i < num {
             let mut context = ('.', '.', '.', '.');
             let mut name = String::new();
 
@@ -159,11 +160,10 @@ where
                     .map(|val| (val.f64() / temparature).exp())
                     .collect();
 
-                if name.len() > 5 {
-                    weights[0] *= 2.0; // Double the chance of ending
-                }
-                if name.len() > 7 {
-                    weights[0] *= 10.0; // Force an end
+                match name.len() {
+                    0..3 => weights[0] = 0.0,
+                    5..7 => weights[0] *= 2.0,
+                    _ => weights[0] *= 10.0,
                 }
 
                 let total_weight: f64 = weights.iter().sum();
@@ -186,7 +186,7 @@ where
 
                 let next_char = itos[&next_ix];
                 if next_char == '.' {
-                    if name.len() < 3 {
+                    if name.len() < 5 {
                         continue;
                     } else {
                         break;
@@ -231,6 +231,7 @@ where
             if sleep > 0 {
                 thread::sleep(Duration::from_secs(sleep));
             }
+            i += 1;
         }
         println!();
     };

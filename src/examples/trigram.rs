@@ -16,6 +16,7 @@ use crate::examples::contexts::GLOBAL_CONTEXT;
 use crate::examples::read_file::deserialize_model;
 use crate::nn::types::TrainingConfig;
 use crate::nn::types::TrainingHook;
+use crate::one_hot::one_hot_encode;
 use crate::NeuralNet;
 use std::time::Instant;
 
@@ -44,6 +45,7 @@ where
     let predict_only = GLOBAL_CONTEXT.get().unwrap().predict_only;
     let resize = GLOBAL_CONTEXT.get().unwrap().resize;
     let temparature = GLOBAL_CONTEXT.get().unwrap().temparature;
+    let temparature = if temparature == 0.0 { 0.1 } else { temparature };
 
     let file = File::open(data_path).expect("File could not be opened");
     let reader = BufReader::new(file);
@@ -78,33 +80,24 @@ where
     let itos: HashMap<usize, char> = chars.iter().enumerate().map(|(i, &c)| (i, c)).collect();
     let vocab_size = chars.len() as u32;
 
+    let multiplier: u32 = 4;
+
     let mut inputs = Vec::new();
     let mut targets = Vec::new();
 
     for name in names {
-        let full_name = format!("..{}.", name);
+        let full_name = format!("....{}.", name);
         let chars_vec: Vec<char> = full_name.chars().collect();
-        for window in chars_vec.windows(3) {
-            let ix1 = stoi[&window[0]];
-            let ix2 = stoi[&window[1]];
-            let ix3 = stoi[&window[2]];
-
-            // Create One-Hot for Input
-            let mut oh = vec![D::zero(); (vocab_size * 2) as usize];
-            oh[ix1] = D::one();
-            oh[ix2 + vocab_size as usize] = D::one();
-            inputs.extend(oh);
-
-            // Target (Simplified: one-hot for MSE)
-            let mut target_oh = vec![D::zero(); vocab_size as usize];
-            target_oh[ix3] = D::one();
-            targets.extend(target_oh);
+        for window in chars_vec.windows(multiplier as usize + 1) {
+            for i in 0..multiplier {
+                inputs.push(stoi[&window[i as usize]] as u32);
+            }
+            targets.push(stoi[&window[multiplier as usize]] as u32);
         }
     }
 
-    let num_samples = (inputs.len() as u32) / (vocab_size * 2);
-    let x_train = T::new(vec![num_samples, vocab_size * 2], inputs)?;
-    let y_train = T::new(vec![num_samples, vocab_size], targets)?;
+    let x_train = one_hot_encode(&inputs, vocab_size, multiplier)?;
+    let y_train = one_hot_encode(&targets, vocab_size, 1)?;
 
     let loss_function_instance = Box::new(CategoricalCrossEntropy);
 
@@ -118,14 +111,14 @@ where
             None => (
                 lr,
                 0,
-                define_neural_net::<T, D>(hidden_length, vocab_size, distribution)
+                define_neural_net::<T, D>(hidden_length, vocab_size, distribution, multiplier)
                     .build(loss_function_instance, name),
             ),
         },
         false => (
             lr,
             0,
-            define_neural_net::<T, D>(hidden_length, vocab_size, distribution)
+            define_neural_net::<T, D>(hidden_length, vocab_size, distribution, multiplier)
                 .build(loss_function_instance, name),
         ),
     };
@@ -169,15 +162,18 @@ where
     println!("\nGenerated Names:");
     let mut fresh_count = 0;
     for i in 0..resize {
-        let mut context = ('.', '.');
+        let mut context = ('.', '.', '.', '.');
         let mut name = String::new();
 
         loop {
-            let mut input_vec = vec![D::zero(); (vocab_size * 2) as usize];
+            let mut input_vec = vec![D::zero(); (vocab_size * multiplier) as usize];
+
             input_vec[stoi[&context.0]] = D::one();
             input_vec[stoi[&context.1] + vocab_size as usize] = D::one();
+            input_vec[stoi[&context.2] + (vocab_size * 2) as usize] = D::one();
+            input_vec[stoi[&context.3] + (vocab_size * 3) as usize] = D::one();
 
-            let input_tensor = T::new(vec![1, vocab_size * 2], input_vec)?;
+            let input_tensor = T::new(vec![1, vocab_size * multiplier], input_vec)?;
             let preds = nn.predict(&input_tensor)?;
             let data = preds.get_data();
 
@@ -185,6 +181,10 @@ where
                 .iter()
                 .map(|val| (val.f64() / temparature).exp())
                 .collect();
+
+            if name.len() < 3 {
+                weights[0] = 0.0;
+            }
 
             if name.len() > 4 {
                 weights[0] *= 2.0;
@@ -194,6 +194,10 @@ where
             }
 
             let total_weight: f64 = weights.iter().sum();
+
+            if total_weight == 0.0 {
+                break;
+            }
 
             let rng_seed = std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
@@ -213,16 +217,12 @@ where
 
             let next_char = itos[&next_ix];
             if next_char == '.' {
-                if name.len() < 3 {
-                    continue;
-                } else {
-                    break;
-                }
+                break;
             }
 
             name.push(next_char);
 
-            context = (context.1, next_char);
+            context = (context.1, context.2, context.3, next_char);
 
             if name.len() > 20 {
                 break;
@@ -273,6 +273,7 @@ fn define_neural_net<T, D>(
     hl: u32,
     input: u32,
     distribution: &DistributionType,
+    multiplier: u32,
 ) -> NeuralNetBuilder<T, D>
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
@@ -280,7 +281,7 @@ where
 {
     let mut nn = NeuralNetBuilder::<T, D>::new();
 
-    let input_size = input * 2;
+    let input_size = input * multiplier;
 
     let layers = [
         (input_size, hl, LayerType::ReLU, "Input", "AL 1"),
