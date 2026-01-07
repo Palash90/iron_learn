@@ -1,6 +1,6 @@
-use iron_learn::examples::trigram::run_trigram_generator;
+use iron_learn::examples::n_gram::run_n_gram_generator;
 use iron_learn::examples::types::ExampleMode;
-use iron_learn::examples::{run_bigram_generator, run_linear, run_logistic, run_neural_net};
+use iron_learn::examples::{run_linear, run_logistic, run_neural_net};
 
 use iron_learn::numeric::FloatingPoint;
 use iron_learn::tensor::math::TensorMath;
@@ -23,11 +23,7 @@ where
             Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
         },
-        ExampleMode::Bigram => match run_bigram_generator::<T, D>() {
-            Ok(_) => (),
-            Err(e) => eprintln!("Error: {}", e),
-        },
-        ExampleMode::Trigram => match run_trigram_generator::<T, D>() {
+        ExampleMode::Trigram => match run_n_gram_generator::<T, D>() {
             Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
         },

@@ -22,7 +22,7 @@ use std::time::Instant;
 
 use colored::*;
 
-pub fn run_trigram_generator<T, D>() -> Result<(), String>
+pub fn run_n_gram_generator<T, D>() -> Result<(), String>
 where
     T: crate::tensor::Tensor<D> + crate::tensor::math::TensorMath<D, MathOutput = T> + 'static,
     D: crate::numeric::FloatingPoint + 'static,
