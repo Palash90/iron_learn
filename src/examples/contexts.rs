@@ -66,6 +66,7 @@ pub struct AppContext {
     pub temparature: f64,
     pub no_repeat: bool,
     pub n_gram_seed: String,
+    pub n_gram_size: u8,
 }
 
 /// Initialize the global application context
@@ -122,6 +123,7 @@ pub fn init_context(app_name: &'static str, version: u32, gpu_enabled: bool, arg
         temparature: args.temparature,
         no_repeat: args.no_repeat,
         n_gram_seed: args.n_gram_seed,
+        n_gram_size: args.n_gram_size,
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

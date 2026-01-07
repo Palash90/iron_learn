@@ -23,7 +23,7 @@ where
             Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
         },
-        ExampleMode::Trigram => match run_n_gram_generator::<T, D>() {
+        ExampleMode::NGram => match run_n_gram_generator::<T, D>() {
             Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
         },

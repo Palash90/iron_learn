@@ -48,6 +48,7 @@ where
     let temparature = if temparature == 0.0 { 0.1 } else { temparature };
     let no_repeat = GLOBAL_CONTEXT.get().unwrap().no_repeat;
     let n_gram_seed = &GLOBAL_CONTEXT.get().unwrap().n_gram_seed;
+    let n_gram_size = GLOBAL_CONTEXT.get().unwrap().n_gram_size;
 
     let file = File::open(data_path).expect("File could not be opened");
     let reader = BufReader::new(file);
@@ -82,7 +83,7 @@ where
     let itos: HashMap<usize, char> = chars.iter().enumerate().map(|(i, &c)| (i, c)).collect();
     let vocab_size = chars.len() as u32;
 
-    let multiplier: u32 = 4;
+    let multiplier: u32 = n_gram_size as u32 - 1;
 
     let mut inputs = Vec::new();
     let mut targets = Vec::new();

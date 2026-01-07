@@ -35,12 +35,8 @@ pub enum ExampleMode {
     XorNeuralNet,
     /// Neural Network - Image
     ImageNeuralNet,
-    /// Bigram Generator
-    Bigram,
-    /// Trigram Generator
-    Trigram,
-    /// Five Gram Generator
-    FiveGram,
+    /// N Gram Generator
+    NGram,
 }
 
 #[derive(Parser)]
@@ -100,4 +96,7 @@ pub struct IronLearnArgs {
 
     #[arg(long, default_value = "")]
     pub n_gram_seed: String,
+
+    #[arg(long, default_value = "5")]
+    pub n_gram_size: u8,
 }
