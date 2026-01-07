@@ -286,12 +286,12 @@ where
     let layers = [
         (input_size, hl, LayerType::ReLU, "Input", "AL 1"),
         (hl, hl, LayerType::ReLU, "HL1", "AL2"),
-        //    (hl, 2 * hl, LayerType::ReLU, "HL2", "AL3"),
+        (hl, 2 * hl, LayerType::ReLU, "HL2", "AL3"),
         //    (2 * hl, hl, LayerType::ReLU, "HL3", "AL4"),
-        (hl, hl / 2, LayerType::ReLU, "HL4", "AL5"),
+        (2 * hl, hl / 2, LayerType::ReLU, "HL4", "AL5"),
         (hl / 2, hl / 4, LayerType::ReLU, "HL10", "AL11"),
-        //  (hl / 2, hl / 2, LayerType::ReLU, "HL11", "AL12"),
-        (hl / 4, input, LayerType::Softmax, "HL12", "Output"),
+        (hl / 4, hl / 8, LayerType::ReLU, "HL11", "AL12"),
+        (hl / 8, input, LayerType::Softmax, "HL12", "Output"),
     ];
 
     for layer in layers {
