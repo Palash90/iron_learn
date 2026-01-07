@@ -9,7 +9,7 @@ repository = "https://github.com/Palash90/iron_learn"
 license = "MIT"
 exclude = [
     "python_scripts/*",
-    "image/*",
+    "model_outputs/*",
 ]
 
 [dependencies]

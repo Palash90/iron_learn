@@ -242,38 +242,38 @@ In one of the POCs with a ~99K parameter vanilla neural network, I have tried th
 
 ### The random noise the network started with
 
-![Starting Random Noise](image/images/output0.png)
+![Starting Random Noise](model_outputs/image/images/output0.png)
 
 ### Reconstructed image after 200,000 epochs
 
-![Intermediate Reconstruction](image/images/output250000.png)
+![Intermediate Reconstruction](model_outputs/image/images/output250000.png)
 
 ### Reconstructed image after 800,000 epochs
 
-![Intermediate Reconstruction](image/images/output800000.png)
+![Intermediate Reconstruction](model_outputs/image/images/output800000.png)
 
 For comparison, Following is the original image fed to the network.
 
 ### Original Image
 
-![Original Image](image/images/original.png)
+![Original Image](model_outputs/image/images/original.png)
 
 ### Reconstructed image at higher pixels (200 x 200 reconstructed at 512 x 512)
 
-![Reconstructed Higher Resolution Image](image/images/output-512-reconstruction.png)
+![Reconstructed Higher Resolution Image](model_outputs/image/images/output-512-reconstruction.png)
 
 ### Time lapse of regeneration step by step
 
-![Time lapse of regeneration](image/images/timeline.gif)
+![Time lapse of regeneration](model_outputs/image/images/timeline.gif)
 
-You can find all the regenerated images in [image/images](image/images) directory.
+You can find all the regenerated images in [model_outputs/image/images](model_outputs/image/images) directory.
 
 ## High-level Overview of the components
 
 - Rust: Core `Tensor` abstraction implementing `Tensor`s, numeric abstractions, optimization (gradient descent), neural network primitives, and optional CUDA-backed tensor implementations.
 - CUDA: `kernels/` contains CUDA kernels used by the Rust `cuda_tensor` and `gpu_context` modules for accelerated matrix ops.
 - Python: `python_scripts/` contains helper scripts, experiments and small neural-network examples used for prototyping and data preprocessing.
-- Data/Images: Example JSON metadata and image assets under `data/` and `image/` used by demos and scripts.
+- Data/Images: Example JSON metadata and image assets under `data/` and `model_outputs/` used by demos and scripts.
 
 ## Architecture
 
@@ -341,7 +341,7 @@ _NB:_ The library does not yet support broadcasting. I will soon introduce broad
 **Data & Model JSONs**
 
 - Example dataset: see `data/image.json` (fields: `m`, `n`, `m_test`, `x`, `y`, `x_test`, `y_test`) — JSON contains flattened row-major arrays for `x`/`y`.
-- Example model file: see `image/model.json` — follows `ModelData` schema described above. Use `read_file::deserialize_model()` to load models into `ModelData`, and `NeuralNetBuilder::build_from_model()` to restore a runtime `NeuralNet` from `ModelData`.
+- Example model file: see `model_outputs/image/model.json` — follows `ModelData` schema described above. Use `read_file::deserialize_model()` to load models into `ModelData`, and `NeuralNetBuilder::build_from_model()` to restore a runtime `NeuralNet` from `ModelData`.
 
 ## Repository Structure
 
@@ -364,7 +364,7 @@ _NB:_ The library does not yet support broadcasting. I will soon introduce broad
   - Top-level scripts: `k-means.py`, `check_cuda.py`, `plot_graph.py`, etc.
   - `neural_net/` — Small Python builder, activation, layers and helpers used for rapid prototyping and educational examples.
 
-- `data/`, `image/` — Example datasets, model JSONs and saved weights used by demos.
+- `data/`, `model_outputs/image/` — Example datasets, model JSONs and saved weights used by demos.
 
 ## What each major component does
 

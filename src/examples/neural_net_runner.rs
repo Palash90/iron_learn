@@ -53,7 +53,7 @@ where
     let distribution = &GLOBAL_CONTEXT.get().unwrap().distribution;
     let predict_only = GLOBAL_CONTEXT.get().unwrap().predict_only;
     let example = GLOBAL_CONTEXT.get().unwrap().example_mode;
-    let weights_path = name.to_owned() + "/" + weights_path;
+    let weights_path = "model_outputs/".to_owned() + &name.to_owned() + "/" + weights_path;
     let resize = GLOBAL_CONTEXT.get().unwrap().resize;
 
     let xy =
