@@ -46,6 +46,8 @@ where
     let resize = GLOBAL_CONTEXT.get().unwrap().resize;
     let temparature = GLOBAL_CONTEXT.get().unwrap().temparature;
     let temparature = if temparature == 0.0 { 0.1 } else { temparature };
+    let no_repeat = GLOBAL_CONTEXT.get().unwrap().no_repeat;
+    let n_gram_seed = &GLOBAL_CONTEXT.get().unwrap().n_gram_seed;
 
     let file = File::open(data_path).expect("File could not be opened");
     let reader = BufReader::new(file);
@@ -161,9 +163,22 @@ where
 
     println!("\nGenerated Names:");
     let mut fresh_count = 0;
+    let mut new_names = 0;
+
     for i in 0..resize {
-        let mut context = ('.', '.', '.', '.');
-        let mut name = String::new();
+        let seed = n_gram_seed.clone().to_lowercase();
+        let mut name = seed.clone();
+
+        let mut c_vec = ['.', '.', '.', '.'];
+        let seed_chars: Vec<char> = seed.chars().collect();
+
+        for (i, &ch) in seed_chars.iter().rev().enumerate() {
+            if i < 4 {
+                c_vec[3 - i] = ch;
+            }
+        }
+
+        let mut context = (c_vec[0], c_vec[1], c_vec[2], c_vec[3]);
 
         loop {
             let mut input_vec = vec![D::zero(); (vocab_size * multiplier) as usize];
@@ -197,6 +212,19 @@ where
 
             if total_weight == 0.0 {
                 break;
+            }
+
+            let chars_vec: Vec<char> = name.chars().collect();
+            if chars_vec.len() >= 2 {
+                let last = chars_vec[chars_vec.len() - 1];
+                let second_last = chars_vec[chars_vec.len() - 2];
+
+                if last == second_last {
+                    // Find index of the repeating character and kill its probability
+                    if let Some(&idx) = stoi.get(&last) {
+                        weights[idx] = 0.0;
+                    }
+                }
             }
 
             let rng_seed = std::time::SystemTime::now()
@@ -250,12 +278,20 @@ where
             "NEW".green()
         };
 
-        if !is_original {
+        if !is_original && !is_duplicate {
             fresh_count += 1;
         }
 
         let originality_pct = (fresh_count as f64 * 100.0) / ((i + 1) as f64);
         let originality_pct = format!("{:.2}%", originality_pct);
+
+        if no_repeat && (is_original || is_duplicate) {
+            continue;
+        }
+
+        if !is_pronounceable(&name) && name.len() > 3 {
+            continue;
+        }
 
         println!(
             "{} '{:<15}' {:>10} | Innovation Rate: {}",
@@ -264,9 +300,28 @@ where
             status_text,
             originality_pct.cyan()
         );
+        new_names += 1;
     }
 
+    println!("Total new names generated: {new_names}");
     Ok(())
+}
+
+fn is_pronounceable(name: &str) -> bool {
+    let vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
+    let v_count = name.chars().filter(|c| vowels.contains(c)).count();
+
+    // Check if vowel percentage is between 30% and 70%
+    let ratio = v_count as f32 / name.len() as f32;
+
+    // Also check for triple consonants (e.g., "bfas" is okay, but "rrtv" is not)
+    let has_triple_consonant = name
+        .chars()
+        .collect::<Vec<char>>()
+        .windows(3)
+        .any(|w| w.iter().all(|c| !vowels.contains(c)));
+
+    ratio > 0.3 && ratio < 0.7 && !has_triple_consonant
 }
 
 fn define_neural_net<T, D>(
@@ -287,7 +342,6 @@ where
         (input_size, hl, LayerType::ReLU, "Input", "AL 1"),
         (hl, hl, LayerType::ReLU, "HL1", "AL2"),
         (hl, 2 * hl, LayerType::ReLU, "HL2", "AL3"),
-        //    (2 * hl, hl, LayerType::ReLU, "HL3", "AL4"),
         (2 * hl, hl / 2, LayerType::ReLU, "HL4", "AL5"),
         (hl / 2, hl / 4, LayerType::ReLU, "HL10", "AL11"),
         (hl / 4, hl / 8, LayerType::ReLU, "HL11", "AL12"),

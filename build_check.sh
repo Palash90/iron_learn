@@ -11,7 +11,7 @@ cargo fmt
 
 cargo fmt --all --check
 
-cargo clippy --all-targets --all-features -- -D warnings
+cargo clippy --all-targets --all-features --release -- -D warnings
 
 cargo build --all-features --release
 

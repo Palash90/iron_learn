@@ -94,4 +94,10 @@ pub struct IronLearnArgs {
 
     #[arg(long, short, default_value = "0")]
     pub temparature: f64,
+
+    #[arg(long, default_value = "true")]
+    pub no_repeat: bool,
+
+    #[arg(long, default_value = "")]
+    pub n_gram_seed: String,
 }

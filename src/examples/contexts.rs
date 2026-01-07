@@ -64,6 +64,8 @@ pub struct AppContext {
     pub predict_only: bool,
     pub resize: u32,
     pub temparature: f64,
+    pub no_repeat: bool,
+    pub n_gram_seed: String,
 }
 
 /// Initialize the global application context
@@ -102,10 +104,11 @@ pub fn init_context(app_name: &'static str, version: u32, gpu_enabled: bool, arg
     let ctx = AppContext {
         app_name,
         version,
+        gpu_enabled,
+        distribution,
         data_path: args.data_file,
         learning_rate: args.lr,
         epochs: args.epochs,
-        gpu_enabled,
         lr_adjust: args.adjust_lr,
         hidden_layer_length: args.internal_layers,
         weights_path: args.parameters_path,
@@ -113,11 +116,12 @@ pub fn init_context(app_name: &'static str, version: u32, gpu_enabled: bool, arg
         sleep_time: args.sleep_time,
         name: args.name,
         restore: args.restore,
-        distribution,
         example_mode: args.mode,
         predict_only: args.predict_only,
         resize: args.reproduce,
         temparature: args.temparature,
+        no_repeat: args.no_repeat,
+        n_gram_seed: args.n_gram_seed,
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),
