@@ -3,7 +3,7 @@ use crate::nn::{DistributionType, LayerType};
 use crate::NeuralNetBuilder;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::io::{BufRead, BufReader};
 
 use std::thread;
 use std::time::Duration;
@@ -67,15 +67,10 @@ where
     let file = File::open(data_path).expect("File could not be opened");
     let reader = BufReader::new(file);
 
-    let lines: Result<Vec<String>, io::Error> = reader.lines().collect();
-
-    let lines = match lines {
-        Ok(lines) => lines,
-        Err(e) => {
-            eprintln!("Error reading file: {}", e);
-            return Err("Error reading file".to_string());
-        }
-    };
+    let lines: Vec<String> = reader
+        .lines()
+        .map(|line| line.expect("Failed to read line").to_lowercase())
+        .collect();
 
     let mut names = HashSet::new();
     names.extend(lines.iter());
@@ -137,6 +132,7 @@ where
     }
 
     let (stoi, itos, vocab_size, multiplier) = metadata;
+    println!("Vocabulary Size {}: {:?}", vocab_size, stoi);
 
     let loss_function_instance = Box::new(CategoricalCrossEntropy);
 
@@ -189,7 +185,22 @@ where
 
         let inputs: Vec<u32> = inputs.iter().flatten().copied().collect();
         let x_train = one_hot_encode(&inputs, vocab_size, multiplier)?;
-        let y_train = one_hot_encode(&targets, vocab_size, 1)?;
+        let y_train: T = one_hot_encode(&targets, vocab_size, 1)?;
+
+        // Add Label Smoothing
+        let epsilon = D::from_f64(0.1); // The "smoothing" factor
+        let num_classes = D::from_u32(vocab_size);
+
+        let y_train_data = y_train.get_data();
+        let mut smooth_data = vec![];
+
+        for val in y_train_data {
+            // Standard one-hot is [0, 1, 0]
+            // Smoothed becomes [0.003, 0.903, 0.003]
+            smooth_data.push(val * (D::one() - epsilon) + (epsilon / num_classes));
+        }
+
+        let y_train = T::new(y_train.get_shape().to_vec(), smooth_data)?;
 
         let mut start_time = Instant::now();
         let mut last_epoch = 0;
@@ -235,8 +246,6 @@ where
 
         nn.fit(&x_train, &y_train, config, hook_config)?;
     }
-
-    println!("Vocabulary Size {}: {:?}", vocab_size, stoi);
 
     println!("\nGenerated Names:");
     let mut fresh_count = 0;
@@ -292,7 +301,7 @@ where
             if name.len() > multiplier {
                 weights[0] *= 2.0;
             }
-            if name.len() > (1.5 * multiplier as f64) as usize {
+            if name.len() > (3 * multiplier) {
                 weights[0] *= 10.0;
             }
 
@@ -452,7 +461,7 @@ where
 
     let layers = [
         (input_size, hl, LayerType::ReLU, "Input", "AL 1"),
-        (hl, hl, LayerType::ReLU, "HL2", "AL3"),
+        // (hl, hl, LayerType::ReLU, "HL2", "AL3"),
         //  (2 * hl, hl, LayerType::ReLU, "HL4", "AL5"),
         (hl, hl / 2, LayerType::ReLU, "HL10", "AL11"),
         // (hl / 2, hl / 4, LayerType::ReLU, "HL10", "AL11"),
