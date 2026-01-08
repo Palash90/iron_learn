@@ -64,7 +64,7 @@ pub struct AppContext {
     pub predict_only: bool,
     pub resize: u32,
     pub temparature: f64,
-    pub no_repeat: bool,
+    pub repeat: bool,
     pub n_gram_seed: String,
     pub n_gram_size: u8,
 }
@@ -102,6 +102,12 @@ pub fn init_context(app_name: &'static str, version: u32, gpu_enabled: bool, arg
         _ => DistributionType::Normal,
     };
 
+    let restore = if args.predict_only {
+        true
+    } else {
+        args.restore
+    };
+
     let ctx = AppContext {
         app_name,
         version,
@@ -116,12 +122,12 @@ pub fn init_context(app_name: &'static str, version: u32, gpu_enabled: bool, arg
         monitor_interval: args.monitor_interval,
         sleep_time: args.sleep_time,
         name: args.name,
-        restore: args.restore,
+        restore,
         example_mode: args.mode,
         predict_only: args.predict_only,
         resize: args.reproduce,
         temparature: args.temparature,
-        no_repeat: args.no_repeat,
+        repeat: args.repeat,
         n_gram_seed: args.n_gram_seed,
         n_gram_size: args.n_gram_size,
     };

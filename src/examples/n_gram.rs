@@ -18,9 +18,21 @@ use crate::nn::types::TrainingConfig;
 use crate::nn::types::TrainingHook;
 use crate::one_hot::one_hot_encode;
 use crate::NeuralNet;
+use serde::{Deserialize, Serialize};
+use std::fs;
+
+use rand::seq::SliceRandom;
 use std::time::Instant;
 
 use colored::*;
+
+#[derive(Debug, Serialize, Deserialize)]
+struct NGramMetadata {
+    vocab_size: u32,
+    stoi: HashMap<char, usize>,
+    itos: HashMap<usize, char>,
+    multiplier: u32,
+}
 
 pub fn run_n_gram_generator<T, D>() -> Result<(), String>
 where
@@ -46,9 +58,11 @@ where
     let resize = GLOBAL_CONTEXT.get().unwrap().resize;
     let temparature = GLOBAL_CONTEXT.get().unwrap().temparature;
     let temparature = if temparature == 0.0 { 0.1 } else { temparature };
-    let no_repeat = GLOBAL_CONTEXT.get().unwrap().no_repeat;
+    let no_repeat = !GLOBAL_CONTEXT.get().unwrap().repeat;
     let n_gram_seed = &GLOBAL_CONTEXT.get().unwrap().n_gram_seed;
     let n_gram_size = GLOBAL_CONTEXT.get().unwrap().n_gram_size;
+
+    let metadata_file = "model_outputs/".to_owned() + &name.to_owned() + "/n_gram_metadata.json";
 
     let file = File::open(data_path).expect("File could not be opened");
     let reader = BufReader::new(file);
@@ -63,44 +77,66 @@ where
         }
     };
 
+    let mut names = HashSet::new();
+    names.extend(lines.iter());
+    let mut names: Vec<&String> = names.into_iter().collect();
+
     let mut generation_set = HashSet::new();
     let names_set: HashSet<String> = lines.clone().into_iter().collect();
 
-    let names = lines;
+    let metadata = match restore {
+        false => {
+            let mut chars: Vec<char> = names
+                .iter()
+                .flat_map(|s| s.chars())
+                .collect::<HashSet<_>>()
+                .into_iter()
+                .collect();
+            chars.sort();
+            chars.insert(0, '.');
 
-    let mut chars: Vec<char> = names
-        .iter()
-        .flat_map(|s| s.chars())
-        .collect::<HashSet<_>>()
-        .into_iter()
-        .collect();
-    chars.sort();
-    chars.insert(0, '.');
+            let vocab_size = chars.len() as u32;
 
-    println!("Vocabulary Size: {}, {:?}", chars.len(), chars);
+            let stoi: HashMap<char, usize> =
+                chars.iter().enumerate().map(|(i, &c)| (c, i)).collect();
+            let itos: HashMap<usize, char> =
+                chars.iter().enumerate().map(|(i, &c)| (i, c)).collect();
 
-    let stoi: HashMap<char, usize> = chars.iter().enumerate().map(|(i, &c)| (c, i)).collect();
-    let itos: HashMap<usize, char> = chars.iter().enumerate().map(|(i, &c)| (i, c)).collect();
-    let vocab_size = chars.len() as u32;
+            let multiplier: u32 = n_gram_size as u32 - 1;
 
-    let multiplier: u32 = n_gram_size as u32 - 1;
-
-    let mut inputs = Vec::new();
-    let mut targets = Vec::new();
-
-    for name in names {
-        let full_name = format!("....{}.", name);
-        let chars_vec: Vec<char> = full_name.chars().collect();
-        for window in chars_vec.windows(multiplier as usize + 1) {
-            for i in 0..multiplier {
-                inputs.push(stoi[&window[i as usize]] as u32);
-            }
-            targets.push(stoi[&window[multiplier as usize]] as u32);
+            (stoi, itos, vocab_size, multiplier)
         }
+        true => {
+            let contents = match fs::read_to_string(&metadata_file) {
+                Ok(c) => c,
+                Err(e) => {
+                    eprintln!("{}", &format!("Failed to read file: {}", e));
+                    String::new()
+                }
+            };
+
+            let data: NGramMetadata = match serde_json::from_str(&contents) {
+                Ok(d) => d,
+                Err(err) => {
+                    panic!("N Gram Metadata could not be read: {}", err);
+                }
+            };
+            (data.stoi, data.itos, data.vocab_size, data.multiplier)
+        }
+    };
+
+    if !restore {
+        let metadata = NGramMetadata {
+            stoi: metadata.0.clone(),
+            itos: metadata.1.clone(),
+            vocab_size: metadata.2,
+            multiplier: metadata.3,
+        };
+
+        serde_json::to_writer_pretty(File::create(&metadata_file).unwrap(), &metadata).unwrap();
     }
 
-    let x_train = one_hot_encode(&inputs, vocab_size, multiplier)?;
-    let y_train = one_hot_encode(&targets, vocab_size, 1)?;
+    let (stoi, itos, vocab_size, multiplier) = metadata;
 
     let loss_function_instance = Box::new(CategoricalCrossEntropy);
 
@@ -126,70 +162,121 @@ where
         ),
     };
 
-    let config = TrainingConfig {
-        epochs: e as usize,
-        epoch_offset,
-        base_lr: l,
-        lr_adjustment,
-    };
-
-    let mut start_time = Instant::now();
-    let mut last_epoch = 0;
-
-    let monitor = |epoch, loss: D, _, nn: &mut NeuralNet<T, D>| {
-        let elapsed = start_time.elapsed();
-        start_time = Instant::now();
-
-        if loss.f64().is_nan() {
-            panic!("Hit NaN");
-        }
-
-        println!("\tEpoch {epoch}: Loss (CCE) = {loss:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
-        last_epoch = epoch;
-        nn.save_model(&weights_path);
-
-        if sleep_time > 0 && epoch != 0 {
-            println!("Taking a nap");
-            thread::sleep(Duration::from_secs(5));
-            println!("Awake again");
-        }
-    };
-    let hook_config = TrainingHook::new(1000, monitor);
-
     if !predict_only {
+        let mut inputs: Vec<Vec<u32>> = Vec::new();
+        let mut targets: Vec<u32> = Vec::new();
+
+        let pad_str = ".".repeat(multiplier as usize);
+
+        let mut rng = rand::rng();
+        names.shuffle(&mut rng);
+
+        for name in names {
+            let full_name = format!("{}{}.", pad_str, name);
+            let chars_vec: Vec<char> = full_name.chars().collect();
+
+            for window in chars_vec.windows(multiplier as usize + 1) {
+                // Build a single context vector for this window
+                let mut context = Vec::new();
+                for i in 0..multiplier {
+                    context.push(stoi[&window[i as usize]] as u32);
+                }
+
+                inputs.push(context); // One push to inputs
+                targets.push(stoi[&window[multiplier as usize]] as u32); // One push to targets
+            }
+        }
+
+        let inputs: Vec<u32> = inputs.iter().flatten().copied().collect();
+        let x_train = one_hot_encode(&inputs, vocab_size, multiplier)?;
+        let y_train = one_hot_encode(&targets, vocab_size, 1)?;
+
+        let mut start_time = Instant::now();
+        let mut last_epoch = 0;
+
+        let monitor = |epoch, loss: D, _, nn: &mut NeuralNet<T, D>| {
+            let elapsed = start_time.elapsed();
+            start_time = Instant::now();
+
+            let num_samples = inputs.len() as f64;
+            let avg_loss = loss.f64() / num_samples;
+
+            if loss.f64().is_nan() {
+                panic!("Hit NaN");
+            }
+
+            println!("\tEpoch {epoch}: Loss (CCE) = {loss:.4}, {avg_loss:.4} {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
+
+            if avg_loss < 1.10 {
+                println!(
+                    " {} : {:.8}",
+                    "Overfit!".yellow(),
+                    avg_loss.to_string().yellow()
+                );
+            }
+
+            last_epoch = epoch;
+            nn.save_model(&weights_path);
+
+            if sleep_time > 0 && epoch != 0 {
+                println!("Taking a nap");
+                thread::sleep(Duration::from_secs(5));
+                println!("Awake again");
+            }
+        };
+        let config = TrainingConfig {
+            epochs: e as usize,
+            epoch_offset,
+            base_lr: l,
+            lr_adjustment,
+        };
+
+        let hook_config = TrainingHook::new(1000, monitor);
+
         nn.fit(&x_train, &y_train, config, hook_config)?;
-    } else {
-        println!("Skipping training...");
     }
+
+    println!("Vocabulary Size {}: {:?}", vocab_size, stoi);
 
     println!("\nGenerated Names:");
     let mut fresh_count = 0;
     let mut new_names = 0;
 
     for i in 0..resize {
-        let seed = n_gram_seed.clone().to_lowercase();
-        let mut name = seed.clone();
+        // This is the full seed, it can be bigger than the multiplier
+        let full_seed = n_gram_seed.clone().to_lowercase();
+        let multiplier = multiplier as usize;
 
-        let mut c_vec = ['.', '.', '.', '.'];
-        let seed_chars: Vec<char> = seed.chars().collect();
+        let seed_chars: Vec<char> = full_seed.chars().collect();
 
-        for (i, &ch) in seed_chars.iter().rev().enumerate() {
-            if i < 4 {
-                c_vec[3 - i] = ch;
+        let seed_len = seed_chars.len();
+
+        let mut name = if seed_len > multiplier {
+            seed_chars[seed_len - multiplier..]
+                .iter()
+                .collect::<String>()
+        } else {
+            full_seed.clone()
+        };
+
+        let mut c_vec = vec!['.'; multiplier];
+        let name_chars: Vec<char> = name.chars().collect();
+
+        for (i, &ch) in name_chars.iter().rev().enumerate() {
+            if i < multiplier {
+                c_vec[multiplier - 1 - i] = ch;
             }
         }
 
-        let mut context = (c_vec[0], c_vec[1], c_vec[2], c_vec[3]);
-
         loop {
-            let mut input_vec = vec![D::zero(); (vocab_size * multiplier) as usize];
+            let mut input_vec = vec![D::zero(); vocab_size as usize * multiplier];
 
-            input_vec[stoi[&context.0]] = D::one();
-            input_vec[stoi[&context.1] + vocab_size as usize] = D::one();
-            input_vec[stoi[&context.2] + (vocab_size * 2) as usize] = D::one();
-            input_vec[stoi[&context.3] + (vocab_size * 3) as usize] = D::one();
+            for (pos, &ch) in c_vec.iter().enumerate() {
+                let offset = pos * vocab_size as usize;
+                input_vec[offset + stoi[&ch]] = D::one();
+            }
 
-            let input_tensor = T::new(vec![1, vocab_size * multiplier], input_vec)?;
+            let input_tensor = T::new(vec![1, vocab_size * multiplier as u32], input_vec)?;
             let preds = nn.predict(&input_tensor)?;
             let data = preds.get_data();
 
@@ -202,10 +289,10 @@ where
                 weights[0] = 0.0;
             }
 
-            if name.len() > 4 {
+            if name.len() > multiplier {
                 weights[0] *= 2.0;
             }
-            if name.len() > 6 {
+            if name.len() > (1.5 * multiplier as f64) as usize {
                 weights[0] *= 10.0;
             }
 
@@ -251,7 +338,8 @@ where
 
             name.push(next_char);
 
-            context = (context.1, context.2, context.3, next_char);
+            c_vec.remove(0);
+            c_vec.push(next_char);
 
             if name.len() > 20 {
                 break;
@@ -309,20 +397,43 @@ where
 }
 
 fn is_pronounceable(name: &str) -> bool {
+    let len = name.len();
+    if len < 2 {
+        return false;
+    } // Too short
+
     let vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
     let v_count = name.chars().filter(|c| vowels.contains(c)).count();
+    let ratio = v_count as f32 / len as f32;
 
-    // Check if vowel percentage is between 30% and 70%
-    let ratio = v_count as f32 / name.len() as f32;
+    // 1. Dynamic Ratio: Short names need more flexibility than long ones
+    let (min_r, max_r) = if len <= 3 { (0.25, 0.75) } else { (0.30, 0.65) };
+    if ratio < min_r || ratio > max_r {
+        return false;
+    }
 
-    // Also check for triple consonants (e.g., "bfas" is okay, but "rrtv" is not)
-    let has_triple_consonant = name
-        .chars()
-        .collect::<Vec<char>>()
-        .windows(3)
-        .any(|w| w.iter().all(|c| !vowels.contains(c)));
+    let chars: Vec<char> = name.chars().collect();
 
-    ratio > 0.3 && ratio < 0.7 && !has_triple_consonant
+    // 2. Window-based Phonetic Checks
+    // Check for triple consonants AND triple vowels
+    let has_bad_cluster = chars.windows(3).any(|w| {
+        let all_vowels = w.iter().all(|c| vowels.contains(c));
+        let all_consonants = w.iter().all(|c| !vowels.contains(c));
+        all_vowels || all_consonants
+    });
+
+    if has_bad_cluster {
+        return false;
+    }
+
+    // 3. Start/End Sanity
+    // Names usually don't end in certain consonants like 'q' or 'j'
+    let last_char = chars[len - 1];
+    if ['q', 'j', 'x', 'v'].contains(&last_char) && len > 3 {
+        return false;
+    }
+
+    true
 }
 
 fn define_neural_net<T, D>(
@@ -341,12 +452,11 @@ where
 
     let layers = [
         (input_size, hl, LayerType::ReLU, "Input", "AL 1"),
-        (hl, hl, LayerType::ReLU, "HL1", "AL2"),
-        (hl, 2 * hl, LayerType::ReLU, "HL2", "AL3"),
-        (2 * hl, hl / 2, LayerType::ReLU, "HL4", "AL5"),
-        (hl / 2, hl / 4, LayerType::ReLU, "HL10", "AL11"),
-        (hl / 4, hl / 8, LayerType::ReLU, "HL11", "AL12"),
-        (hl / 8, input, LayerType::Softmax, "HL12", "Output"),
+        (hl, hl, LayerType::ReLU, "HL2", "AL3"),
+        //  (2 * hl, hl, LayerType::ReLU, "HL4", "AL5"),
+        (hl, hl / 2, LayerType::ReLU, "HL10", "AL11"),
+        // (hl / 2, hl / 4, LayerType::ReLU, "HL10", "AL11"),
+        (hl / 2, input, LayerType::Softmax, "HL12", "Output"),
     ];
 
     for layer in layers {
