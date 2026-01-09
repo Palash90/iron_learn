@@ -15,6 +15,7 @@ use std::path::Path;
 
 use crate::nn::types::TrainingConfig;
 use crate::nn::types::TrainingHook;
+use colored::*;
 
 /// Feed-forward neural network container.
 ///
@@ -34,6 +35,8 @@ where
     pub name: String,
     current_epoch: usize,
     current_lr: D,
+    last_train_loss: D,
+    last_val_loss: D,
 }
 
 impl<T, D> NeuralNet<T, D>
@@ -58,6 +61,8 @@ where
             name,
             current_epoch,
             current_lr,
+            last_train_loss: D::zero(),
+            last_val_loss: D::zero(),
         }
     }
     /// Append a layer to the network.
@@ -98,6 +103,8 @@ where
             false => config.epochs,
         };
 
+        let mut last_good_model = self.get_model();
+
         for i in config.epoch_offset..config.epochs {
             let global_i = D::from_u32(i as u32);
 
@@ -123,15 +130,15 @@ where
             for layer in &mut self.layers {
                 output = layer.forward(&output, true).unwrap();
             }
-
-            let mut v_output = x_val.add(&T::zeroes(x_val.get_shape())).unwrap();
-            for layer in &mut self.layers {
-                v_output = layer.forward(&v_output, false).unwrap();
-            }
             T::synchronize();
 
-            let err = self.loss_fn.loss(y_train, &output);
-            let err_val = self.loss_fn.loss(y_val, &v_output);
+            let err = self
+                .loss_fn
+                .loss(y_train, &output)
+                .unwrap()
+                .sum()
+                .unwrap()
+                .get_data()[0];
             T::synchronize();
 
             let mut error_prime = self.loss_fn.loss_prime(y_train, &output).unwrap();
@@ -141,12 +148,37 @@ where
             }
             T::synchronize();
 
+            let mut v_output = x_val.add(&T::zeroes(x_val.get_shape())).unwrap();
+            for layer in &mut self.layers {
+                v_output = layer.forward(&v_output, false).unwrap();
+            }
+            let err_val = self
+                .loss_fn
+                .loss(y_val, &v_output)
+                .unwrap()
+                .sum()
+                .unwrap()
+                .get_data()[0];
+            T::synchronize();
+
+            if err_val > self.last_val_loss && err < self.last_train_loss {
+                println!();
+                println!("{}", "Model has overfit!".bold().red());
+                println!("{}", "Saving last known good model".yellow());
+                Self::write_model_to_disk(
+                    last_good_model,
+                    (self.name.clone() + "/last_good_model.json").as_str(),
+                );
+                break;
+            } else {
+                self.last_train_loss = err;
+                self.last_val_loss = err_val;
+                last_good_model = self.get_model();
+            }
+
             // Hook (Periodic Reporting)
             if i == 0 || i % hook_interval == 0 {
                 T::synchronize();
-                let err = err.unwrap().sum().unwrap().get_data()[0];
-                let err_val = err_val.unwrap().sum().unwrap().get_data()[0];
-
                 (hook_config.callback)(i, err, err_val, current_lr, self);
             }
         }
@@ -155,8 +187,7 @@ where
         Ok(())
     }
 
-    /// Serialize and write the model weights and metadata to `filepath`.
-    pub fn save_model(&self, filepath: &str) {
+    fn get_model(&self) -> ModelData<D> {
         let mut model_storage = ModelData {
             name: self.name.clone(),
             parameter_count: self.parameter_count,
@@ -181,9 +212,12 @@ where
 
             model_storage.layers.push(layer_info);
         }
+        model_storage
+    }
 
-        let json_data = serde_json::to_string_pretty(&model_storage)
-            .expect("Failed to serialize model weights");
+    fn write_model_to_disk(model: ModelData<D>, filepath: &str) {
+        let json_data =
+            serde_json::to_string_pretty(&model).expect("Failed to serialize model weights");
 
         let path = Path::new(filepath);
         if let Some(parent) = path.parent() {
@@ -193,6 +227,15 @@ where
         let mut file = File::create(filepath).unwrap();
         let _ = file.write_all(json_data.as_bytes());
 
-        println!("Model successfully saved to {}", filepath);
+        let _ = file.flush();
+
+        let status_text = format!("Model successfully saved to {}", filepath);
+        println!("{}", status_text.green());
+    }
+
+    /// Serialize and write the model weights and metadata to `filepath`.
+    pub fn save_model(&self, filepath: &str) {
+        let model_storage = self.get_model();
+        Self::write_model_to_disk(model_storage, filepath);
     }
 }
