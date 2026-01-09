@@ -20,6 +20,7 @@ use crate::one_hot::one_hot_encode;
 use crate::NeuralNet;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::path::Path;
 
 use rand::seq::SliceRandom;
 use std::time::Instant;
@@ -128,6 +129,11 @@ where
             vocab_size: metadata.2,
             multiplier: metadata.3,
         };
+
+        let path = Path::new(&metadata_file);
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent).unwrap(); // Creates all directories if they don't exist
+        }
 
         serde_json::to_writer_pretty(File::create(&metadata_file).unwrap(), &metadata).unwrap();
     }
