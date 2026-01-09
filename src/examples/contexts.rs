@@ -54,7 +54,6 @@ pub struct AppContext {
     pub gpu_enabled: bool,
     pub lr_adjust: bool,
     pub hidden_layer_length: u32,
-    pub weights_path: String,
     pub monitor_interval: usize,
     pub sleep_time: u64,
     pub name: String,
@@ -67,6 +66,7 @@ pub struct AppContext {
     pub repeat: bool,
     pub n_gram_seed: String,
     pub n_gram_size: u8,
+    pub weights_path: String,
 }
 
 /// Initialize the global application context
@@ -118,10 +118,9 @@ pub fn init_context(app_name: &'static str, version: u32, gpu_enabled: bool, arg
         epochs: args.epochs,
         lr_adjust: args.adjust_lr,
         hidden_layer_length: args.internal_layers,
-        weights_path: args.parameters_path,
         monitor_interval: args.monitor_interval,
         sleep_time: args.sleep_time,
-        name: args.name,
+        name: args.name.clone(),
         restore,
         example_mode: args.mode,
         predict_only: args.predict_only,
@@ -130,6 +129,7 @@ pub fn init_context(app_name: &'static str, version: u32, gpu_enabled: bool, arg
         repeat: args.repeat,
         n_gram_seed: args.n_gram_seed,
         n_gram_size: args.n_gram_size,
+        weights_path: "model_outputs/".to_owned() + &args.name.to_owned() + "/model.json",
     };
     match GLOBAL_CONTEXT.set(ctx) {
         Ok(_) => (),

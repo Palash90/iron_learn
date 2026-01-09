@@ -103,7 +103,6 @@ fn greet(ctx: &AppContext) {
     println!("║ Epochs: {}", ctx.epochs);
     println!("║ Hidden Layers: {}", ctx.hidden_layer_length);
     println!("║ Data Path: {}", ctx.data_path);
-    println!("║ Model Path: {}", ctx.weights_path);
     println!("║ Monitor Interval: {}", ctx.monitor_interval);
     println!("║ Intermediate Sleep Time: {} seconds", ctx.sleep_time);
     println!("╚═══════════════════════════════════════╝\n");

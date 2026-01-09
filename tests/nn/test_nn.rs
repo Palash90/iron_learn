@@ -195,15 +195,14 @@ mod tests {
             epochs_run
         );
 
-        let path = format!("model_outputs/{}/last_good_model.json", net.name);
+        let path = format!("model_outputs/{}/model.json", net.name);
 
         // Check that the last good model was saved
         let _save_path = dir
             .path()
-            .join(format!("model_outputs/{}/last_good_model.json", net.name));
+            .join(format!("model_outputs/{}/model.json", net.name));
 
         assert!(dir.path().exists());
         let _ = fs::remove_file(path);
-        
     }
 }

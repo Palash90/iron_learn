@@ -171,7 +171,7 @@ where
                     println!("{}", "Model has overfit!".bold().red());
                     Self::write_model_to_disk(
                         last_good_model,
-                        format!("model_outputs/{}/last_good_model.json", self.name).as_str(),
+                        format!("model_outputs/{}/model.json", self.name).as_str(),
                     );
                     break;
                 }

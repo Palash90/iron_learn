@@ -76,13 +76,10 @@ pub struct IronLearnArgs {
     #[arg(long, short, default_value = "0")]
     pub sleep_time: u64,
 
-    #[arg(long, short, default_value = "model.json")]
-    pub parameters_path: String,
-
     #[arg(long, short = 'D', default_value = "Normal")]
     pub distribution: String,
 
-    #[arg(long, default_value = "false")]
+    #[arg(long, short, default_value = "false")]
     pub predict_only: bool,
 
     #[arg(long, default_value = "0")]

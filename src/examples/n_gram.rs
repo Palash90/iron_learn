@@ -50,8 +50,6 @@ where
     let hidden_length = GLOBAL_CONTEXT.get().unwrap().hidden_layer_length;
     let name = &GLOBAL_CONTEXT.get().unwrap().name;
     let distribution = &GLOBAL_CONTEXT.get().unwrap().distribution;
-    let weights_path = &GLOBAL_CONTEXT.get().unwrap().weights_path;
-    let weights_path = "model_outputs/".to_owned() + &name.to_owned() + "/" + weights_path;
     let lr_adjustment = GLOBAL_CONTEXT.get().unwrap().lr_adjust;
     let restore = GLOBAL_CONTEXT.get().unwrap().restore;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
@@ -62,6 +60,7 @@ where
     let no_repeat = !GLOBAL_CONTEXT.get().unwrap().repeat;
     let n_gram_seed = &GLOBAL_CONTEXT.get().unwrap().n_gram_seed;
     let n_gram_size = GLOBAL_CONTEXT.get().unwrap().n_gram_size;
+    let weights_path = &GLOBAL_CONTEXT.get().unwrap().weights_path;
 
     let metadata_file = "model_outputs/".to_owned() + &name.to_owned() + "/n_gram_metadata.json";
 
@@ -144,7 +143,7 @@ where
     let loss_function_instance = Box::new(CategoricalCrossEntropy);
 
     let (l, epoch_offset, mut nn) = match !weights_path.is_empty() && restore {
-        true => match deserialize_model::<D>(&weights_path) {
+        true => match deserialize_model::<D>(weights_path) {
             Some(model) => (
                 model.saved_lr,
                 model.epoch,
@@ -232,7 +231,7 @@ where
             println!("\tEpoch {epoch}: Loss (CCE) = {loss:.4}, Val Loss (CCE) = {val_loss:.4}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
 
             last_epoch = epoch;
-            nn.save_model(&weights_path);
+            nn.save_model(weights_path);
 
             if sleep_time > 0 && epoch != 0 {
                 println!("Taking a nap");

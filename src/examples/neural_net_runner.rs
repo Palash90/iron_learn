@@ -44,7 +44,6 @@ where
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let data_path = &GLOBAL_CONTEXT.get().unwrap().data_path;
     let hidden_length = GLOBAL_CONTEXT.get().unwrap().hidden_layer_length;
-    let weights_path = &GLOBAL_CONTEXT.get().unwrap().weights_path;
     let monitor_interval = GLOBAL_CONTEXT.get().unwrap().monitor_interval;
     let sleep_time = GLOBAL_CONTEXT.get().unwrap().sleep_time;
     let name = &GLOBAL_CONTEXT.get().unwrap().name;
@@ -53,8 +52,8 @@ where
     let distribution = &GLOBAL_CONTEXT.get().unwrap().distribution;
     let predict_only = GLOBAL_CONTEXT.get().unwrap().predict_only;
     let example = GLOBAL_CONTEXT.get().unwrap().example_mode;
-    let weights_path = "model_outputs/".to_owned() + &name.to_owned() + "/" + weights_path;
     let resize = GLOBAL_CONTEXT.get().unwrap().resize;
+    let weights_path = &GLOBAL_CONTEXT.get().unwrap().weights_path;
 
     let xy =
         deserialize_data(data_path).map_err(|e| format!("Data deserialization error: {}", e))?;
@@ -91,7 +90,7 @@ where
     let loss_function_instance = Box::new(MeanSquaredErrorLoss);
 
     let (l, epoch_offset, mut nn) = match !weights_path.is_empty() && restore {
-        true => match deserialize_model::<D>(&weights_path) {
+        true => match deserialize_model::<D>(weights_path) {
             Some(model) => (
                 model.saved_lr,
                 model.epoch,
@@ -142,7 +141,7 @@ where
                     draw_image(epoch as i32, &coordinates, &pixels, size, size, name);
                 }
 
-                nn.save_model(&weights_path);
+                nn.save_model(weights_path);
             }
 
             // Rest for a few seconds before starting again
