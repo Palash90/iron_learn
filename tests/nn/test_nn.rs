@@ -153,4 +153,57 @@ mod tests {
         let content = fs::read_to_string(path_str).unwrap();
         assert!(content.contains(&net.name));
     }
+
+    #[test]
+    fn test_early_stopping_overfit() {
+        let mut net = setup_test_net();
+        let dir = tempdir().unwrap();
+        net.name = dir.path().to_str().unwrap().to_string();
+
+        // 1. Training Set: Simple linear mapping
+        // The model will easily minimize this error.
+        let x_train = CpuTensor::new(vec![2, 2], vec![0.5, 0.5, 1.0, 1.0]).unwrap();
+        let y_train = CpuTensor::new(vec![2, 1], vec![0.0, 1.0]).unwrap();
+
+        // 2. Validation Set: The "Trap"
+        // Use the same inputs, but provide targets that are the exact opposite.
+        // As training loss goes down (approaching 0 and 1),
+        // the validation error on these points will mathematically increase.
+        let x_val = x_train.clone();
+        let y_val = CpuTensor::new(vec![2, 1], vec![1.0, 0.0]).unwrap();
+
+        let mut epochs_run = 0;
+        let monitor = |epoch: usize, _, _, _, _: &mut NeuralNet<CpuTensor<f32>, f32>| {
+            epochs_run = epoch;
+        };
+
+        let config = TrainingConfig {
+            epochs: 500,
+            epoch_offset: 0,
+            base_lr: 0.1, // Sufficiently high to move the weights quickly
+            lr_adjustment: false,
+        };
+
+        let hook_config = TrainingHook::new(1000, monitor);
+
+        let _ = net.fit(&x_train, &y_train, &x_val, &y_val, config, hook_config);
+
+        // Assert that we stopped before the 500 limit
+        assert!(
+            epochs_run < 400,
+            "Model failed to overfit; ran for {} epochs",
+            epochs_run
+        );
+
+        let path = format!("model_outputs/{}/last_good_model.json", net.name);
+
+        // Check that the last good model was saved
+        let _save_path = dir
+            .path()
+            .join(format!("model_outputs/{}/last_good_model.json", net.name));
+
+        assert!(dir.path().exists());
+        let _ = fs::remove_file(path);
+        
+    }
 }

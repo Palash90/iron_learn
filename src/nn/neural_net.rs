@@ -65,13 +65,6 @@ where
             last_val_loss: D::zero(),
         }
     }
-    /// Append a layer to the network.
-    ///
-    /// The provided box must implement the `Layer` trait for the network's
-    /// tensor type `T`.
-    pub fn add(&mut self, layer: Box<dyn Layer<T, D>>) {
-        self.layers.push(layer);
-    }
 
     /// Run a forward pass and return the network output for `input`.
     pub fn predict(&mut self, input: &T) -> Result<T, String> {
@@ -167,14 +160,18 @@ where
 
             if err_val > self.last_val_loss + epsilon && err < self.last_train_loss {
                 patience_counter += 1;
+                let err_text = format!(
+                    "Validation loss has increased continuously for {patience_counter} epochs."
+                );
+                println!();
+                println!("{}", err_text.yellow());
 
                 if patience_counter >= patience {
                     println!();
                     println!("{}", "Model has overfit!".bold().red());
-                    println!("{}", "Saving last known good model".yellow());
                     Self::write_model_to_disk(
                         last_good_model,
-                        (self.name.clone() + "/last_good_model.json").as_str(),
+                        format!("model_outputs/{}/last_good_model.json", self.name).as_str(),
                     );
                     break;
                 }
