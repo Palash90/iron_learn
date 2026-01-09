@@ -223,13 +223,13 @@ let config = TrainingConfig {
       lr_adjustment: false,
   };
 
-let monitor = |epoch: usize, err: f32, lr: f32, _nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
+let monitor = |epoch: usize, err: f32, err_val: f32, lr: f32, _nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
     println!("Processing epopch: {epoch}, error: {err}");
 };
 
 let hook_config = TrainingHook::new(1, monitor);
 
-net.fit(&x, &y, config, hook_config);
+net.fit(&x, &y, &x, &y, config, hook_config);
 
 let prediction = net.predict(&x).unwrap();
 println!("\nPredicted value");

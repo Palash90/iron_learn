@@ -15,6 +15,8 @@ cargo clippy --all-targets --all-features --release -- -D warnings
 
 cargo build --all-features --release
 
+cargo test --all-features --doc
+
 cargo llvm-cov --all-features --html -- --test-threads=1
 
 echo "✅ All checks passed. Good to go!"

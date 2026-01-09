@@ -104,6 +104,10 @@ where
         };
 
         let mut last_good_model = self.get_model();
+        let mut best_val_loss = D::from_f64(f64::MAX);
+        let mut patience_counter = 0;
+        let patience = 5; // For now, later may take it from config
+        let epsilon = D::from_f64(1e-4);
 
         for i in config.epoch_offset..config.epochs {
             let global_i = D::from_u32(i as u32);
@@ -161,19 +165,27 @@ where
                 .get_data()[0];
             T::synchronize();
 
-            if err_val > self.last_val_loss && err < self.last_train_loss {
-                println!();
-                println!("{}", "Model has overfit!".bold().red());
-                println!("{}", "Saving last known good model".yellow());
-                Self::write_model_to_disk(
-                    last_good_model,
-                    (self.name.clone() + "/last_good_model.json").as_str(),
-                );
-                break;
+            if err_val > self.last_val_loss + epsilon && err < self.last_train_loss {
+                patience_counter += 1;
+
+                if patience_counter >= patience {
+                    println!();
+                    println!("{}", "Model has overfit!".bold().red());
+                    println!("{}", "Saving last known good model".yellow());
+                    Self::write_model_to_disk(
+                        last_good_model,
+                        (self.name.clone() + "/last_good_model.json").as_str(),
+                    );
+                    break;
+                }
             } else {
+                if err_val < best_val_loss {
+                    best_val_loss = err_val;
+                    last_good_model = self.get_model();
+                    patience_counter = 0;
+                }
                 self.last_train_loss = err;
                 self.last_val_loss = err_val;
-                last_good_model = self.get_model();
             }
 
             // Hook (Periodic Reporting)
