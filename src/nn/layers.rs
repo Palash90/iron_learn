@@ -14,7 +14,7 @@ where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
     D: FloatingPoint,
 {
-    fn forward(&mut self, input: &T) -> Result<T, String>;
+    fn forward(&mut self, input: &T, is_training: bool) -> Result<T, String>;
     fn backward(&mut self, output_error: &T, learning_rate: D) -> Result<T, String>;
     fn get_parameters(&self) -> Option<T> {
         None
@@ -120,8 +120,10 @@ where
         &self.name
     }
 
-    fn forward(&mut self, input: &T) -> Result<T, String> {
-        self.input_cache = Some(input.add(&T::zeroes(input.get_shape()))?);
+    fn forward(&mut self, input: &T, is_training: bool) -> Result<T, String> {
+        if is_training {
+            self.input_cache = Some(input.add(&T::zeroes(input.get_shape()))?);
+        }
         let matmul = input.matmul(&self.weights)?;
         Ok(matmul)
     }
@@ -195,13 +197,13 @@ where
         &self.name
     }
 
-    fn forward(&mut self, input: &T) -> Result<T, String> {
+    fn forward(&mut self, input: &T, is_training: bool) -> Result<T, String> {
         let (activation, _) = get_activations(&self.layer_type);
-        // Call the passed-in activation function
         let output = (activation)(input)?;
 
-        // Caching the output for the backward pass
-        self.output_cache = Some(output.add(&T::zeroes(output.get_shape()))?);
+        if is_training {
+            self.output_cache = Some(output.add(&T::zeroes(output.get_shape()))?);
+        }
         Ok(output)
     }
 

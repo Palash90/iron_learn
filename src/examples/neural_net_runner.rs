@@ -115,11 +115,11 @@ where
     let mut start_time = Instant::now();
     let mut last_epoch = 0;
 
-    let monitor = |epoch: usize, err: D, current_lr: D, nn: &mut NeuralNet<T, D>| {
+    let monitor = |epoch: usize, err: D, err_val: D, current_lr: D, nn: &mut NeuralNet<T, D>| {
         let elapsed = start_time.elapsed();
         start_time = Instant::now();
 
-        println!("\tEpoch {epoch}: Loss (MSE) = {err:.8}, Current LR : {current_lr:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
+        println!("\tEpoch {epoch}: Loss (MSE) = {err:.8}, Val Loss (MSE) = {err_val:.8}, Current LR : {current_lr:.8}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
 
         last_epoch = epoch;
 
@@ -164,7 +164,14 @@ where
 
         let hook_config = TrainingHook::new(monitor_interval, monitor);
 
-        let _ = nn.fit(&x_with_bias, &y, config, hook_config);
+        let _ = nn.fit(
+            &x_with_bias,
+            &y,
+            &x_test_with_bias,
+            &y_test,
+            config,
+            hook_config,
+        );
     } else {
         println!("Skipped Fitting as in Predict Only Mode");
     }

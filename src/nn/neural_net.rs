@@ -73,7 +73,7 @@ where
         let mut output = input.add(&T::zeroes(input.get_shape())).unwrap();
 
         for layer in &mut self.layers {
-            output = layer.forward(&output).unwrap();
+            output = layer.forward(&output, false).unwrap();
         }
         Ok(output)
     }
@@ -82,11 +82,13 @@ where
         &mut self,
         x_train: &T,
         y_train: &T,
+        x_val: &T,
+        y_val: &T,
         config: TrainingConfig<D>,
         mut hook_config: TrainingHook<F, Self, D>,
     ) -> Result<(), String>
     where
-        F: FnMut(usize, D, D, &mut Self),
+        F: FnMut(usize, D, D, D, &mut Self),
     {
         let lr_min = D::from_f64(1e-6);
 
@@ -119,11 +121,17 @@ where
 
             let mut output = x_train.add(&T::zeroes(x_train.get_shape())).unwrap();
             for layer in &mut self.layers {
-                output = layer.forward(&output).unwrap();
+                output = layer.forward(&output, true).unwrap();
+            }
+
+            let mut v_output = x_val.add(&T::zeroes(x_val.get_shape())).unwrap();
+            for layer in &mut self.layers {
+                v_output = layer.forward(&v_output, false).unwrap();
             }
             T::synchronize();
 
             let err = self.loss_fn.loss(y_train, &output);
+            let err_val = self.loss_fn.loss(y_val, &v_output);
             T::synchronize();
 
             let mut error_prime = self.loss_fn.loss_prime(y_train, &output).unwrap();
@@ -136,9 +144,10 @@ where
             // Hook (Periodic Reporting)
             if i == 0 || i % hook_interval == 0 {
                 T::synchronize();
-                let err_val = err.unwrap().sum().unwrap().get_data()[0];
+                let err = err.unwrap().sum().unwrap().get_data()[0];
+                let err_val = err_val.unwrap().sum().unwrap().get_data()[0];
 
-                (hook_config.callback)(i, err_val, current_lr, self);
+                (hook_config.callback)(i, err, err_val, current_lr, self);
             }
         }
 

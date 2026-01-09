@@ -62,10 +62,13 @@ mod tests {
 
         let mut monitor_captured = vec![];
 
-        let monitor =
-            |epoch: usize, err: f32, lr: f32, _nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
-                monitor_captured.push((epoch, err, lr));
-            };
+        let monitor = |epoch: usize,
+                       err: f32,
+                       err_val: f32,
+                       lr: f32,
+                       _nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
+            monitor_captured.push((epoch, err, err_val, lr));
+        };
 
         let config = TrainingConfig {
             epochs: 5,
@@ -76,11 +79,13 @@ mod tests {
 
         let hook_config = TrainingHook::new(1, monitor);
 
-        let result = net.fit(&input, &target, config, hook_config);
+        let result = net.fit(&input, &target, &input, &target, config, hook_config);
 
         assert!(result.is_ok());
         assert_eq!(monitor_captured.len(), 5);
-        assert!(monitor_captured.iter().all(|a| a.2 == 1.0));
+        println!();
+        println!("{:?}", monitor_captured);
+        assert!(monitor_captured.iter().all(|a| a.3 == 1.0));
     }
 
     #[test]
@@ -93,10 +98,13 @@ mod tests {
 
         let mut monitor_captured = vec![];
 
-        let monitor =
-            |epoch: usize, err: f32, lr: f32, _nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
-                monitor_captured.push((epoch, err, lr));
-            };
+        let monitor = |epoch: usize,
+                       err: f32,
+                       err_val: f32,
+                       lr: f32,
+                       _nn: &mut NeuralNet<CpuTensor<f32>, f32>| {
+            monitor_captured.push((epoch, err, err_val, lr));
+        };
 
         let config = TrainingConfig {
             epochs: 5,
@@ -107,7 +115,7 @@ mod tests {
 
         let hook_config = TrainingHook::new(1, monitor);
 
-        let result = net.fit(&input, &target, config, hook_config);
+        let result = net.fit(&input, &target, &input, &target, config, hook_config);
 
         assert!(result.is_ok());
         assert_eq!(monitor_captured.len(), 5);

@@ -614,6 +614,13 @@ munna
 munni
 anindita
 shatarupa
+shatadal
+sharmishtha
+sananda
+anandi
+anika
+anuran
+bipra
 kamalika
 sucheta
 sunaina
@@ -1035,10 +1042,12 @@ shampa
 praan
 ujaan
 palki
-
-
-
-
+buddhadeb
+bhargavi
+abhilash
+abha
+hriday
+anunita
 
 
 

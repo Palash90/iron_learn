@@ -1,13 +1,13 @@
 use crate::{Numeric, Tensor};
 
-pub fn one_hot_encode<T: Numeric, U: Tensor<T>>(
+pub fn one_hot_encode<T: Tensor<D>, D: Numeric>(
     labels: &[u32],
     num_classes: u32,
     labels_per_sample: u32,
-) -> Result<U, String> {
+) -> Result<T, String> {
     let num_samples = (labels.len() as u32) / labels_per_sample;
     let row_width = (num_classes * labels_per_sample) as usize;
-    let mut data = vec![T::zero(); (num_samples as usize) * row_width];
+    let mut data = vec![D::zero(); (num_samples as usize) * row_width];
 
     for (i, sample_labels) in labels.chunks(labels_per_sample as usize).enumerate() {
         for (j, &label_idx) in sample_labels.iter().enumerate() {
@@ -18,11 +18,11 @@ pub fn one_hot_encode<T: Numeric, U: Tensor<T>>(
                 ));
             }
             let index = (i * row_width) + (j * num_classes as usize) + label_idx as usize;
-            data[index] = T::one();
+            data[index] = D::one();
         }
     }
 
-    U::new(vec![num_samples, row_width as u32], data)
+    T::new(vec![num_samples, row_width as u32], data)
 }
 
 pub fn one_hot_decode<T: Numeric, U: Tensor<T>>(

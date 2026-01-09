@@ -9,7 +9,7 @@ pub struct TrainingConfig<D> {
 
 pub struct TrainingHook<'a, F, S, D>
 where
-    F: FnMut(usize, D, D, &mut S),
+    F: FnMut(usize, D, D, D, &mut S),
     D: FloatingPoint,
 {
     pub callback: F,
@@ -20,7 +20,7 @@ where
 
 impl<'a, F, S, D> TrainingHook<'a, F, S, D>
 where
-    F: FnMut(usize, D, D, &mut S),
+    F: FnMut(usize, D, D, D, &mut S),
     D: FloatingPoint,
 {
     pub fn new(interval: usize, callback: F) -> Self {

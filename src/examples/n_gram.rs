@@ -75,6 +75,7 @@ where
     let mut names = HashSet::new();
     names.extend(lines.iter());
     let mut names: Vec<&String> = names.into_iter().collect();
+    println!("Unique names: {}", names.len());
 
     let mut generation_set = HashSet::new();
     let names_set: HashSet<String> = lines.clone().into_iter().collect();
@@ -159,33 +160,42 @@ where
     };
 
     if !predict_only {
-        let mut inputs: Vec<Vec<u32>> = Vec::new();
-        let mut targets: Vec<u32> = Vec::new();
+        let build_xy = |name_list: &[&String]| -> (Vec<u32>, Vec<u32>) {
+            let mut inputs = Vec::new();
+            let mut targets = Vec::new();
+            let pad_str = ".".repeat(multiplier as usize);
 
-        let pad_str = ".".repeat(multiplier as usize);
+            for name in name_list {
+                let full_name = format!("{}{}.", pad_str, name);
+                let chars_vec: Vec<char> = full_name.chars().collect();
+
+                for window in chars_vec.windows(multiplier as usize + 1) {
+                    for i in 0..multiplier {
+                        inputs.push(stoi[&window[i as usize]] as u32);
+                    }
+                    targets.push(stoi[&window[multiplier as usize]] as u32);
+                }
+            }
+            (inputs, targets)
+        };
 
         let mut rng = rand::rng();
         names.shuffle(&mut rng);
 
-        for name in names {
-            let full_name = format!("{}{}.", pad_str, name);
-            let chars_vec: Vec<char> = full_name.chars().collect();
+        let total_names = names.len();
+        let train_size = (total_names as f64 * 0.8) as usize; // 80% Training
 
-            for window in chars_vec.windows(multiplier as usize + 1) {
-                // Build a single context vector for this window
-                let mut context = Vec::new();
-                for i in 0..multiplier {
-                    context.push(stoi[&window[i as usize]] as u32);
-                }
+        let train_names = &names[0..train_size];
+        let val_names = &names[train_size..];
 
-                inputs.push(context); // One push to inputs
-                targets.push(stoi[&window[multiplier as usize]] as u32); // One push to targets
-            }
-        }
+        let (train_in, train_tar) = build_xy(train_names);
+        let x_train = one_hot_encode(&train_in, vocab_size, multiplier)?;
+        let y_train = one_hot_encode::<T, D>(&train_tar, vocab_size, 1)?;
 
-        let inputs: Vec<u32> = inputs.iter().flatten().copied().collect();
-        let x_train = one_hot_encode(&inputs, vocab_size, multiplier)?;
-        let y_train: T = one_hot_encode(&targets, vocab_size, 1)?;
+        // Generate Validation Data
+        let (val_in, val_tar) = build_xy(val_names);
+        let x_val = one_hot_encode(&val_in, vocab_size, multiplier)?;
+        let y_val = one_hot_encode::<T, D>(&val_tar, vocab_size, 1)?;
 
         // Add Label Smoothing
         let epsilon = D::from_f64(0.1); // The "smoothing" factor
@@ -205,26 +215,15 @@ where
         let mut start_time = Instant::now();
         let mut last_epoch = 0;
 
-        let monitor = |epoch, loss: D, _, nn: &mut NeuralNet<T, D>| {
+        let monitor = |epoch, loss: D, val_loss: D, _, nn: &mut NeuralNet<T, D>| {
             let elapsed = start_time.elapsed();
             start_time = Instant::now();
-
-            let num_samples = inputs.len() as f64;
-            let avg_loss = loss.f64() / num_samples;
 
             if loss.f64().is_nan() {
                 panic!("Hit NaN");
             }
 
-            println!("\tEpoch {epoch}: Loss (CCE) = {loss:.4}, {avg_loss:.4} {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
-
-            if avg_loss < 1.10 {
-                println!(
-                    " {} : {:.8}",
-                    "Overfit!".yellow(),
-                    avg_loss.to_string().yellow()
-                );
-            }
+            println!("\tEpoch {epoch}: Loss (CCE) = {loss:.4}, Val Loss (CCE) = {val_loss:.4}, {last_epoch} - {epoch} time elapsed: {elapsed:.2?}");
 
             last_epoch = epoch;
             nn.save_model(&weights_path);
@@ -244,7 +243,7 @@ where
 
         let hook_config = TrainingHook::new(1000, monitor);
 
-        nn.fit(&x_train, &y_train, config, hook_config)?;
+        nn.fit(&x_train, &y_train, &x_val, &y_val, config, hook_config)?;
     }
 
     println!("\nGenerated Names:");
@@ -464,8 +463,8 @@ where
         // (hl, hl, LayerType::ReLU, "HL2", "AL3"),
         //  (2 * hl, hl, LayerType::ReLU, "HL4", "AL5"),
         (hl, hl / 2, LayerType::ReLU, "HL10", "AL11"),
-        // (hl / 2, hl / 4, LayerType::ReLU, "HL10", "AL11"),
-        (hl / 2, input, LayerType::Softmax, "HL12", "Output"),
+        (hl / 2, hl, LayerType::ReLU, "HL10", "AL11"),
+        (hl, input, LayerType::Softmax, "HL12", "Output"),
     ];
 
     for layer in layers {
