@@ -1,4 +1,4 @@
-use crate::nn::loss_functions::CategoricalCrossEntropy;
+use crate::nn::loss_functions::LossFunctionType;
 use crate::nn::{DistributionType, LayerType};
 use crate::NeuralNetBuilder;
 use std::collections::{HashMap, HashSet};
@@ -140,27 +140,25 @@ where
     let (stoi, itos, vocab_size, multiplier) = metadata;
     println!("Vocabulary Size {}: {:?}", vocab_size, stoi);
 
-    let loss_function_instance = Box::new(CategoricalCrossEntropy);
-
     let (l, epoch_offset, mut nn) = match !weights_path.is_empty() && restore {
         true => match deserialize_model::<D>(weights_path) {
             Some(model) => (
                 model.saved_lr,
                 model.epoch,
-                NeuralNetBuilder::build_from_model(model, loss_function_instance),
+                NeuralNetBuilder::build_from_model(model),
             ),
             None => (
                 lr,
                 0,
                 define_neural_net::<T, D>(hidden_length, vocab_size, distribution, multiplier)
-                    .build(loss_function_instance, name),
+                    .build(LossFunctionType::CategoricalCrossEntropy, name),
             ),
         },
         false => (
             lr,
             0,
             define_neural_net::<T, D>(hidden_length, vocab_size, distribution, multiplier)
-                .build(loss_function_instance, name),
+                .build(LossFunctionType::CategoricalCrossEntropy, name),
         ),
     };
 

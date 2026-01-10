@@ -1,6 +1,6 @@
 use super::layers::*;
+use crate::nn::loss_functions::LossFunctionType;
 use crate::nn::LayerType;
-use crate::nn::LossFunction;
 use crate::nn::ModelData;
 use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
@@ -57,7 +57,7 @@ where
         self.layers.push(Box::new(layer));
     }
     /// Finalize the builder and construct a `NeuralNet`.
-    pub fn build(self, loss_fn: Box<dyn LossFunction<T, D>>, name: &String) -> NeuralNet<T, D> {
+    pub fn build(self, loss_fn_type: LossFunctionType, name: &String) -> NeuralNet<T, D> {
         println!("Building Network:");
         let mut parameter_count = 0;
 
@@ -98,7 +98,7 @@ where
         println!();
         NeuralNet::new(
             self.layers,
-            loss_fn,
+            loss_fn_type,
             parameter_count as u64,
             label,
             name.to_string(),
@@ -107,10 +107,7 @@ where
         )
     }
 
-    pub fn build_from_model(
-        model: ModelData<D>,
-        loss_fn: Box<dyn LossFunction<T, D>>,
-    ) -> NeuralNet<T, D> {
+    pub fn build_from_model(model: ModelData<D>) -> NeuralNet<T, D> {
         println!("Restoring Model: {}", model.name.bold().green());
         let mut layers: Vec<Box<dyn Layer<T, D>>> = Vec::new();
 
@@ -152,7 +149,7 @@ where
         // Construct the final NeuralNet with restored state
         let net = NeuralNet::new(
             layers,
-            loss_fn,
+            model.loss_fn_type,
             model.parameter_count,
             label,
             model.name,

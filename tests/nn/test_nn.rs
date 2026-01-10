@@ -1,11 +1,12 @@
 #[cfg(test)]
 mod tests {
+    use iron_learn::nn::loss_functions::LossFunctionType;
     use iron_learn::nn::types::TrainingConfig;
     use iron_learn::nn::types::TrainingHook;
     use iron_learn::nn::DistributionType;
     use iron_learn::nn::LayerType;
     use iron_learn::Tensor;
-    use iron_learn::{CpuTensor, MeanSquaredErrorLoss, NeuralNet, NeuralNetBuilder};
+    use iron_learn::{CpuTensor, NeuralNet, NeuralNetBuilder};
     use std::fs;
     use tempfile::tempdir;
 
@@ -13,7 +14,6 @@ mod tests {
     fn setup_test_net() -> NeuralNet<CpuTensor<f32>, f32> {
         let hl = 4;
         let input = 2;
-        let loss = Box::new(MeanSquaredErrorLoss);
 
         let mut nn = NeuralNetBuilder::<CpuTensor<f32>, f32>::new();
 
@@ -49,7 +49,7 @@ mod tests {
             nn.add_linear(layer.0, layer.1, layer.3, layer.5);
             nn.add_activation(layer.2, layer.4);
         }
-        nn.build(loss, &"TestNet".to_string())
+        nn.build(LossFunctionType::MeanSquaredError, &"TestNet".to_string())
     }
 
     #[test]

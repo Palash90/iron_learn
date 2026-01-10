@@ -18,7 +18,6 @@ use std::time::Duration;
 use crate::nn::DistributionType;
 
 use crate::commons::add_bias_term;
-use crate::MeanSquaredErrorLoss;
 use std::fs;
 use std::path::Path;
 
@@ -87,27 +86,29 @@ where
     let (x_with_bias, input_length, x_test_with_bias) =
         prepare_network_input(&x, &x_test, example)?;
 
-    let loss_function_instance = Box::new(MeanSquaredErrorLoss);
-
     let (l, epoch_offset, mut nn) = match !weights_path.is_empty() && restore {
         true => match deserialize_model::<D>(weights_path) {
             Some(model) => (
                 model.saved_lr,
                 model.epoch,
-                NeuralNetBuilder::build_from_model(model, loss_function_instance),
+                NeuralNetBuilder::build_from_model(model),
             ),
             None => (
                 lr,
                 0,
-                define_neural_net::<T, D>(hidden_length, input_length, distribution)
-                    .build(loss_function_instance, name),
+                define_neural_net::<T, D>(hidden_length, input_length, distribution).build(
+                    crate::nn::loss_functions::LossFunctionType::MeanSquaredError,
+                    name,
+                ),
             ),
         },
         false => (
             lr,
             0,
-            define_neural_net::<T, D>(hidden_length, input_length, distribution)
-                .build(loss_function_instance, name),
+            define_neural_net::<T, D>(hidden_length, input_length, distribution).build(
+                crate::nn::loss_functions::LossFunctionType::MeanSquaredError,
+                name,
+            ),
         ),
     };
 

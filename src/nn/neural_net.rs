@@ -1,5 +1,6 @@
 use super::layers::*;
-use crate::nn::LossFunction;
+use crate::nn::loss_functions::get_loss_function;
+use crate::nn::loss_functions::LossFunctionType;
 use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
@@ -29,7 +30,6 @@ where
     D: FloatingPoint,
 {
     pub layers: Vec<Box<dyn Layer<T, D>>>,
-    pub loss_fn: Box<dyn LossFunction<T, D>>,
     pub parameter_count: u64,
     pub label: String,
     pub name: String,
@@ -37,16 +37,17 @@ where
     current_lr: D,
     last_train_loss: D,
     last_val_loss: D,
+    loss_fn_type: LossFunctionType,
 }
 
 impl<T, D> NeuralNet<T, D>
 where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    T: TensorMath<D, MathOutput = T> + 'static,
     D: FloatingPoint,
 {
     pub fn new(
         layers: Vec<Box<dyn Layer<T, D>>>,
-        loss_fn: Box<dyn LossFunction<T, D>>,
+        loss_fn_type: LossFunctionType,
         param_count: u64,
         label: String,
         name: String,
@@ -55,7 +56,7 @@ where
     ) -> Self {
         Self {
             layers,
-            loss_fn,
+            loss_fn_type,
             parameter_count: param_count,
             label,
             name,
@@ -129,16 +130,12 @@ where
             }
             T::synchronize();
 
-            let err = self
-                .loss_fn
-                .loss(y_train, &output)
-                .unwrap()
-                .sum()
-                .unwrap()
-                .get_data()[0];
+            let (loss, loss_prime) = get_loss_function::<T, D>(&self.loss_fn_type);
+
+            let err = (loss)(y_train, &output).unwrap().sum().unwrap().get_data()[0];
             T::synchronize();
 
-            let mut error_prime = self.loss_fn.loss_prime(y_train, &output).unwrap();
+            let mut error_prime = loss_prime(y_train, &output).unwrap();
 
             for layer in self.layers.iter_mut().rev() {
                 error_prime = layer.backward(&error_prime, current_lr).unwrap();
@@ -149,13 +146,7 @@ where
             for layer in &mut self.layers {
                 v_output = layer.forward(&v_output, false).unwrap();
             }
-            let err_val = self
-                .loss_fn
-                .loss(y_val, &v_output)
-                .unwrap()
-                .sum()
-                .unwrap()
-                .get_data()[0];
+            let err_val = (loss)(y_val, &v_output).unwrap().sum().unwrap().get_data()[0];
             T::synchronize();
 
             if err_val > self.last_val_loss + epsilon && err < self.last_train_loss {
@@ -203,6 +194,7 @@ where
             layers: Vec::new(),
             epoch: self.current_epoch,
             saved_lr: self.current_lr,
+            loss_fn_type: self.loss_fn_type.clone(),
         };
 
         for (i, layer) in self.layers.iter().enumerate() {

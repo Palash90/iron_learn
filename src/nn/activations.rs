@@ -17,7 +17,7 @@ pub enum LayerType {
 /// Return the activation function and its derivative for `layer`.
 pub fn get_activations<T, D>(layer: &LayerType) -> (ActivationFn<T>, ActivationFn<T>)
 where
-    T: TensorMath<D, MathOutput = T> + Tensor<D>,
+    T: TensorMath<D, MathOutput = T>,
     D: FloatingPoint,
 {
     match layer {

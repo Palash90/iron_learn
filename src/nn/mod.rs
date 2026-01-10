@@ -9,8 +9,8 @@ pub mod loss_functions;
 // Core Types
 // ============================================================================
 
+use crate::nn::loss_functions::LossFunctionType;
 pub use builder::NeuralNetBuilder;
-pub use loss_functions::{LossFunction, MeanSquaredErrorLoss};
 pub use neural_net::NeuralNet;
 use serde::Deserialize;
 use serde::Serialize;
@@ -42,6 +42,7 @@ where
     pub layers: Vec<LayerData<D>>,
     pub epoch: usize,
     pub saved_lr: D,
+    pub loss_fn_type: LossFunctionType,
 }
 
 // ============================================================================
@@ -50,6 +51,9 @@ where
 
 /// Function pointer type for activation functions and their derivatives.
 pub type ActivationFn<T> = fn(&T) -> Result<T, String>;
+
+/// Function pointer type for loss functions and their derivatives.
+pub type LossFn<T> = fn(&T, &T) -> Result<T, String>;
 
 // ============================================================================
 // Activation Functions

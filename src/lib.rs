@@ -62,8 +62,7 @@ pub use crate::regression::logistic_regression;
 // ============================================================================
 
 pub use crate::nn::{
-    ActivationFn, ActivationLayer, Layer, LinearLayer, LossFunction, MeanSquaredErrorLoss,
-    NeuralNet, NeuralNetBuilder,
+    ActivationFn, ActivationLayer, Layer, LinearLayer, LossFn, NeuralNet, NeuralNetBuilder,
 };
 
 // ============================================================================
