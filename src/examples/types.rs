@@ -1,7 +1,15 @@
+use crate::nn::loss_functions::LossFunctionType;
+use crate::nn::LayerType;
 use crate::numeric::FloatingPoint;
 use clap::Parser;
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NetworkConfig {
+    pub loss_function: LossFunctionType,
+    pub layers: Vec<(u32, u32, LayerType, String)>,
+}
 
 /// Dataset container for single-precision (f32) examples.
 ///

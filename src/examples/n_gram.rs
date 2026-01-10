@@ -1,17 +1,12 @@
-use crate::examples::NetworkConfig;
-use crate::nn::loss_functions::LossFunctionType;
-use crate::nn::{DistributionType, LayerType};
 use crate::NeuralNetBuilder;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-use crate::numeric::FloatingPoint;
-use crate::tensor::math::TensorMath;
-use crate::Tensor;
-use std::io::Read;
 use std::thread;
 use std::time::Duration;
+
+use super::build_network::build_neural_net_from_config;
 
 use crate::examples::contexts::GLOBAL_CONTEXT;
 use crate::examples::read_file::deserialize_model;
@@ -47,7 +42,6 @@ where
     let lr = D::from_f64(lr);
     let e = GLOBAL_CONTEXT.get().unwrap().epochs;
     let sleep_time = GLOBAL_CONTEXT.get().unwrap().sleep_time;
-    let hidden_length = GLOBAL_CONTEXT.get().unwrap().hidden_layer_length;
     let name = &GLOBAL_CONTEXT.get().unwrap().name;
     let distribution = &GLOBAL_CONTEXT.get().unwrap().distribution;
     let lr_adjustment = GLOBAL_CONTEXT.get().unwrap().lr_adjust;
@@ -147,9 +141,9 @@ where
                 model.epoch,
                 NeuralNetBuilder::build_from_model(model),
             ),
-            None => (lr, 0, build_neural_net_from_config(name, &distribution)),
+            None => (lr, 0, build_neural_net_from_config(name, distribution)),
         },
-        false => (lr, 0, build_neural_net_from_config(name, &distribution)),
+        false => (lr, 0, build_neural_net_from_config(name, distribution)),
     };
 
     if !predict_only {
@@ -435,76 +429,4 @@ fn is_pronounceable(name: &str) -> bool {
     }
 
     true
-}
-
-fn define_neural_net<T, D>(
-    hl: u32,
-    input: u32,
-    distribution: &DistributionType,
-    multiplier: u32,
-) -> NeuralNetBuilder<T, D>
-where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: FloatingPoint + 'static,
-{
-    let mut nn = NeuralNetBuilder::<T, D>::new();
-
-    let input_size = input * multiplier;
-
-    let layers = [
-        (input_size, hl, LayerType::ReLU, "Input", "AL 1"),
-        // (hl, hl, LayerType::ReLU, "HL2", "AL3"),
-        //  (2 * hl, hl, LayerType::ReLU, "HL4", "AL5"),
-        (hl, hl / 2, LayerType::ReLU, "HL10", "AL11"),
-        (hl / 2, hl, LayerType::ReLU, "HL10", "AL11"),
-        (hl, input, LayerType::Softmax, "HL12", "Output"),
-    ];
-
-    for layer in layers {
-        nn.add_linear(layer.0, layer.1, layer.3, distribution);
-        nn.add_activation(layer.2, layer.4);
-    }
-    nn
-}
-
-/// Loads a network configuration from a JSON file and builds the NeuralNet.
-fn build_neural_net_from_config<T, D>(
-    name: &str,
-    distribution: &DistributionType,
-) -> NeuralNet<T, D>
-where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: FloatingPoint + 'static,
-{
-    let path = &("model_outputs/".to_owned() + &name + "/network.json");
-
-    println!("Path: {}", path);
-
-    let mut file = File::open(Path::new(path)).unwrap();
-    let mut contents = String::new();
-    file.read_to_string(&mut contents);
-
-    let config: NetworkConfig = serde_json::from_str(&contents).unwrap();
-
-    let mut nn = NeuralNetBuilder::<T, D>::new();
-
-    for (in_size, out_size, layer_type, label) in config.layers {
-        match layer_type {
-            LayerType::Linear => {
-                // Add the linear transformation
-                nn.add_linear(in_size, out_size, &label, distribution);
-            }
-            _ => {
-                // Add the activation layer
-                // Note: Using a generic label for activation, or you could extend
-                // your struct to include specific activation labels.
-                let activation_label = format!("Act_{}", label);
-                nn.add_activation(layer_type, &activation_label);
-            }
-        }
-    }
-
-    // You can also handle config.loss_function here if your builder supports it
-
-    nn.build(config.loss_function, &"model".to_string())
 }
