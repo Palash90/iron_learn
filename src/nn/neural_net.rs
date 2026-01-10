@@ -101,7 +101,7 @@ where
         let mut best_val_loss = D::from_f64(f64::MAX);
         let mut patience_counter = 0;
         let patience = 5; // For now, later may take it from config
-        let epsilon = D::from_f64(1e-4);
+        let epsilon = D::from_f64(1e-6);
 
         for i in config.epoch_offset..config.epochs {
             let global_i = D::from_u32(i as u32);
@@ -152,8 +152,9 @@ where
             if err_val > self.last_val_loss + epsilon && err < self.last_train_loss {
                 patience_counter += 1;
                 let err_text = format!(
-                    "Validation loss has increased continuously for {patience_counter} epochs."
+                    "\rValidation loss has increased continuously for {patience_counter} epochs."
                 );
+                io::stdout().flush().unwrap();
                 println!();
                 println!("{}", err_text.yellow());
 

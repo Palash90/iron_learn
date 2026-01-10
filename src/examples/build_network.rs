@@ -44,5 +44,5 @@ where
         }
     }
 
-    nn.build(config.loss_function, &"model".to_string())
+    nn.build(config.loss_function, &name.to_string())
 }
