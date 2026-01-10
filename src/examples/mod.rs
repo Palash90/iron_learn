@@ -12,8 +12,8 @@ pub use neural_net_runner::run_neural_net;
 pub use regression::run_linear;
 pub use regression::run_logistic;
 
-use crate::nn::LayerType;
 use crate::nn::loss_functions::LossFunctionType;
+use crate::nn::LayerType;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
