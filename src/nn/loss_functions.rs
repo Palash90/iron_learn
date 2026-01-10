@@ -1,7 +1,23 @@
 use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
-use crate::Numeric;
-use crate::Tensor;
+
+pub enum LossFunctionType {
+    MeanSquaredError,
+    BinaryCrossEntropy,
+    CategoricalCrossEntropy,
+}
+
+pub fn get_loss_function<T, D>(loss_type: LossFunctionType) -> Box<dyn LossFunction<T, D>>
+where
+    T: TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
+{
+    match loss_type {
+        LossFunctionType::MeanSquaredError => Box::new(MeanSquaredErrorLoss),
+        LossFunctionType::BinaryCrossEntropy => Box::new(BinaryCrossEntropy),
+        LossFunctionType::CategoricalCrossEntropy => Box::new(CategoricalCrossEntropy),
+    }
+}
 
 /// Trait describing a loss function used for training and backpropagation.
 ///
@@ -9,8 +25,8 @@ use crate::Tensor;
 /// the derivative (loss prime) used as the starting point for backprop.
 pub trait LossFunction<T, D>
 where
-    D: Numeric,
-    T: Tensor<D>,
+    D: FloatingPoint,
+    T: TensorMath<D>,
 {
     /// Calculates the loss value (used for reporting).
     fn loss(&self, actual: &T, predicted: &T) -> Result<T, String>;
@@ -22,10 +38,10 @@ where
 /// Mean squared error loss implementation.
 pub struct MeanSquaredErrorLoss;
 
-impl<T: Tensor<D> + 'static, D> LossFunction<T, D> for MeanSquaredErrorLoss
+impl<T: TensorMath<D, MathOutput = T> + 'static, D> LossFunction<T, D> for MeanSquaredErrorLoss
 where
-    D: Numeric,
-    T: Tensor<D>,
+    D: FloatingPoint,
+    T: 'static + TensorMath<D, MathOutput = T>,
 {
     fn loss(&self, actual: &T, predicted: &T) -> Result<T, String> {
         let error_diff = predicted.sub(actual).unwrap();
@@ -47,11 +63,10 @@ where
 /// Binary cross-entropy loss implementation (stable variant with clipping).
 pub struct BinaryCrossEntropy;
 
-impl<T: Tensor<D> + 'static + TensorMath<D, MathOutput = T>, D> LossFunction<T, D>
-    for BinaryCrossEntropy
+impl<T: 'static + TensorMath<D, MathOutput = T>, D> LossFunction<T, D> for BinaryCrossEntropy
 where
     D: FloatingPoint,
-    T: Tensor<D>,
+    T: 'static + TensorMath<D, MathOutput = T>,
 {
     fn loss(&self, y_true: &T, y_pred: &T) -> Result<T, String> {
         let shape = y_true.get_shape();
@@ -113,11 +128,10 @@ where
 
 pub struct CategoricalCrossEntropy;
 
-impl<T: Tensor<D> + 'static + TensorMath<D, MathOutput = T>, D> LossFunction<T, D>
-    for CategoricalCrossEntropy
+impl<T: 'static + TensorMath<D, MathOutput = T>, D> LossFunction<T, D> for CategoricalCrossEntropy
 where
     D: FloatingPoint,
-    T: Tensor<D>,
+    T: 'static + TensorMath<D, MathOutput = T>,
 {
     fn loss(&self, y_true: &T, y_pred: &T) -> Result<T, String> {
         // 1. Safety: Clip to prevent ln(0)
