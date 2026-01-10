@@ -359,33 +359,35 @@ impl<T: Numeric + Zeroable + DeviceCopy> GpuTensor<T> {
             }
         }
 
-        let transpose = Self::_get_function("transpose_naive");
+        let m = self.shape[0] as i32; // Rows of original
+        let n = self.shape[1] as i32; // Cols of original
 
-        let result = self._get_initialized_buffer(self.shape.iter().product::<u32>() as usize);
+        let total_elements = (m * n) as usize;
+        let result = self._get_initialized_buffer(total_elements);
 
-        let new_shape = vec![self.shape[1], self.shape[0]];
-
-        const BLOCK_DIM_X: u32 = 16;
-        const BLOCK_DIM_Y: u32 = 16;
-
-        let m = self.shape[0] as i32;
-        let n = self.shape[1] as i32;
-
-        let grid_x = (n as u32).div_ceil(BLOCK_DIM_X);
-        let grid_y = (m as u32).div_ceil(BLOCK_DIM_Y);
-
-        let stream = Self::_get_stream();
+        let alpha = 1.0f32;
+        let beta = 0.0f32; // We don't have a second matrix, so beta is 0
 
         unsafe {
-            let _ = launch!(transpose<<<(grid_x, grid_y, 1), (BLOCK_DIM_X, BLOCK_DIM_Y, 1), 0, stream>>>(
-                self.device_buffer.as_device_ptr(),
-                result.as_device_ptr(),
-                m,
-                n
-                )
-
+            // cublasSgeam: C = alpha * op(A) + beta * op(B)
+            cublasSgeam(
+                Self::_get_cublas_handle(),
+                cublasOperation_t::CUBLAS_OP_T, // Transpose A
+                cublasOperation_t::CUBLAS_OP_N, // B doesn't matter
+                m,                              // Rows of C (which is Rows of A^T, so m)
+                n,                              // Cols of C (which is Cols of A^T, so n)
+                &alpha,
+                self.device_buffer.as_device_ptr().as_raw() as *const f32,
+                n, // Leading dimension of A (columns if row-major)
+                &beta,
+                std::ptr::null(), // B matrix is null
+                m,                // Leading dimension of B
+                result.as_device_ptr().as_raw() as *mut f32,
+                m, // Leading dimension of C
             );
         }
+
+        let new_shape = vec![self.shape[1], self.shape[0]];
         Ok(Self::_with_device_buffer(new_shape, result))
     }
 

@@ -1,11 +1,9 @@
 {
   "loss_function": "CategoricalCrossEntropy",
   "layers": [
-    [108, 108, "Linear", "Input"],
-    [0, 0, "Tanh", "First Activation"],
-	[108, 54, "Linear", "Hidden Layer"],
-    [0, 0, "Softmax", "Output"],
-    [54, 27, "Linear", "Hidden Layer"],
+    [108, 54, "Linear", "Input"],
+    [0, 0, "ReLU", "First Activation"],
+    [54, 27, "Linear", "Hidden Layer 2"],
     [0, 0, "Softmax", "Output"]
   ]
 }

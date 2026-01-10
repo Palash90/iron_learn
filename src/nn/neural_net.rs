@@ -149,32 +149,33 @@ where
             let err_val = (loss)(y_val, &v_output).unwrap().sum().unwrap().get_data()[0];
             T::synchronize();
 
-            if err_val > self.last_val_loss + epsilon && err < self.last_train_loss {
-                patience_counter += 1;
-                let err_text = format!(
-                    "\rValidation loss has increased continuously for {patience_counter} epochs."
-                );
-                io::stdout().flush().unwrap();
-                println!();
-                println!("{}", err_text.yellow());
+            if err_val < best_val_loss - epsilon {
+                // We found a new best model
+                best_val_loss = err_val;
+                last_good_model = self.get_model();
+                patience_counter = 0;
 
-                if patience_counter >= patience {
-                    println!();
-                    println!("{}", "Model has overfit!".bold().red());
+                self.last_train_loss = err;
+                self.last_val_loss = err_val;
+            } else {
+                // No improvement
+                patience_counter += 1;
+
+                if patience_counter >= patience * hook_interval {
+                    // Note: scaled by hook_interval if you only check occasionally,
+                    // but here you check every epoch, so just 'patience' is fine.
+                    println!(
+                        "\n{}",
+                        "Early stopping: No improvement in validation loss."
+                            .bold()
+                            .red()
+                    );
                     Self::write_model_to_disk(
                         last_good_model,
                         format!("model_outputs/{}/model.json", self.name).as_str(),
                     );
                     break;
                 }
-            } else {
-                if err_val < best_val_loss {
-                    best_val_loss = err_val;
-                    last_good_model = self.get_model();
-                    patience_counter = 0;
-                }
-                self.last_train_loss = err;
-                self.last_val_loss = err_val;
             }
 
             // Hook (Periodic Reporting)

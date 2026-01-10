@@ -287,7 +287,7 @@ where
             if name.len() > multiplier {
                 weights[0] *= 2.0;
             }
-            if name.len() > (3 * multiplier) {
+            if name.len() > 3 * multiplier {
                 weights[0] *= 10.0;
             }
 
@@ -398,7 +398,7 @@ fn is_pronounceable(name: &str) -> bool {
     }
 
     let vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
-    let bad_pairs = vec!["pk", "px", "zk", "qj", "vx", "qz", "jq"];
+    let bad_pairs = ["pk", "px", "zk", "qj", "vx", "qz", "jq", "xx", "xy"];
     let v_count = name.chars().filter(|c| vowels.contains(c)).count();
     let ratio = v_count as f32 / len as f32;
 
