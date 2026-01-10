@@ -29,6 +29,46 @@ mod tests {
     }
 
     #[test]
+    fn test_build_from_config() {
+        use iron_learn::nn::LayerData;
+        use iron_learn::nn::LayerType;
+        use iron_learn::nn::ModelData;
+
+        let linear = LayerData {
+            name: "restored_fc".to_string(),
+            layer_type: LayerType::Linear,
+            shape: vec![2, 2],
+            weights: vec![],
+            index: 0,
+        };
+
+        let tanh = LayerData {
+            name: "restored_tanh".to_string(),
+            layer_type: LayerType::Tanh,
+            shape: vec![2, 4],
+            weights: vec![],
+            index: 1,
+        };
+
+        let model_data = ModelData {
+            name: "RestoredModel".to_string(),
+            layers: vec![linear, tanh],
+            parameter_count: 4,
+            epoch: 1,
+            loss_fn_type: LossFunctionType::MeanSquaredError,
+            saved_lr: 1.0,
+        };
+
+        let nn = NeuralNetBuilder::<CpuTensor<f32>, f32>::build_from_config(
+            model_data,
+            &DistributionType::Xavier,
+        );
+
+        assert_eq!(nn.name, "RestoredModel");
+        assert_eq!(nn.layers.len(), 2);
+    }
+
+    #[test]
     fn test_build_from_model() {
         use iron_learn::nn::LayerData;
         use iron_learn::nn::LayerType;

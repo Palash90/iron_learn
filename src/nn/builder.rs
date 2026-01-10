@@ -56,13 +56,51 @@ where
         let layer = ActivationLayer::new(name, act);
         self.layers.push(Box::new(layer));
     }
+
+    pub fn build_from_config(
+        model: ModelData<D>,
+        distribution: &DistributionType,
+    ) -> NeuralNet<T, D> {
+        let layers = model.layers;
+        let loss = model.loss_fn_type;
+        let name = model.name;
+
+        let reconstructed_layers: Vec<Box<dyn Layer<T, D>>> = layers
+            .iter()
+            .map(|layer_data| match layer_data.layer_type {
+                LayerType::Linear => Box::new(
+                    LinearLayer::new(
+                        layer_data.shape[0],
+                        layer_data.shape[1],
+                        &layer_data.name,
+                        distribution,
+                    )
+                    .unwrap(),
+                ) as Box<dyn Layer<T, D>>,
+                _ => Box::new(ActivationLayer::new(
+                    layer_data.name.as_str(),
+                    layer_data.layer_type.clone(),
+                )) as Box<dyn Layer<T, D>>,
+            })
+            .collect();
+
+        Self::build_network(loss, &name, reconstructed_layers)
+    }
+
     /// Finalize the builder and construct a `NeuralNet`.
     pub fn build(self, loss_fn_type: LossFunctionType, name: &String) -> NeuralNet<T, D> {
+        Self::build_network(loss_fn_type, name, self.layers)
+    }
+
+    fn build_network(
+        loss_fn_type: LossFunctionType,
+        name: &String,
+        layers: Vec<Box<dyn Layer<T, D>>>,
+    ) -> NeuralNet<T, D> {
         println!("Building Network:");
         let mut parameter_count = 0;
 
-        let layer_strings: Vec<String> = self
-            .layers
+        let layer_strings: Vec<String> = layers
             .iter()
             .map(|layer| {
                 let name = layer.name();
@@ -97,7 +135,7 @@ where
 
         println!();
         NeuralNet::new(
-            self.layers,
+            layers,
             loss_fn_type,
             parameter_count as u64,
             label,
