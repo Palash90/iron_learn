@@ -161,7 +161,7 @@ where
                 // No improvement
                 patience_counter += 1;
 
-                if patience_counter >= patience * hook_interval {
+                if patience_counter >= patience {
                     // Note: scaled by hook_interval if you only check occasionally,
                     // but here you check every epoch, so just 'patience' is fine.
                     println!(
