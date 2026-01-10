@@ -40,7 +40,7 @@ mod loss_tests {
         // For these values: -2 * ln(0.9)
         let res = bce.0(&y_true, &y_pred).expect("BCE loss failed");
         let val = res.get_data()[0];
-        let expected = -2.0_f32 * (0.9_f32.ln());
+        let expected = -2.0_f32 * (0.9_f32.ln()) / 2.0_f32;
         assert!(
             (val - expected).abs() < 1e-6,
             "bce loss mismatch: {} vs {}",
@@ -67,7 +67,7 @@ mod loss_tests {
         let res = cce.0(&y_true, &y_pred).expect("CCE loss failed");
         let val = res.get_data()[0];
 
-        let expected_loss = -(0.7_f32.ln() + 0.6_f32.ln());
+        let expected_loss = -(0.7_f32.ln() + 0.6_f32.ln()) / 6.0;
 
         assert!(
             (val - expected_loss).abs() < 1e-6,

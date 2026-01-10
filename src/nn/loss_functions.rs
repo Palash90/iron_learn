@@ -74,7 +74,14 @@ where
     let combined = term1.add(&term2).unwrap();
     let negative_one = -D::one();
 
-    combined.scale(negative_one).unwrap().sum()
+    let length = combined.get_shape().iter().product();
+
+    combined
+        .scale(negative_one)
+        .unwrap()
+        .sum()
+        .unwrap()
+        .scale(D::one() / D::from_u32(length))
 }
 
 pub fn bce_prime<T, D>(y_true: &T, y_pred: &T) -> Result<T, String>
@@ -113,8 +120,15 @@ where
     let ln_pred = clipped_pred.ln().unwrap();
     let product = y_true.mul(&ln_pred).unwrap();
 
+    let length = product.get_shape().iter().product();
+
     let negative_one = -D::one();
-    product.scale(negative_one).unwrap().sum()
+    product
+        .scale(negative_one)
+        .unwrap()
+        .sum()
+        .unwrap()
+        .scale(D::one() / D::from_u32(length))
 }
 
 pub fn cce_prime<T, D>(y_true: &T, y_pred: &T) -> Result<T, String>

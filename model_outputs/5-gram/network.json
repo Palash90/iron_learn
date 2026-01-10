@@ -3,7 +3,11 @@
   "layers": [
     [108, 108, "Linear", "Input"],
     [0, 0, "Tanh", "First Activation"],
-    [108, 27, "Linear", "Hidden Layer"],
+	[108, 216, "Linear", "Hidden Layer"],
+    [0, 0, "ReLU", "Output"],
+	[216, 54, "Linear", "Hidden Layer"],
+    [0, 0, "ReLU", "Output"],
+    [54, 27, "Linear", "Hidden Layer"],
     [0, 0, "Softmax", "Output"]
   ]
 }
