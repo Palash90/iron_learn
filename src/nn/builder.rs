@@ -11,7 +11,7 @@ use colored::Colorize;
 /// Builder type for constructing `NeuralNet` instances via a fluent API.
 pub struct NeuralNetBuilder<T, D>
 where
-    T: Tensor<D> + TensorMath<D, MathOutput = T>,
+    T: TensorMath<D, MathOutput = T>,
     D: FloatingPoint,
 {
     layers: Vec<Box<dyn Layer<T, D>>>,

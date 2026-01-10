@@ -1,0 +1,5 @@
+{
+  "loss_function": "CategoricalCrossEntropy",
+  "layers": [[108, 108, "Linear", "Input"], [108, 108, "ReLU", "First Activation"], [108, 108, "Linear", "Hidden Layer"], [108, 27, "Softmax", "Output"]]
+
+}
