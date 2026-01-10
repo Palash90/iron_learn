@@ -189,13 +189,16 @@ where
             layers,
             model.loss_fn_type,
             model.parameter_count,
-            label,
-            model.name,
+            label.clone(),
+            model.name.clone(),
             model.epoch,
             model.saved_lr,
         );
 
-        println!("Model restored successfully at Epoch {}", model.epoch);
+        println!(
+            "Model {} ({}) restored successfully at Epoch {}",
+            model.name, label, model.epoch
+        );
         net
     }
 }
