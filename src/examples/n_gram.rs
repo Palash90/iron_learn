@@ -63,7 +63,7 @@ where
 
     let lines: Vec<String> = reader
         .lines()
-        .map(|line| line.expect("Failed to read line").to_lowercase())
+        .map(|line| line.expect("Failed to read line").trim().to_lowercase())
         .collect();
 
     let mut names = HashSet::new();
@@ -393,15 +393,15 @@ where
 
 fn is_pronounceable(name: &str) -> bool {
     let len = name.len();
-    if len < 2 {
+    if len < 3 {
         return false;
-    } // Too short
+    }
 
     let vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
+    let bad_pairs = vec!["pk", "px", "zk", "qj", "vx", "qz", "jq"];
     let v_count = name.chars().filter(|c| vowels.contains(c)).count();
     let ratio = v_count as f32 / len as f32;
 
-    // 1. Dynamic Ratio: Short names need more flexibility than long ones
     let (min_r, max_r) = if len <= 3 { (0.25, 0.75) } else { (0.30, 0.65) };
     if ratio < min_r || ratio > max_r {
         return false;
@@ -409,22 +409,18 @@ fn is_pronounceable(name: &str) -> bool {
 
     let chars: Vec<char> = name.chars().collect();
 
-    // 2. Window-based Phonetic Checks
-    // Check for triple consonants AND triple vowels
-    let has_bad_cluster = chars.windows(3).any(|w| {
+    let has_unacceptable_pair = chars.windows(2).any(|w| {
+        let pair: String = w.iter().collect();
+        bad_pairs.contains(&pair.as_str())
+    });
+
+    let has_triple_cluster = chars.windows(3).any(|w| {
         let all_vowels = w.iter().all(|c| vowels.contains(c));
         let all_consonants = w.iter().all(|c| !vowels.contains(c));
         all_vowels || all_consonants
     });
 
-    if has_bad_cluster {
-        return false;
-    }
-
-    // 3. Start/End Sanity
-    // Names usually don't end in certain consonants like 'q' or 'j'
-    let last_char = chars[len - 1];
-    if ['q', 'j', 'x', 'v'].contains(&last_char) && len > 3 {
+    if has_unacceptable_pair || has_triple_cluster {
         return false;
     }
 
