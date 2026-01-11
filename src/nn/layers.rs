@@ -15,7 +15,12 @@ where
     D: FloatingPoint,
 {
     fn forward(&mut self, input: &T, is_training: bool) -> Result<T, String>;
-    fn backward(&mut self, output_error: &T, learning_rate: D) -> Result<T, String>;
+    fn backward(
+        &mut self,
+        output_error: &T,
+        learning_rate: D,
+        weight_normalization: bool,
+    ) -> Result<T, String>;
     fn get_parameters(&self) -> Option<T> {
         None
     }
@@ -128,7 +133,7 @@ where
         Ok(matmul)
     }
 
-    fn backward(&mut self, output_error: &T, lr: D) -> Result<T, String> {
+    fn backward(&mut self, output_error: &T, lr: D, normalize_grad: bool) -> Result<T, String> {
         let input = self.input_cache.as_ref().ok_or("No forward pass cache!")?;
 
         // Calculate Input Error: error * weights.T
@@ -141,7 +146,14 @@ where
         let weights_grad = input_t.matmul(output_error)?;
 
         // Update Parameters
-        let w_step = weights_grad.scale(lr)?;
+        let w_step = match normalize_grad {
+            true => {
+                let decay_term = self.weights.scale(D::from_f64(0.0001))?;
+                let regularized_grad = weights_grad.add(&decay_term)?;
+                regularized_grad.scale(lr)?
+            }
+            false => weights_grad.scale(lr)?,
+        };
         self.weights = self.weights.sub(&w_step)?;
 
         Ok(input_error)
@@ -207,7 +219,7 @@ where
         Ok(output)
     }
 
-    fn backward(&mut self, output_error: &T, _lr: D) -> Result<T, String> {
+    fn backward(&mut self, output_error: &T, _lr: D, _: bool) -> Result<T, String> {
         let out = self
             .output_cache
             .as_ref()

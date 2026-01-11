@@ -223,6 +223,7 @@ use iron_learn::Tensor;
         epoch_offset: 0,
         base_lr: 1.0,
         lr_adjustment: false,
+        weight_normalization: false
     };
 
     let monitor = |epoch: usize,

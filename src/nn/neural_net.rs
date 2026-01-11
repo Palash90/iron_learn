@@ -38,6 +38,7 @@ where
     last_train_loss: D,
     last_val_loss: D,
     loss_fn_type: LossFunctionType,
+    epoch_vs_loss: Vec<(usize, D, D)>,
 }
 
 impl<T, D> NeuralNet<T, D>
@@ -53,6 +54,7 @@ where
         name: String,
         current_epoch: usize,
         current_lr: D,
+        epoch_vs_loss: Vec<(usize, D, D)>
     ) -> Self {
         Self {
             layers,
@@ -64,6 +66,7 @@ where
             current_lr,
             last_train_loss: D::zero(),
             last_val_loss: D::zero(),
+            epoch_vs_loss,
         }
     }
 
@@ -138,7 +141,9 @@ where
             let mut error_prime = loss_prime(y_train, &output).unwrap();
 
             for layer in self.layers.iter_mut().rev() {
-                error_prime = layer.backward(&error_prime, current_lr).unwrap();
+                error_prime = layer
+                    .backward(&error_prime, current_lr, config.weight_normalization)
+                    .unwrap();
             }
             T::synchronize();
 
@@ -148,6 +153,8 @@ where
             }
             let err_val = (loss)(y_val, &v_output).unwrap().sum().unwrap().get_data()[0];
             T::synchronize();
+
+            self.epoch_vs_loss.push((i, err, err_val));
 
             if err_val < best_val_loss - epsilon {
                 // We found a new best model
@@ -159,11 +166,9 @@ where
                 self.last_val_loss = err_val;
             } else {
                 // No improvement
-                patience_counter += 1;
+                // patience_counter += 1;
 
                 if patience_counter >= patience {
-                    // Note: scaled by hook_interval if you only check occasionally,
-                    // but here you check every epoch, so just 'patience' is fine.
                     println!(
                         "\n{}",
                         "Early stopping: No improvement in validation loss."
@@ -197,6 +202,7 @@ where
             epoch: self.current_epoch,
             saved_lr: self.current_lr,
             loss_fn_type: self.loss_fn_type.clone(),
+            epoch_error: self.epoch_vs_loss.clone(),
         };
 
         for (i, layer) in self.layers.iter().enumerate() {
@@ -240,5 +246,10 @@ where
     pub fn save_model(&self, filepath: &str) {
         let model_storage = self.get_model();
         Self::write_model_to_disk(model_storage, filepath);
+    }
+
+    /// Get the epoch vs loss data for plotting
+    pub fn get_epoch_error(&self) -> Vec<(usize, D, D)> {
+        self.epoch_vs_loss.clone()
     }
 }

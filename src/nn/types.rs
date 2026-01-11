@@ -5,6 +5,7 @@ pub struct TrainingConfig<D> {
     pub epoch_offset: usize,
     pub base_lr: D,
     pub lr_adjustment: bool,
+    pub weight_normalization: bool,
 }
 
 pub struct TrainingHook<'a, F, S, D>

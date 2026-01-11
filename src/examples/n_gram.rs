@@ -226,6 +226,7 @@ where
             epoch_offset,
             base_lr: l,
             lr_adjustment,
+            weight_normalization: false,
         };
 
         let hook_config = TrainingHook::new(1000, monitor);

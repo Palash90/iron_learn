@@ -45,6 +45,8 @@ pub enum ExampleMode {
     ImageNeuralNet,
     /// N Gram Generator
     NGram,
+    /// Look for Grokking Phenomena
+    Grokking,
 }
 
 #[derive(Parser)]

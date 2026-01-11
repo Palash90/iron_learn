@@ -8,6 +8,8 @@ pub mod types;
 pub mod n_gram;
 mod neural_net_runner;
 
+pub mod grokking_phenomena;
+
 pub use n_gram::run_n_gram_generator;
 pub use neural_net_runner::run_neural_net;
 pub use regression::run_linear;

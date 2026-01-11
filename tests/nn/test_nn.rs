@@ -75,6 +75,7 @@ mod tests {
             epoch_offset: 0,
             base_lr: 1.0,
             lr_adjustment: false,
+            weight_normalization: false,
         };
 
         let hook_config = TrainingHook::new(1, monitor);
@@ -111,6 +112,7 @@ mod tests {
             epoch_offset: 0,
             base_lr: 1.0,
             lr_adjustment: true,
+            weight_normalization: false,
         };
 
         let hook_config = TrainingHook::new(1, monitor);
@@ -182,11 +184,14 @@ mod tests {
             epoch_offset: 0,
             base_lr: 0.1, // Sufficiently high to move the weights quickly
             lr_adjustment: false,
+            weight_normalization: true,
         };
 
         let hook_config = TrainingHook::new(1000, monitor);
 
         let _ = net.fit(&x_train, &y_train, &x_val, &y_val, config, hook_config);
+
+        let _ = net.get_epoch_error();
 
         // Assert that we stopped before the 500 limit
         assert!(

@@ -57,6 +57,7 @@ mod tests {
             epoch: 1,
             loss_fn_type: LossFunctionType::MeanSquaredError,
             saved_lr: 1.0,
+            epoch_error: vec![],
         };
 
         let nn = NeuralNetBuilder::<CpuTensor<f32>, f32>::build_from_config(
@@ -89,6 +90,7 @@ mod tests {
             epoch: 10,
             saved_lr: 0.01,
             loss_fn_type: LossFunctionType::MeanSquaredError,
+            epoch_error: vec![],
         };
 
         let net = NeuralNetBuilder::<CpuTensor<f32>, f32>::build_from_model(model_data);

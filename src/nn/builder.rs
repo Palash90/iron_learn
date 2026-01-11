@@ -142,6 +142,7 @@ where
             name.to_string(),
             0,
             D::zero(),
+            vec![]
         )
     }
 
@@ -193,6 +194,7 @@ where
             model.name.clone(),
             model.epoch,
             model.saved_lr,
+            model.epoch_error
         );
 
         println!(

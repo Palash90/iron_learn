@@ -43,6 +43,7 @@ where
     pub epoch: usize,
     pub saved_lr: D,
     pub loss_fn_type: LossFunctionType,
+    pub epoch_error: Vec<(usize, D, D)>,
 }
 
 // ============================================================================
