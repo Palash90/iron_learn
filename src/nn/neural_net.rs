@@ -54,7 +54,7 @@ where
         name: String,
         current_epoch: usize,
         current_lr: D,
-        epoch_vs_loss: Vec<(usize, D, D)>
+        epoch_vs_loss: Vec<(usize, D, D)>,
     ) -> Self {
         Self {
             layers,
