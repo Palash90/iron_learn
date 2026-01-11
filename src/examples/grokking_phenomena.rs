@@ -43,7 +43,7 @@ where
 
     if !predict_only {
         // 1. Define the modular operation
-        let mod_num = 97_u32;
+        let mod_num = 7_u32;
         let p = mod_num; // The modulus
 
         let mut all_pairs = Vec::new();

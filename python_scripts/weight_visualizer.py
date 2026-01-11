@@ -2,7 +2,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-def visualize_1d_weights(model_path, p=97):
+def visualize_1d_weights(model_path, p=13):
     with open(model_path, 'r') as f:
         data = json.load(f)
     
