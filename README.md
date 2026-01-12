@@ -413,9 +413,9 @@ _NB:_ The library does not yet support broadcasting. I will soon introduce broad
 
 ## Quick pointers for contributors
 
-- Run tests: `cargo test`
-- Format: `cargo fmt`
-- Lint: `cargo clippy` (may require installing `clippy` via rustup)
+- Run tests: `cargo llvm-cov --all-features --html -- --test-threads=1`
+- Format: `cargo fmt --all --check`
+- Lint: `cargo clippy --all-targets --all-features --release -- -D warnings` (may require installing `clippy` via rustup)
 - Keep Python examples and the Rust model importer (`read_file.rs`) in sync if you change JSON model formats.
 
 ## Next steps
@@ -423,3 +423,4 @@ _NB:_ The library does not yet support broadcasting. I will soon introduce broad
 - Add Broadcasting support
 - Axis wise reducer
 - Move to higher dimensions
+
