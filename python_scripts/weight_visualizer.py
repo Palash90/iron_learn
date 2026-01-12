@@ -10,11 +10,9 @@ def visualize_1d_weights(model_path, p=13):
     # Adjust 'weights' key based on your JSON structure
     raw_vec = np.array(data['layers'][0]['weights']) 
     
+    p = 108
     # 2. Reshape it
-    # We assume shape is (Inputs, Hidden_Units)
-    # If the length is 19400, and inputs are 194, then hidden units = 100
-    hidden_units = len(raw_vec) // (p * 2)
-    weights_matrix = raw_vec.reshape((p * 2, hidden_units))
+    weights_matrix = raw_vec.reshape((p, 54))
     
     # 3. Split into Input A (first 97) and Input B (next 97)
     weights_a = weights_matrix[:p, :]
@@ -46,4 +44,4 @@ def visualize_1d_weights(model_path, p=13):
     plt.tight_layout()
     plt.show()
 
-visualize_1d_weights('../model_outputs/grokking/model.json')
+visualize_1d_weights('../model_outputs/5-gram/model.json')

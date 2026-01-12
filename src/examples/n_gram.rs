@@ -217,7 +217,7 @@ where
 
             if sleep_time > 0 && epoch != 0 {
                 println!("Taking a nap");
-                thread::sleep(Duration::from_secs(5));
+                thread::sleep(Duration::from_secs(sleep_time as u64));
                 println!("Awake again");
             }
         };
