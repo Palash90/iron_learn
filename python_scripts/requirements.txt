@@ -1,0 +1,5 @@
+numpy
+cupy-cuda12x
+pandas
+networkx
+matplotlib
