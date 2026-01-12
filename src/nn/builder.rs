@@ -88,13 +88,13 @@ where
     }
 
     /// Finalize the builder and construct a `NeuralNet`.
-    pub fn build(self, loss_fn_type: LossFunctionType, name: &String) -> NeuralNet<T, D> {
+    pub fn build(self, loss_fn_type: LossFunctionType, name: &str) -> NeuralNet<T, D> {
         Self::build_network(loss_fn_type, name, self.layers)
     }
 
     fn build_network(
         loss_fn_type: LossFunctionType,
-        name: &String,
+        name: &str,
         layers: Vec<Box<dyn Layer<T, D>>>,
     ) -> NeuralNet<T, D> {
         println!("Building Network:");
@@ -133,17 +133,19 @@ where
         println!("\nModel Architecture ({label}):");
         println!("{}\n", output);
 
+        let network_model = ModelData {
+            name: name.to_string(),
+            parameter_count: parameter_count as u64,
+            layers: Vec::new(), // Layers will be populated during training/saving. This is unsued blank set
+            epoch: 0,
+            saved_lr: D::zero(),
+            loss_fn_type: loss_fn_type.clone(),
+            epoch_error: vec![],
+            label: label.clone(),
+        };
+
         println!();
-        NeuralNet::new(
-            layers,
-            loss_fn_type,
-            parameter_count as u64,
-            label,
-            name.to_string(),
-            0,
-            D::zero(),
-            vec![],
-        )
+        NeuralNet::new(layers, network_model)
     }
 
     pub fn build_from_model(model: ModelData<D>) -> NeuralNet<T, D> {
@@ -177,30 +179,23 @@ where
             }
         }
 
-        // Calculate parameter label (M, k, etc.) similar to your build method
-        let param_count = model.parameter_count as usize;
-        let label = if param_count >= 1_000_000 {
-            format!("{:.1}M", param_count as f64 / 1_000_000.0)
-        } else {
-            format!("{}k", param_count / 1_000)
+        println!(
+            "Model {} ({}) restored successfully at Epoch {}",
+            &model.name, &model.label, &model.epoch
+        );
+
+        let model = ModelData {
+            name: model.name,
+            parameter_count: model.parameter_count,
+            layers: vec![], // Layers will be populated during training/saving. This is unsued blank set
+            epoch: model.epoch,
+            saved_lr: model.saved_lr,
+            loss_fn_type: model.loss_fn_type,
+            epoch_error: model.epoch_error,
+            label: model.label,
         };
 
         // Construct the final NeuralNet with restored state
-        let net = NeuralNet::new(
-            layers,
-            model.loss_fn_type,
-            model.parameter_count,
-            label.clone(),
-            model.name.clone(),
-            model.epoch,
-            model.saved_lr,
-            model.epoch_error,
-        );
-
-        println!(
-            "Model {} ({}) restored successfully at Epoch {}",
-            model.name, label, model.epoch
-        );
-        net
+        NeuralNet::new(layers, model)
     }
 }

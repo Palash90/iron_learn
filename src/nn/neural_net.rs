@@ -46,27 +46,18 @@ where
     T: TensorMath<D, MathOutput = T> + 'static,
     D: FloatingPoint,
 {
-    pub fn new(
-        layers: Vec<Box<dyn Layer<T, D>>>,
-        loss_fn_type: LossFunctionType,
-        param_count: u64,
-        label: String,
-        name: String,
-        current_epoch: usize,
-        current_lr: D,
-        epoch_vs_loss: Vec<(usize, D, D)>,
-    ) -> Self {
+    pub fn new(layers: Vec<Box<dyn Layer<T, D>>>, model: ModelData<D>) -> Self {
         Self {
             layers,
-            loss_fn_type,
-            parameter_count: param_count,
-            label,
-            name,
-            current_epoch,
-            current_lr,
+            loss_fn_type: model.loss_fn_type,
+            parameter_count: model.parameter_count,
+            label: model.label,
+            name: model.name,
+            current_epoch: model.epoch,
+            current_lr: model.saved_lr,
             last_train_loss: D::zero(),
             last_val_loss: D::zero(),
-            epoch_vs_loss,
+            epoch_vs_loss: model.epoch_error,
         }
     }
 
@@ -203,6 +194,7 @@ where
             saved_lr: self.current_lr,
             loss_fn_type: self.loss_fn_type.clone(),
             epoch_error: self.epoch_vs_loss.clone(),
+            label: self.label.clone(),
         };
 
         for (i, layer) in self.layers.iter().enumerate() {

@@ -58,6 +58,7 @@ mod tests {
             loss_fn_type: LossFunctionType::MeanSquaredError,
             saved_lr: 1.0,
             epoch_error: vec![],
+            label: "4".to_string(),
         };
 
         let nn = NeuralNetBuilder::<CpuTensor<f32>, f32>::build_from_config(
@@ -67,6 +68,8 @@ mod tests {
 
         assert_eq!(nn.name, "RestoredModel");
         assert_eq!(nn.layers.len(), 2);
+        assert_eq!(nn.layers[0].name(), "restored_fc");
+        assert_eq!(nn.layers[1].name(), "restored_tanh");
     }
 
     #[test]
@@ -91,6 +94,7 @@ mod tests {
             saved_lr: 0.01,
             loss_fn_type: LossFunctionType::MeanSquaredError,
             epoch_error: vec![],
+            label: "4".to_string(),
         };
 
         let net = NeuralNetBuilder::<CpuTensor<f32>, f32>::build_from_model(model_data);

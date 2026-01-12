@@ -49,7 +49,7 @@ mod tests {
             nn.add_linear(layer.0, layer.1, layer.3, layer.5);
             nn.add_activation(layer.2, layer.4);
         }
-        nn.build(LossFunctionType::MeanSquaredError, &"TestNet".to_string())
+        nn.build(LossFunctionType::MeanSquaredError, "TestNet")
     }
 
     #[test]
