@@ -1,18 +1,18 @@
 {
   "loss_function": "CategoricalCrossEntropy",
   "layers": [
+    [108, 216, "Linear", "Input"],
+    [0, 0, "Tanh", "First Activation"],
+    [216, 216, "Linear", "Input"],
+    [0, 0, "Tanh", "First Activation"],
+    [216, 216, "Linear", "Input"],
+    [0, 0, "Tanh", "First Activation"],
+    [216, 108, "Linear", "Input"],
+    [0, 0, "Tanh", "First Activation"],
     [108, 54, "Linear", "Input"],
-    [0, 0, "ReLU", "First Activation"],
+    [0, 0, "Tanh", "First Activation"],
     [54, 54, "Linear", "Input"],
-    [0, 0, "ReLU", "First Activation"],
-    [54, 54, "Linear", "Input"],
-    [0, 0, "ReLU", "First Activation"],
-    [54, 54, "Linear", "Input"],
-    [0, 0, "ReLU", "First Activation"],
-    [54, 54, "Linear", "Input"],
-    [0, 0, "ReLU", "First Activation"],
-    [54, 54, "Linear", "Input"],
-    [0, 0, "ReLU", "First Activation"],
+    [0, 0, "Tanh", "First Activation"],
     [54, 27, "Linear", "Hidden Layer 2"],
     [0, 0, "Softmax", "Output"]
   ]
