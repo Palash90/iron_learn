@@ -2,7 +2,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-def visualize_1d_weights(model_path, p=13):
+def visualize_1d_weights(model_path, p=108, q = 216):
     with open(model_path, 'r') as f:
         data = json.load(f)
     
@@ -10,9 +10,8 @@ def visualize_1d_weights(model_path, p=13):
     # Adjust 'weights' key based on your JSON structure
     raw_vec = np.array(data['layers'][0]['weights']) 
     
-    p = 108
     # 2. Reshape it
-    weights_matrix = raw_vec.reshape((p, 54))
+    weights_matrix = raw_vec.reshape((p, q))
     
     # 3. Split into Input A (first 97) and Input B (next 97)
     weights_a = weights_matrix[:p, :]
