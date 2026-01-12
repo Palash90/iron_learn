@@ -166,7 +166,7 @@ where
                 self.last_val_loss = err_val;
             } else {
                 // No improvement
-                // patience_counter += 1;
+                patience_counter += 1;
 
                 if patience_counter >= patience {
                     println!(

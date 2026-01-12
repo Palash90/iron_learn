@@ -2,7 +2,6 @@ use iron_learn::examples::n_gram::run_n_gram_generator;
 use iron_learn::examples::types::ExampleMode;
 use iron_learn::examples::{run_linear, run_logistic, run_neural_net};
 
-use iron_learn::examples::grokking_phenomena::run_for_grokking;
 use iron_learn::numeric::FloatingPoint;
 use iron_learn::tensor::math::TensorMath;
 use iron_learn::{CpuTensor, Tensor};
@@ -28,11 +27,6 @@ where
             Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
         },
-        ExampleMode::Grokking => match run_for_grokking::<T, D>() {
-            Ok(_) => (),
-            Err(e) => eprintln!("Error: {}", e),
-        },
-
         _ => match run_neural_net::<T, D>() {
             Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
