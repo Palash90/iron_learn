@@ -1,4 +1,5 @@
 use iron_learn::examples::n_gram::run_n_gram_generator;
+use iron_learn::examples::transformer::run_transformer_generator;
 use iron_learn::examples::types::ExampleMode;
 use iron_learn::examples::{run_linear, run_logistic, run_neural_net};
 
@@ -24,6 +25,10 @@ where
             Err(e) => eprintln!("Error: {}", e),
         },
         ExampleMode::NGram => match run_n_gram_generator::<T, D>() {
+            Ok(_) => (),
+            Err(e) => eprintln!("Error: {}", e),
+        },
+        ExampleMode::Transformer => match run_transformer_generator::<T, D>() {
             Ok(_) => (),
             Err(e) => eprintln!("Error: {}", e),
         },

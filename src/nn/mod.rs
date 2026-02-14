@@ -4,6 +4,7 @@
 
 pub mod builder;
 pub mod loss_functions;
+pub mod transformer;
 
 // ============================================================================
 // Core Types
@@ -68,7 +69,7 @@ pub use activations::*;
 // Layer Types and Traits
 // ============================================================================
 
-mod layers;
+pub mod layers;
 pub use layers::{ActivationLayer, DistributionType, Layer, LinearLayer};
 
 use crate::numeric::FloatingPoint;

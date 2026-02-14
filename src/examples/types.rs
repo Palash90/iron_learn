@@ -45,6 +45,8 @@ pub enum ExampleMode {
     ImageNeuralNet,
     /// N Gram Generator
     NGram,
+    /// Transformer Generator
+    Transformer
 }
 
 #[derive(Parser)]

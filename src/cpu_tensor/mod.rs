@@ -261,19 +261,23 @@ impl<T: Numeric> CpuTensor<T> {
 
         let mut data = vec![T::zero(); rows * cols];
 
-        for i in 0..rows {
-            // SIMD specific change
-            let out_row_offset = i * cols;
 
-            for k in 0..common_dim {
-                let aik = self.data[i * common_dim + k]; // Constant for the inner loop
-                let rhs_row_offset = k * cols;
-                let rhs_slice = &rhs.data[rhs_row_offset..rhs_row_offset + cols];
-                let out_slice = &mut data[out_row_offset..out_row_offset + cols];
+         // The core optimization: IKJ order with Iterators
+        for (i, a_row) in self.data.chunks_exact(common_dim).enumerate() {
+            let out_row_start = i * cols;
+            let out_row = &mut data[out_row_start..out_row_start + cols];
 
-                for j in 0..cols {
-                    //SIMD Specific change. Help compiler understand
-                    out_slice[j] = out_slice[j] + aik * rhs_slice[j];
+            for (k, &aik) in a_row.iter().enumerate() {
+                if aik == T::from_u32(0) {
+                    continue;
+                } // Skip zeros for a small speed boost
+
+                let b_row_start = k * cols;
+                let b_row = &rhs.data[b_row_start..b_row_start + cols];
+
+                // This zip() is the key to SIMD and removing bounds checks
+                for (out_val, &cols) in out_row.iter_mut().zip(b_row.iter()) {
+                    *out_val = *out_val + aik * cols;
                 }
             }
         }

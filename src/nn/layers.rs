@@ -148,7 +148,7 @@ where
         // Update Parameters
         let w_step = match normalize_grad {
             true => {
-                let decay_term = self.weights.scale(D::from_f64(0.0001))?;
+                let decay_term = self.weights.scale(D::from_f64(0.1))?;
                 let regularized_grad = weights_grad.add(&decay_term)?;
                 regularized_grad.scale(lr)?
             }

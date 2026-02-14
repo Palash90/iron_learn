@@ -13,6 +13,8 @@ pub enum LayerType {
     Sin,
     ReLU,
     Softmax,
+    Embedding,
+    Transformer,
 }
 /// Return the activation function and its derivative for `layer`.
 pub fn get_activations<T, D>(layer: &LayerType) -> (ActivationFn<T>, ActivationFn<T>)
@@ -24,7 +26,7 @@ where
         LayerType::Sigmoid => (sigmoid, sigmoid_prime),
         LayerType::Tanh => (tanh, tanh_prime),
         LayerType::Sin => (sin, cos),
-        LayerType::Linear => (
+        LayerType::Linear | LayerType::Embedding | LayerType::Transformer => (
             |x: &T| Ok(T::zeroes(x.get_shape()).add(x).unwrap()),
             |x: &T| Ok(T::ones(x.get_shape())),
         ),

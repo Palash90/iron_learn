@@ -61,6 +61,11 @@ where
         }
     }
 
+    /// Get the current epoch (useful for resuming training)
+    pub fn get_current_epoch(&self) -> usize {
+        self.current_epoch
+    }
+
     /// Run a forward pass and return the network output for `input`.
     pub fn predict(&mut self, input: &T) -> Result<T, String> {
         let mut output = input.add(&T::zeroes(input.get_shape())).unwrap();
@@ -83,7 +88,7 @@ where
     where
         F: FnMut(usize, D, D, D, &mut Self),
     {
-        let lr_min = D::from_f64(1e-6);
+        let lr_min = D::from_f64(1e-3);
 
         let total_timeline = D::from_u32(config.epochs as u32);
         let hook_interval = match config.epochs > hook_config.interval {
@@ -113,7 +118,7 @@ where
             self.current_lr = current_lr;
 
             print!(
-                "\rProcessing epoch: {}/{}, adjust lr set to {}, current lr: {current_lr}",
+                "\rProcessing epoch: {}/{}, adjust lr set to {}, current lr: {current_lr:.4}",
                 self.current_epoch, config.epochs, config.lr_adjustment
             );
             io::stdout().flush().unwrap();
