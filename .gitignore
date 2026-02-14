@@ -13,3 +13,4 @@ build/
 *.egg-info/
 lib/
 training_log*
+model_outputs

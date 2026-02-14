@@ -130,7 +130,7 @@ where
         nn
     } else {
         // First, load the model to check vocab size BEFORE building
-        let model_for_check = deserialize_model::<D>(&context.name).unwrap();
+        let model_for_check = deserialize_model::<D>(&context.weights_path).unwrap();
         let saved_vocab_size = model_for_check.layers[2].shape[1]; // Head layer output size = vocab (shape is [input, output])
 
         if saved_vocab_size != vocab.vocab_size {
@@ -180,7 +180,7 @@ where
             builder.build(LossFunctionType::CategoricalCrossEntropy, "Transformer")
         } else {
             // Vocab size matches, safe to restore
-            let model = deserialize_model::<D>(&context.name).unwrap();
+            let model = deserialize_model::<D>(&context.weights_path).unwrap();
             NeuralNetBuilder::<T, D>::build_from_model(model)
         }
     };
@@ -214,7 +214,7 @@ where
                 context.monitor_interval,
                 |e, l, _, _, nn: &mut NeuralNet<T, D>| {
                     println!(" : Loss {:.4}, elapsed {:?}", l, now.elapsed());
-                    nn.save_model(&context.name);
+                    nn.save_model(&context.weights_path);
                     now = Instant::now();
 
                     sleep(Duration::from_secs(context.sleep_time));

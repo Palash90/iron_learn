@@ -230,7 +230,7 @@ where
             fs::create_dir_all(parent).unwrap(); // Creates all directories if they don't exist
         }
 
-        let mut file = File::create(filepath).unwrap();
+        let mut file = File::create(filepath).expect(&format!("Model successfully saved to {}", filepath));
         let _ = file.write_all(json_data.as_bytes());
 
         let _ = file.flush();
