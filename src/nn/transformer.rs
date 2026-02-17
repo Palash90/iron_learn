@@ -5,6 +5,73 @@ use super::LayerType;
 use crate::nn::softmax;
 use crate::{numeric::FloatingPoint, tensor::math::TensorMath, Tensor};
 
+/// Manual Layer Normalization utility
+/// Computes: (x - mean) / sqrt(var + eps) across embedding dimension
+/// Due to 2D tensor restriction, operates per-token (per-row) normalization
+fn apply_layer_norm<T, D>(input: &T, eps: D) -> Result<T, String>
+where
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
+{
+    let data = input.get_data();
+    let shape = input.get_shape();
+    let rows = shape[0] as usize;
+    let cols = shape[1] as usize;
+
+    let mut normalized = Vec::with_capacity(rows * cols);
+
+    // Normalize each row (token) independently across embedding dimension
+    for r in 0..rows {
+        let start = r * cols;
+        let end = start + cols;
+        let row_data = &data[start..end];
+
+        // Compute mean
+        let sum: D = row_data.iter().fold(D::zero(), |acc, &x| acc + x);
+        let mean = sum / D::from_u32(cols as u32);
+
+        // Compute variance
+        let mut variance = D::zero();
+        for &val in row_data {
+            let diff = val - mean;
+            variance = variance + (diff * diff);
+        }
+        variance = variance / D::from_u32(cols as u32);
+
+        // Normalize
+        let std_dev = (variance + eps).sqrt();
+        for &val in row_data {
+            let normalized_val = (val - mean) / std_dev;
+            normalized.push(normalized_val);
+        }
+    }
+
+    T::new(shape.clone(), normalized)
+}
+
+/// Apply causal mask to attention scores (2D matrix [seq_len, seq_len])
+/// Masks out future positions by setting them to -infinity for language modeling
+fn apply_causal_mask<T, D>(scores: &T) -> Result<T, String>
+where
+    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
+    D: FloatingPoint,
+{
+    let mut scores_data = scores.get_data();
+    let shape = scores.get_shape();
+    let seq_len = shape[0] as usize;
+
+    // Set upper triangle (future positions) to -infinity
+    // This ensures softmax will make them nearly zero
+    let neg_inf = D::from_f64(f64::NEG_INFINITY);
+    for i in 0..seq_len {
+        for j in (i + 1)..seq_len {
+            scores_data[i * seq_len + j] = neg_inf;
+        }
+    }
+
+    T::new(shape.clone(), scores_data)
+}
+
 pub struct CombinedEmbedding<T, D> {
     name: String,
     word_weights: T, // [vocab_size, embed_dim]
@@ -29,7 +96,8 @@ where
         let word_count = vocab_size as usize * d;
         let mut word_data = Vec::with_capacity(word_count);
         for _ in 0..word_count {
-            word_data.push(D::from_f64(rand::random::<f64>() * 0.01));
+            let val = rand::random::<f64>() - 0.5; // Center at 0
+            word_data.push(D::from_f64(val));
         }
 
         // --- POSITION WEIGHTS ---
@@ -37,7 +105,8 @@ where
         let pos_count = s * d;
         let mut pos_data = Vec::with_capacity(pos_count);
         for _ in 0..pos_count {
-            pos_data.push(D::from_f64(rand::random::<f64>() * 0.01));
+            let val = rand::random::<f64>() - 0.5; // Center at 0
+            pos_data.push(D::from_f64(val));
         }
 
         // Print embedding architecture details
@@ -217,6 +286,13 @@ where
     }
 }
 
+pub struct TransformerCache<T> {
+    q: T,
+    k: T,
+    v: T,
+    attn_weights: Vec<Vec<T>>, // Store weights per head
+}
+
 pub struct TransformerBlock<T, D>
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
@@ -235,6 +311,12 @@ where
     per_token_embed_dim: u32, // Per-token embedding dimension
     num_heads: u32,
     head_dim: u32,
+    // Layer Normalization epsilon value
+    ln_eps: D,
+    // Enable causal masking for language modeling
+    use_causal_mask: bool,
+
+    cache: Option<TransformerCache<T>>,
 }
 
 impl<T, D> TransformerBlock<T, D>
@@ -267,6 +349,9 @@ where
             per_token_embed_dim: embed_dim, // For backward compat, assume no sequence
             num_heads,
             head_dim,
+            ln_eps: D::from_f64(1e-6),
+            use_causal_mask: false,
+            cache: None, // Cache will be used in autoregressive decoding, not implemented here
         }
     }
 
@@ -354,6 +439,55 @@ where
             per_token_embed_dim,
             num_heads,
             head_dim,
+            ln_eps: D::from_f64(1e-6),
+            use_causal_mask: true,  // Enable causal masking for language models
+            cache: None,
+        }
+    }
+
+    fn extract_head_slice(
+        &self,
+        tensor: &T,
+        batch_idx: usize,
+        head_idx: usize,
+        seq_len: usize,
+    ) -> Result<T, String> {
+        let data = tensor.get_data();
+        let total_dim = seq_len * self.per_token_embed_dim as usize;
+        let per_token_dim = self.per_token_embed_dim as usize;
+        let h_dim = self.head_dim as usize;
+
+        let mut head_data = Vec::with_capacity(seq_len * h_dim);
+
+        for s in 0..seq_len {
+            // Offset logic: Start of batch + Start of token + Start of head
+            let start = (batch_idx * total_dim) + (s * per_token_dim) + (head_idx * h_dim);
+            head_data.extend_from_slice(&data[start..start + h_dim]);
+        }
+
+        T::new(vec![seq_len as u32, h_dim as u32], head_data)
+    }
+
+    fn map_head_back_to_buffer(
+        &self,
+        buffer: &mut Vec<D>,
+        head_grad: &T,
+        batch_idx: usize,
+        head_idx: usize,
+        seq_len: usize,
+        total_dim: usize,
+    ) {
+        let grad_data = head_grad.get_data();
+        let per_token_dim = self.per_token_embed_dim as usize;
+        let h_dim = self.head_dim as usize;
+
+        for s in 0..seq_len {
+            let buffer_offset = (batch_idx * total_dim) + (s * per_token_dim) + (head_idx * h_dim);
+            let grad_offset = s * h_dim;
+
+            for i in 0..h_dim {
+                buffer[buffer_offset + i] = grad_data[grad_offset + i];
+            }
         }
     }
 }
@@ -371,10 +505,14 @@ where
     }
 
     fn forward(&mut self, input: &T, is_training: bool) -> Result<T, String> {
+        // --- 0. Layer Normalization before Attention (Pre-norm architecture) ---
+        let normalized_input = apply_layer_norm(input, self.ln_eps)
+            .map_err(|e| format!("Failed layer norm before attention: {}", e))?;
+
         // --- 1. Multi-Head Self Attention ---
-        let q = self.query.forward(input, is_training)?; // [batch, total_embed_dim]
-        let k = self.key.forward(input, is_training)?; // [batch, total_embed_dim]
-        let v = self.value.forward(input, is_training)?; // [batch, total_embed_dim]
+        let q = self.query.forward(&normalized_input, is_training)?; // [batch, total_embed_dim]
+        let k = self.key.forward(&normalized_input, is_training)?; // [batch, total_embed_dim]
+        let v = self.value.forward(&normalized_input, is_training)?; // [batch, total_embed_dim]
 
         // Process input dimensions
         let batch_shape = q.get_shape();
@@ -391,9 +529,11 @@ where
 
         // Initialize output for all heads to be concatenated
         let mut attn_context_vec = vec![D::from_f64(0.0); batch_size * total_dim];
+        let mut all_head_weights = Vec::with_capacity(num_heads);
 
         // Process each head independently
         for head_idx in 0..num_heads {
+            let mut head_weights_batch = Vec::with_capacity(batch_size);
             for batch_idx in 0..batch_size {
                 // Extract Q, K, V for this head
                 let mut q_head = Vec::with_capacity(seq_len * head_dim);
@@ -429,8 +569,21 @@ where
                     .scale(scale)
                     .map_err(|e| format!("Failed to scale scores: {}", e))?;
 
+                // CRITICAL: Apply causal masking for language models
+                // This prevents attending to future positions during self-attention
+                if self.use_causal_mask {
+                    scores = apply_causal_mask(&scores)
+                        .map_err(|e| format!("Failed to apply causal mask: {}", e))?;
+                }
+
                 let attn_weights =
                     softmax(&scores).map_err(|e| format!("Failed softmax: {}", e))?;
+                head_weights_batch.push(
+                    T::zeroes(attn_weights.get_shape())
+                        .add(&attn_weights)
+                        .unwrap(),
+                );
+
                 let context = attn_weights
                     .matmul(&v_h)
                     .map_err(|e| format!("Failed attention context: {}", e))?;
@@ -448,18 +601,31 @@ where
                     }
                 }
             }
+            all_head_weights.push(head_weights_batch);
         }
 
         let context = T::new(vec![batch_size as u32, total_dim as u32], attn_context_vec)
             .map_err(|e| format!("Failed to create context tensor: {}", e))?;
+
+        if is_training {
+            // CRITICAL: Save for backward pass
+            self.cache = Some(TransformerCache {
+                q: T::zeroes(q.get_shape()).add(&q).unwrap(),
+                k: T::zeroes(k.get_shape()).add(&k).unwrap(),
+                v: T::zeroes(v.get_shape()).add(&v).unwrap(),
+                attn_weights: all_head_weights,
+            });
+        }
 
         let attn_out = self.output_proj.forward(&context, is_training)?;
 
         // Residual Connection 1
         let x = input.add(&attn_out)?;
 
-        // --- 2. Feed Forward ---
-        let h = self.ff1.forward(&x, is_training)?.relu()?;
+        // --- 2. Feed Forward with Layer Normalization (Pre-norm architecture) ---
+        let normalized_x = apply_layer_norm(&x, self.ln_eps)
+            .map_err(|e| format!("Failed layer norm before FFN: {}", e))?;
+        let h = self.ff1.forward(&normalized_x, is_training)?.relu()?;
         let ff_out = self.ff2.forward(&h, is_training)?;
 
         // Residual Connection 2
@@ -467,33 +633,115 @@ where
     }
 
     fn backward(&mut self, output_error: &T, lr: D, norm: bool) -> Result<T, String> {
-        // --- 1. Backprop through Feed Forward ---
-        // The error for FF is the output_error (from the residual)
+        // CRITICAL FIX: Proper residual gradient accumulation
+        // For residual z = x + f(x), gradient is: dz/dx = 1 (from residual) + df/dx (from function)
+        // Both branches must contribute to the final gradient
+        
+        // 1. Backward through FF branch
         let d_ff2 = self.ff2.backward(output_error, lr, norm)?;
-        let d_ff1 = self.ff1.backward(&d_ff2, lr, norm)?; // Note: ReLU prime usually goes here
+        let d_ff1 = self.ff1.backward(&d_ff2, lr, norm)?;
+        
+        // 2. Gradient accumulation: output_error flows through both
+        //    - Directly through residual connection: output_error
+        //    - Through FF layers: d_ff1
+        let d_x_after_attn = output_error.add(&d_ff1)?;
+        
+        // 3. Backward through attention output projection residual
+        let d_context_full = self.output_proj.backward(&d_x_after_attn, lr, norm)?;
 
-        // The gradient at the point BEFORE the second residual is d_ff1 + output_error
-        let d_post_attn = output_error.add(&d_ff1)?;
+        // 2. Setup Dimensions & Retrieve Cache
+        let cache = self
+            .cache
+            .as_ref()
+            .ok_or("No cache found for backward pass")?;
+        let batch_size = d_context_full.get_shape()[0] as usize;
+        let total_dim = d_context_full.get_shape()[1] as usize;
+        let seq_len = total_dim / (self.per_token_embed_dim as usize);
+        let h_dim = self.head_dim as usize;
+        let n_heads = self.num_heads as usize;
+        let scale = D::from_f64(1.0 / (h_dim as f64).sqrt());
 
-        // --- 2. Backprop through Attention Proj ---
-        let d_attn_out = self.output_proj.backward(&d_post_attn, lr, norm)?;
+        let mut dq_final = vec![D::zero(); batch_size * total_dim];
+        let mut dk_final = vec![D::zero(); batch_size * total_dim];
+        let mut dv_final = vec![D::zero(); batch_size * total_dim];
 
-        // --- 3. The "Missing Link": Attention Math Backprop ---
-        // In forward: context = attn_weights @ v
-        // We need d_v and d_attn_weights
-        // Since we are 2D, this is:
-        let d_v_raw = T::zeroes(d_attn_out.get_shape()).add(&d_attn_out).unwrap(); // Simplified for 2D proxy
-        let d_q_raw = T::zeroes(d_attn_out.get_shape()).add(&d_attn_out).unwrap();
-        let d_k_raw = d_attn_out;
+        // 3. Manual Head-wise Loop logic
+        for h in 0..n_heads {
+            for b in 0..batch_size {
+                // --- Extract d_head (Incoming Gradient) ---
+                let mut d_head_data = Vec::with_capacity(seq_len * h_dim);
+                for s in 0..seq_len {
+                    let start = b * total_dim + s * (self.per_token_embed_dim as usize) + h * h_dim;
+                    d_head_data.extend_from_slice(&d_context_full.get_data()[start..start + h_dim]);
+                }
+                let d_head = T::new(vec![seq_len as u32, h_dim as u32], d_head_data)?;
 
-        // --- 4. Parallel Backprop for Q, K, V ---
-        let d_q = self.query.backward(&d_q_raw, lr, norm)?;
-        let d_k = self.key.backward(&d_k_raw, lr, norm)?;
-        let d_v = self.value.backward(&d_v_raw, lr, norm)?;
+                // --- Retrieve Forward States for this Head/Batch ---
+                // Note: You'll need helper methods to slice your cached Q, K, V similar to forward
+                let q_h = self.extract_head_slice(&cache.q, b, h, seq_len)?;
+                let k_h = self.extract_head_slice(&cache.k, b, h, seq_len)?;
+                let v_h = self.extract_head_slice(&cache.v, b, h, seq_len)?;
+                let weights = &cache.attn_weights[h][b];
 
-        // --- 5. Final Residual Sum ---
-        // Sum all paths back to the input: Residual 1 + Q + K + V
-        d_post_attn.add(&d_q)?.add(&d_k)?.add(&d_v)
+                // --- THE ATTENTION GRADIENT MATH ---
+
+                // 1. Gradient w.r.t V: Weights^T * d_head
+                let d_v_h = weights.t()?.matmul(&d_head)?;
+
+                // 2. Gradient w.r.t Softmax Scores
+                let d_weights = d_head.matmul(&v_h.t()?)?;
+
+                // 3. Proper Softmax Backward (Manual Row-wise)
+                let s_data = weights.get_data();
+                let ds_data = d_weights.get_data();
+                let mut d_scores_data = Vec::with_capacity(seq_len * seq_len);
+
+                for r in 0..seq_len {
+                    // Calculate dot product for this row: sum(S_i * dS_i)
+                    let mut row_dot_product = D::zero();
+                    for c in 0..seq_len {
+                        let idx = r * seq_len + c;
+                        row_dot_product = row_dot_product + (s_data[idx] * ds_data[idx]);
+                    }
+
+                    // Calculate d_scores for this row: S_i * (dS_i - row_dot_product)
+                    for c in 0..seq_len {
+                        let idx = r * seq_len + c;
+                        d_scores_data.push(s_data[idx] * (ds_data[idx] - row_dot_product));
+                    }
+                }
+                let d_scores = T::new(vec![seq_len as u32, seq_len as u32], d_scores_data)?;
+
+                // 4. Gradient w.r.t Q and K
+                let d_q_h = d_scores.matmul(&k_h)?.scale(scale)?;
+                let d_k_h = d_scores.t()?.matmul(&q_h)?.scale(scale)?;
+
+                // --- Re-insert gradients into the flattened buffers ---
+                self.map_head_back_to_buffer(&mut dq_final, &d_q_h, b, h, seq_len, total_dim);
+                self.map_head_back_to_buffer(&mut dk_final, &d_k_h, b, h, seq_len, total_dim);
+                self.map_head_back_to_buffer(&mut dv_final, &d_v_h, b, h, seq_len, total_dim);
+            }
+        }
+
+        // 4. Update Q, K, V Projections
+        let d_q = self.query.backward(
+            &T::new(vec![batch_size as u32, total_dim as u32], dq_final)?,
+            lr,
+            norm,
+        )?;
+        let d_k = self.key.backward(
+            &T::new(vec![batch_size as u32, total_dim as u32], dk_final)?,
+            lr,
+            norm,
+        )?;
+        let d_v = self.value.backward(
+            &T::new(vec![batch_size as u32, total_dim as u32], dv_final)?,
+            lr,
+            norm,
+        )?;
+
+        // Combine for final input error from all branches
+        d_x_after_attn.add(&d_q)?.add(&d_k)?.add(&d_v)
     }
 
     fn get_parameters(&self) -> Option<T> {

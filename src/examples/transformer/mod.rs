@@ -49,8 +49,8 @@ where
     T: crate::tensor::Tensor<D> + crate::tensor::math::TensorMath<D, MathOutput = T> + 'static,
     D: crate::numeric::FloatingPoint + 'static,
 {
-    let head_dim = 4;
-    let num_heads = 4;
+    let head_dim = 1;
+    let num_heads = 2;
 
     let context = GLOBAL_CONTEXT
         .get()
