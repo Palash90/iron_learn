@@ -4,6 +4,7 @@ use crate::nn::loss_functions::LossFunctionType;
 use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
+use crate::utils::get_current_lr;
 use std::f64::consts::PI;
 
 use crate::nn::LayerData;
@@ -88,9 +89,9 @@ where
     where
         F: FnMut(usize, D, D, D, &mut Self),
     {
-        let lr_min = D::from_f64(1e-3);
+        let lr_min = D::from_f64(1e-6);
 
-        let total_timeline = D::from_u32(config.epochs as u32);
+        let total_timeline = config.epochs;
         let hook_interval = match config.epochs > hook_config.interval {
             true => hook_config.interval,
             false => config.epochs,
@@ -103,23 +104,17 @@ where
         let epsilon = D::from_f64(1e-6);
 
         for i in config.epoch_offset..config.epochs {
-            let global_i = D::from_u32(i as u32);
+            let global_i = i;
 
             self.current_epoch = i;
 
-            let cos_term = ((D::from_f64(PI) * global_i) / total_timeline).cos();
-
-            let decay_factor = D::from_f64(0.5) * (D::one() + cos_term);
-            let current_lr = match config.lr_adjustment {
-                true => lr_min + (config.base_lr - lr_min) * decay_factor,
-                false => config.base_lr,
-            };
+            let current_lr = get_current_lr(config.base_lr, config.lr_adjustment, lr_min, total_timeline, global_i);
 
             self.current_lr = current_lr;
 
             print!(
-                "\rProcessing epoch: {}/{}, adjust lr set to {}, current lr: {current_lr:.4}",
-                self.current_epoch, config.epochs, config.lr_adjustment
+                "\rProcessing epoch: {}/{}, current lr: {current_lr:.6}",
+                self.current_epoch, config.epochs
             );
             io::stdout().flush().unwrap();
 
@@ -230,7 +225,8 @@ where
             fs::create_dir_all(parent).unwrap(); // Creates all directories if they don't exist
         }
 
-        let mut file = File::create(filepath).expect(&format!("Model successfully saved to {}", filepath));
+        let mut file =
+            File::create(filepath).unwrap_or_else(|_| panic!("Model successfully saved to {}", filepath));
         let _ = file.write_all(json_data.as_bytes());
 
         let _ = file.flush();
@@ -250,3 +246,5 @@ where
         self.epoch_vs_loss.clone()
     }
 }
+
+

@@ -21,6 +21,7 @@ pub mod nn;
 pub mod numeric;
 pub mod one_hot;
 pub mod tensor;
+pub mod utils;
 
 #[cfg(feature = "cuda")]
 mod cuda_tensor;

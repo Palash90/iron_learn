@@ -59,7 +59,7 @@ pub struct IronLearnArgs {
     #[arg(long, short, default_value = "false")]
     pub cpu: bool,
 
-    #[arg(long, short = 'x', default_value = "linear")]
+    #[arg(long, short = 'x', default_value = "neural-net")]
     pub mode: ExampleMode,
 
     #[arg(long, short, default_value = "false")]

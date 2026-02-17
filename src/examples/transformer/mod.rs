@@ -8,8 +8,10 @@ use crate::nn::types::{TrainingConfig, TrainingHook};
 use crate::numeric::FloatingPoint;
 use crate::one_hot::one_hot_encode;
 use crate::tensor::math::TensorMath;
+use crate::utils::get_current_lr;
 use crate::{NeuralNet, NeuralNetBuilder, Tensor};
 use std::io::Write;
+use std::os::unix::thread;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
 
@@ -52,71 +54,125 @@ where
     let (vocab, lines) = vocabulary::build_vocabulary(&context.data_path)?;
     println!("Vocab Size: {}", vocab.vocab_size);
 
-    let ((x_train, y_train), (x_val, y_val)): ((Vec<T>, Vec<T>), (Vec<T>, Vec<T>)) = prep_data(sequence_length, &vocab, lines)?;
+    let ((x_train, y_train), (x_val, y_val)): (
+        (Vec<Vec<u32>>, Vec<u32>),
+        (Vec<Vec<u32>>, Vec<u32>),
+    ) = prep_data(sequence_length, &vocab, lines)?;
 
-    let mut nn: NeuralNet<T, D> = build_model(context, sequence_length, &vocab, head_dim, num_heads);
+    let mut nn: NeuralNet<T, D> =
+        build_model(context, sequence_length, &vocab, head_dim, num_heads);
 
-    train(context, x_train, y_train, x_val, y_val, &mut nn)?;
+    if !context.predict_only {
+        train(
+            context,
+            (x_train, y_train),
+            (x_val, y_val),
+            &mut nn,
+            vocab.vocab_size,
+            sequence_length,
+        )?;
+    }
 
     generate_sequence(sequence_length, vocab, nn)?;
 
     Ok(())
 }
 
+// In mod.rs
 fn train<T, D>(
     context: &super::contexts::AppContext,
-    x_train: Vec<T>,
-    y_train: Vec<T>,
-    x_val: Vec<T>,
-    y_val: Vec<T>,
+    train_data: (Vec<Vec<u32>>, Vec<u32>),
+    val_data: (Vec<Vec<u32>>, Vec<u32>),
     nn: &mut NeuralNet<T, D>,
+    vocab_size: u32,
+    sequence_length: usize,
 ) -> Result<(), String>
 where
     T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
     D: FloatingPoint + 'static,
 {
-    let start_epoch = if context.restore { nn.get_current_epoch() } else { 0 };
+    let (x_train_raw, y_train_raw) = train_data;
+    let (x_val_raw, y_val_raw) = val_data;
+    let batch_size = 32; // Lowered from 64 to ensure safety on 4GB VRAM
+
+    let start_epoch = if context.restore {
+        nn.get_current_epoch()
+    } else {
+        0
+    };
     let total_epochs = context.epochs as usize;
 
-    if GLOBAL_CONTEXT.get().unwrap().predict_only { return Ok(()); }
-
     for epoch in start_epoch..total_epochs {
-        println!("Starting Epoch {}/{}", epoch + 1, total_epochs);
-        
-        // Track cumulative loss for the epoch
-        let mut epoch_loss = 0.0;
+        println!("\nStarting Epoch {}/{}", epoch + 1, total_epochs);
+        let epoch_start_time = Instant::now();
 
-        for i in 0..x_train.len() {
-            let val_idx = i % x_val.len();
+        let lr: D = get_current_lr(
+            D::from_f64(context.learning_rate),
+            context.lr_adjust,
+            D::from_f64(1e-6),
+            total_epochs,
+            epoch,
+        );
 
-            let config = TrainingConfig {
-                epochs: 1, 
-                epoch_offset: 0, // This tells the NN which epoch we are on
-                base_lr: D::from_f64(context.learning_rate),
-                lr_adjustment: context.lr_adjust,
-                weight_normalization: false,
-            };
+        for i in (0..y_train_raw.len()).step_by(batch_size) {
+            let end = (i + batch_size).min(y_train_raw.len());
+            if end - i < batch_size {
+                break;
+            }
+
+            // Create ONLY the current batch on the GPU
+            let x_batch_vec: Vec<D> = x_train_raw[i..end]
+                .iter()
+                .flatten()
+                .map(|&v| D::from_u32(v))
+                .collect();
+            let x_batch = T::new(vec![batch_size as u32, sequence_length as u32], x_batch_vec)
+                .map_err(|e| e.to_string())?;
+            let y_batch = one_hot_encode::<T, D>(&y_train_raw[i..end], vocab_size, 1)?;
+
+            // Use a single validation batch to keep memory low
+            let x_val_batch_vec: Vec<D> = x_val_raw[0..batch_size]
+                .iter()
+                .flatten()
+                .map(|&v| D::from_u32(v))
+                .collect();
+            let x_val = T::new(
+                vec![batch_size as u32, sequence_length as u32],
+                x_val_batch_vec,
+            )
+            .map_err(|e| e.to_string())?;
+            let y_val = one_hot_encode::<T, D>(&y_val_raw[0..batch_size], vocab_size, 1)?;
 
             nn.fit(
-                &x_train[i],
-                &y_train[i],
-                &x_val[val_idx],
-                &y_val[val_idx],
-                config,
-                TrainingHook::new(
-                    usize::MAX, // Disable internal fit logging to use our own
-                    |_, l, _, _, _| { /* empty */ },
-                ),
+                &x_batch,
+                &y_batch,
+                &x_val,
+                &y_val,
+                TrainingConfig {
+                    epochs: epoch,
+                    epoch_offset: epoch - 1,
+                    base_lr: lr,
+                    lr_adjustment: false, // Set to false since we're manually adjusting LR with get_current_lr
+                    weight_normalization: false,
+                },
+                TrainingHook::new(1, |_, err, err_val, _, _| {
+                    print!(
+                        "\tBatch: {}/{}, Loss: {err:.4} , Val Loss : {err_val:.4}",
+                        i / batch_size + 1,
+                        y_train_raw.len() / batch_size
+                    );
+
+                    std::thread::sleep(Duration::from_millis(context.sleep_time));
+                }),
             )?;
-            
-            // Log manually every 20 batches
-            if i % 20 == 0 || i == x_train.len() - 1 {
-                println!("Epoch {} | Batch {}/{} | Processing...", epoch + 1, i, x_train.len());
-            }
         }
 
-        println!("Completed Epoch {}. Saving checkpoint...", epoch + 1);
         nn.save_model(&context.weights_path);
+        println!(
+            "\nEpoch {} completed in {:.2} seconds",
+            epoch + 1,
+            epoch_start_time.elapsed().as_secs_f32()
+        );
     }
     Ok(())
 }
@@ -152,7 +208,7 @@ where
                 let idx = historical_idx as usize;
                 // Setting the logit to a massive negative number
                 // effectively "deletes" the word from the current options.
-                probs[idx] = D::from_f64(-100.0);
+                probs[idx] = probs[idx] * D::from_f64(0.5);
             }
         }
 
@@ -213,7 +269,7 @@ where
         let _ = std::io::stdout().flush();
         sleep(Duration::from_millis(100));
     }
-    println!("Result: {}", generated_words.join(" "));
+    println!();
     Ok(())
 }
 
@@ -222,7 +278,7 @@ fn build_model<T, D>(
     sequence_length: usize,
     vocab: &vocabulary::Vocabulary,
     head_dim: u32,
-    num_heads: u32
+    num_heads: u32,
 ) -> NeuralNet<T, D>
 where
     T: crate::tensor::Tensor<D> + crate::tensor::math::TensorMath<D, MathOutput = T> + 'static,
@@ -265,9 +321,7 @@ where
             &DistributionType::Xavier,
         );
 
-        let nn = builder.build(LossFunctionType::CategoricalCrossEntropy, "Transformer");
-
-        nn
+        builder.build(LossFunctionType::CategoricalCrossEntropy, "Transformer")
     } else {
         // First, load the model to check vocab size BEFORE building
         let model_for_check = deserialize_model::<D>(&context.weights_path).unwrap();
@@ -327,25 +381,20 @@ where
     nn
 }
 
-fn prep_data<T, D>(
+// In mod.rs
+fn prep_data(
     sequence_length: usize,
     vocab: &vocabulary::Vocabulary,
     lines: Vec<String>,
-) -> Result<((Vec<T>, Vec<T>), (Vec<T>, Vec<T>)), String> // Returns ((train_x, train_y), (test_x, test_y))
-where
-    T: Tensor<D> + TensorMath<D, MathOutput = T> + 'static,
-    D: FloatingPoint + 'static,
-{
-    let batch_size: usize = 64;
-    let train_ratio = 0.8; // 80% for training
-    
-    // 1. Collect all individual examples first
+) -> Result<((Vec<Vec<u32>>, Vec<u32>), (Vec<Vec<u32>>, Vec<u32>)), String> {
     let mut all_inputs: Vec<Vec<u32>> = Vec::new();
     let mut all_targets: Vec<u32> = Vec::new();
 
     for line in &lines {
         let mut tokens = tokenizer::tokenize(line);
-        if tokens.is_empty() { continue; }
+        if tokens.is_empty() {
+            continue;
+        }
         tokens.push("<END>".to_string());
 
         let mut window: Vec<u32> = vec![vocab.stoi["<PAD>"] as u32; sequence_length];
@@ -360,47 +409,14 @@ where
         }
     }
 
-    // 2. Split the raw data
-    let total_samples = all_targets.len();
-    let train_size = (total_samples as f64 * train_ratio) as usize;
+    let train_ratio = 0.8;
+    let train_size = (all_targets.len() as f64 * train_ratio) as usize;
 
-    // Split vectors
     let (train_in, test_in) = all_inputs.split_at(train_size);
     let (train_tar, test_tar) = all_targets.split_at(train_size);
 
-    // 3. Helper to batch tensors
-    let create_batches = |inputs: &[Vec<u32>], targets: &[u32]| -> Result<(Vec<T>, Vec<T>), String> {
-        let mut x_batches = Vec::new();
-        let mut y_batches = Vec::new();
-        
-        let num_batches = targets.len() / batch_size;
-        
-        for i in 0..num_batches {
-            let start = i * batch_size;
-            let end = start + batch_size;
-            
-            // Flatten the input windows for this batch
-            let batch_in_flat: Vec<D> = inputs[start..end]
-                .iter()
-                .flatten()
-                .map(|&val| D::from_u32(val))
-                .collect();
-
-            let x_batch = T::new(
-                vec![batch_size as u32, sequence_length as u32],
-                batch_in_flat,
-            ).map_err(|e| e.to_string())?;
-
-            let y_batch = one_hot_encode::<T, D>(&targets[start..end], vocab.vocab_size, 1)?;
-
-            x_batches.push(x_batch);
-            y_batches.push(y_batch);
-        }
-        Ok((x_batches, y_batches))
-    };
-
-    let train_data = create_batches(train_in, train_tar)?;
-    let test_data = create_batches(test_in, test_tar)?;
-
-    Ok((train_data, test_data))
+    Ok((
+        (train_in.to_vec(), train_tar.to_vec()),
+        (test_in.to_vec(), test_tar.to_vec()),
+    ))
 }

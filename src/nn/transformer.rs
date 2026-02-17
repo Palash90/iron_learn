@@ -246,7 +246,7 @@ where
 
     pub fn with_heads(name: &str, embed_dim: u32, num_heads: u32, dist: &DistributionType) -> Self {
         assert!(
-            embed_dim % num_heads == 0,
+            embed_dim.is_multiple_of(num_heads),
             "embed_dim {} must be divisible by num_heads {}",
             embed_dim,
             num_heads
@@ -281,7 +281,7 @@ where
         dist: &DistributionType,
     ) -> Self {
         assert!(
-            per_token_embed_dim % num_heads == 0,
+            per_token_embed_dim.is_multiple_of(num_heads),
             "per_token_embed_dim {} must be divisible by num_heads {}",
             per_token_embed_dim,
             num_heads
