@@ -1,4 +1,5 @@
 use super::layers::*;
+use crate::examples::contexts::GLOBAL_CONTEXT;
 use crate::nn::loss_functions::LossFunctionType;
 use crate::nn::transformer::CombinedEmbedding;
 use crate::nn::transformer::TransformerBlock;
@@ -9,7 +10,6 @@ use crate::tensor::math::TensorMath;
 use crate::NeuralNet;
 use crate::Tensor;
 use colored::Colorize;
-use crate::examples::contexts::GLOBAL_CONTEXT;
 
 /// Builder type for constructing `NeuralNet` instances via a fluent API.
 pub struct NeuralNetBuilder<T, D>
@@ -79,7 +79,7 @@ where
         distribution: &DistributionType,
     ) {
         let embed_dim = head_dim * num_heads;
-        
+
         self.add_embedding(vocab_size, seq_len, embed_dim, "embedding");
         self.add_transformer_with_seq(embed_dim, seq_len, num_heads, "transformer", distribution);
     }
@@ -96,7 +96,13 @@ where
         name: &str,
         distribution: &DistributionType,
     ) {
-        let layer = TransformerBlock::multihead_with_seq(name, per_token_embed_dim, seq_len, num_heads, distribution);
+        let layer = TransformerBlock::multihead_with_seq(
+            name,
+            per_token_embed_dim,
+            seq_len,
+            num_heads,
+            distribution,
+        );
         self.layers.push(Box::new(layer));
     }
 
@@ -258,10 +264,7 @@ where
                     layers.push(Box::new(layer));
                 }
                 LayerType::Embedding => {
-                    println!(
-                        "Building layer {} of type Embedding",
-                        layer_data.name
-                    );
+                    println!("Building layer {} of type Embedding", layer_data.name);
 
                     // For embedding layers, if we have weights and shape info, load them
                     // Otherwise create with random initialization
@@ -273,7 +276,7 @@ where
                             layer_data.shape[1],
                             &layer_data.name,
                         );
-                        
+
                         // Load saved word embeddings if available
                         if !layer_data.weights.is_empty() {
                             embedding.load_word_embeddings(layer_data.weights, layer_data.shape);

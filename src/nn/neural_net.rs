@@ -5,7 +5,6 @@ use crate::numeric::FloatingPoint;
 use crate::tensor::math::TensorMath;
 use crate::tensor::Tensor;
 use crate::utils::get_current_lr;
-use std::f64::consts::PI;
 
 use crate::nn::LayerData;
 use crate::nn::ModelData;
@@ -67,6 +66,11 @@ where
         self.current_epoch
     }
 
+    /// Set the current epoch (useful for resuming training)
+    pub fn set_current_epoch(&mut self, epoch: usize) {
+        self.current_epoch = epoch;
+    }
+
     /// Run a forward pass and return the network output for `input`.
     pub fn predict(&mut self, input: &T) -> Result<T, String> {
         let mut output = input.add(&T::zeroes(input.get_shape())).unwrap();
@@ -108,7 +112,13 @@ where
 
             self.current_epoch = i;
 
-            let current_lr = get_current_lr(config.base_lr, config.lr_adjustment, lr_min, total_timeline, global_i);
+            let current_lr = get_current_lr(
+                config.base_lr,
+                config.lr_adjustment,
+                lr_min,
+                total_timeline,
+                global_i,
+            );
 
             self.current_lr = current_lr;
 
@@ -225,8 +235,8 @@ where
             fs::create_dir_all(parent).unwrap(); // Creates all directories if they don't exist
         }
 
-        let mut file =
-            File::create(filepath).unwrap_or_else(|_| panic!("Model successfully saved to {}", filepath));
+        let mut file = File::create(filepath)
+            .unwrap_or_else(|_| panic!("Model successfully saved to {}", filepath));
         let _ = file.write_all(json_data.as_bytes());
 
         let _ = file.flush();
@@ -246,5 +256,3 @@ where
         self.epoch_vs_loss.clone()
     }
 }
-
-

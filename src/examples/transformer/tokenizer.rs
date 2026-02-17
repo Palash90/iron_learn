@@ -1,16 +1,6 @@
-use regex::Regex;
+use unicode_segmentation::UnicodeSegmentation;
 
-pub fn tokenize(text: &str) -> Vec<String> {
-    // We initialize the Regex inside, or use 'once_cell' for performance later
-    let re = Regex::new(r"[\w']+|[.,!?;()]").unwrap();
-    
-    let sanitized = text
-        .to_lowercase()
-        .replace(['“', '”'], "\"")
-        .replace(['‘', '’'], "'")
-        .replace('—', " ");
-
-    re.captures_iter(&sanitized)
-        .map(|cap| cap[0].to_string())
-        .collect()
+pub fn tokenize_graphemes(text: &str) -> Vec<String> {
+    // true = use extended grapheme clusters
+    text.graphemes(true).map(|s| s.to_string()).collect()
 }

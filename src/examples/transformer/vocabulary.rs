@@ -1,7 +1,7 @@
+use super::tokenizer;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use super::tokenizer;
 
 pub struct Vocabulary {
     pub stoi: HashMap<String, usize>,
@@ -19,7 +19,7 @@ pub fn build_vocabulary(data_path: &str) -> Result<(Vocabulary, Vec<String>), St
     words.insert("<END>".to_string());
 
     for line in &lines {
-        for token in tokenizer::tokenize(line) {
+        for token in tokenizer::tokenize_graphemes(line) {
             words.insert(token);
         }
     }
@@ -33,12 +33,19 @@ pub fn build_vocabulary(data_path: &str) -> Result<(Vocabulary, Vec<String>), St
         .enumerate()
         .map(|(i, w)| (w.clone(), i))
         .collect();
-    
+
     let itos: HashMap<usize, String> = words_vec
         .iter()
         .enumerate()
         .map(|(i, w)| (i, w.clone()))
         .collect();
 
-    Ok((Vocabulary { stoi, itos, vocab_size }, lines))
+    Ok((
+        Vocabulary {
+            stoi,
+            itos,
+            vocab_size,
+        },
+        lines,
+    ))
 }

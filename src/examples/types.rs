@@ -46,7 +46,7 @@ pub enum ExampleMode {
     /// N Gram Generator
     NGram,
     /// Transformer Generator
-    Transformer
+    Transformer,
 }
 
 #[derive(Parser)]

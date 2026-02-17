@@ -11,29 +11,35 @@ use crate::tensor::math::TensorMath;
 use crate::utils::get_current_lr;
 use crate::{NeuralNet, NeuralNetBuilder, Tensor};
 use std::io::Write;
-use std::os::unix::thread;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
 
 mod tokenizer;
 mod vocabulary;
 
+/// Represents a set of sequences and their corresponding target labels.
+type Dataset = (Vec<Vec<u32>>, Vec<u32>);
+
+/// A combined structure containing both Training and Validation data.
+type SplitData = (Dataset, Dataset);
+
 fn sample_with_temperature(probs: Vec<f32>, temp: f32) -> usize {
     let mut rng = rand::rng();
+    let eps = 1e-10f32;
 
-    // 1. Rescale probabilities using temperature
-    let rescaled: Vec<f32> = probs.iter().map(|p| (p.ln() / temp).exp()).collect();
+    // Softmax with temperature: exp(log(p) / T)
+    let rescaled: Vec<f32> = probs.iter()
+        .map(|&p| ((p + eps).ln() / temp).exp())
+        .collect();
 
     let sum: f32 = rescaled.iter().sum();
-    let r: f32 = rng.random_range(0.0..sum);
+    if sum <= 0.0 { return 0; }
 
-    // 2. Weighted Random Selection
+    let r: f32 = rng.random_range(0.0..sum);
     let mut acc = 0.0;
-    for (i, p) in rescaled.iter().enumerate() {
+    for (i, &p) in rescaled.iter().enumerate() {
         acc += p;
-        if acc >= r {
-            return i;
-        }
+        if acc >= r { return i; }
     }
     probs.len() - 1
 }
@@ -43,7 +49,7 @@ where
     T: crate::tensor::Tensor<D> + crate::tensor::math::TensorMath<D, MathOutput = T> + 'static,
     D: crate::numeric::FloatingPoint + 'static,
 {
-    let head_dim = 16;
+    let head_dim = 4;
     let num_heads = 4;
 
     let context = GLOBAL_CONTEXT
@@ -54,10 +60,8 @@ where
     let (vocab, lines) = vocabulary::build_vocabulary(&context.data_path)?;
     println!("Vocab Size: {}", vocab.vocab_size);
 
-    let ((x_train, y_train), (x_val, y_val)): (
-        (Vec<Vec<u32>>, Vec<u32>),
-        (Vec<Vec<u32>>, Vec<u32>),
-    ) = prep_data(sequence_length, &vocab, lines)?;
+    let ((x_train, y_train), (x_val, y_val)): SplitData =
+        prep_data(sequence_length, &vocab, lines)?;
 
     let mut nn: NeuralNet<T, D> =
         build_model(context, sequence_length, &vocab, head_dim, num_heads);
@@ -149,8 +153,8 @@ where
                 &x_val,
                 &y_val,
                 TrainingConfig {
-                    epochs: epoch,
-                    epoch_offset: epoch - 1,
+                    epochs: 1,
+                    epoch_offset: 0,
                     base_lr: lr,
                     lr_adjustment: false, // Set to false since we're manually adjusting LR with get_current_lr
                     weight_normalization: false,
@@ -167,9 +171,11 @@ where
             )?;
         }
 
+        nn.set_current_epoch(epoch + 1);
+        println!();
         nn.save_model(&context.weights_path);
         println!(
-            "\nEpoch {} completed in {:.2} seconds",
+            "Epoch {} completed in {:.2} seconds",
             epoch + 1,
             epoch_start_time.elapsed().as_secs_f32()
         );
@@ -186,10 +192,26 @@ where
     T: crate::tensor::Tensor<D> + crate::tensor::math::TensorMath<D, MathOutput = T> + 'static,
     D: crate::numeric::FloatingPoint + 'static,
 {
-    println!("\nGenerating text...");
+    let context = GLOBAL_CONTEXT.get().ok_or("GLOBAL_CONTEXT not initialized")?;
+    let seed_text = &context.n_gram_seed; 
+    
+    println!("\nGenerating text starting with seed: \"{}\"", seed_text);
+
+    // 1. Initialize window with <PAD>
     let mut current_window_indices = vec![vocab.stoi["<PAD>"] as u32; sequence_length];
+
+    // 2. Tokenize the seed and slide it into the window
+    // We use the same grapheme tokenizer used in training
+    let seed_tokens = tokenizer::tokenize_graphemes(seed_text);
+    for token in seed_tokens {
+        if let Some(&idx) = vocab.stoi.get(&token) {
+            current_window_indices.remove(0);
+            current_window_indices.push(idx as u32);
+        }
+    }
+
     let mut generated_words = Vec::new();
-    let penalty_factor = 1.2;
+    
     loop {
         let input_tensor = T::new(
             vec![1, sequence_length as u32],
@@ -201,78 +223,69 @@ where
         .map_err(|e| format!("Failed to create input tensor: {}", e))?;
 
         let prediction = nn.predict(&input_tensor)?;
-        let mut probs = prediction.get_data();
+        let mut logits = prediction.get_data();
 
+        // --- FIXED REPETITION PENALTY ---
+        // We subtract from the raw logit. If we multiply a negative number 
+        // by 0.5, it becomes LARGER (closer to zero), making it MORE likely.
+        // Subtraction is a safer way to "push down" specific indices.
+        let penalty_value = D::from_f64(2.0); 
         for word_str in &generated_words {
             if let Some(&historical_idx) = vocab.stoi.get(word_str) {
-                let idx = historical_idx as usize;
-                // Setting the logit to a massive negative number
-                // effectively "deletes" the word from the current options.
-                probs[idx] = probs[idx] * D::from_f64(0.5);
+                logits[historical_idx] = logits[historical_idx] - penalty_value;
             }
         }
 
-        // for word_str in &generated_words {
-        //     if let Some(&historical_idx) = vocab.stoi.get(word_str) {
-        //         let idx = historical_idx as usize;
-        //         let global_penalty = D::from_f64(2.0); // Increased from 1.2 to 2.0 to break the loop
-
-        //         if probs[idx] > D::from_f64(0.0) {
-        //             probs[idx] = probs[idx] / global_penalty;
-        //         } else {
-        //             probs[idx] = probs[idx] * global_penalty;
-        //         }
-        //     }
-        // }
-
         // 3. Apply Temperature Sampling
-        let temp_f64 = 1.0; // Lowered slightly since penalty adds its own diversity
+        let temp_f64 = context.temparature.max(0.1); // Use context temp
         let temperature = D::from_f64(temp_f64);
 
-        let adjusted_probs: Vec<f32> = probs
+        let adjusted_probs: Vec<f32> = logits
             .iter()
             .map(|&p| {
-                let epsilon = D::from_f64(1e-10);
-                let safe_p = if p < epsilon { epsilon } else { p };
-                (safe_p.ln() / temperature).exp().f32()
+                // Softmax: exp(logit / T)
+                (p / temperature).exp().f32()
             })
             .collect();
 
         // --- TOP-K FILTER ---
-        let k = 5; // Only consider the top 20 most likely words
+        let k = 5; 
         let mut indexed: Vec<(usize, f32)> = adjusted_probs
             .iter()
             .enumerate()
             .map(|(i, &p)| (i, p))
             .collect();
-        indexed.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        indexed.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
 
         let mut filtered_probs = vec![0.0f32; vocab.vocab_size as usize];
-        for i in 0..k {
-            let (idx, val) = indexed[i];
+        let mut sum = 0.0;
+        for i in indexed.iter().take(k) {
+            let (idx, val) = *i;
             filtered_probs[idx] = val;
+            sum += val;
         }
 
         let next_idx = sample_with_temperature(filtered_probs, temp_f64 as f32);
-
         let next_word = vocab.itos.get(&next_idx).ok_or("Index not in vocab")?;
 
-        if next_word == "<END>" || generated_words.len() > 100 {
+        if next_word == "<END>" || generated_words.len() > 200 {
             break;
         }
 
         generated_words.push(next_word.clone());
+        
+        // Slide the window for the next prediction
         current_window_indices.remove(0);
         current_window_indices.push(next_idx as u32);
 
-        print!("\r{}", generated_words.join(" "));
+        // Print the seed + generated text
+        print!("\r{}{}", seed_text, generated_words.join(""));
         let _ = std::io::stdout().flush();
-        sleep(Duration::from_millis(100));
+        sleep(Duration::from_millis(50));
     }
     println!();
     Ok(())
 }
-
 fn build_model<T, D>(
     context: &super::contexts::AppContext,
     sequence_length: usize,
@@ -285,7 +298,7 @@ where
     D: crate::numeric::FloatingPoint + 'static,
 {
     // --- 3. BUILD MODEL ---
-    let mut nn = if !context.restore {
+    let nn = if !context.restore {
         let mut builder = NeuralNetBuilder::new();
 
         // Adaptive sizing based on vocabulary size
@@ -386,12 +399,12 @@ fn prep_data(
     sequence_length: usize,
     vocab: &vocabulary::Vocabulary,
     lines: Vec<String>,
-) -> Result<((Vec<Vec<u32>>, Vec<u32>), (Vec<Vec<u32>>, Vec<u32>)), String> {
+) -> Result<SplitData, String> {
     let mut all_inputs: Vec<Vec<u32>> = Vec::new();
     let mut all_targets: Vec<u32> = Vec::new();
 
     for line in &lines {
-        let mut tokens = tokenizer::tokenize(line);
+        let mut tokens = tokenizer::tokenize_graphemes(line);
         if tokens.is_empty() {
             continue;
         }

@@ -261,8 +261,7 @@ impl<T: Numeric> CpuTensor<T> {
 
         let mut data = vec![T::zero(); rows * cols];
 
-
-         // The core optimization: IKJ order with Iterators
+        // The core optimization: IKJ order with Iterators
         for (i, a_row) in self.data.chunks_exact(common_dim).enumerate() {
             let out_row_start = i * cols;
             let out_row = &mut data[out_row_start..out_row_start + cols];

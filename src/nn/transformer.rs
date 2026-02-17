@@ -89,7 +89,7 @@ where
 
         let indices = input.get_data();
         let word_w = self.word_weights.get_data(); // Length: vocab * 128
-        
+
         let d = self.embed_dim as usize;
         let shape = input.get_shape();
         let num_examples = shape[0] as usize;
@@ -102,11 +102,11 @@ where
             let s = input_seq_len;
             let pos_count = s * d;
             let mut pos_data = Vec::with_capacity(pos_count);
-            
+
             // Reuse existing position embeddings if they're smaller, pad with new random ones
             let existing_pos = self.pos_weights.get_data();
             let existing_seq_len = self.seq_len as usize;
-            
+
             for pos_idx in 0..s {
                 for embed_idx in 0..d {
                     let value = if pos_idx < existing_seq_len {
@@ -119,11 +119,11 @@ where
                     pos_data.push(value);
                 }
             }
-            
+
             self.pos_weights = T::new(vec![input_seq_len as u32, self.embed_dim], pos_data)?;
             self.seq_len = input_seq_len as u32;
         }
-        
+
         let pos_w = self.pos_weights.get_data(); // Length: input_seq_len * 128
 
         let mut output_data = Vec::with_capacity(num_examples * input_seq_len * d);
@@ -145,7 +145,10 @@ where
             }
         }
 
-        T::new(vec![num_examples as u32, (input_seq_len * d) as u32], output_data)
+        T::new(
+            vec![num_examples as u32, (input_seq_len * d) as u32],
+            output_data,
+        )
     }
 
     fn backward(&mut self, output_error: &T, lr: D, _norm: bool) -> Result<T, String> {
@@ -229,8 +232,7 @@ where
     // Feed Forward Network
     ff1: LinearLayer<T, D>,
     ff2: LinearLayer<T, D>,
-    total_embed_dim: u32,  // Total flattened dimension (seq_len * per_token_embed)
-    per_token_embed_dim: u32,  // Per-token embedding dimension
+    per_token_embed_dim: u32, // Per-token embedding dimension
     num_heads: u32,
     head_dim: u32,
 }
@@ -262,8 +264,7 @@ where
             output_proj: LinearLayer::new(embed_dim, embed_dim, "out", dist).unwrap(),
             ff1: LinearLayer::new(embed_dim, embed_dim * 4, "ff1", dist).unwrap(),
             ff2: LinearLayer::new(embed_dim * 4, embed_dim, "ff2", dist).unwrap(),
-            total_embed_dim: embed_dim,
-            per_token_embed_dim: embed_dim,  // For backward compat, assume no sequence
+            per_token_embed_dim: embed_dim, // For backward compat, assume no sequence
             num_heads,
             head_dim,
         }
@@ -288,12 +289,12 @@ where
         );
         let total_embed_dim = per_token_embed_dim * seq_len;
         let head_dim = per_token_embed_dim / num_heads;
-        
+
         // Calculate parameter counts for display
         let qkv_params = (total_embed_dim * total_embed_dim) as u64 * 3; // Q, K, V projections
-        let out_params = (total_embed_dim * total_embed_dim) as u64;      // Output projection
-        let ff1_params = (total_embed_dim * total_embed_dim * 4) as u64;  // Feed forward expansion
-        let ff2_params = (total_embed_dim * 4 * total_embed_dim) as u64;  // Feed forward compression
+        let out_params = (total_embed_dim * total_embed_dim) as u64; // Output projection
+        let ff1_params = (total_embed_dim * total_embed_dim * 4) as u64; // Feed forward expansion
+        let ff2_params = (total_embed_dim * 4 * total_embed_dim) as u64; // Feed forward compression
         let total_params = qkv_params + out_params + ff1_params + ff2_params;
 
         println!(
@@ -306,31 +307,40 @@ where
         );
         println!(
             "    │  ├─ Q projection:   [{}, {}] = {} params",
-            total_embed_dim, total_embed_dim, total_embed_dim * total_embed_dim
+            total_embed_dim,
+            total_embed_dim,
+            total_embed_dim * total_embed_dim
         );
         println!(
             "    │  ├─ K projection:   [{}, {}] = {} params",
-            total_embed_dim, total_embed_dim, total_embed_dim * total_embed_dim
+            total_embed_dim,
+            total_embed_dim,
+            total_embed_dim * total_embed_dim
         );
         println!(
             "    │  ├─ V projection:   [{}, {}] = {} params",
-            total_embed_dim, total_embed_dim, total_embed_dim * total_embed_dim
+            total_embed_dim,
+            total_embed_dim,
+            total_embed_dim * total_embed_dim
         );
         println!(
             "    │  └─ Out projection: [{}, {}] = {} params",
             total_embed_dim, total_embed_dim, out_params
         );
-        println!(
-            "    └─ Feed Forward Network");
+        println!("    └─ Feed Forward Network");
         println!(
             "       ├─ FF1 (expand):    [{}, {}] = {} params",
-            total_embed_dim, total_embed_dim * 4, ff1_params
+            total_embed_dim,
+            total_embed_dim * 4,
+            ff1_params
         );
         println!(
             "       └─ FF2 (compress):  [{}, {}] = {} params",
-            total_embed_dim * 4, total_embed_dim, ff2_params
+            total_embed_dim * 4,
+            total_embed_dim,
+            ff2_params
         );
-        
+
         Self {
             name: name.to_string(),
             layer_type: LayerType::Transformer,
@@ -341,7 +351,6 @@ where
             output_proj: LinearLayer::new(total_embed_dim, total_embed_dim, "out", dist).unwrap(),
             ff1: LinearLayer::new(total_embed_dim, total_embed_dim * 4, "ff1", dist).unwrap(),
             ff2: LinearLayer::new(total_embed_dim * 4, total_embed_dim, "ff2", dist).unwrap(),
-            total_embed_dim,
             per_token_embed_dim,
             num_heads,
             head_dim,
@@ -364,14 +373,13 @@ where
     fn forward(&mut self, input: &T, is_training: bool) -> Result<T, String> {
         // --- 1. Multi-Head Self Attention ---
         let q = self.query.forward(input, is_training)?; // [batch, total_embed_dim]
-        let k = self.key.forward(input, is_training)?;   // [batch, total_embed_dim]
+        let k = self.key.forward(input, is_training)?; // [batch, total_embed_dim]
         let v = self.value.forward(input, is_training)?; // [batch, total_embed_dim]
 
         // Process input dimensions
         let batch_shape = q.get_shape();
         let batch_size = batch_shape[0] as usize;
         let total_dim = batch_shape[1] as usize; // This is total_embed_dim (flattened)
-        let total_embed_dim = self.total_embed_dim as usize;
         let per_token_embed_dim = self.per_token_embed_dim as usize;
         let seq_len = total_dim / per_token_embed_dim; // Compute actual sequence length
         let num_heads = self.num_heads as usize;
@@ -413,15 +421,18 @@ where
                     .map_err(|e| format!("Failed to create V head: {}", e))?;
 
                 // Attention Score = Softmax( (Q @ K.T) / sqrt(head_dim) )
-                let mut scores = q_h.matmul(&k_h.t()?)
+                let mut scores = q_h
+                    .matmul(&k_h.t()?)
                     .map_err(|e| format!("Failed matmul Q@K.T: {}", e))?;
                 let scale = D::from_f64(1.0 / (head_dim as f64).sqrt());
-                scores = scores.scale(scale)
+                scores = scores
+                    .scale(scale)
                     .map_err(|e| format!("Failed to scale scores: {}", e))?;
 
-                let attn_weights = softmax(&scores)
-                    .map_err(|e| format!("Failed softmax: {}", e))?;
-                let context = attn_weights.matmul(&v_h)
+                let attn_weights =
+                    softmax(&scores).map_err(|e| format!("Failed softmax: {}", e))?;
+                let context = attn_weights
+                    .matmul(&v_h)
                     .map_err(|e| format!("Failed attention context: {}", e))?;
 
                 // Write attention output for this head directly to final position
@@ -485,10 +496,15 @@ where
         d_post_attn.add(&d_q)?.add(&d_k)?.add(&d_v)
     }
 
-    fn get_parameters(&self) -> Option<T> {        
+    fn get_parameters(&self) -> Option<T> {
         // Return tensor with per-token embedding dimension for display
         let embed = D::from_u32(self.per_token_embed_dim);
-        Some(T::new(vec![self.per_token_embed_dim, self.per_token_embed_dim], 
-            vec![embed; (self.per_token_embed_dim * self.per_token_embed_dim) as usize]).unwrap())
+        Some(
+            T::new(
+                vec![self.per_token_embed_dim, self.per_token_embed_dim],
+                vec![embed; (self.per_token_embed_dim * self.per_token_embed_dim) as usize],
+            )
+            .unwrap(),
+        )
     }
 }
