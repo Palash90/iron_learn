@@ -49,8 +49,8 @@ where
     T: crate::tensor::Tensor<D> + crate::tensor::math::TensorMath<D, MathOutput = T> + 'static,
     D: crate::numeric::FloatingPoint + 'static,
 {
-    let head_dim = 1;
-    let num_heads = 2;
+    let head_dim = 4;
+    let num_heads = 8;
 
     let context = GLOBAL_CONTEXT
         .get()
@@ -258,11 +258,9 @@ where
         indexed.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
 
         let mut filtered_probs = vec![0.0f32; vocab.vocab_size as usize];
-        let mut sum = 0.0;
         for i in indexed.iter().take(k) {
             let (idx, val) = *i;
             filtered_probs[idx] = val;
-            sum += val;
         }
 
         let next_idx = sample_with_temperature(filtered_probs, temp_f64 as f32);
