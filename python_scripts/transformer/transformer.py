@@ -3,6 +3,7 @@ from simple_layers import Linear, ReLU, Softmax
 
 try:
     np.cuda.Device(0).use()
+    print("GPU found and will be used for training.")
 except Exception as e:
     print(f"GPU not found or error: {e}")
 
@@ -37,7 +38,25 @@ class PositionalEncoding:
         seq_len = grad_output.shape[0]
         self.weight[:seq_len] -= learning_rate * grad_output
         return grad_output
+class Dropout:
+    def __init__(self, p=0.1):
+        self.p = p
+        self.mask = None
 
+    def forward(self, x, training=True):
+        if not training or self.p == 0:
+            return x
+        # Create a mask of 1s and 0s. 
+        # (1-p) is the probability of keeping the neuron active.
+        self.mask = (np.random.rand(*x.shape) > self.p)
+        # Scale the output by 1/(1-p) so the expected value remains the same
+        return (x * self.mask) / (1.0 - self.p)
+
+    def backward(self, grad_output):
+        if self.mask is None:
+            return grad_output
+        return (grad_output * self.mask) / (1.0 - self.p)
+    
 class Attention:
     def __init__(self, d_model, num_heads):
         assert d_model % num_heads == 0, "d_model must be divisible by num_heads"
@@ -268,12 +287,15 @@ class LayerNorm:
         return grad_input
 
 class Transformer:
-    def __init__(self, vocab_size, d_model, num_heads, d_ff, sequence_length):
+    def __init__(self, vocab_size, d_model, num_heads, d_ff, sequence_length, dropout_p=0.1):
         self.vocab_size = vocab_size
         self.d_model = d_model
         self.embedding = Embedding(vocab_size, d_model)
         self.positional_encoding = PositionalEncoding(d_model, sequence_length)
+        self.emb_dropout = Dropout(dropout_p)
         self.attention = Attention(d_model, num_heads)
+        self.dropout1 = Dropout(dropout_p)
+        self.dropout2 = Dropout(dropout_p)
         self.feed_forward = FeedForward(d_model, d_ff)
         self.residual1 = ResidualConnection()
         self.norm1 = LayerNorm(d_model)
@@ -282,21 +304,24 @@ class Transformer:
         # Output projection: d_model -> vocab_size
         self.output_projection = Linear(d_model, vocab_size)
 
-    def forward(self, x):
+    def forward(self, x, training=True):
         assert x.ndim == 1, "Input should be a 1D array of token indices"
         # Embedding + Positional Encoding
         x = self.embedding.forward(x)
         x = self.positional_encoding.forward(x)
+        x = self.emb_dropout.forward(x, training=training)
         self.pos_encoded = x
 
         # Attention block with residual and normaliation
         attn_output = self.attention.forward(x)
+        attn_output = self.dropout1.forward(attn_output, training=training)
         x = self.residual1.forward(x, attn_output)
         x = self.norm1.forward(x)
         self.after_norm1 = x
 
         # Feed-forward block with residual and normalization
         ff_output = self.feed_forward.forward(x)
+        ff_output = self.dropout2.forward(ff_output, training=training)
         x = self.residual2.forward(x, ff_output)
         x = self.norm2.forward(x)
         self.after_norm2 = x
@@ -314,6 +339,8 @@ class Transformer:
         
         # Split gradient through residual2 connection
         grad_x_before_ff, grad_ff_output = self.residual2.backward(grad_residual2_input)
+
+        grad_ff_output = self.dropout2.backward(grad_ff_output)
         
         # Backward through feed-forward block
         grad_after_norm1 = self.feed_forward.backward(grad_ff_output, learning_rate)
@@ -326,6 +353,8 @@ class Transformer:
         
         # Split gradient through residual1 connection
         grad_pos_encoded, grad_attention_output = self.residual1.backward(grad_residual1_input)
+
+        grad_attention_output = self.dropout1.backward(grad_attention_output)
         
         # Backward through attention block
         grad_attention_input = self.attention.backward(grad_attention_output, learning_rate)
@@ -335,6 +364,8 @@ class Transformer:
         
         # Backward through positional encoding
         grad_embedding_output = self.positional_encoding.backward(grad_attention_input, learning_rate)
+
+        grad_embedding_output = self.emb_dropout.backward(grad_embedding_output)
         
         # Backward through embedding (no gradient returned, just weight updates)
         self.embedding.backward(grad_embedding_output, learning_rate)

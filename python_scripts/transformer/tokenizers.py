@@ -7,6 +7,7 @@ from simple_layers import Softmax, CrossEntropyLoss
 
 try:
     np.cuda.Device(0).use()
+    print("GPU found and will be used for training.")
 except Exception as e:
     print(f"GPU not found or error: {e}")
 
@@ -57,14 +58,36 @@ class CorpusTokenizer:
     
 class CharTokenizer:
     def __init__(self, text):
-        self.chars = sorted(list(set(text)))
-        self.vocab_size = len(self.chars)
-        self.char_to_int = {ch: i for i, ch in enumerate(self.chars)}
-        self.int_to_char = {i: ch for i, ch in enumerate(self.chars)}
+        # 1. Define special tokens first to reserve IDs 0, 1, 2
+        self.special_tokens = ["<PAD>", "<SOS>", "<EOS>"]
+        self.pad_id = 0
+        self.sos_id = 1
+        self.eos_id = 2
+        
+        # 2. Get unique characters from text
+        unique_chars = sorted(list(set(text)))
+        
+        # 3. Build maps including specials
+        self.char_to_id = {tok: i for i, tok in enumerate(self.special_tokens)}
+        for i, ch in enumerate(unique_chars):
+            self.char_to_id[ch] = i + len(self.special_tokens)
+            
+        self.id_to_char = {v: k for k, v in self.char_to_id.items()}
+        self.vocab_size = len(self.char_to_id)
 
-    def encode(self, text):
-        return np.array([self.char_to_int[ch] for ch in text], dtype=np.int32)
+    def encode_sentence(self, text, seq_len):
+        # Use the actual pad_id instead of hardcoded 0
+        indices = [self.char_to_id[ch] for ch in text if ch in self.char_to_id]
+        
+        if len(indices) < seq_len:
+            indices += [self.pad_id] * (seq_len - len(indices))
+        else:
+            indices = indices[:seq_len]
+        return np.array(indices, dtype=np.int32)
 
     def decode(self, indices):
-        if hasattr(indices, 'get'): indices = indices.get()
-        return "".join([self.int_to_char[int(i)] for i in indices])
+        if hasattr(indices, 'get'): 
+            indices = indices.get()
+        
+        # Filter out special tokens during decoding for cleaner text
+        return "".join([self.id_to_char[int(i)] for i in indices if int(i) > 2])

@@ -10,6 +10,7 @@ from tokenizers import CorpusTokenizer  # Using your word-level version
 
 try:
     np.cuda.Device(0).use()
+    print("GPU found and will be used for training.")
 except Exception as e:
     print(f"GPU not found or error: {e}")
 
@@ -82,7 +83,7 @@ def load_tokenizer():
         print(f"Error loading tokenizer: {e}")
         return None
 
-def generate_sentence(model, tokenizer, start_text, gen_length, k=5, temperature=1.0):
+def generate_sentence(model, tokenizer, start_text, gen_length, k=5, temperature=1.0, training=False):
     # Prepare the initial tokens (Words, not characters)
     words = start_text.split()
     # If starting fresh, you could use [tokenizer.sos_id]
@@ -100,7 +101,7 @@ def generate_sentence(model, tokenizer, start_text, gen_length, k=5, temperature
         if len(curr_input) > model.positional_encoding.sequence_length:
             curr_input = curr_input[-model.positional_encoding.sequence_length:]
             
-        logits = model.forward(curr_input)[-1, :]
+        logits = model.forward(curr_input, training=training)[-1, :]
         logits = logits / (temperature + 1e-9)
         
         # Top-k sampling
@@ -125,7 +126,7 @@ def generate_sentence(model, tokenizer, start_text, gen_length, k=5, temperature
             
         input_tokens = np.append(input_tokens, np.array([chosen_index], dtype=np.int32))
             
-    return " ".join(generated_words)
+    return " ".join(generated_words) + "\n"
 
 # --- Main Logic ---
 
@@ -148,7 +149,7 @@ def main():
         return
 
     # 1. Load Data
-    with open('../../data/sentences.txt', 'r') as f:
+    with open('../../data/tiny.txt', 'r') as f:
         raw_corpus = f.read()
 
     # 2. Setup Tokenizer
@@ -164,18 +165,19 @@ def main():
         save_tokenizer(tokenizer)
 
     # 3. Model Hyperparameters
-    d_model = 256    # Increased for word embeddings
+    d_model = 128    # Increased for word embeddings
     num_heads = 8
     d_ff = 512
-    seq_len = 32     # 32 words is a lot of context for a sentence
-    learning_rate = 0.05
-    epochs = 10000
+    seq_len = 128
+    learning_rate = 0.001
+    epochs = 111
     start_epoch = 0
+    dropout_p = 0.1
 
     # Initialize or load model
     if args.train:
         print("=== TRAINING MODE ===")
-        model = Transformer(tokenizer.vocab_size, d_model, num_heads, d_ff, seq_len)
+        model = Transformer(tokenizer.vocab_size, d_model, num_heads, d_ff, seq_len, dropout_p)
         loss_fn = CrossEntropyLoss()
         softmax_layer = Softmax()
         
@@ -184,13 +186,13 @@ def main():
         checkpoint = load_checkpoint()
         if checkpoint is None:
             print("No checkpoint found. Starting fresh training...")
-            model = Transformer(tokenizer.vocab_size, d_model, num_heads, d_ff, seq_len)
+            model = Transformer(tokenizer.vocab_size, d_model, num_heads, d_ff, seq_len, dropout_p)
             loss_fn = CrossEntropyLoss()
             softmax_layer = Softmax()
         else:
             model = checkpoint['model_state']
             start_epoch = checkpoint['epoch'] + 1
-            learning_rate = checkpoint['learning_rate'] * 0.99  # Adjust learning rate for resumed training
+            learning_rate = checkpoint['learning_rate'] * 0.995  # Adjust learning rate for resumed training
             loss_fn = CrossEntropyLoss()
             softmax_layer = Softmax()
             print(f"Resuming from epoch {start_epoch} with learning rate {learning_rate:.6f}")
@@ -203,33 +205,45 @@ def main():
             print("Error: Cannot load model or tokenizer. Make sure to train first with --train or --resume")
             return
         
-        # Generate text in inference mode
-        print("\n--- Generated Text ---")
-        print(generate_sentence(model, tokenizer, "Artificial intelligence", 20, k=5))
-        print(generate_sentence(model, tokenizer, "The", 15, k=5))
-        print(generate_sentence(model, tokenizer, "Machine learning", 15, k=5))
+        k = 20
+        temp = 0.8
+        gen_length = 16
+        sample = 20
+
+        print(f"Generating {sample} tokens with k={k}, temperature={temp}, and gen_length={gen_length}:\n")
+
+        for i in range(sample):
+            print(f"\n--- Generated Text #{i+1} ---")
+            #print(generate_sentence(model, tokenizer, "Artificial intelligence", gen_lenth, temperature=temp, k=k))
+            #print(generate_sentence(model, tokenizer, "The", gen_lenth, temperature=temp, k=20))
+            #print(generate_sentence(model, tokenizer, "Machine learning", gen_lenth, temperature=temp, k=3))
+            print(generate_sentence(model, tokenizer, "<SOS>", gen_length, temperature=temp, k=k))
+        
         return
 
     # 4. Training (skip for load mode)
     if args.train or args.resume:
-        # We extract lines to train on structured sentences
+        print("D_Model:", d_model, "Num Heads:", num_heads, "D_FF:", d_ff, "Seq Len:", seq_len)
+
         lines = [line.strip() for line in raw_corpus.splitlines() if line.strip()]
 
-        print(f"Starting training on {len(lines)} sentences. Vocab size: {tokenizer.vocab_size}")
+        split_point = int(len(lines) * 0.2)
+        trainining_lines = lines[split_point:]
+        validation_lines = lines[:split_point]
+        
+        print(f"Starting training on {len(trainining_lines)} sentences, keeping {len(validation_lines)} for validation. Vocab size: {tokenizer.vocab_size}")
         print(f"Starting from epoch {start_epoch}")
 
         t0 = time.time()
         for epoch in range(start_epoch, epochs):
-            learning_rate *= 0.99  # Decay learning rate
+            learning_rate *= 0.995  # Decay learning rate
             learning_rate = max(learning_rate, 1e-5)  # Minimum learning rate
             total_loss = 0
             count = 0
             
-            onp.random.shuffle(lines) # Shuffle sentences each epoch
+            onp.random.shuffle(trainining_lines) # Shuffle sentences each epoch
 
-            
-            
-            for line in lines:
+            for line in trainining_lines:
                 # Encode with SOS/EOS and Padding
                 tokens = tokenizer.encode_sentence(line, seq_len + 1)
                 
@@ -238,7 +252,7 @@ def main():
                 targets = tokens[1:]
                 
                 # Forward pass
-                logits = model.forward(inputs)
+                logits = model.forward(inputs, training=True)
                 probs = softmax_layer.forward(logits)
                 
                 # Backward pass
@@ -246,27 +260,41 @@ def main():
                 total_loss += loss
                 
                 grad = loss_fn.backward()
-                grad = softmax_layer.backward(grad)
+                #grad = softmax_layer.backward(grad)
                 model.backward(grad, learning_rate)
                 
                 count += 1
 
-            time.sleep(2)  # Small sleep to prevent GPU overheating in this simple implementation
+            time.sleep(0)  # Small sleep to prevent GPU overheating in this simple implementation
             
             if epoch % 10 == 0:
                 avg_loss = total_loss / count
                 t1 = time.time()
-                print(f"Epoch {epoch} | Avg Loss: {avg_loss:.4f} | Learning Rate: {learning_rate:.6f} | Time: {t1 - t0:.2f}s", flush=True)
+                
+                # Instead of one random line, use a small batch for stability
+                val_subset = validation_lines
+                val_losses = []
+                for v_line in val_subset:
+                    v_tokens = tokenizer.encode_sentence(v_line, seq_len + 1)
+                    v_logits = model.forward(v_tokens[:-1], training=False)
+                    v_probs = softmax_layer.forward(v_logits)
+                    val_losses.append(loss_fn.forward(v_probs, v_tokens[1:]).get())
+                
+                avg_val_loss = onp.mean(onp.array(val_losses))
+
+                print(f"Epoch {epoch} | Avg Loss: {avg_loss:.4f} | Val Loss: {avg_val_loss:.4f} | Learning Rate: {learning_rate:.6f} | Time: {t1 - t0:.2f}s", flush=True)
                 t0 = t1
-                # Sample generation
-                print(f"Sample: {generate_sentence(model, tokenizer, 'The', 10)}", flush=True)
+                # Sample generation (with dropout during training)
+                print(f"Sample: {generate_sentence(model, tokenizer, 'The', 10, training=True)}", flush=True)
+
+                print(f"Sample: {generate_sentence(model, tokenizer, '<SOS>', 10, training=True)}", flush=True)
                 
                 # Save checkpoint every 10 epochs
                 save_model(model, tokenizer, epoch, learning_rate)
 
         # 5. Final Generation and Save
         print("\n--- Final Generated Text ---")
-        print(generate_sentence(model, tokenizer, "Artificial intelligence", 20, k=5))
+        print(generate_sentence(model, tokenizer, "<SOS>", 128, k=5))
         
         # Save final model
         save_final_model(model)
