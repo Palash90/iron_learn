@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import cupy as np
 import numpy as onp
@@ -83,51 +84,66 @@ def load_tokenizer():
         print(f"Error loading tokenizer: {e}")
         return None
 
-def generate_sentence(model, tokenizer, start_text, gen_length, k=5, temperature=1.0, training=False):
-    # Prepare the initial tokens (Words, not characters)
+def generate_answer(model, tokenizer, start_text, gen_length, k=1, temperature=0.1):
+    # 1. Standard Setup
     words = start_text.split()
-    # If starting fresh, you could use [tokenizer.sos_id]
     input_ids = [tokenizer.char_to_id[w] for w in words if w in tokenizer.char_to_id]
     
-    if not input_ids: # Fallback to SOS if no valid start text
-        input_ids = [tokenizer.sos_id]
-        
-    input_tokens = np.array(input_ids, dtype=np.int32)
-    generated_words = words
+    # Use a list to store generated IDs for easier appending
+    generated_ids = list(input_ids)
+
+    obs_text = ""  # To store the latest observation for display
     
     for _ in range(gen_length):
-        # Clip context to model's seq_len
-        curr_input = input_tokens
+        # Prepare context (handle sequence length)
+        curr_input = np.array(generated_ids, dtype=np.int32)
         if len(curr_input) > model.positional_encoding.sequence_length:
             curr_input = curr_input[-model.positional_encoding.sequence_length:]
             
-        logits = model.forward(curr_input, training=training)[-1, :]
-        logits = logits / (temperature + 1e-9)
+        # Forward pass - take the last logit
+        logits = model.forward(curr_input, training=False)[-1, :]
         
-        # Top-k sampling
-        actual_k = min(k, tokenizer.vocab_size)
-        top_k_indices = np.argpartition(logits, -actual_k)[-actual_k:]
-        top_k_values = logits[top_k_indices]
+        # --- SAMPLING LOGIC ---
+        # For Agents, k=1 (Greedy) is much safer than k=5
+        chosen_index = int(np.argmax(logits)) 
         
-        exp_values = np.exp(top_k_values - np.max(top_k_values))
-        probs = (exp_values / np.sum(exp_values)).get().astype('float64')
-        probs /= probs.sum()
-        
-        chosen_index = onp.random.choice(top_k_indices.get(), p=probs)
-        
-        # Stop if model predicts EOS
-        if chosen_index == tokenizer.eos_id:
+        # 2. BREAK CONDITIONS
+        if chosen_index == tokenizer.char_to_id.get("<|end|>", -1):
             break
             
-        # Decode and append word
-        word = tokenizer.id_to_char[int(chosen_index)]
-        if chosen_index > 2: # Skip special tokens like <PAD>
-            generated_words.append(word)
-            
-        input_tokens = np.append(input_tokens, np.array([chosen_index], dtype=np.int32))
-            
-    return " ".join(generated_words) + "\n"
+        generated_ids.append(chosen_index)
+        current_text = " ".join([tokenizer.id_to_char[idx] for idx in generated_ids])
 
+        # 3. THE TOOL HOOK (The "Pause" button)
+        # Check if the model just finished writing an action: e.g., "CALC( 2 + 2 )"
+        if ")" in tokenizer.id_to_char[chosen_index] and "Action:" in current_text:
+            
+            # --- EXECUTE PYTHON TOOL ---
+            if "CALC(" in current_text:
+                # Extract content between CALC( and )
+                print("Tool CALC() called. Evaluating expression for observation.")
+                expr = current_text.split("CALC(")[-1].split(")")[0]
+                print(f"Evaluating expression: {expr}")
+                try:
+                    # BE CAREFUL with eval in production; use a safe math parser if possible
+                    observation = str(eval(expr.replace(' ', '')))
+                except:
+                    observation = "Error"
+            elif "GET_TIME()" in current_text:
+                import datetime
+                print("Tool GET_TIME() called. Injecting current time as observation.")
+                observation = datetime.datetime.now().strftime("%H:%M")
+            else:
+                observation = "Unknown Tool"
+
+            # 4. INJECT THE OBSERVATION
+            # Manually append the result to the conversation
+            print(f"Injected Observation: {observation}")
+            obs_text = f" Answer: {observation}"
+    
+            continue
+
+    return " ".join([tokenizer.id_to_char[idx] for idx in generated_ids]) + obs_text
 # --- Main Logic ---
 
 def main():
@@ -166,11 +182,11 @@ def main():
 
     # 3. Model Hyperparameters
     d_model = 128    # Increased for word embeddings
-    num_heads = 8
+    num_heads = 16
     d_ff = 512
-    seq_len = 128
-    learning_rate = 0.001
-    epochs = 111
+    seq_len = 32
+    learning_rate = 0.01
+    epochs = 840
     start_epoch = 0
     dropout_p = 0.1
 
@@ -206,18 +222,19 @@ def main():
             return
         
         k = 20
-        temp = 0.8
+        temp = 0
         gen_length = 16
         sample = 20
 
         print(f"Generating {sample} tokens with k={k}, temperature={temp}, and gen_length={gen_length}:\n")
 
-        for i in range(sample):
-            print(f"\n--- Generated Text #{i+1} ---")
-            #print(generate_sentence(model, tokenizer, "Artificial intelligence", gen_lenth, temperature=temp, k=k))
-            #print(generate_sentence(model, tokenizer, "The", gen_lenth, temperature=temp, k=20))
-            #print(generate_sentence(model, tokenizer, "Machine learning", gen_lenth, temperature=temp, k=3))
-            print(generate_sentence(model, tokenizer, "<SOS>", gen_length, temperature=temp, k=k))
+        user_input = ""
+
+        while user_input != "exit":
+            user_input = input("Enter a prompt (or 'exit' to quit): ")
+            if user_input == "exit":
+                break
+            print(generate_answer(model, tokenizer, user_input, gen_length, temperature=temp, k=k))
         
         return
 
@@ -265,7 +282,7 @@ def main():
                 
                 count += 1
 
-            time.sleep(0)  # Small sleep to prevent GPU overheating in this simple implementation
+            time.sleep(0.1)  # Small sleep to prevent GPU overheating in this simple implementation
             
             if epoch % 10 == 0:
                 avg_loss = total_loss / count
@@ -282,26 +299,22 @@ def main():
                 
                 avg_val_loss = onp.mean(onp.array(val_losses))
 
-                print(f"Epoch {epoch} | Avg Loss: {avg_loss:.4f} | Val Loss: {avg_val_loss:.4f} | Learning Rate: {learning_rate:.6f} | Time: {t1 - t0:.2f}s", flush=True)
+                print(f"{datetime.now()} Epoch {epoch} | Avg Loss: {avg_loss:.4f} | Val Loss: {avg_val_loss:.4f} | Learning Rate: {learning_rate:.6f} | Time: {t1 - t0:.2f}s", flush=True)
                 t0 = t1
                 # Sample generation (with dropout during training)
-                print(f"Sample: {generate_sentence(model, tokenizer, 'User: time please', 10, training=True)}", flush=True)
+                print(f"Sample: {generate_answer(model, tokenizer, 'User: time please', 10, temperature=0)}", flush=True)
 
-                print(f"Sample: {generate_sentence(model, tokenizer, 'User: 4 subtract 2 = ?', 10, training=True)}", flush=True)
+                print(f"Sample: {generate_answer(model, tokenizer, 'User: 4 subtract 2 = ?', 10, temperature=0)}", flush=True)
 
-                print(f"Sample: {generate_sentence(model, tokenizer, 'User: current time', 10, training=True)}", flush=True)
+                print(f"Sample: {generate_answer(model, tokenizer, 'User: current time', 10, temperature=0)}", flush=True)
 
-                print(f"Sample: {generate_sentence(model, tokenizer, 'User: 3 sum 2 = ?', 10, training=True)}", flush=True)
+                print(f"Sample: {generate_answer(model, tokenizer, 'User: 3 sum 2 = ?', 10, temperature=0)}", flush=True)
 
-                print(f"Sample: {generate_sentence(model, tokenizer, 'User: 40 minus 27 = ?', 10, training=True)}", flush=True)
+                print(f"Sample: {generate_answer(model, tokenizer, 'User: 40 minus 27 = ?', 10, temperature=0)}", flush=True)
                 
                 # Save checkpoint every 10 epochs
                 save_model(model, tokenizer, epoch, learning_rate)
 
-        # 5. Final Generation and Save
-        print("\n--- Final Generated Text ---")
-        print(generate_sentence(model, tokenizer, "<SOS>", 128, k=5))
-        
         # Save final model
         save_final_model(model)
 

@@ -293,7 +293,7 @@ class Transformer:
         self.embedding = Embedding(vocab_size, d_model)
         self.positional_encoding = PositionalEncoding(d_model, sequence_length)
         self.emb_dropout = Dropout(dropout_p)
-        self.attention = Attention(d_model, num_heads)
+        self.attention = Attention_ND(d_model, num_heads)
         self.dropout1 = Dropout(dropout_p)
         self.dropout2 = Dropout(dropout_p)
         self.feed_forward = FeedForward(d_model, d_ff)

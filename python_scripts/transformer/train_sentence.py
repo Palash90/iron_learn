@@ -15,8 +15,8 @@ except Exception as e:
     print(f"GPU not found or error: {e}")
 
 # Model checkpoint path
-MODEL_PATH = "model.bin"
-TOKENIZER_PATH = "tokenizer.pkl"
+MODEL_PATH = "tiny_shakespeare_model.bin"
+TOKENIZER_PATH = "tiny_shakespeare_tokenizer.pkl"
 CHECKPOINT_PATH = "checkpoint.pkl"
 
 def save_model(model, tokenizer, epoch, learning_rate):
@@ -133,7 +133,7 @@ def generate_sentence(model, tokenizer, start_text, gen_length, k=5, temperature
 def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Transformer sentence generation with save/load/resume')
-    parser.add_argument('--train', action='store_true', help='Train the model and save to model.bin')
+    parser.add_argument('--train', action='store_true', help='Train the model and save to tiny_shakespeare_model.bin')
     parser.add_argument('--resume', action='store_true', help='Resume training from last checkpoint')
     parser.add_argument('--load', action='store_true', help='Load model and generate text (inference only)')
     

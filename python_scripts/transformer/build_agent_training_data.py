@@ -16,7 +16,7 @@ def generate_agent_training_data(count=5000):
         # 50% Math, 50% Time
         if i % 2 == 0:
             # --- MATH CASE ---
-            a, b = random.randint(1, 100), random.randint(1, 100)
+            a, b = random.randint(1, 10), random.randint(1, 10)
             word_op, symbol = random.choice(list(ops.items()))
             
             # Ensure no division by zero
@@ -28,10 +28,9 @@ def generate_agent_training_data(count=5000):
             res = round(eval(f"{a}{symbol}{b}"), 2)
             
             entry = (
-                f"User: {a} {word_op} {b} = ?\n"
-                f"Thought: need arithmetic.\n"
-                f"Action: CALC({a}{symbol}{b})\n"
-                f"Observation: {res}\n"
+                f"User: {a} {word_op} {b} = ? "
+                f"Thought: need arithmetic. "
+                f"Action: CALC( {a} {symbol} {b} ) "
                 f"Answer: {res} <|end|>"
             )
         else:
@@ -44,10 +43,9 @@ def generate_agent_training_data(count=5000):
             fake_time = f"{h:02d}:{m:02d}"
             
             entry = (
-                f"User: {q}\n"
-                f"Thought: need clock.\n"
-                f"Action: GET_TIME()\n"
-                f"Observation: {fake_time}\n"
+                f"User: {q} "
+                f"Thought: need clock. "
+                f"Action: GET_TIME() "
                 f"Answer: {fake_time} <|end|>"
             )
         
@@ -56,7 +54,7 @@ def generate_agent_training_data(count=5000):
     return dataset
 
 # Generate and save
-train_data = generate_agent_training_data(5000)
+train_data = generate_agent_training_data(10000)
 with open("../../data/agent_data.txt", "w") as f:
     f.write("\n\n".join(train_data))
 
